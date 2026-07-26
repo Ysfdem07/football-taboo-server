@@ -20,7 +20,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: smtpUser,
     pass: smtpPass
-  }
+  },
+  connectionTimeout: 10000, // 10 seconds connection timeout
+  socketTimeout: 10000      // 10 seconds socket timeout
 });
 
 async function sendResetEmail(email, username, code) {
