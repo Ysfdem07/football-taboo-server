@@ -11,6 +11,10 @@ const nodemailer = require('nodemailer');
 const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME || process.env.smtp_user || process.env.smtp_username || '';
 const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || process.env.smtp_pass || process.env.smtp_password || '';
 
+// Diagnostic variables to trace mail sending status remotely
+let mailErrorLog = 'None';
+let mailSuccessLog = 'None';
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -28,16 +32,23 @@ async function sendResetEmail(email, username, code) {
   };
 
   if (!smtpUser || !smtpPass) {
-    console.warn(`[Mail Warning] SMTP user or pass is not set. Resending code via logs:`);
-    console.log(`[Reset Code for ${email}]: ${code}`);
+    const msg = `SMTP user or pass is not set. Resending code via logs: [Reset Code for ${email}]: ${code}`;
+    console.warn(`[Mail Warning] ${msg}`);
+    mailErrorLog = `Configuration missing: ${msg}`;
     return;
   }
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Reset email sent successfully to ${email}`);
+    const msg = `Reset email sent successfully to ${email} at ${new Date().toISOString()}`;
+    console.log(msg);
+    mailSuccessLog = msg;
+    mailErrorLog = 'None';
   } catch (err) {
-    console.error('Failed to send reset email:', err);
+    const msg = `Failed to send reset email to ${email}: ${err.stack || err.message || err}`;
+    console.error(msg);
+    mailErrorLog = msg;
+    mailSuccessLog = 'None';
   }
 }
 
@@ -124,7 +135,9 @@ app.get('/health', (req, res) => {
     mongodb_uri: maskedUri, 
     time: new Date(),
     smtp_user_exists: !!smtpUser,
-    smtp_pass_exists: !!smtpPass
+    smtp_pass_exists: !!smtpPass,
+    mail_success_log: mailSuccessLog,
+    mail_error_log: mailErrorLog
   });
 });
 
