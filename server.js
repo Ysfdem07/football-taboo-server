@@ -5,6 +5,37 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
+
+async function sendResetEmail(email, username, code) {
+  const mailOptions = {
+    from: `"FutTaboo Destek" <${process.env.SMTP_USER || 'no-reply@futtaboo.com'}>`,
+    to: email,
+    subject: 'FutTaboo - Şifre Sıfırlama Kodu',
+    text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
+  };
+
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn(`[Mail Warning] SMTP_USER or SMTP_PASS is not set. Resending code via logs:`);
+    console.log(`[Reset Code for ${email}]: ${code}`);
+    return;
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Reset email sent successfully to ${email}`);
+  } catch (err) {
+    console.error('Failed to send reset email:', err);
+  }
+}
 
 function normalizeText(text) {
   if (!text) return '';
@@ -176,6 +207,29 @@ io.on('connection', (socket) => {
       socket.emit('login_response', { success: false, error: result.error });
     } else {
       socket.emit('login_response', { success: true, player: result.player });
+    }
+  });
+
+  // Forgot Password Code Request
+  socket.on('forgot_password', async (data) => {
+    const { email } = data;
+    const result = await db.generateResetCode(email);
+    if (result.error) {
+      socket.emit('forgot_password_response', { success: false, error: result.error });
+    } else {
+      await sendResetEmail(email, result.username, result.code);
+      socket.emit('forgot_password_response', { success: true, message: 'Doğrulama kodu e-posta adresinize gönderildi.' });
+    }
+  });
+
+  // Reset Password Verification
+  socket.on('reset_password', async (data) => {
+    const { email, code, newPassword } = data;
+    const result = await db.resetPasswordWithCode(email, code, newPassword);
+    if (result.error) {
+      socket.emit('reset_password_response', { success: false, error: result.error });
+    } else {
+      socket.emit('reset_password_response', { success: true, player: result.player, message: 'Şifreniz başarıyla sıfırlandı!' });
     }
   });
 

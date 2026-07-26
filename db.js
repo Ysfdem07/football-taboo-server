@@ -27,7 +27,9 @@ const playerSchema = new mongoose.Schema({
   matches_played: { type: Number, default: 0 },
   matches_won: { type: Number, default: 0 },
   correct_guesses: { type: Number, default: 0 },
-  taboos: { type: Number, default: 0 }
+  taboos: { type: Number, default: 0 },
+  resetCode: { type: String, default: null },
+  resetExpires: { type: Date, default: null }
 });
 
 const Player = mongoose.model('Player', playerSchema);
@@ -94,5 +96,41 @@ module.exports = {
       .sort({ kp: -1 })
       .limit(50);
     return players.map(p => p.toObject());
+  },
+
+  generateResetCode: async (email) => {
+    await connectDB();
+    const player = await Player.findOne({ email: new RegExp(`^${email.trim()}$`, 'i') });
+    if (!player) return { error: 'Bu e-posta adresine kayıtlı bir kullanıcı bulunamadı!' };
+
+    // Generate random 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    player.resetCode = code;
+    player.resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes validity
+    await player.save();
+
+    return { success: true, code, username: player.username };
+  },
+
+  resetPasswordWithCode: async (email, code, newPassword) => {
+    await connectDB();
+    const player = await Player.findOne({ email: new RegExp(`^${email.trim()}$`, 'i') });
+    if (!player) return { error: 'Bu e-posta adresine kayıtlı bir kullanıcı bulunamadı!' };
+
+    if (!player.resetCode || player.resetCode !== code.trim()) {
+      return { error: 'Geçersiz sıfırlama kodu!' };
+    }
+
+    if (!player.resetExpires || player.resetExpires < new Date()) {
+      return { error: 'Sıfırlama kodunun süresi dolmuş!' };
+    }
+
+    // Update password and clear reset code fields
+    player.password = newPassword;
+    player.resetCode = null;
+    player.resetExpires = null;
+    await player.save();
+
+    return { success: true, player: player.toObject() };
   }
 };
