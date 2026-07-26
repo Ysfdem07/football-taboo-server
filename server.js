@@ -336,10 +336,41 @@ io.on('connection', (socket) => {
     const { email } = data;
     const result = await db.generateResetCode(email);
     if (result.error) {
-      socket.emit('forgot_password_response', { success: false, error: result.error });
+      return socket.emit('forgot_password_response', { success: false, error: result.error });
+    }
+
+    const resendKey = process.env.RESEND_API_KEY || '';
+    if (resendKey) {
+      try {
+        await sendResendEmail(email, result.username, result.code);
+        
+        // Log success
+        const msg = `Reset email sent successfully via Resend API to ${email}`;
+        mailSuccessLog = msg;
+        mailErrorLog = 'None';
+        try { await db.saveLog('smtp_success', msg); } catch(e) {}
+
+        socket.emit('forgot_password_response', { 
+          success: true, 
+          message: 'Doğrulama kodu e-posta adresinize gönderildi.'
+        });
+      } catch (err) {
+        // Log error
+        const msg = `Failed to send reset email via Resend to ${email}: ${err.message || err}`;
+        mailErrorLog = msg;
+        mailSuccessLog = 'None';
+        try { await db.saveLog('smtp_error', msg); } catch(e) {}
+
+        // Return error to client so they see the API error immediately
+        socket.emit('forgot_password_response', { 
+          success: false, 
+          error: `E-posta gönderilemedi: ${err.message}`
+        });
+      }
     } else {
+      // Fallback: SMTP / Developer Mode
       const hasSMTP = !!(smtpUser && smtpPass);
-      sendResetEmail(email, result.username, result.code); // Run in background, do not await
+      sendResetEmail(email, result.username, result.code); // SMTP can run in background
       socket.emit('forgot_password_response', { 
         success: true, 
         message: hasSMTP ? 'Doğrulama kodu e-posta adresinize gönderildi.' : 'Geliştirici Modu: Kod sunucu tarafından üretildi.',
