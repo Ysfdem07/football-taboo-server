@@ -28,6 +28,60 @@ function normalizeText(text) {
 const app = express();
 app.use(cors());
 
+// Seed route to insert initial players into MongoDB Atlas
+app.get('/seed-players', async (req, res) => {
+  try {
+    await db.connectDB();
+    const mongoose = require('mongoose');
+    const Player = mongoose.model('Player');
+    
+    const existingPlayers = [
+      {
+        id: 'player_d2qebyx51',
+        username: 'Lionel Yusuf',
+        password: 'Ysfdem88',
+        avatar: '🦅',
+        kp: 0,
+        matches_played: 9,
+        matches_won: 2,
+        correct_guesses: 0,
+        taboos: 0
+      },
+      {
+        id: 'player_7j9cehjaz',
+        username: 'toledo7',
+        password: 'Kaandikbasan1',
+        avatar: '⚽',
+        kp: 275,
+        matches_played: 10,
+        matches_won: 7,
+        correct_guesses: 0,
+        taboos: 0
+      }
+    ];
+
+    const results = [];
+    for (const p of existingPlayers) {
+      const exists = await Player.findOne({ id: p.id });
+      if (exists) {
+        await Player.updateOne({ id: p.id }, p);
+        results.push(`Updated ${p.username}`);
+      } else {
+        await Player.create(p);
+        results.push(`Created ${p.username}`);
+      }
+    }
+    res.json({ success: true, message: 'Players seeded successfully!', details: results });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date() });
+});
+
 const server = http.createServer(app);
 const io = require('socket.io')(server, {
   pingTimeout: 120000,
