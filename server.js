@@ -112,11 +112,16 @@ app.get('/seed-players', async (req, res) => {
   }
 });
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   const uri = process.env.MONGODB_URI || 'not-set';
   const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
-  res.json({ status: 'ok', mongodb_uri: maskedUri, time: new Date() });
+  res.json({ 
+    status: 'ok', 
+    mongodb_uri: maskedUri, 
+    time: new Date(),
+    smtp_user_exists: !!process.env.SMTP_USER,
+    smtp_pass_exists: !!process.env.SMTP_PASS
+  });
 });
 
 const server = http.createServer(app);
