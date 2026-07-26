@@ -41,6 +41,8 @@ app.get('/seed-players', async (req, res) => {
         username: 'Lionel Yusuf',
         password: 'Ysfdem88',
         avatar: '🦅',
+        email: 'yusuf@futtaboo.com',
+        marketingConsent: true,
         kp: 0,
         matches_played: 9,
         matches_won: 2,
@@ -52,6 +54,8 @@ app.get('/seed-players', async (req, res) => {
         username: 'toledo7',
         password: 'Kaandikbasan1',
         avatar: '⚽',
+        email: 'kaan@futtaboo.com',
+        marketingConsent: true,
         kp: 275,
         matches_played: 10,
         matches_won: 7,
@@ -155,8 +159,8 @@ io.on('connection', (socket) => {
 
   // Profile Registration
   socket.on('register_profile', async (data) => {
-    const { username, password, avatar } = data;
-    const result = await db.registerPlayer(username, password, avatar);
+    const { username, password, avatar, email, marketingConsent } = data;
+    const result = await db.registerPlayer(username, password, avatar, email, marketingConsent);
     if (result.error) {
       socket.emit('register_response', { success: false, error: result.error });
     } else {

@@ -20,6 +20,8 @@ const playerSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  marketingConsent: { type: Boolean, default: false },
   avatar: { type: String, default: '⚽' },
   kp: { type: Number, default: 0 },
   matches_played: { type: Number, default: 0 },
@@ -33,16 +35,22 @@ const Player = mongoose.model('Player', playerSchema);
 module.exports = {
   connectDB,
 
-  registerPlayer: async (username, password, avatar) => {
+  registerPlayer: async (username, password, avatar, email, marketingConsent) => {
     await connectDB();
     const existing = await Player.findOne({ username: new RegExp(`^${username}$`, 'i') });
     if (existing) return { error: 'Bu kullanıcı adı zaten alınmış!' };
+
+    if (!email || !email.trim()) return { error: 'E-posta adresi gereklidir!' };
+    const existingEmail = await Player.findOne({ email: new RegExp(`^${email.trim()}$`, 'i') });
+    if (existingEmail) return { error: 'Bu e-posta adresi zaten kullanımda!' };
 
     const newPlayer = {
       id: 'player_' + Math.random().toString(36).substr(2, 9),
       username: username.trim(),
       password: password,
       avatar: avatar || '⚽',
+      email: email.trim(),
+      marketingConsent: !!marketingConsent,
       kp: 0,
       matches_played: 0,
       matches_won: 0,
