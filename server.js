@@ -217,8 +217,14 @@ io.on('connection', (socket) => {
     if (result.error) {
       socket.emit('forgot_password_response', { success: false, error: result.error });
     } else {
+      const hasSMTP = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
       await sendResetEmail(email, result.username, result.code);
-      socket.emit('forgot_password_response', { success: true, message: 'Doğrulama kodu e-posta adresinize gönderildi.' });
+      socket.emit('forgot_password_response', { 
+        success: true, 
+        message: hasSMTP ? 'Doğrulama kodu e-posta adresinize gönderildi.' : 'Geliştirici Modu: Kod sunucu tarafından üretildi.',
+        code: hasSMTP ? null : result.code,
+        devMode: !hasSMTP
+      });
     }
   });
 
