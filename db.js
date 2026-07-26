@@ -34,8 +34,24 @@ const playerSchema = new mongoose.Schema({
 
 const Player = mongoose.model('Player', playerSchema);
 
+const systemLogSchema = new mongoose.Schema({
+  type: { type: String, required: true },
+  message: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+
+const SystemLog = mongoose.model('SystemLog', systemLogSchema);
+
 module.exports = {
   connectDB,
+  saveLog: async (type, message) => {
+    await connectDB();
+    await SystemLog.create({ type, message });
+  },
+  getLogs: async (type, limit = 5) => {
+    await connectDB();
+    return await SystemLog.find({ type }).sort({ timestamp: -1 }).limit(limit);
+  },
 
   registerPlayer: async (username, password, avatar, email, marketingConsent) => {
     await connectDB();

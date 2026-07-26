@@ -35,6 +35,7 @@ async function sendResetEmail(email, username, code) {
     const msg = `SMTP user or pass is not set. Resending code via logs: [Reset Code for ${email}]: ${code}`;
     console.warn(`[Mail Warning] ${msg}`);
     mailErrorLog = `Configuration missing: ${msg}`;
+    try { await db.saveLog('smtp_error', msg); } catch(e) {}
     return;
   }
 
@@ -44,11 +45,13 @@ async function sendResetEmail(email, username, code) {
     console.log(msg);
     mailSuccessLog = msg;
     mailErrorLog = 'None';
+    try { await db.saveLog('smtp_success', msg); } catch(e) {}
   } catch (err) {
     const msg = `Failed to send reset email to ${email}: ${err.stack || err.message || err}`;
     console.error(msg);
     mailErrorLog = msg;
     mailSuccessLog = 'None';
+    try { await db.saveLog('smtp_error', msg); } catch(e) {}
   }
 }
 
@@ -127,9 +130,17 @@ app.get('/seed-players', async (req, res) => {
   }
 });
 
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
   const uri = process.env.MONGODB_URI || 'not-set';
   const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
+  
+  let dbSuccessLogs = [];
+  let dbErrorLogs = [];
+  try {
+    dbSuccessLogs = await db.getLogs('smtp_success', 3);
+    dbErrorLogs = await db.getLogs('smtp_error', 3);
+  } catch(e) {}
+
   res.json({ 
     status: 'ok', 
     mongodb_uri: maskedUri, 
@@ -137,7 +148,9 @@ app.get('/health', (req, res) => {
     smtp_user_exists: !!smtpUser,
     smtp_pass_exists: !!smtpPass,
     mail_success_log: mailSuccessLog,
-    mail_error_log: mailErrorLog
+    mail_error_log: mailErrorLog,
+    db_success_logs: dbSuccessLogs.map(l => l.message),
+    db_error_logs: dbErrorLogs.map(l => l.message)
   });
 });
 
