@@ -227,7 +227,7 @@ io.on('connection', (socket) => {
       socket.emit('forgot_password_response', { success: false, error: result.error });
     } else {
       const hasSMTP = !!(smtpUser && smtpPass);
-      await sendResetEmail(email, result.username, result.code);
+      sendResetEmail(email, result.username, result.code); // Run in background, do not await
       socket.emit('forgot_password_response', { 
         success: true, 
         message: hasSMTP ? 'Doğrulama kodu e-posta adresinize gönderildi.' : 'Geliştirici Modu: Kod sunucu tarafından üretildi.',
