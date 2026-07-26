@@ -79,7 +79,9 @@ app.get('/seed-players', async (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date() });
+  const uri = process.env.MONGODB_URI || 'not-set';
+  const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
+  res.json({ status: 'ok', mongodb_uri: maskedUri, time: new Date() });
 });
 
 const server = http.createServer(app);
