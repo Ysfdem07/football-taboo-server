@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const https = require('https');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const fs = require('fs');
@@ -25,14 +26,89 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 10000      // 10 seconds socket timeout
 });
 
-async function sendResetEmail(email, username, code) {
-  const mailOptions = {
-    from: `"FutTaboo Destek" <${smtpUser || 'no-reply@futtaboo.com'}>`,
-    to: email,
-    subject: 'FutTaboo - Şifre Sıfırlama Kodu',
-    text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
-  };
+// Send mail using Resend API over HTTPS (Bypasses Render SMTP port blocking)
+function sendResendEmail(email, username, code) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      from: 'FutTaboo Destek <onboarding@resend.dev>',
+      to: [email],
+      subject: 'FutTaboo - Şifre Sıfırlama Kodu',
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
+          <h2 style="color: #4CAF50;">Merhaba ${username},</h2>
+          <p>FutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.</p>
+          <p style="font-size: 16px; margin: 20px 0;">Şifre sıfırlama kodunuz:</p>
+          <div style="background-color: #f9f9f9; padding: 15px; text-align: center; border-radius: 4px; font-size: 28px; font-weight: bold; letter-spacing: 4px; color: #4CAF50; border: 1px dashed #4CAF50;">
+            ${code}
+          </div>
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">Bu kod 15 dakika süreyle geçerlidir.</p>
+          <p style="color: #999; font-size: 12px;">Eğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 14px; font-weight: bold; color: #4CAF50;">FutTaboo Ekibi</p>
+        </div>
+      `
+    });
 
+    const options = {
+      hostname: 'api.resend.com',
+      port: 443,
+      path: '/emails',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY || ''}`
+      },
+      timeout: 10000 // 10s timeout
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(body);
+        } else {
+          reject(new Error(`Resend API returned status ${res.statusCode}: ${body}`));
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      reject(err);
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Resend API request timed out after 10s'));
+    });
+
+    req.write(data);
+    req.end();
+  });
+}
+
+async function sendResetEmail(email, username, code) {
+  const resendKey = process.env.RESEND_API_KEY || '';
+  
+  if (resendKey) {
+    try {
+      await sendResendEmail(email, username, code);
+      const msg = `Reset email sent successfully via Resend API to ${email} at ${new Date().toISOString()}`;
+      console.log(msg);
+      mailSuccessLog = msg;
+      mailErrorLog = 'None';
+      try { await db.saveLog('smtp_success', msg); } catch(e) {}
+    } catch (err) {
+      const msg = `Failed to send reset email via Resend to ${email}: ${err.stack || err.message || err}`;
+      console.error(msg);
+      mailErrorLog = msg;
+      mailSuccessLog = 'None';
+      try { await db.saveLog('smtp_error', msg); } catch(e) {}
+    }
+    return;
+  }
+
+  // Fallback to Nodemailer SMTP
   if (!smtpUser || !smtpPass) {
     const msg = `SMTP user or pass is not set. Resending code via logs: [Reset Code for ${email}]: ${code}`;
     console.warn(`[Mail Warning] ${msg}`);
@@ -40,6 +116,13 @@ async function sendResetEmail(email, username, code) {
     try { await db.saveLog('smtp_error', msg); } catch(e) {}
     return;
   }
+
+  const mailOptions = {
+    from: `"FutTaboo Destek" <${smtpUser || 'no-reply@futtaboo.com'}>`,
+    to: email,
+    subject: 'FutTaboo - Şifre Sıfırlama Kodu',
+    text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
+  };
 
   try {
     await transporter.sendMail(mailOptions);
@@ -147,6 +230,7 @@ app.get('/health', async (req, res) => {
     status: 'ok', 
     mongodb_uri: maskedUri, 
     time: new Date(),
+    resend_api_active: !!process.env.RESEND_API_KEY,
     smtp_user_exists: !!smtpUser,
     smtp_pass_exists: !!smtpPass,
     mail_success_log: mailSuccessLog,
