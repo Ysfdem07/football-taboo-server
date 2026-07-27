@@ -83,7 +83,10 @@ module.exports = {
   loginPlayer: async (username, password) => {
     await connectDB();
     const player = await Player.findOne({
-      username: new RegExp(`^${username.trim()}$`, 'i'),
+      $or: [
+        { username: new RegExp(`^${username.trim()}$`, 'i') },
+        { email: new RegExp(`^${username.trim()}$`, 'i') }
+      ],
       password: password
     });
     if (!player) return { error: 'Hatalı kullanıcı adı veya şifre!' };
