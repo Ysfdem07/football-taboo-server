@@ -4,7 +4,16 @@
     "newArchEnabled": true,
     "name": "FootballTaboo",
     "slug": "FootballTaboo",
+    "owner": "ysfdem",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b0f238c2-3524-4f60-beb6-63f5f9911f4e",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
