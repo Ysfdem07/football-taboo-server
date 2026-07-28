@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "645350484367",
+    "project_id": "wordrushtr-928c2",
+    "storage_bucket": "wordrushtr-928c2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:645350484367:android:af5c440ffdd517afd243fa",
+        "android_client_info": {
+          "package_name": "com.ysfdem.footballtaboo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARh7xwUbxonoiqqgOHmK4LuHZXc9kAb_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,26 @@
+{
+  "players": [
+    {
+      "id": "player_d2qebyx51",
+      "username": "Lionel Yusuf",
+      "password": "Ysfdem88",
+      "avatar": "🦅",
+      "kp": 0,
+      "matches_played": 9,
+      "matches_won": 2,
+      "correct_guesses": 0,
+      "taboos": 0
+    },
+    {
+      "id": "player_7j9cehjaz",
+      "username": "toledo7",
+      "password": "Kaandikbasan1",
+      "avatar": "⚽",
+      "kp": 275,
+      "matches_played": 10,
+      "matches_won": 7,
+      "correct_guesses": 0,
+      "taboos": 0
+    }
+  ]
+}

@@ -1,0 +1,694 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, ImageBackground, TextInput, Alert, Image, useWindowDimensions } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { Colors } from '../constants/Colors';
+import { getSocket, fetchTunnelUrl, initSocketWithUrl, SOCKET_URL } from '../services/socket';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { Analytics } from '../services/analytics';
+import { BannerAdComponent } from '../services/ads';
+
+type Props = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'OnlineLobby'>;
+};
+
+export default function OnlineLobbyScreen({ navigation }: Props) {
+  const [lobbyStatus, setLobbyStatus] = useState<'idle' | 'searching_match' | 'creating_room' | 'joining_room'>('idle');
+  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [roomCodeInput, setRoomCodeInput] = useState('');
+  const [playerName, setPlayerName] = useState('Misafir');
+  const [maxRounds, setMaxRounds] = useState(10);
+  const [socket, setSocket] = useState<any>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [showRankedOptions, setShowRankedOptions] = useState(false);
+  const [showFriendlyOptions, setShowFriendlyOptions] = useState(false);
+  const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(false);
+
+  useEffect(() => {
+    Analytics.logScreenView('OnlineLobby');
+    // Component yüklendiğinde otomatik olarak tünel URL'ini çek (Sadece ilk girişte)
+    const initDynamicTunnel = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@logged_in_profile');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setProfile(parsed);
+          setPlayerName(parsed.username);
+        }
+        
+        const tunnel = await fetchTunnelUrl();
+        if (tunnel) {
+          // Arka planda sessizce socket'i yeni URL ile başlat
+          const s = initSocketWithUrl(tunnel);
+          setSocket(s);
+
+          // Background profile sync to update cached email and stats
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            s.emit('login_profile', { username: parsed.username, password: parsed.password });
+            s.once('login_response', async (res: any) => {
+              if (res.success) {
+                const updatedSession = { ...res.player, password: parsed.password };
+                await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(updatedSession));
+                setProfile(updatedSession);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        // Hata olursa varsayılan ile devam et
+      }
+    };
+    initDynamicTunnel();
+    
+    return () => {
+      if (socket) socket.disconnect();
+    };
+  }, []);
+
+  const ensureSocket = async (callback: (s: any) => void, onError: () => void) => {
+    setIsConnecting(true);
+    
+    let s = getSocket();
+    
+    s.off('connect');
+    s.off('connect_error');
+    s.off('match_found');
+    s.off('room_created');
+    s.off('room_joined');
+    s.off('join_error');
+
+    if (s.connected) {
+      setIsConnecting(false);
+      callback(s);
+    } else {
+      const timeout = setTimeout(() => {
+        s.off('connect');
+        setIsConnecting(false);
+        onError();
+      }, 30000); // 30 saniye zaman aşımı
+
+      s.on('connect', () => {
+        clearTimeout(timeout);
+        setIsConnecting(false);
+        callback(s);
+      });
+      s.connect();
+    }
+    setSocket(s);
+  };
+
+  const findMatch = () => {
+    if (!profile || !profile.email) {
+      Alert.alert(
+        'Dereceli Mod İsteği',
+        'Dereceli düello oynamak ve Kariyer Puanı (KP) kazanmak için profilinize e-posta ile giriş yapmalısınız.',
+        [
+          { text: 'İptal', style: 'cancel' },
+          { text: 'Profile Git', onPress: () => navigation.navigate('Profile') }
+        ]
+      );
+      return;
+    }
+    Analytics.logEvent('join_queue_start');
+    setLobbyStatus('searching_match');
+    ensureSocket((s) => {
+      s.emit('join_queue', { 
+        name: playerName.trim() || 'Oyuncu',
+        dbPlayerId: profile?.id || null 
+      });
+      s.on('match_found', (data: any) => {
+        Analytics.logEvent('join_queue_success', { roomId: data.roomId });
+        setLobbyStatus('idle');
+        navigation.navigate('OnlineGame', { roomId: data.roomId });
+      });
+    }, () => {
+      Analytics.logEvent('join_queue_failed');
+      setLobbyStatus('idle');
+      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen uygulamayı yenileyin veya internetinizi kontrol edin.');
+    });
+  };
+
+  const createRoom = (isRanked = false) => {
+    if (isRanked && (!profile || !profile.email)) {
+      Alert.alert(
+        'Dereceli Mod İsteği',
+        'Dereceli düello oynamak ve Kariyer Puanı (KP) kazanmak için profilinize e-posta ile giriş yapmalısınız.',
+        [
+          { text: 'İptal', style: 'cancel' },
+          { text: 'Profile Git', onPress: () => navigation.navigate('Profile') }
+        ]
+      );
+      return;
+    }
+    Analytics.logEvent('create_room_start', { isRanked });
+    setLobbyStatus('creating_room');
+    ensureSocket((s) => {
+      s.emit('create_room', { 
+        name: playerName.trim() || 'Oyuncu', 
+        maxRounds: isRanked ? 10 : maxRounds,
+        isRanked,
+        dbPlayerId: profile?.id || null
+      });
+      s.on('room_created', (data: any) => {
+        Analytics.logEvent('create_room_success', { roomId: data.roomId, isRanked });
+        setLobbyStatus('idle');
+        navigation.navigate('RoomLobby', { roomId: data.roomId, roomCode: data.roomCode, isHost: true });
+      });
+    }, () => {
+      Analytics.logEvent('create_room_failed', { isRanked });
+      setLobbyStatus('idle');
+      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
+    });
+  };
+
+  const joinRoom = () => {
+    if (!roomCodeInput.trim()) return;
+    Analytics.logEvent('join_room_start', { roomCode: roomCodeInput.trim() });
+    setLobbyStatus('joining_room');
+    ensureSocket((s) => {
+      s.emit('join_room', { 
+        roomCode: roomCodeInput.trim(), 
+        name: playerName.trim() || 'Oyuncu',
+        dbPlayerId: profile?.id || null
+      });
+      
+      s.on('room_joined', (data: any) => {
+        Analytics.logEvent('join_room_success', { roomId: data.roomId });
+        setLobbyStatus('idle');
+        navigation.navigate('RoomLobby', { roomId: data.roomId, roomCode: data.roomCode, isHost: false });
+      });
+      
+      s.on('join_error', (data: any) => {
+        Analytics.logEvent('join_room_error', { message: data.message });
+        setLobbyStatus('idle');
+        Alert.alert('Hata', data.message);
+      });
+    }, () => {
+      Analytics.logEvent('join_room_failed');
+      setLobbyStatus('idle');
+      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
+    });
+  };
+
+  const { width } = useWindowDimensions();
+  // Card size calc
+  const mainCardSize = Math.min((width - 20 * 2 - 14) / 2, 175);
+  const mainIconSize = Math.round(mainCardSize * 0.48);
+  const subCardW = Math.floor((width - 40 - 16) / 3);
+  const subIconSize = Math.round(subCardW * 0.52);
+
+  return (
+    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+      <View style={styles.cyberOverlay} />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.mainWrapper}>
+          <Text style={styles.title}>DÜELLO</Text>
+          <Text style={styles.subtitle}>Gerçek Zamanlı Online Mod</Text>
+          {lobbyStatus !== 'idle' ? (
+          <View style={styles.searchingContainer}>
+            <ActivityIndicator size="large" color="#00FF88" />
+            <Text style={styles.searchingText}>
+              {lobbyStatus === 'searching_match' ? 'Rakip Aranıyor...' : 
+               lobbyStatus === 'creating_room' ? 'Oda Kuruluyor...' : 'Odaya Bağlanılıyor...'}
+            </Text>
+            <TouchableOpacity 
+              style={[styles.button, styles.cancelButton, { marginTop: 25, width: 200 }]} 
+              onPress={() => {
+                setLobbyStatus('idle');
+                if (socket) socket.disconnect();
+              }}
+            >
+              <Text style={styles.buttonText}>İPTAL ET</Text>
+            </TouchableOpacity>
+          </View>
+        ) : showJoinInput ? (
+          <View style={[styles.searchingContainer, { width: '100%', paddingHorizontal: 20 }]}>
+            <TextInput 
+              style={[styles.input, { width: '100%', height: 60, fontSize: 22 }]} 
+              placeholder="ODA KODU GİRİN" 
+              placeholderTextColor="#aaa" 
+              autoCapitalize="characters" 
+              value={roomCodeInput} 
+              onChangeText={setRoomCodeInput} 
+            />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 10 }}>
+              <TouchableOpacity style={[styles.button, { flex: 1, marginRight: 5 }]} onPress={joinRoom}>
+                <Text style={styles.buttonText}>KATIL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, styles.cancelButton, { flex: 1, marginLeft: 5 }]} onPress={() => setShowJoinInput(false)}>
+                <Text style={styles.buttonText}>İPTAL</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.optionsContainer}>
+
+            {/* ── RANKED SUB-MENU ── */}
+            {showRankedOptions && (
+              <>
+                {/* Collapse header */}
+                <TouchableOpacity
+                  style={styles.collapseHeader}
+                  onPress={() => setShowRankedOptions(false)}
+                  activeOpacity={0.8}
+                >
+                  <Image source={require('../../assets/icons/ranked.jpg')} style={styles.collapseIcon} />
+                  <Text style={styles.collapseTitle}>DERECEİLİ OYNA</Text>
+                  <Ionicons name="chevron-up" size={20} color="#A855F7" style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
+
+                {/* 3-card sub grid */}
+                <View style={styles.subGrid}>
+                  <TouchableOpacity
+                    style={[styles.subCard, { borderColor: '#00BFFF', shadowColor: '#00BFFF', width: subCardW, height: subCardW * 1.15 }]}
+                    onPress={findMatch}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,191,255,0.1)' }]} />
+                    <Image source={require('../../assets/icons/quick_match.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
+                    <Text style={styles.subCardLabel}>1v1 HIZLI</Text>
+                    <Text style={styles.subCardSub}>EŞLEŞME</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.subCard, { borderColor: '#00FF88', shadowColor: '#00FF88', width: subCardW, height: subCardW * 1.15 }]}
+                    onPress={() => createRoom(true)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
+                    <Image source={require('../../assets/icons/create_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
+                    <Text style={styles.subCardLabel}>ODA KUR</Text>
+                    <Text style={styles.subCardSub}>DERECEİLİ</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.subCard, { borderColor: '#A855F7', shadowColor: '#A855F7', width: subCardW, height: subCardW * 1.15 }]}
+                    onPress={() => setShowJoinInput(true)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.subCardGlow, { backgroundColor: 'rgba(168,85,247,0.1)' }]} />
+                    <Image source={require('../../assets/icons/join_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
+                    <Text style={styles.subCardLabel}>ODAYA</Text>
+                    <Text style={styles.subCardSub}>KATIL</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
+            {/* ── FRIENDLY SUB-MENU ── */}
+            {showFriendlyOptions && (
+              <>
+                {/* Collapse header */}
+                <TouchableOpacity
+                  style={[styles.collapseHeader, { borderColor: 'rgba(0,255,136,0.3)' }]}
+                  onPress={() => { setShowFriendlyOptions(false); setShowFriendlyRoomSettings(false); }}
+                  activeOpacity={0.8}
+                >
+                  <Image source={require('../../assets/icons/friendly.jpg')} style={styles.collapseIcon} />
+                  <Text style={styles.collapseTitle}>DOSTLUK MAÇI</Text>
+                  <Ionicons name="chevron-up" size={20} color="#00FF88" style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
+
+                {!showFriendlyRoomSettings ? (
+                  /* 3-card sub grid */
+                  <View style={styles.subGrid}>
+                    <TouchableOpacity
+                      style={[styles.subCard, { borderColor: '#00BFFF', shadowColor: '#00BFFF', width: subCardW, height: subCardW * 1.15 }]}
+                      onPress={findMatch}
+                      activeOpacity={0.8}
+                    >
+                      <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,191,255,0.1)' }]} />
+                      <Image source={require('../../assets/icons/quick_match.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
+                      <Text style={styles.subCardLabel}>1v1 HIZLI</Text>
+                      <Text style={styles.subCardSub}>EŞLEŞME</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.subCard, { borderColor: '#00FF88', shadowColor: '#00FF88', width: subCardW, height: subCardW * 1.15 }]}
+                      onPress={() => setShowFriendlyRoomSettings(true)}
+                      activeOpacity={0.8}
+                    >
+                      <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
+                      <Image source={require('../../assets/icons/create_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
+                      <Text style={styles.subCardLabel}>ODA KUR</Text>
+                      <Text style={styles.subCardSub}>DOSTLUK</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.subCard, { borderColor: '#A855F7', shadowColor: '#A855F7', width: subCardW, height: subCardW * 1.15 }]}
+                      onPress={() => setShowJoinInput(true)}
+                      activeOpacity={0.8}
+                    >
+                      <View style={[styles.subCardGlow, { backgroundColor: 'rgba(168,85,247,0.1)' }]} />
+                      <Image source={require('../../assets/icons/join_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
+                      <Text style={styles.subCardLabel}>ODAYA</Text>
+                      <Text style={styles.subCardSub}>KATIL</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  /* Room settings panel */
+                  <>
+                    <View style={styles.roundsSelectionContainer}>
+                      <Text style={styles.roundsLabel}>Özel Oda Tur Sayısı:</Text>
+                      <View style={styles.roundsOptions}>
+                        {[10, 20, 30, 50].map(val => (
+                          <TouchableOpacity 
+                            key={val} 
+                            style={[styles.roundOptionBtn, maxRounds === val && styles.roundOptionBtnActive]}
+                            onPress={() => setMaxRounds(val)}
+                          >
+                            <Text style={[styles.roundOptionText, maxRounds === val && styles.roundOptionTextActive]}>
+                              {val}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+
+                    <TouchableOpacity style={[styles.button, { marginTop: 10 }]} onPress={() => createRoom(false)}>
+                      <Text style={styles.buttonText}>Oluştur ve Başla</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={[styles.button, styles.cancelButton, { marginTop: 10 }]} onPress={() => setShowFriendlyRoomSettings(false)}>
+                      <Text style={styles.buttonText}>Geri Dön</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </>
+            )}
+
+            {/* ── DEFAULT MAIN GRID ── */}
+            {!showRankedOptions && !showFriendlyOptions && (
+              <View style={styles.modeGrid}>
+                <TouchableOpacity
+                  style={[styles.modeCard, styles.modeCardRanked, { width: mainCardSize, height: mainCardSize }]}
+                  onPress={() => { setShowRankedOptions(true); setShowFriendlyOptions(false); }}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.modeCardGlow, { backgroundColor: 'rgba(168,85,247,0.1)' }]} />
+                  <Image
+                    source={require('../../assets/icons/ranked.jpg')}
+                    style={{ width: mainIconSize, height: mainIconSize, borderRadius: mainIconSize * 0.22 }}
+                  />
+                  <Text style={styles.modeLabel}>DERECEİLİ</Text>
+                  <Text style={styles.modeSubLabel}>OYNA</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.modeCard, styles.modeCardFriendly, { width: mainCardSize, height: mainCardSize }]}
+                  onPress={() => { setShowFriendlyOptions(true); setShowRankedOptions(false); }}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.modeCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
+                  <Image
+                    source={require('../../assets/icons/friendly.jpg')}
+                    style={{ width: mainIconSize, height: mainIconSize, borderRadius: mainIconSize * 0.22 }}
+                  />
+                  <Text style={styles.modeLabel}>DOSTLUK</Text>
+                  <Text style={styles.modeSubLabel}>MAÇI</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+          </View>
+        )}
+        </View>
+
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back-outline" size={16} color="#00FF88" />
+          <Text style={styles.backButtonText}>Ana Menüye Dön</Text>
+        </TouchableOpacity>
+        <BannerAdComponent />
+      </SafeAreaView>
+    </ImageBackground>
+  );
+}
+
+const NEON_GREEN  = '#00FF88';
+const NEON_BLUE   = '#00BFFF';
+const NEON_PURPLE = '#A855F7';
+
+const styles = StyleSheet.create({
+  bgImage: { flex: 1, width: '100%', height: '100%' },
+  cyberOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 8, 20, 0.88)',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  mainWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 44,
+    fontFamily: 'Poppins_900Black',
+    color: NEON_GREEN,
+    marginBottom: 6,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 255, 136, 0.6)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.5)',
+    marginBottom: 28,
+    textAlign: 'center',
+    fontFamily: 'Poppins_400Regular',
+    letterSpacing: 0.5,
+  },
+  nameInput: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    width: '80%',
+    padding: 15,
+    borderRadius: 12,
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,136,0.25)',
+  },
+  searchingContainer: { alignItems: 'center' },
+  searchingText: {
+    color: NEON_GREEN,
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 18,
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  // Generic action button
+  button: {
+    backgroundColor: 'rgba(168,85,247,0.2)',
+    paddingVertical: 16,
+    borderRadius: 14,
+    width: '85%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: NEON_PURPLE,
+    shadowColor: NEON_PURPLE,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7,
+    shadowRadius: 14,
+    elevation: 12,
+  },
+  cancelButton: {
+    backgroundColor: 'rgba(220,53,69,0.2)',
+    borderColor: '#DC3545',
+    shadowColor: '#DC3545',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    letterSpacing: 0.5,
+  },
+  // ── MAIN MODE GRID (same as HomeScreen) ──
+  optionsContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  modeGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modeCard: {
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 18,
+    elevation: 12,
+    gap: 8,
+  },
+  modeCardRanked: {
+    borderColor: NEON_PURPLE,
+    shadowColor: NEON_PURPLE,
+  },
+  modeCardFriendly: {
+    borderColor: NEON_GREEN,
+    shadowColor: NEON_GREEN,
+  },
+  modeCardGlow: { ...StyleSheet.absoluteFillObject },
+  modeLabel: {
+    color: '#FFFFFF',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 13,
+    letterSpacing: 1,
+  },
+  modeSubLabel: {
+    color: 'rgba(255,255,255,0.45)',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 10,
+    letterSpacing: 1,
+    marginTop: -4,
+  },
+  // ── COLLAPSE HEADER (when sub-menu is open) ──
+  collapseHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(168,85,247,0.4)',
+  },
+  collapseIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    marginRight: 14,
+  },
+  collapseTitle: {
+    color: '#FFFFFF',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 15,
+    letterSpacing: 0.5,
+  },
+  // ── 3-CARD SUB GRID ──
+  subGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 10,
+  },
+  subCard: {
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 14,
+    elevation: 10,
+    gap: 6,
+  },
+  subCardGlow: { ...StyleSheet.absoluteFillObject },
+  subCardLabel: {
+    color: '#FFFFFF',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    letterSpacing: 0.8,
+  },
+  subCardSub: {
+    color: 'rgba(255,255,255,0.4)',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 9,
+    letterSpacing: 0.8,
+    marginTop: -3,
+  },
+  backButton: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,255,136,0.06)',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,136,0.25)',
+    gap: 6,
+  },
+  backButtonText: {
+    color: NEON_GREEN,
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
+  },
+  input: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    width: 200,
+    padding: 15,
+    borderRadius: 12,
+    textAlign: 'center',
+    fontSize: 20,
+    fontFamily: 'Poppins_700Bold',
+    marginBottom: 20,
+    color: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,136,0.25)',
+  },
+  roundsSelectionContainer: {
+    marginVertical: 12,
+    alignItems: 'center',
+    width: '100%',
+  },
+  roundsLabel: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 15,
+    fontFamily: 'Poppins_700Bold',
+    marginBottom: 10,
+  },
+  roundsOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+  },
+  roundOptionBtn: {
+    backgroundColor: 'rgba(0,255,136,0.07)',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,136,0.25)',
+  },
+  roundOptionBtnActive: {
+    backgroundColor: NEON_GREEN,
+    borderColor: NEON_GREEN,
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  roundOptionText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+  },
+  roundOptionTextActive: { color: '#000' },
+});
