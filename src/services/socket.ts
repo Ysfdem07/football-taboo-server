@@ -2,8 +2,9 @@
 import { io } from 'socket.io-client';
 import Constants from 'expo-constants';
 
-// Default production URL (kept for remote deployments)
-export let SOCKET_URL = 'https://futtaboo.onrender.com';
+// Default production URL - Railway (has tournament events)
+export let SOCKET_URL = 'https://footballtaboo-server-production.up.railway.app';
+// export let SOCKET_URL = 'https://futtaboo.onrender.com'; // old Render fallback
 
 // Override with local development URL when running in Expo Go (debug mode)
 // Commented out to force Expo Go to connect to Render.com for cross-play testing

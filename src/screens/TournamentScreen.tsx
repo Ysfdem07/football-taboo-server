@@ -36,6 +36,7 @@ export default function TournamentScreen() {
   const [tournamentData, setTournamentData] = useState<TournamentData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [player, setPlayer] = useState<{ id: string; username: string; avatar: string } | null>(null);
 
   const loadPlayer = async () => {
@@ -58,11 +59,18 @@ export default function TournamentScreen() {
 
   useEffect(() => {
     const socket = getSocket();
-    if (!socket) return;
+    if (!socket) { setLoadError(true); setLoading(false); return; }
+
+    // Timeout: 8 saniye içinde veri gelmezse hata göster
+    const timeout = setTimeout(() => {
+      if (loading) { setLoadError(true); setLoading(false); }
+    }, 8000);
 
     socket.on('weekly_tournament_data', (data: TournamentData) => {
+      clearTimeout(timeout);
       setTournamentData(data);
       setLoading(false);
+      setLoadError(false);
     });
     socket.on('tournament_leaderboard', (data: LeaderboardEntry[]) => {
       setLeaderboard(data);
@@ -70,6 +78,7 @@ export default function TournamentScreen() {
 
     fetchTournament();
     return () => {
+      clearTimeout(timeout);
       socket.off('weekly_tournament_data');
       socket.off('tournament_leaderboard');
     };
@@ -138,6 +147,19 @@ export default function TournamentScreen() {
           <View style={styles.centered}>
             <ActivityIndicator size="large" color={NEON_GREEN} />
             <Text style={styles.loadingText}>Turnuva yükleniyor...</Text>
+          </View>
+        ) : loadError ? (
+          <View style={styles.centered}>
+            <Text style={{ fontSize: 40, marginBottom: 12 }}>⚠️</Text>
+            <Text style={[styles.loadingText, { color: '#ff4444', textAlign: 'center' }]}>
+              Sunucuya bağlanılamadı.{'\n'}İnternet bağlantını kontrol et.
+            </Text>
+            <TouchableOpacity
+              style={[styles.playBtn, { marginTop: 20, paddingHorizontal: 32 }]}
+              onPress={() => { setLoading(true); setLoadError(false); fetchTournament(); }}
+            >
+              <Text style={styles.playBtnText}>Tekrar Dene</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <FlatList
