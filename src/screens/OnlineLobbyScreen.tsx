@@ -256,7 +256,7 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                   activeOpacity={0.8}
                 >
                   <Image source={require('../../assets/icons/ranked.jpg')} style={styles.collapseIcon} />
-                  <Text style={styles.collapseTitle}>DERECEİLİ OYNA</Text>
+                  <Text style={styles.collapseTitle}>DERECELİ OYNA</Text>
                   <Ionicons name="chevron-up" size={20} color="#A855F7" style={{ marginLeft: 'auto' }} />
                 </TouchableOpacity>
 
@@ -281,7 +281,7 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                     <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
                     <Image source={require('../../assets/icons/create_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
                     <Text style={styles.subCardLabel}>ODA KUR</Text>
-                    <Text style={styles.subCardSub}>DERECEİLİ</Text>
+                    <Text style={styles.subCardSub}>DERECELİ</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -393,7 +393,7 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                     source={require('../../assets/icons/ranked.jpg')}
                     style={{ width: mainIconSize, height: mainIconSize, borderRadius: mainIconSize * 0.22 }}
                   />
-                  <Text style={styles.modeLabel}>DERECEİLİ</Text>
+                  <Text style={styles.modeLabel}>DERECELİ</Text>
                   <Text style={styles.modeSubLabel}>OYNA</Text>
                 </TouchableOpacity>
 
