@@ -139,6 +139,22 @@ export default function HomeScreen({ navigation }: Props) {
                 </TouchableOpacity>
               </View>
 
+              {/* HAFTALIK TURNUVA BANNER */}
+              <TouchableOpacity
+                style={styles.tournamentBanner}
+                onPress={() => navigation.navigate('Tournament')}
+                activeOpacity={0.85}
+              >
+                <View style={styles.tournamentBannerInner}>
+                  <Text style={styles.tournamentBannerIcon}>🏆</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.tournamentBannerTitle}>HAFTALIK TURNUVA</Text>
+                    <Text style={styles.tournamentBannerSub}>İpuçlardan futbolcuyu bul • Günde 1 hak</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#FFD700" />
+                </View>
+              </TouchableOpacity>
+
               {/* NASIL OYNANIR */}
               <TouchableOpacity
                 style={styles.howToPlayButton}
@@ -336,6 +352,36 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1,
     marginTop: -4,
+  },
+
+  // ── TOURNAMENT BANNER ──
+  tournamentBanner: {
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,215,0,0.5)',
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,215,0,0.06)',
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  tournamentBannerInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  tournamentBannerIcon:  { fontSize: 28 },
+  tournamentBannerTitle: {
+    color: '#FFD700',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 14,
+    letterSpacing: 1,
+  },
+  tournamentBannerSub: {
+    color: 'rgba(255,215,0,0.6)',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    marginTop: 1,
   },
 
   // ── HOW TO PLAY ──

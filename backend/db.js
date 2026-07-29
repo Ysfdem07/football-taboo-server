@@ -42,6 +42,58 @@ const systemLogSchema = new mongoose.Schema({
 
 const SystemLog = mongoose.model('SystemLog', systemLogSchema);
 
+// ─── Weekly Tournament ────────────────────────────────────────────────────────
+
+const tournamentScoreSchema = new mongoose.Schema({
+  playerId:           { type: String, required: true },
+  username:           { type: String, required: true },
+  avatar:             { type: String, default: '⚽' },
+  bestScore:          { type: Number, default: 0 },
+  correctCount:       { type: Number, default: 0 },
+  completedPerfectly: { type: Boolean, default: false },
+  lastPlayedDate:     { type: String, default: '' },   // "YYYY-MM-DD"
+  attempts:           { type: Number, default: 0 },
+  kpRewarded:         { type: Boolean, default: false }
+}, { _id: false });
+
+const weeklyTournamentSchema = new mongoose.Schema({
+  weekId:       { type: String, required: true, unique: true }, // "2026-W31"
+  startDate:    { type: Date, required: true },
+  endDate:      { type: Date, required: true },
+  cards:        { type: Array, required: true },  // [{ word, forbidden }] x20
+  scores:       { type: [tournamentScoreSchema], default: [] },
+  rewardsGiven: { type: Boolean, default: false }
+});
+
+const WeeklyTournament = mongoose.model('WeeklyTournament', weeklyTournamentSchema);
+
+// Get ISO week string e.g. "2026-W31"
+function getWeekId(date = new Date()) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+function getWeekBounds(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun
+  const diffToMon = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diffToMon);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { startDate: monday, endDate: sunday };
+}
+
+function getTodayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 module.exports = {
   connectDB,
   saveLog: async (type, message) => {
@@ -151,5 +203,108 @@ module.exports = {
     await player.save();
 
     return { success: true, player: player.toObject() };
+  },
+
+  // ─── Weekly Tournament Functions ─────────────────────────────────────────
+
+  ensureWeeklyTournament: async (wordList) => {
+    await connectDB();
+    const weekId = getWeekId();
+    const existing = await WeeklyTournament.findOne({ weekId });
+    if (existing) return existing;
+
+    // Pick 20 random cards
+    const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+    const cards = shuffled.slice(0, 20);
+    const { startDate, endDate } = getWeekBounds();
+    const tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
+    await tournament.save();
+    console.log(`[Tournament] Created new tournament for ${weekId} with ${cards.length} cards`);
+    return tournament;
+  },
+
+  getWeeklyTournament: async (playerId) => {
+    await connectDB();
+    const weekId = getWeekId();
+    const tournament = await WeeklyTournament.findOne({ weekId });
+    if (!tournament) return { error: 'Turnuva henüz başlamadı' };
+
+    const today = getTodayString();
+    const myEntry = tournament.scores.find(s => s.playerId === playerId);
+
+    return {
+      weekId:             tournament.weekId,
+      startDate:          tournament.startDate,
+      endDate:            tournament.endDate,
+      cards:              tournament.cards,
+      myBestScore:        myEntry?.bestScore || 0,
+      myCorrectCount:     myEntry?.correctCount || 0,
+      myRank:             tournament.scores.filter(s => s.bestScore > (myEntry?.bestScore || 0)).length + 1,
+      canPlayToday:       !myEntry || (myEntry.lastPlayedDate !== today),
+      blockedForWeek:     myEntry?.completedPerfectly || false,
+      attempts:           myEntry?.attempts || 0
+    };
+  },
+
+  submitTournamentScore: async (playerId, username, avatar, score, correctCount) => {
+    await connectDB();
+    const weekId = getWeekId();
+    const tournament = await WeeklyTournament.findOne({ weekId });
+    if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
+
+    const today = getTodayString();
+    const completedPerfectly = correctCount === 20;
+
+    const idx = tournament.scores.findIndex(s => s.playerId === playerId);
+    if (idx >= 0) {
+      const entry = tournament.scores[idx];
+      if (entry.completedPerfectly) return { error: 'Bu haftaki turnuvayı zaten tamamladın!' };
+      if (entry.lastPlayedDate === today) return { error: 'Bugün zaten oynadın! Yarın tekrar dene.' };
+      if (score > entry.bestScore) {
+        entry.bestScore = score;
+        entry.correctCount = correctCount;
+      }
+      entry.completedPerfectly = completedPerfectly;
+      entry.lastPlayedDate = today;
+      entry.attempts += 1;
+    } else {
+      tournament.scores.push({ playerId, username, avatar: avatar || '⚽', bestScore: score, correctCount, completedPerfectly, lastPlayedDate: today, attempts: 1, kpRewarded: false });
+    }
+
+    await tournament.save();
+    const rank = tournament.scores.filter(s => s.bestScore > score).length + 1;
+    return { success: true, rank, totalPlayers: tournament.scores.length, completedPerfectly };
+  },
+
+  getTournamentLeaderboard: async () => {
+    await connectDB();
+    const weekId = getWeekId();
+    const tournament = await WeeklyTournament.findOne({ weekId });
+    if (!tournament) return [];
+    return [...tournament.scores]
+      .sort((a, b) => b.bestScore - a.bestScore)
+      .slice(0, 20)
+      .map((s, i) => ({ rank: i + 1, playerId: s.playerId, username: s.username, avatar: s.avatar, score: s.bestScore, correctCount: s.correctCount, completedPerfectly: s.completedPerfectly }));
+  },
+
+  giveWeeklyRewards: async () => {
+    await connectDB();
+    const weekId = getWeekId();
+    const tournament = await WeeklyTournament.findOne({ weekId });
+    if (!tournament || tournament.rewardsGiven) return { skipped: true };
+
+    const sorted = [...tournament.scores].sort((a, b) => b.bestScore - a.bestScore);
+    const kpMap = { 0: 500, 1: 300, 2: 150 };
+
+    for (let i = 0; i < sorted.length; i++) {
+      const kp = kpMap[i] ?? 50; // participation KP for rest
+      await Player.findOneAndUpdate({ id: sorted[i].playerId }, { $inc: { kp } });
+      sorted[i].kpRewarded = true;
+    }
+
+    tournament.rewardsGiven = true;
+    await tournament.save();
+    return { success: true, rewarded: sorted.length };
   }
 };
+

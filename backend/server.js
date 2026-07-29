@@ -295,12 +295,65 @@ async function loadWords() {
 loadWords();
 setInterval(loadWords, 3600000);
 
+// ─── Tournament Init ─────────────────────────────────────────────────────────
+async function initTournament() {
+  try {
+    // Wait a bit for words to load
+    setTimeout(async () => {
+      const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+      await db.ensureWeeklyTournament(wordSource);
+      console.log('[Tournament] Weekly tournament ensured.');
+    }, 5000);
+  } catch (e) {
+    console.error('[Tournament] Init error:', e);
+  }
+}
+initTournament();
+
+// Check every hour: if it's Sunday night, give rewards
+setInterval(async () => {
+  const now = new Date();
+  // Sunday = 0, after 23:00
+  if (now.getDay() === 0 && now.getHours() >= 23) {
+    const result = await db.giveWeeklyRewards();
+    if (result?.success) console.log(`[Tournament] Weekly rewards given to ${result.rewarded} players.`);
+  }
+  // Monday = 1, after 00:01 — ensure new tournament exists
+  if (now.getDay() === 1 && now.getHours() === 0) {
+    const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+    await db.ensureWeeklyTournament(wordSource);
+  }
+}, 3600000);
+
 let queue = [];
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
+
+  // ─── Tournament Events ──────────────────────────────────────────────────
+  socket.on('get_weekly_tournament', async (data) => {
+    const playerId = data?.playerId || 'guest';
+    const result = await db.getWeeklyTournament(playerId);
+    socket.emit('weekly_tournament_data', result);
+  });
+
+  socket.on('submit_tournament_score', async (data) => {
+    const { playerId, username, avatar, score, correctCount } = data;
+    if (!playerId || !username) {
+      socket.emit('tournament_score_result', { error: 'Skoru kaydetmek için giriş yapmalısın.' });
+      return;
+    }
+    const result = await db.submitTournamentScore(playerId, username, avatar, score, correctCount);
+    socket.emit('tournament_score_result', result);
+  });
+
+  socket.on('get_tournament_leaderboard', async () => {
+    const board = await db.getTournamentLeaderboard();
+    socket.emit('tournament_leaderboard', board);
+  });
+  // ────────────────────────────────────────────────────────────────────────
 
   if (socket.recovered) {
     if (disconnectTimeouts[socket.id]) {
@@ -797,7 +850,8 @@ async function startRound(roomId) {
   }, 1000);
 }
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+

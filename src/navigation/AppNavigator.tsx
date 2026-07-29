@@ -10,6 +10,8 @@ import AboutScreen from '../screens/AboutScreen';
 import HowToPlayScreen from '../screens/HowToPlayScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
+import TournamentScreen from '../screens/TournamentScreen';
+import TournamentGameScreen from '../screens/TournamentGameScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -23,6 +25,8 @@ export type RootStackParamList = {
   HowToPlay: undefined;
   Profile: undefined;
   Leaderboard: undefined;
+  Tournament: undefined;
+  TournamentGame: { cards: { word: string; forbidden: string[] }[] };
 };
 
 import RoomLobbyScreen from '../screens/RoomLobbyScreen';
@@ -56,6 +60,8 @@ export default function AppNavigator() {
         <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
+        <Stack.Screen name="Tournament" component={TournamentScreen} />
+        <Stack.Screen name="TournamentGame" component={TournamentGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
