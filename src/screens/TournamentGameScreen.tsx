@@ -301,7 +301,7 @@ export default function TournamentGameScreen() {
         <KeyboardAvoidingView 
           style={{ flex: 1, justifyContent: 'space-between' }} 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 44 : 20}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 95 : 0}
         >
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <View>
