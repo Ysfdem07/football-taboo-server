@@ -48,6 +48,7 @@ export default function TournamentGameScreen() {
   const [finished, setFinished]       = useState(false);
   const [scoreResult, setScoreResult] = useState<{ rank: number; totalPlayers: number; completedPerfectly: boolean } | null>(null);
   const [player, setPlayer]           = useState<{ id: string; username: string; avatar: string } | null>(null);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const flashAnim  = useRef(new Animated.Value(0)).current;
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -55,6 +56,13 @@ export default function TournamentGameScreen() {
 
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
+
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
   }, []);
 
   // Listen for score result
@@ -329,25 +337,27 @@ export default function TournamentGameScreen() {
               </View>
 
               {/* Clues */}
-              <View style={styles.cluesCard}>
+              <View style={[styles.cluesCard, keyboardVisible && { padding: 8, marginVertical: 4 }]}>
                 <Text style={styles.cluesTitle}>İPUÇLARI</Text>
-                {currentCard.forbidden.map((clue, i) => (
-                  <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
-                    <Ionicons
-                      name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
-                      size={16}
-                      color={i < hintsShown ? NEON_BLUE : '#444'}
-                    />
-                    <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
-                      {i < hintsShown ? clue : '? ? ? ? ?'}
-                    </Text>
-                  </View>
-                ))}
+                {currentCard.forbidden
+                  .filter((_, idx) => !keyboardVisible || idx < 2) // Klavye açıkken dikeyde yer kazanmak için sadece ilk 2 ipucunu listeliyoruz
+                  .map((clue, i) => (
+                    <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden, keyboardVisible && { paddingVertical: 2 }]}>
+                      <Ionicons
+                        name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
+                        size={14}
+                        color={i < hintsShown ? NEON_BLUE : '#444'}
+                      />
+                      <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden, keyboardVisible && { fontSize: 13 }]}>
+                        {i < hintsShown ? clue : '? ? ? ? ?'}
+                      </Text>
+                    </View>
+                  ))}
 
                 {hintsShown < currentCard.forbidden.length && (
-                  <TouchableOpacity style={styles.showHintBtn} onPress={handleShowHint}>
-                    <Ionicons name="add-circle-outline" size={16} color={NEON_PURPLE} />
-                    <Text style={styles.showHintText}>İpucu Göster (-10 puan)</Text>
+                  <TouchableOpacity style={styles.neonActionButton} onPress={handleShowHint} activeOpacity={0.8}>
+                    <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
+                    <Text style={styles.neonActionText}>İpucu Göster (-10 Puan)</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -357,12 +367,12 @@ export default function TournamentGameScreen() {
 
               {/* Harf Göster Action Button */}
               <TouchableOpacity 
-                style={styles.showLetterBtn} 
+                style={[styles.neonActionButton, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)' }]} 
                 onPress={handleShowLetter}
                 activeOpacity={0.8}
               >
-                <Ionicons name="help-circle-outline" size={16} color={NEON_GOLD} />
-                <Text style={styles.showLetterText}>Harf Al (-10 puan)</Text>
+                <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
+                <Text style={[styles.neonActionText, { color: NEON_GOLD }]}>Harf Al (-10 Puan)</Text>
               </TouchableOpacity>
             </View>
 
@@ -512,24 +522,36 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Poppins_700Bold'
   },
-  showLetterBtn: {
+  neonActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
     alignSelf: 'center',
-    marginBottom: 16,
-    paddingVertical: 4,
-    paddingHorizontal: 12
+    borderWidth: 1.5,
+    borderColor: NEON_PURPLE,
+    borderRadius: 20,
+    backgroundColor: 'rgba(168,85,247,0.06)',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    marginVertical: 6,
+    shadowColor: NEON_PURPLE,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  showLetterText: {
-    color: NEON_GOLD,
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 13
+  neonActionText: {
+    color: NEON_PURPLE,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 12,
+    letterSpacing: 0.5,
   },
 
   inputSection: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 14, // klavyeye çok yapışmasın diye alt boşluk
     marginTop: 'auto'
   },
   input: {
