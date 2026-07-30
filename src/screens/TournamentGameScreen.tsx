@@ -336,7 +336,7 @@ export default function TournamentGameScreen() {
                 ))}
               </View>
 
-              {/* Clues (Always vertical stack, matching duel screen) */}
+              {/* Clues */}
               <View style={styles.cluesCard}>
                 <Text style={styles.cluesTitle}>İPUÇLARI</Text>
                 {currentCard.forbidden.map((clue, i) => (
@@ -352,26 +352,31 @@ export default function TournamentGameScreen() {
                   </View>
                 ))}
 
-                {hintsShown < currentCard.forbidden.length && (
-                  <TouchableOpacity style={styles.neonActionButton} onPress={handleShowHint} activeOpacity={0.8}>
+                {/* Yan Yana Aksiyon Butonları (Dikeyde yer kazanmak ve simetri sağlamak için) */}
+                <View style={styles.gameActionsRow}>
+                  <TouchableOpacity 
+                    style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
+                    onPress={handleShowHint} 
+                    disabled={hintsShown >= currentCard.forbidden.length}
+                    activeOpacity={0.8}
+                  >
                     <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
-                    <Text style={styles.neonActionText}>İpucu Göster (-10 Puan)</Text>
+                    <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
                   </TouchableOpacity>
-                )}
+
+                  <TouchableOpacity 
+                    style={[styles.neonActionButton, { flex: 1, borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginVertical: 0 }]} 
+                    onPress={handleShowLetter}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
+                    <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* Word Letter Placeholders */}
               {renderWordPlaceholder()}
-
-              {/* Harf Göster Action Button */}
-              <TouchableOpacity 
-                style={[styles.neonActionButton, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginTop: 8 }]} 
-                onPress={handleShowLetter}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
-                <Text style={[styles.neonActionText, { color: NEON_GOLD }]}>Harf Al (-10 Puan)</Text>
-              </TouchableOpacity>
             </View>
 
             {/* Input Section - KeyboardAvoidingView will push this exactly above keyboard */}
@@ -489,8 +494,13 @@ const styles = StyleSheet.create({
     textShadowRadius: 4
   },
   clueTextHidden: { color: 'rgba(255,255,255,0.15)' },
-  showHintBtn:    { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, alignSelf: 'center' },
-  showHintText:   { color: NEON_PURPLE, fontFamily: 'Poppins_500Medium', fontSize: 13 },
+  gameActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginTop: 10,
+    width: '100%'
+  },
 
   wordsWrapper: {
     flexDirection: 'row',
