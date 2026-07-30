@@ -100,7 +100,7 @@ export default function TournamentGameScreen() {
   };
 
   const handleTimeout = () => {
-    flashScreen(false, 'SÜRE DOLDU! ⏱️');
+    flashScreen(false, `SÜRE DOLDU! ⏱️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
   };
 
   const handleGuess = () => {
@@ -116,7 +116,7 @@ export default function TournamentGameScreen() {
       setCorrectCount(prev => prev + 1);
       flashScreen(true, 'DOĞRU! 🎉');
     } else {
-      flashScreen(false, 'YANLIŞ! ❌');
+      flashScreen(false, `YANLIŞ! ❌\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
     }
     setGuess('');
   };
@@ -125,7 +125,7 @@ export default function TournamentGameScreen() {
     if (feedback) return;
     if (timerRef.current) clearInterval(timerRef.current);
     setGuess('');
-    flashScreen(false, 'PAS GEÇİLDİ! ➡️');
+    flashScreen(false, `PAS GEÇİLDİ! ➡️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
   };
 
   const handleShowHint = () => {
@@ -165,19 +165,34 @@ export default function TournamentGameScreen() {
     }
   };
 
-  // Render the word block helper
+  // Render the word block helper (Kelimelerin alt satıra bölünmesini engellemek için)
   const renderWordPlaceholder = () => {
-    const chars = currentCard.word.split('');
+    // Kelimeleri boşluklara göre bölüyoruz
+    const words = currentCard.word.split(' ');
+    let globalCharIndex = 0;
+
     return (
-      <View style={styles.wordContainer}>
-        {chars.map((char, index) => {
-          if (char === ' ') {
-            return <View key={index} style={styles.wordSpace} />;
+      <View style={styles.wordsWrapper}>
+        {words.map((word, wordIdx) => {
+          const charBoxes = word.split('').map((char, charIdx) => {
+            const index = globalCharIndex;
+            globalCharIndex++; // global index takibi
+            const isRevealed = revealedIndices.includes(index);
+            return (
+              <View key={charIdx} style={styles.charBox}>
+                <Text style={styles.charText}>{isRevealed ? char.toUpperCase() : ''}</Text>
+              </View>
+            );
+          });
+
+          // Her kelimeden sonra boşluk için globalIndex'i arttırıyoruz (son kelime hariç)
+          if (wordIdx < words.length - 1) {
+            globalCharIndex++;
           }
-          const isRevealed = revealedIndices.includes(index);
+
           return (
-            <View key={index} style={styles.charBox}>
-              <Text style={styles.charText}>{isRevealed ? char.toUpperCase() : ''}</Text>
+            <View key={wordIdx} style={styles.wordRow}>
+              {charBoxes}
             </View>
           );
         })}
@@ -253,7 +268,11 @@ export default function TournamentGameScreen() {
       <View style={styles.overlay} />
       <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 20}
+        >
 
           {/* Top Bar */}
           <View style={styles.topBar}>
@@ -424,19 +443,22 @@ const styles = StyleSheet.create({
   showHintBtn:    { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, alignSelf: 'center' },
   showHintText:   { color: NEON_PURPLE, fontFamily: 'Poppins_500Medium', fontSize: 13 },
 
-  inputSection: { paddingHorizontal: 16, marginTop: 'auto' as any, marginBottom: 16 },
-  wordContainer: {
+  wordsWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginVertical: 10,
-    gap: 6
+    paddingHorizontal: 16,
+    marginVertical: 12,
+    gap: 12 // Kelimeler arası boşluk
+  },
+  wordRow: {
+    flexDirection: 'row',
+    gap: 4 // Harfler arası boşluk
   },
   charBox: {
-    width: 32,
-    height: 38,
+    width: 28, // Sığma sorunlarını engellemek için hafif küçültüldü
+    height: 36,
     borderWidth: 1.5,
     borderColor: 'rgba(0,191,255,0.4)',
     borderRadius: 6,
@@ -446,12 +468,8 @@ const styles = StyleSheet.create({
   },
   charText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Poppins_700Bold'
-  },
-  wordSpace: {
-    width: 14,
-    height: 38
   },
   showLetterBtn: {
     flexDirection: 'row',
@@ -468,11 +486,16 @@ const styles = StyleSheet.create({
     fontSize: 13
   },
 
+  inputSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginTop: 'auto'
+  },
   input: {
     borderWidth: 1.5, borderColor: NEON_GREEN, borderRadius: 12,
     backgroundColor: 'rgba(0,255,136,0.06)', color: '#fff',
-    fontFamily: 'Poppins_500Medium', fontSize: 16, paddingHorizontal: 16, paddingVertical: 14,
-    marginBottom: 10,
+    fontFamily: 'Poppins_500Medium', fontSize: 15, paddingHorizontal: 14, paddingVertical: 12,
+    marginBottom: 8,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
