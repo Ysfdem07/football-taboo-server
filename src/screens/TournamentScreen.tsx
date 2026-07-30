@@ -41,7 +41,7 @@ export default function TournamentScreen() {
 
   const loadPlayer = async () => {
     try {
-      const raw = await AsyncStorage.getItem('playerProfile');
+      const raw = await AsyncStorage.getItem('@logged_in_profile');
       if (raw) setPlayer(JSON.parse(raw));
     } catch {}
   };

@@ -52,7 +52,7 @@ export default function TournamentGameScreen() {
   const inputRef   = useRef<TextInput>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem('playerProfile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
+    AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
   }, []);
 
   // Listen for score result
