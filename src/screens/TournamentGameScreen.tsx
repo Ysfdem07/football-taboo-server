@@ -18,7 +18,7 @@ const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
-const SECS_PER_Q  = 45;
+const SECS_PER_Q  = 30; // 30 saniyeye çekildi
 
 function normalizeText(t: string) {
   return t.toLowerCase()
@@ -44,6 +44,7 @@ export default function TournamentGameScreen() {
   const [totalScore, setTotalScore]   = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [feedback, setFeedback]       = useState<'correct' | 'wrong' | null>(null);
+  const [feedbackText, setFeedbackText] = useState(''); // Ekranda belirecek metin
   const [finished, setFinished]       = useState(false);
   const [scoreResult, setScoreResult] = useState<{ rank: number; totalPlayers: number; completedPerfectly: boolean } | null>(null);
   const [player, setPlayer]           = useState<{ id: string; username: string; avatar: string } | null>(null);
@@ -84,20 +85,22 @@ export default function TournamentGameScreen() {
 
   const currentCard = cards[qIndex];
 
-  const flashScreen = (correct: boolean) => {
+  const flashScreen = (correct: boolean, text: string) => {
     setFeedback(correct ? 'correct' : 'wrong');
+    setFeedbackText(text);
     Animated.sequence([
       Animated.timing(flashAnim, { toValue: 1, duration: 120, useNativeDriver: true }),
       Animated.timing(flashAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
     ]).start();
     setTimeout(() => {
       setFeedback(null);
+      setFeedbackText('');
       nextQuestion();
     }, 900);
   };
 
   const handleTimeout = () => {
-    flashScreen(false);
+    flashScreen(false, 'SÜRE DOLDU! ⏱️');
   };
 
   const handleGuess = () => {
@@ -111,16 +114,18 @@ export default function TournamentGameScreen() {
       const earned = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
       setTotalScore(prev => prev + earned);
       setCorrectCount(prev => prev + 1);
+      flashScreen(true, 'DOĞRU! 🎉');
+    } else {
+      flashScreen(false, 'YANLIŞ! ❌');
     }
     setGuess('');
-    flashScreen(isCorrect);
   };
 
   const handleSkip = () => {
     if (feedback) return;
     if (timerRef.current) clearInterval(timerRef.current);
     setGuess('');
-    flashScreen(false);
+    flashScreen(false, 'PAS GEÇİLDİ! ➡️');
   };
 
   const handleShowHint = () => {
@@ -339,6 +344,23 @@ export default function TournamentGameScreen() {
 
         </KeyboardAvoidingView>
       </SafeAreaView>
+
+      {/* Feedback Overlay */}
+      {!!feedbackText && (
+        <View style={styles.feedbackOverlay} pointerEvents="none">
+          <View style={[
+            styles.feedbackBadge,
+            { borderColor: feedback === 'correct' ? NEON_GREEN : '#ff4444' }
+          ]}>
+            <Text style={[
+              styles.feedbackText,
+              { color: feedback === 'correct' ? NEON_GREEN : '#ff4444' }
+            ]}>
+              {feedbackText}
+            </Text>
+          </View>
+        </View>
+      )}
     </ImageBackground>
   );
 }
@@ -346,6 +368,32 @@ export default function TournamentGameScreen() {
 const styles = StyleSheet.create({
   bg:      { flex: 1 },
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,8,20,0.92)' },
+
+  feedbackOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    zIndex: 9999,
+  },
+  feedbackBadge: {
+    borderWidth: 2,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,8,20,0.95)',
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  feedbackText: {
+    fontSize: 26,
+    fontFamily: 'Poppins_900Black',
+    letterSpacing: 2,
+    textAlign: 'center',
+  },
 
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

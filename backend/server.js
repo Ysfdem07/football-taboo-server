@@ -335,7 +335,15 @@ io.on('connection', (socket) => {
   // ─── Tournament Events ──────────────────────────────────────────────────
   socket.on('get_weekly_tournament', async (data) => {
     const playerId = data?.playerId || 'guest';
-    const result = await db.getWeeklyTournament(playerId);
+    const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+    const result = await db.getWeeklyTournament(playerId, wordSource);
+    socket.emit('weekly_tournament_data', result);
+  });
+
+  socket.on('grant_tournament_ad_attempt', async (data) => {
+    const { playerId } = data;
+    if (!playerId) return;
+    const result = await db.grantAdAttempt(playerId);
     socket.emit('weekly_tournament_data', result);
   });
 

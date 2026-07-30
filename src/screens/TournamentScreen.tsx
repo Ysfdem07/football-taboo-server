@@ -88,6 +88,8 @@ export default function TournamentScreen() {
     if (player !== null) fetchTournament();
   }, [player, fetchTournament]);
 
+  const [watchingAd, setWatchingAd] = useState(false);
+
   const formatDate = (d: string) => {
     const date = new Date(d);
     return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
@@ -113,6 +115,20 @@ export default function TournamentScreen() {
     navigation.navigate('TournamentGame', { cards: tournamentData.cards });
   };
 
+  const handleWatchAd = () => {
+    if (!player) return;
+    setWatchingAd(true);
+    // Simulate 4 seconds of ad watching
+    setTimeout(() => {
+      setWatchingAd(false);
+      const socket = getSocket();
+      if (socket) {
+        socket.emit('grant_tournament_ad_attempt', { playerId: player.id });
+        Alert.alert('Tebrikler!', 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎮');
+      }
+    }, 4000);
+  };
+
   const getRankEmoji = (rank: number) => {
     if (rank === 1) return '🥇';
     if (rank === 2) return '🥈';
@@ -122,10 +138,25 @@ export default function TournamentScreen() {
 
   const getStatusInfo = () => {
     if (!tournamentData) return null;
-    if (tournamentData.error) return { text: tournamentData.error, color: '#ff4444', canPlay: false };
-    if (tournamentData.blockedForWeek) return { text: '🏆 Bu haftayı tamamladın! Gelecek hafta görüşürüz.', color: NEON_GOLD, canPlay: false };
-    if (!tournamentData.canPlayToday) return { text: '✅ Bugünkü hakkını kullandın. Yarın tekrar gel!', color: NEON_GREEN, canPlay: false };
-    return { text: tournamentData.attempts === 0 ? '🎯 İlk denemen hazır!' : `🔄 ${tournamentData.attempts}. deneme — en iyi skorun: ${tournamentData.myBestScore}`, color: NEON_BLUE, canPlay: true };
+    if (tournamentData.error) return { text: tournamentData.error, color: '#ff4444', canPlay: false, showAd: false };
+    if (tournamentData.blockedForWeek) return { text: '🏆 Bu haftayı tamamladın! Gelecek hafta görüşürüz.', color: NEON_GOLD, canPlay: false, showAd: false };
+    
+    const remaining = 3 - tournamentData.attempts;
+    if (remaining <= 0) {
+      return { 
+        text: '❌ Bugünlük ücretsiz 3 hakkın da bitti. Reklam izleyerek hemen +1 hak kazanabilirsin!', 
+        color: '#ff4444', 
+        canPlay: false, 
+        showAd: true 
+      };
+    }
+    
+    return { 
+      text: `🎯 Kalan Günlük Hak: ${remaining}/3\nEn iyi skorun: ${tournamentData.myBestScore}`, 
+      color: remaining === 1 ? NEON_GOLD : NEON_BLUE, 
+      canPlay: true, 
+      showAd: false 
+    };
   };
 
   const status = getStatusInfo();
@@ -190,13 +221,22 @@ export default function TournamentScreen() {
                   </View>
                 )}
 
-                {/* Status + Play Button */}
+                 {/* Status + Play Button */}
                 {status && (
                   <View style={[styles.statusBanner, { borderColor: status.color }]}>
                     <Text style={[styles.statusText, { color: status.color }]}>{status.text}</Text>
                     {status.canPlay && (
                       <TouchableOpacity style={styles.playBtn} onPress={handlePlay} activeOpacity={0.85}>
                         <Text style={styles.playBtnText}>TURNUVAYA BAŞLA ▶</Text>
+                      </TouchableOpacity>
+                    )}
+                    {status.showAd && (
+                      <TouchableOpacity 
+                        style={[styles.playBtn, { backgroundColor: NEON_GOLD, marginTop: 10 }]} 
+                        onPress={handleWatchAd} 
+                        activeOpacity={0.85}
+                      >
+                        <Text style={[styles.playBtnText, { color: '#000' }]}>📺 REKLAM İZLE (+1 HAK)</Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -231,6 +271,14 @@ export default function TournamentScreen() {
         )}
         <BannerAdComponent />
       </SafeAreaView>
+
+      {watchingAd && (
+        <View style={styles.adOverlay}>
+          <ActivityIndicator size="large" color={NEON_GOLD} />
+          <Text style={styles.adText}>📺 Reklam Yükleniyor ve İzleniyor...</Text>
+          <Text style={styles.adSub}>Lütfen kapatmayın, 4 saniye içinde +1 hak verilecektir.</Text>
+        </View>
+      )}
     </ImageBackground>
   );
 }
@@ -241,6 +289,28 @@ const styles = StyleSheet.create({
   container:   { flex: 1 },
   centered:    { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { color: NEON_GREEN, marginTop: 12, fontFamily: 'Poppins_400Regular' },
+
+  adOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  adText: {
+    color: NEON_GOLD,
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    marginTop: 15,
+  },
+  adSub: {
+    color: '#aaa',
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    marginTop: 5,
+    textAlign: 'center',
+    paddingHorizontal: 30,
+  },
 
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

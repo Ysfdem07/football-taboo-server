@@ -223,7 +223,7 @@ module.exports = {
     return tournament;
   },
 
-  getWeeklyTournament: async (playerId) => {
+  getWeeklyTournament: async (playerId, wordList) => {
     await connectDB();
     const weekId = getWeekId();
     const tournament = await WeeklyTournament.findOne({ weekId });
@@ -232,17 +232,24 @@ module.exports = {
     const today = getTodayString();
     const myEntry = tournament.scores.find(s => s.playerId === playerId);
 
+    // Her denemede farklı 20 kart için rastgele seçiyoruz
+    const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+    const randomCardsForAttempt = shuffled.slice(0, 20);
+
+    const attemptsToday = myEntry && myEntry.lastPlayedDate === today ? myEntry.attempts : 0;
+
     return {
       weekId:             tournament.weekId,
       startDate:          tournament.startDate,
       endDate:            tournament.endDate,
-      cards:              tournament.cards,
+      cards:              randomCardsForAttempt, // Her seferinde yeni random 20 kart
       myBestScore:        myEntry?.bestScore || 0,
       myCorrectCount:     myEntry?.correctCount || 0,
       myRank:             tournament.scores.filter(s => s.bestScore > (myEntry?.bestScore || 0)).length + 1,
-      canPlayToday:       !myEntry || (myEntry.lastPlayedDate !== today),
-      blockedForWeek:     myEntry?.completedPerfectly || false,
-      attempts:           myEntry?.attempts || 0
+      canPlayToday:       attemptsToday < 3, // Günlük limit: 3 hak
+      blockedForWeek:     false, // Sınırsız deneme (en iyi skor)
+      attempts:           attemptsToday,
+      totalAttempts:      myEntry?.attempts || 0
     };
   },
 
@@ -258,22 +265,57 @@ module.exports = {
     const idx = tournament.scores.findIndex(s => s.playerId === playerId);
     if (idx >= 0) {
       const entry = tournament.scores[idx];
-      if (entry.completedPerfectly) return { error: 'Bu haftaki turnuvayı zaten tamamladın!' };
-      if (entry.lastPlayedDate === today) return { error: 'Bugün zaten oynadın! Yarın tekrar dene.' };
+      
+      // Günlük hak kontrolünü sıfırlama veya artırma
+      if (entry.lastPlayedDate !== today) {
+        entry.attempts = 1;
+        entry.lastPlayedDate = today;
+      } else {
+        entry.attempts += 1;
+      }
+
       if (score > entry.bestScore) {
         entry.bestScore = score;
         entry.correctCount = correctCount;
       }
       entry.completedPerfectly = completedPerfectly;
-      entry.lastPlayedDate = today;
-      entry.attempts += 1;
     } else {
-      tournament.scores.push({ playerId, username, avatar: avatar || '⚽', bestScore: score, correctCount, completedPerfectly, lastPlayedDate: today, attempts: 1, kpRewarded: false });
+      tournament.scores.push({ 
+        playerId, 
+        username, 
+        avatar: avatar || '⚽', 
+        bestScore: score, 
+        correctCount, 
+        completedPerfectly, 
+        lastPlayedDate: today, 
+        attempts: 1, 
+        kpRewarded: false 
+      });
     }
 
     await tournament.save();
     const rank = tournament.scores.filter(s => s.bestScore > score).length + 1;
     return { success: true, rank, totalPlayers: tournament.scores.length, completedPerfectly };
+  },
+
+  grantAdAttempt: async (playerId) => {
+    await connectDB();
+    const weekId = getWeekId();
+    const tournament = await WeeklyTournament.findOne({ weekId });
+    if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
+
+    const idx = tournament.scores.findIndex(s => s.playerId === playerId);
+    if (idx >= 0) {
+      const entry = tournament.scores[idx];
+      // attempts'i 1 azaltarak kullanıcıya yeni bir hak kazandırıyoruz
+      if (entry.attempts > 0) {
+        entry.attempts -= 1;
+      }
+      await tournament.save();
+    }
+    // Return updated tournament data
+    const rawWords = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+    return module.exports.getWeeklyTournament(playerId, rawWords);
   },
 
   getTournamentLeaderboard: async () => {
