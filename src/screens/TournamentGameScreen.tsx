@@ -194,7 +194,7 @@ export default function TournamentGameScreen() {
           )}
 
           <TouchableOpacity style={styles.backToTournamentBtn} onPress={() => navigation.navigate('Tournament')}>
-            <Text style={styles.backToTournamentText}>SIRALAMAMYI GÖR</Text>
+            <Text style={styles.backToTournamentText}>SIRALAMAYI GÖR</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.homeBtn} onPress={() => navigation.navigate('Home')}>
             <Text style={styles.homeBtnText}>Ana Menü</Text>
