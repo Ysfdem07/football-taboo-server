@@ -171,6 +171,28 @@ export default function TournamentGameScreen() {
     const words = currentCard.word.split(' ');
     let globalCharIndex = 0;
 
+    // Kelimedeki toplam karakter sayısını bulalım (boşluksuz en uzun kelime)
+    const longestWordLength = Math.max(...words.map(w => w.length));
+
+    // Harf sayısına göre dinamik kutu boyutları
+    let boxWidth = 32;
+    let boxHeight = 40;
+    let fontSize = 18;
+
+    if (longestWordLength >= 14) {
+      boxWidth = 20;
+      boxHeight = 28;
+      fontSize = 12;
+    } else if (longestWordLength >= 11) {
+      boxWidth = 24;
+      boxHeight = 32;
+      fontSize = 14;
+    } else if (longestWordLength >= 9) {
+      boxWidth = 28;
+      boxHeight = 36;
+      fontSize = 16;
+    }
+
     return (
       <View style={styles.wordsWrapper}>
         {words.map((word, wordIdx) => {
@@ -179,8 +201,16 @@ export default function TournamentGameScreen() {
             globalCharIndex++; // global index takibi
             const isRevealed = revealedIndices.includes(index);
             return (
-              <View key={charIdx} style={styles.charBox}>
-                <Text style={styles.charText}>{isRevealed ? char.toUpperCase() : ''}</Text>
+              <View 
+                key={charIdx} 
+                style={[
+                  styles.charBox, 
+                  { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 }
+                ]}
+              >
+                <Text style={[styles.charText, { fontSize }]}>
+                  {isRevealed ? char.toUpperCase() : ''}
+                </Text>
               </View>
             );
           });
@@ -269,15 +299,11 @@ export default function TournamentGameScreen() {
       <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
       <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView 
-          style={{ flex: 1 }} 
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+          style={{ flex: 1, justifyContent: 'space-between' }} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 44 : 20}
         >
-          <ScrollView 
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 10 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+          <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <View>
               {/* Top Bar */}
               <View style={styles.topBar}>
@@ -340,7 +366,7 @@ export default function TournamentGameScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Input Section */}
+            {/* Input Section - KeyboardAvoidingView will push this exactly above keyboard */}
             <View style={styles.inputSection}>
               <TextInput
                 ref={inputRef}
@@ -365,7 +391,7 @@ export default function TournamentGameScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-          </ScrollView>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
 
@@ -436,12 +462,14 @@ const styles = StyleSheet.create({
   dotCurrent:   { backgroundColor: NEON_BLUE, width: 14 },
 
   cluesCard: {
-    margin: 16, borderRadius: 16,
+    marginHorizontal: 16,
+    marginVertical: 10,
+    borderRadius: 14,
     borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
-    backgroundColor: 'rgba(0,191,255,0.05)', padding: 16,
+    backgroundColor: 'rgba(0,191,255,0.05)', padding: 12,
   },
-  cluesTitle:     { color: NEON_BLUE, fontSize: 11, fontFamily: 'Poppins_600SemiBold', letterSpacing: 2, marginBottom: 10 },
-  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  cluesTitle:     { color: NEON_BLUE, fontSize: 11, fontFamily: 'Poppins_600SemiBold', letterSpacing: 2, marginBottom: 6 },
+  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   clueHidden:     { opacity: 0.3 },
   clueText: { 
     color: '#ffffff', 
