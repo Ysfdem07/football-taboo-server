@@ -338,7 +338,6 @@ export default function TournamentGameScreen() {
 
               {/* Clues */}
               <View style={styles.cluesCard}>
-                <Text style={styles.cluesTitle}>İPUÇLARI</Text>
                 {currentCard.forbidden.map((clue, i) => (
                   <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
                     <Ionicons
@@ -476,12 +475,11 @@ const styles = StyleSheet.create({
 
   cluesCard: {
     marginHorizontal: 16,
-    marginVertical: 10,
-    borderRadius: 14,
+    marginVertical: 6,
+    borderRadius: 12,
     borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
-    backgroundColor: 'rgba(0,191,255,0.05)', padding: 12,
+    backgroundColor: 'rgba(0,191,255,0.05)', padding: 8,
   },
-  cluesTitle:     { color: NEON_BLUE, fontSize: 11, fontFamily: 'Poppins_600SemiBold', letterSpacing: 2, marginBottom: 6 },
   clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   clueHidden:     { opacity: 0.3 },
   clueText: { 
