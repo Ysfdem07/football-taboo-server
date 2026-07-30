@@ -336,73 +336,42 @@ export default function TournamentGameScreen() {
                 ))}
               </View>
 
-              {/* Dynamic Column/Row Split when keyboard is open */}
-              <View style={keyboardVisible ? styles.splitRow : styles.normalCol}>
-                
-                {/* Clues (Sol Taraf / Üst Taraf) */}
-                <View style={[
-                  styles.cluesCard, 
-                  keyboardVisible ? styles.cluesSplitWidth : styles.cluesFullWidth
-                ]}>
-                  <Text style={styles.cluesTitle}>İPUÇLARI</Text>
-                  {currentCard.forbidden.map((clue, i) => (
-                    <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden, keyboardVisible && { paddingVertical: 2 }]}>
-                      <Ionicons
-                        name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
-                        size={14}
-                        color={i < hintsShown ? NEON_BLUE : '#444'}
-                      />
-                      <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden, keyboardVisible && { fontSize: 12 }]}>
-                        {i < hintsShown ? clue : '? ? ? ? ?'}
-                      </Text>
-                    </View>
-                  ))}
+              {/* Clues (Always vertical stack, matching duel screen) */}
+              <View style={styles.cluesCard}>
+                <Text style={styles.cluesTitle}>İPUÇLARI</Text>
+                {currentCard.forbidden.map((clue, i) => (
+                  <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
+                    <Ionicons
+                      name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
+                      size={14}
+                      color={i < hintsShown ? NEON_BLUE : '#444'}
+                    />
+                    <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
+                      {i < hintsShown ? clue : '? ? ? ? ?'}
+                    </Text>
+                  </View>
+                ))}
 
-                  {hintsShown < currentCard.forbidden.length && !keyboardVisible && (
-                    <TouchableOpacity style={styles.neonActionButton} onPress={handleShowHint} activeOpacity={0.8}>
-                      <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
-                      <Text style={styles.neonActionText}>İpucu Göster (-10 Puan)</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-
-                {/* Right/Bottom container for letters & action buttons */}
-                <View style={keyboardVisible ? styles.lettersSplitWidth : styles.lettersFullWidth}>
-                  {/* Word Letter Placeholders */}
-                  {renderWordPlaceholder()}
-
-                  {/* Keyboard active actions inline */}
-                  {keyboardVisible && (
-                    <View style={styles.splitActionsRow}>
-                      {hintsShown < currentCard.forbidden.length && (
-                        <TouchableOpacity style={[styles.neonActionButton, { flex: 1, marginVertical: 0, paddingVertical: 6 }]} onPress={handleShowHint} activeOpacity={0.8}>
-                          <Text style={[styles.neonActionText, { fontSize: 10 }]}>+İPUCU</Text>
-                        </TouchableOpacity>
-                      )}
-                      <TouchableOpacity 
-                        style={[styles.neonActionButton, { flex: 1, borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginVertical: 0, paddingVertical: 6 }]} 
-                        onPress={handleShowLetter}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={[styles.neonActionText, { color: NEON_GOLD, fontSize: 10 }]}>+HARF</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-
-                  {/* Harf Göster Action Button (Normal view) */}
-                  {!keyboardVisible && (
-                    <TouchableOpacity 
-                      style={[styles.neonActionButton, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)' }]} 
-                      onPress={handleShowLetter}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
-                      <Text style={[styles.neonActionText, { color: NEON_GOLD }]}>Harf Al (-10 Puan)</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-
+                {hintsShown < currentCard.forbidden.length && (
+                  <TouchableOpacity style={styles.neonActionButton} onPress={handleShowHint} activeOpacity={0.8}>
+                    <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
+                    <Text style={styles.neonActionText}>İpucu Göster (-10 Puan)</Text>
+                  </TouchableOpacity>
+                )}
               </View>
+
+              {/* Word Letter Placeholders */}
+              {renderWordPlaceholder()}
+
+              {/* Harf Göster Action Button */}
+              <TouchableOpacity 
+                style={[styles.neonActionButton, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginTop: 8 }]} 
+                onPress={handleShowLetter}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
+                <Text style={[styles.neonActionText, { color: NEON_GOLD }]}>Harf Al (-10 Puan)</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Input Section - KeyboardAvoidingView will push this exactly above keyboard */}
@@ -499,43 +468,6 @@ const styles = StyleSheet.create({
   dot:          { width: 8, height: 8, borderRadius: 4, backgroundColor: '#333' },
   dotDone:      { backgroundColor: NEON_GREEN },
   dotCurrent:   { backgroundColor: NEON_BLUE, width: 14 },
-
-  // Split view styles when keyboard is open
-  splitRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    gap: 10,
-    alignItems: 'flex-start',
-    marginTop: 4,
-  },
-  normalCol: {
-    flexDirection: 'column',
-  },
-  cluesSplitWidth: {
-    flex: 1.1,
-    marginHorizontal: 0,
-    marginVertical: 0,
-    padding: 8,
-  },
-  cluesFullWidth: {
-    marginHorizontal: 16,
-    marginVertical: 10,
-  },
-  lettersSplitWidth: {
-    flex: 1.3,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  lettersFullWidth: {
-    width: '100%',
-  },
-  splitActionsRow: {
-    flexDirection: 'row',
-    gap: 6,
-    paddingHorizontal: 16,
-    marginTop: 4,
-    width: '100%',
-  },
 
   cluesCard: {
     marginHorizontal: 16,
