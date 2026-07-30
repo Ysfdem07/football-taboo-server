@@ -38,6 +38,7 @@ export default function TournamentGameScreen() {
 
   const [qIndex, setQIndex]           = useState(0);
   const [hintsShown, setHintsShown]   = useState(1);
+  const [revealedIndices, setRevealedIndices] = useState<number[]>([]);
   const [timeLeft, setTimeLeft]       = useState(SECS_PER_Q);
   const [guess, setGuess]             = useState('');
   const [totalScore, setTotalScore]   = useState(0);
@@ -96,7 +97,6 @@ export default function TournamentGameScreen() {
   };
 
   const handleTimeout = () => {
-    // Süre doldu → pas, doğruyu gösterme
     flashScreen(false);
   };
 
@@ -107,8 +107,8 @@ export default function TournamentGameScreen() {
 
     const isCorrect = normalizeText(guess) === normalizeText(currentCard.word);
     if (isCorrect) {
-      // Score: max(10, 100 - (hintsShown-1)*10)
-      const earned = Math.max(10, 100 - (hintsShown - 1) * 10);
+      // Score: max(10, 100 - (hintsShown-1)*10 - revealedLetters*10)
+      const earned = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
       setTotalScore(prev => prev + earned);
       setCorrectCount(prev => prev + 1);
     }
@@ -129,6 +129,23 @@ export default function TournamentGameScreen() {
     }
   };
 
+  const handleShowLetter = () => {
+    const wordClean = currentCard.word.replace(/\s+/g, '');
+    if (revealedIndices.length >= wordClean.length) return;
+
+    // Pick a random unrevealed index
+    const unrevealed: number[] = [];
+    for (let i = 0; i < currentCard.word.length; i++) {
+      if (currentCard.word[i] !== ' ' && !revealedIndices.includes(i)) {
+        unrevealed.push(i);
+      }
+    }
+    if (unrevealed.length > 0) {
+      const randIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+      setRevealedIndices(prev => [...prev, randIdx]);
+    }
+  };
+
   const nextQuestion = () => {
     const next = qIndex + 1;
     if (next >= cards.length) {
@@ -136,10 +153,31 @@ export default function TournamentGameScreen() {
     } else {
       setQIndex(next);
       setHintsShown(1);
+      setRevealedIndices([]);
       setTimeLeft(SECS_PER_Q);
       setGuess('');
       setTimeout(() => inputRef.current?.focus(), 300);
     }
+  };
+
+  // Render the word block helper
+  const renderWordPlaceholder = () => {
+    const chars = currentCard.word.split('');
+    return (
+      <View style={styles.wordContainer}>
+        {chars.map((char, index) => {
+          if (char === ' ') {
+            return <View key={index} style={styles.wordSpace} />;
+          }
+          const isRevealed = revealedIndices.includes(index);
+          return (
+            <View key={index} style={styles.charBox}>
+              <Text style={styles.charText}>{isRevealed ? char.toUpperCase() : ''}</Text>
+            </View>
+          );
+        })}
+      </View>
+    );
   };
 
   const finishGame = () => {
@@ -259,7 +297,21 @@ export default function TournamentGameScreen() {
             )}
           </View>
 
+          {/* Word Letter Placeholders */}
+          {renderWordPlaceholder()}
+
+          {/* Harf Göster Action Button */}
+          <TouchableOpacity 
+            style={styles.showLetterBtn} 
+            onPress={handleShowLetter}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="help-circle-outline" size={16} color={NEON_GOLD} />
+            <Text style={styles.showLetterText}>Harf Al (-10 puan)</Text>
+          </TouchableOpacity>
+
           {/* Input */}
+
           <View style={styles.inputSection}>
             <TextInput
               ref={inputRef}
@@ -325,6 +377,49 @@ const styles = StyleSheet.create({
   showHintText:   { color: NEON_PURPLE, fontFamily: 'Poppins_500Medium', fontSize: 13 },
 
   inputSection: { paddingHorizontal: 16, marginTop: 'auto' as any, marginBottom: 16 },
+  wordContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginVertical: 10,
+    gap: 6
+  },
+  charBox: {
+    width: 32,
+    height: 38,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0,191,255,0.4)',
+    borderRadius: 6,
+    backgroundColor: 'rgba(0,191,255,0.08)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  charText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold'
+  },
+  wordSpace: {
+    width: 14,
+    height: 38
+  },
+  showLetterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'center',
+    marginBottom: 16,
+    paddingVertical: 4,
+    paddingHorizontal: 12
+  },
+  showLetterText: {
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 13
+  },
+
   input: {
     borderWidth: 1.5, borderColor: NEON_GREEN, borderRadius: 12,
     backgroundColor: 'rgba(0,255,136,0.06)', color: '#fff',
