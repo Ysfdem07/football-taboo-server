@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
   ImageBackground, SafeAreaView, Animated, Keyboard,
-  KeyboardAvoidingView, Platform, Alert
+  KeyboardAvoidingView, Platform, Alert, ScrollView
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -270,97 +270,102 @@ export default function TournamentGameScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView 
           style={{ flex: 1 }} 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 20}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
-
-          {/* Top Bar */}
-          <View style={styles.topBar}>
-            <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
-            <View style={styles.timerWrap}>
-              <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
-              <View style={styles.timerBarBg}>
-                <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
-              </View>
-            </View>
-            <Text style={styles.scoreText}>{totalScore} puan</Text>
-          </View>
-
-          {/* Progress dots */}
-          <View style={styles.progressDots}>
-            {cards.map((_, i) => (
-              <View key={i} style={[
-                styles.dot,
-                i < qIndex && styles.dotDone,
-                i === qIndex && styles.dotCurrent,
-              ]} />
-            ))}
-          </View>
-
-          {/* Clues */}
-          <View style={styles.cluesCard}>
-            <Text style={styles.cluesTitle}>İPUÇLARI</Text>
-            {currentCard.forbidden.map((clue, i) => (
-              <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
-                <Ionicons
-                  name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
-                  size={16}
-                  color={i < hintsShown ? NEON_BLUE : '#444'}
-                />
-                <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
-                  {i < hintsShown ? clue : '? ? ? ? ?'}
-                </Text>
-              </View>
-            ))}
-
-            {hintsShown < currentCard.forbidden.length && (
-              <TouchableOpacity style={styles.showHintBtn} onPress={handleShowHint}>
-                <Ionicons name="add-circle-outline" size={16} color={NEON_PURPLE} />
-                <Text style={styles.showHintText}>İpucu Göster (-10 puan)</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Word Letter Placeholders */}
-          {renderWordPlaceholder()}
-
-          {/* Harf Göster Action Button */}
-          <TouchableOpacity 
-            style={styles.showLetterBtn} 
-            onPress={handleShowLetter}
-            activeOpacity={0.8}
+          <ScrollView 
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 10 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <Ionicons name="help-circle-outline" size={16} color={NEON_GOLD} />
-            <Text style={styles.showLetterText}>Harf Al (-10 puan)</Text>
-          </TouchableOpacity>
+            <View>
+              {/* Top Bar */}
+              <View style={styles.topBar}>
+                <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
+                <View style={styles.timerWrap}>
+                  <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
+                  <View style={styles.timerBarBg}>
+                    <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
+                  </View>
+                </View>
+                <Text style={styles.scoreText}>{totalScore} puan</Text>
+              </View>
 
-          {/* Input */}
+              {/* Progress dots */}
+              <View style={styles.progressDots}>
+                {cards.map((_, i) => (
+                  <View key={i} style={[
+                    styles.dot,
+                    i < qIndex && styles.dotDone,
+                    i === qIndex && styles.dotCurrent,
+                  ]} />
+                ))}
+              </View>
 
-          <View style={styles.inputSection}>
-            <TextInput
-              ref={inputRef}
-              style={styles.input}
-              value={guess}
-              onChangeText={setGuess}
-              placeholder="Cevabınızı yazın..."
-              placeholderTextColor="#555"
-              onSubmitEditing={handleGuess}
-              autoCorrect={false}
-              autoCapitalize="words"
-              returnKeyType="send"
-              editable={!feedback}
-            />
+              {/* Clues */}
+              <View style={styles.cluesCard}>
+                <Text style={styles.cluesTitle}>İPUÇLARI</Text>
+                {currentCard.forbidden.map((clue, i) => (
+                  <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
+                    <Ionicons
+                      name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
+                      size={16}
+                      color={i < hintsShown ? NEON_BLUE : '#444'}
+                    />
+                    <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
+                      {i < hintsShown ? clue : '? ? ? ? ?'}
+                    </Text>
+                  </View>
+                ))}
 
-            <View style={styles.actionRow}>
-              <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
-                <Text style={styles.skipBtnText}>PAS GEÇ</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
-                <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
+                {hintsShown < currentCard.forbidden.length && (
+                  <TouchableOpacity style={styles.showHintBtn} onPress={handleShowHint}>
+                    <Ionicons name="add-circle-outline" size={16} color={NEON_PURPLE} />
+                    <Text style={styles.showHintText}>İpucu Göster (-10 puan)</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Word Letter Placeholders */}
+              {renderWordPlaceholder()}
+
+              {/* Harf Göster Action Button */}
+              <TouchableOpacity 
+                style={styles.showLetterBtn} 
+                onPress={handleShowLetter}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="help-circle-outline" size={16} color={NEON_GOLD} />
+                <Text style={styles.showLetterText}>Harf Al (-10 puan)</Text>
               </TouchableOpacity>
             </View>
-          </View>
 
+            {/* Input Section */}
+            <View style={styles.inputSection}>
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                value={guess}
+                onChangeText={setGuess}
+                placeholder="Cevabınızı yazın..."
+                placeholderTextColor="#555"
+                onSubmitEditing={handleGuess}
+                autoCorrect={false}
+                autoCapitalize="words"
+                returnKeyType="send"
+                editable={!feedback}
+              />
+
+              <View style={styles.actionRow}>
+                <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
+                  <Text style={styles.skipBtnText}>PAS GEÇ</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
+                  <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
 
@@ -438,8 +443,16 @@ const styles = StyleSheet.create({
   cluesTitle:     { color: NEON_BLUE, fontSize: 11, fontFamily: 'Poppins_600SemiBold', letterSpacing: 2, marginBottom: 10 },
   clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   clueHidden:     { opacity: 0.3 },
-  clueText:       { color: '#fff', fontFamily: 'Poppins_500Medium', fontSize: 15, flex: 1 },
-  clueTextHidden: { color: '#444' },
+  clueText: { 
+    color: '#ffffff', 
+    fontFamily: 'Poppins_700Bold', 
+    fontSize: 16, 
+    flex: 1,
+    textShadowColor: 'rgba(0,191,255,0.4)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4
+  },
+  clueTextHidden: { color: 'rgba(255,255,255,0.15)' },
   showHintBtn:    { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, alignSelf: 'center' },
   showHintText:   { color: NEON_PURPLE, fontFamily: 'Poppins_500Medium', fontSize: 13 },
 
@@ -449,26 +462,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginVertical: 12,
-    gap: 12 // Kelimeler arası boşluk
+    marginVertical: 14,
+    gap: 16
   },
   wordRow: {
     flexDirection: 'row',
-    gap: 4 // Harfler arası boşluk
+    gap: 5
   },
   charBox: {
-    width: 28, // Sığma sorunlarını engellemek için hafif küçültüldü
-    height: 36,
+    width: 30, 
+    height: 38,
     borderWidth: 1.5,
-    borderColor: 'rgba(0,191,255,0.4)',
-    borderRadius: 6,
-    backgroundColor: 'rgba(0,191,255,0.08)',
+    borderColor: 'rgba(0,191,255,0.5)',
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,191,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center'
   },
   charText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Poppins_700Bold'
   },
   showLetterBtn: {
