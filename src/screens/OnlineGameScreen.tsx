@@ -242,6 +242,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+      {/* Dark Cyber Stadium Overlay */}
+      <View style={styles.overlay} />
+
       <SafeAreaView style={styles.container}>
         <View style={styles.scoreBoard}>
           {players.map((p, index) => (
@@ -269,8 +272,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           <View style={styles.gameArea}>
             {/* Word Letter Placeholders with dynamic guess mapping */}
             {(() => {
-              // wordHint formatı sunucudan "M _ _ S I" veya "_ _ _ _" şeklinde boşluklu gelir
-              const chars = wordHint.split(' ');
+              // Sunucudan gelen "M _ _ S I" veya "_ _ _ _" verisini regex ile tek boşluklara normalize edip bölüyoruz
+              const cleanHint = wordHint.trim().replace(/\s+/g, ' ');
+              const chars = cleanHint ? cleanHint.split(' ') : [];
               const guessChars = guess.split('');
               let typedIndex = 0;
 
@@ -374,7 +378,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   autoCapitalize="characters"
                   autoCorrect={false}
                   autoFocus
-                  maxLength={wordHint.split(' ').length}
+                  maxLength={wordHint.trim().replace(/\s+/g, ' ').split(' ').length}
                 />
                 
                 <View style={{ flex: 1, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
@@ -411,9 +415,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,8,20,0.92)'
+  },
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'transparent',
   },
   keyboardView: {
     flex: 1,
