@@ -28,7 +28,11 @@ function normalizeText(t: string) {
     .replace(/ü/g, 'u').replace(/Ü/g, 'u')
     .replace(/ö/g, 'o').replace(/Ö/g, 'o')
     .replace(/ç/g, 'c').replace(/Ç/g, 'c')
-    .replace(/[^a-z0-9\s]/g, '').trim();
+    .replace(/[âäàá]/g, 'a')
+    .replace(/[îïìí]/g, 'i')
+    .replace(/[ûüùú]/g, 'u')
+    .replace(/[ôöòó]/g, 'o')
+    .replace(/[^a-z0-9]/g, '').trim(); // Boşlukları da tamamen normalizeText içinde temizliyoruz
 }
 
 export default function TournamentGameScreen() {
