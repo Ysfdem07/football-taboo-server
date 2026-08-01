@@ -272,14 +272,18 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           <View style={styles.gameArea}>
             {/* Word Letter Placeholders with dynamic guess mapping */}
             {(() => {
-              // Sunucudan gelen "M _ _ S I" veya "_ _ _ _" verisini regex ile tek boşluklara normalize edip bölüyoruz
-              const cleanHint = wordHint.trim().replace(/\s+/g, ' ');
-              const chars = cleanHint ? cleanHint.split(' ') : [];
+              // wordHint formatı sunucudan "M____" veya "____ ____" şeklinde boşluklu gelir.
+              // Kelimeleri boşluklara göre bölüyoruz
+              const words = wordHint.split(' ');
               const guessChars = guess.split('');
-              let typedIndex = 0;
+              
+              let globalCharIndex = 0;
+              let typedIndex = 0; // Yazılan tahminlerin sırasını takip etmek için
 
-              // Harf sayısına göre dinamik kutu boyutu
-              const longestWordLength = chars.length;
+              // Boşluksuz en uzun kelimenin harf sayısını bulalım
+              const longestWordLength = Math.max(...words.map(w => w.length));
+
+              // Harf sayısına göre dinamik kutu boyutları
               let boxWidth = 32;
               let boxHeight = 40;
               let fontSize = 18;
@@ -302,8 +306,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
               return (
                 <View style={styles.wordsWrapper}>
-                  <View style={styles.wordRow}>
-                    {chars.map((char, index) => {
+                  {words.map((word, wordIdx) => {
+                    const charBoxes = word.split('').map((char, charIdx) => {
                       const isRevealed = char !== '_';
                       let displayChar = '';
                       let isPrediction = false;
@@ -320,7 +324,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
                       return (
                         <View 
-                          key={index} 
+                          key={charIdx} 
                           style={[
                             styles.charBox, 
                             { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
@@ -332,8 +336,19 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                           </Text>
                         </View>
                       );
-                    })}
-                  </View>
+                    });
+
+                    // Her kelimeden sonra boşluk için globalIndex'i arttırıyoruz (son kelime hariç)
+                    if (wordIdx < words.length - 1) {
+                      globalCharIndex++;
+                    }
+
+                    return (
+                      <View key={wordIdx} style={styles.wordRow}>
+                        {charBoxes}
+                      </View>
+                    );
+                  })}
                 </View>
               );
             })()}
@@ -378,7 +393,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   autoCapitalize="characters"
                   autoCorrect={false}
                   autoFocus
-                  maxLength={wordHint.trim().replace(/\s+/g, ' ').split(' ').length}
+                  maxLength={wordHint.replace(/\s+/g, '').length}
                 />
                 
                 <View style={{ flex: 1, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
