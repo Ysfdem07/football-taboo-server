@@ -290,15 +290,14 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                       let displayChar = '';
                       let isPrediction = false;
 
-                      if (isRevealed) {
+                      // Eğer sıra bizdeyse ve bu karakter sırasına kadar tahmin yazmışsak
+                      if (isMyTurn && typedIndex < guessChars.length) {
+                        displayChar = guessChars[typedIndex].toUpperCase();
+                        isPrediction = true;
+                        typedIndex++;
+                      } else if (isRevealed) {
+                        // Sıra bizde değilse veya henüz buraya kadar yazmamışsak ve harf açıksa
                         displayChar = char.toUpperCase();
-                      } else {
-                        // Eğer sıra bizdeyse ve tahmin yazmışsak sıradaki boşluğa harfi koy
-                        if (isMyTurn && typedIndex < guessChars.length) {
-                          displayChar = guessChars[typedIndex].toUpperCase();
-                          isPrediction = true;
-                          typedIndex++;
-                        }
                       }
 
                       return (
@@ -353,7 +352,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   autoCapitalize="characters"
                   autoCorrect={false}
                   autoFocus
-                  maxLength={wordHint.split(' ').filter(c => c === '_').length}
+                  maxLength={wordHint.split(' ').length}
                 />
                 <TouchableOpacity style={[styles.sendButton, { flex: 1, marginLeft: 10 }]} onPress={sendGuess}>
                   <Text style={styles.sendButtonText}>Gönder</Text>

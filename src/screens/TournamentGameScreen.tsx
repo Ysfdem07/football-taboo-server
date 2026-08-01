@@ -216,15 +216,16 @@ export default function TournamentGameScreen() {
             let displayChar = '';
             let isPrediction = false;
 
-            if (isRevealed) {
+            // Eğer kullanıcı bu karakter sırasına kadar tahmin yazmışsa
+            if (typedIndex < guessChars.length) {
+              displayChar = guessChars[typedIndex].toUpperCase();
+              // Eğer harf zaten açık ise ve kullanıcının yazdığı harfle uyuşuyorsa veya uyuşmuyorsa bile üstüne yazsın
+              // Kendi yazdıklarını yeşil neon renkte gösterelim
+              isPrediction = true;
+              typedIndex++;
+            } else if (isRevealed) {
+              // Kullanıcı henüz bu sıraya kadar yazmadıysa ancak harf açılmışsa
               displayChar = char.toUpperCase();
-            } else {
-              // Harf al ile açılmamışsa, kullanıcının sıradaki tahmin harfini buraya koyuyoruz
-              if (typedIndex < guessChars.length) {
-                displayChar = guessChars[typedIndex].toUpperCase();
-                isPrediction = true;
-                typedIndex++;
-              }
             }
 
             return (
@@ -415,7 +416,7 @@ export default function TournamentGameScreen() {
                 autoCapitalize="characters"
                 returnKeyType="send"
                 editable={!feedback}
-                maxLength={currentCard.word.replace(/\s+/g, '').length - revealedIndices.length}
+                maxLength={currentCard.word.replace(/\s+/g, '').length}
                 autoFocus={true}
               />
 
