@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -39,6 +39,21 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [guessTimeLeft, setGuessTimeLeft] = useState<number>(0);
   const [buzzerLocked, setBuzzerLocked] = useState(false);
   const [kpChanges, setKpChanges] = useState<Record<string, number>>({});
+
+  const transitionAnim = React.useRef(new Animated.Value(0)).current;
+
+  // Smooth fade-in for round transition screens
+  useEffect(() => {
+    if (gameOver && !isFinal) {
+      Animated.timing(transitionAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      transitionAnim.setValue(0);
+    }
+  }, [gameOver, isFinal]);
 
   useEffect(() => {
     Analytics.logScreenView('OnlineGame');
@@ -165,13 +180,47 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
   if (gameOver) {
     if (!isFinal) {
+      const isTimeout = winnerMessage.includes('SÜRE');
+      const isOpponentWin = winnerMessage.includes('RAKİBİNİZ');
+      const isCorrectWin = winnerMessage.includes('TEBRİKLER');
+
+      // Renk ve ikon seçimi
+      let cardBorderColor = NEON_GOLD;
+      let titleColor = NEON_GOLD;
+      let statusIcon = 'information-circle-outline';
+
+      if (isCorrectWin) {
+        cardBorderColor = NEON_GREEN;
+        titleColor = NEON_GREEN;
+        statusIcon = 'checkmark-circle-outline';
+      } else if (isTimeout || isOpponentWin) {
+        cardBorderColor = '#ff4444';
+        titleColor = '#ff4444';
+        statusIcon = isTimeout ? 'time-outline' : 'close-circle-outline';
+      }
+
       return (
         <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
-          <SafeAreaView style={styles.container}>
-            <View style={styles.gameOverCard}>
-              <Text style={styles.gameOverText}>{winnerMessage}</Text>
-              <Text style={styles.nextRoundText}>Sonraki Tur Başlıyor...</Text>
-            </View>
+          <View style={styles.overlay} />
+          <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <Animated.View style={[styles.transitionCard, { opacity: transitionAnim, borderColor: cardBorderColor, shadowColor: cardBorderColor }]}>
+              <Ionicons name={statusIcon as any} size={48} color={titleColor} style={{ marginBottom: 12 }} />
+              
+              <Text style={[styles.transitionTitle, { color: titleColor }]}>
+                {isCorrectWin ? 'TEBRİKLER!' : isTimeout ? 'SÜRE DOLDU!' : 'TUR SONU!'}
+              </Text>
+              
+              <Text style={styles.transitionDetail}>
+                {winnerMessage.replace('TEBRİKLER! KELİMEYİ BİLDİNİZ!\n\n', '').replace('RAKİBİNİZ KELİMEYİ BİLDİ!\n\n', '').replace('SÜRE DOLDU!\nKimse bilemedi.\n\n', '')}
+              </Text>
+
+              <View style={styles.loadingSection}>
+                <Text style={styles.nextRoundText}>Sonraki Tur Hazırlanıyor...</Text>
+                <View style={styles.loadingBarBg}>
+                  <View style={styles.loadingBarFill} />
+                </View>
+              </View>
+            </Animated.View>
           </SafeAreaView>
         </ImageBackground>
       );
@@ -643,24 +692,58 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
-  gameOverCard: {
-    flex: 1,
-    justifyContent: 'center',
+  transitionCard: {
+    borderWidth: 2,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,8,20,0.95)',
+    paddingVertical: 30,
+    paddingHorizontal: 24,
+    width: '85%',
     alignItems: 'center',
-    padding: 30,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 10,
   },
-  gameOverText: {
-    fontSize: 28,
-    fontFamily: 'Poppins_700Bold',
-    color: Colors.white,
+  transitionTitle: {
+    fontSize: 26,
+    fontFamily: 'Poppins_900Black',
+    letterSpacing: 2,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  transitionDetail: {
+    fontSize: 16,
+    color: '#ffffff',
+    fontFamily: 'Poppins_600SemiBold',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 25,
+  },
+  loadingSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 10,
   },
   nextRoundText: {
-    fontSize: 20,
-    color: Colors.primary,
-    fontFamily: 'Poppins_700Bold',
-    marginTop: 20,
+    fontSize: 13,
+    color: NEON_BLUE,
+    fontFamily: 'Poppins_600SemiBold',
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  loadingBarBg: {
+    width: '80%',
+    height: 6,
+    backgroundColor: '#1a1a2e',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  loadingBarFill: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: NEON_PURPLE,
+    borderRadius: 3,
   },
   gameOverTitle: {
     fontSize: 48,
