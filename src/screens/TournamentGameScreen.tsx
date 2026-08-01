@@ -18,7 +18,7 @@ const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
-const SECS_PER_Q  = 30; // 30 saniyeye çekildi
+const SECS_PER_Q  = 40; // 40 saniyeye yukseltildi
 
 function normalizeText(t: string) {
   return t.toLowerCase()

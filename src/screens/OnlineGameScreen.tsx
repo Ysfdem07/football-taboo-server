@@ -6,7 +6,13 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
 import { getSocket } from '../services/socket';
 import { Analytics } from '../services/analytics';
+import { Ionicons } from '@expo/vector-icons';
 import { showInterstitial } from '../services/ads';
+
+const NEON_GREEN  = '#00FF88';
+const NEON_BLUE   = '#00BFFF';
+const NEON_PURPLE = '#A855F7';
+const NEON_GOLD   = '#FFD700';
 
 type Props = {
   route: RouteProp<RootStackParamList, 'OnlineGame'>;
@@ -238,18 +244,26 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
         <View style={styles.scoreBoard}>
-          {players.map(p => (
-            <Text key={p.id} style={styles.scoreText}>{p.id === socket.id ? p.name + " (Sen)" : p.name}: {scores[p.id] || 0}</Text>
+          {players.map((p, index) => (
+            <Text key={p.id} style={[
+              styles.scoreText, 
+              p.id === socket.id ? { borderColor: NEON_BLUE, color: '#fff' } : { borderColor: '#444', color: '#aaa' }
+            ]}>
+              {p.id === socket.id ? p.name + " (Sen)" : p.name}: {scores[p.id] || 0}
+            </Text>
           ))}
         </View>
 
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
           style={styles.keyboardView}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
           <View style={styles.header}>
-            <Text style={styles.roundText}>TUR {currentRound}/{maxRounds}</Text>
-            <Text style={styles.timerText}>{timeLeft}</Text>
+            <Text style={styles.roundText}>TUR {currentRound} / {maxRounds}</Text>
+            <View style={styles.timerWrap}>
+              <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>{timeLeft}</Text>
+            </View>
           </View>
           
           <View style={styles.gameArea}>
@@ -306,10 +320,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                           style={[
                             styles.charBox, 
                             { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
-                            isPrediction && { borderColor: '#00FF88', backgroundColor: 'rgba(0,255,136,0.08)' }
+                            isPrediction && { borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.08)' }
                           ]}
                         >
-                          <Text style={[styles.charText, { fontSize }, isPrediction && { color: '#00FF88' }]}>
+                          <Text style={[styles.charText, { fontSize }, isPrediction && { color: NEON_GREEN }]}>
                             {displayChar}
                           </Text>
                         </View>
@@ -320,10 +334,17 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               );
             })()}
             
-            <View style={styles.hintsContainer}>
+            {/* Clues Card style list */}
+            <View style={styles.cluesCard}>
               {hints.map((h, i) => (
-                <Text key={i} style={styles.hintText}>{h}</Text>
+                <View key={i} style={styles.clueRow}>
+                  <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
+                  <Text style={styles.clueText}>{h}</Text>
+                </View>
               ))}
+              {hints.length === 0 && (
+                <Text style={styles.emptyCluesText}>Henüz ipucu verilmedi...</Text>
+              )}
             </View>
           </View>
 
@@ -333,14 +354,15 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 style={[styles.buzzerButton, buzzerLocked && styles.buzzerButtonLocked]} 
                 onPress={requestGuessTurn}
                 disabled={buzzerLocked}
+                activeOpacity={0.85}
               >
                 <Text style={styles.buzzerButtonText}>
-                  {buzzerLocked ? 'BEKLEYİN (5)' : 'TAHMİN ET!'}
+                  {buzzerLocked ? 'BEKLEYİN (5)' : '⚡ TAHMİN ET! (BUZZER)'}
                 </Text>
               </TouchableOpacity>
             ) : guessingPlayerId === socket.id ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'center' }}>
-                <Text style={styles.guessTimerText}>{guessTimeLeft}sn</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingHorizontal: 16 }}>
+                {/* Invisible input */}
                 <TextInput
                   style={styles.invisibleInput}
                   value={guess}
@@ -354,13 +376,19 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   autoFocus
                   maxLength={wordHint.split(' ').length}
                 />
-                <TouchableOpacity style={[styles.sendButton, { flex: 1, marginLeft: 10 }]} onPress={sendGuess}>
-                  <Text style={styles.sendButtonText}>Gönder</Text>
-                </TouchableOpacity>
+                
+                <View style={{ flex: 1, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                  <View style={styles.inlineTimerWrap}>
+                    <Text style={styles.guessTimerText}>{guessTimeLeft}s</Text>
+                  </View>
+                  <TouchableOpacity style={styles.guessBtn} onPress={sendGuess} activeOpacity={0.85}>
+                    <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : (
               <View style={styles.waitingContainer}>
-                <Text style={styles.waitingText}>{guessingPlayerName} tahmin ediyor... ({guessTimeLeft})</Text>
+                <Text style={styles.waitingText}>⏳ {guessingPlayerName} tahmin ediyor... ({guessTimeLeft})</Text>
               </View>
             )}
           </View>
@@ -401,34 +429,39 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     color: Colors.white,
-    fontSize: 16,
+    fontSize: 13,
     fontFamily: 'Poppins_700Bold',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    overflow: 'hidden',
-    margin: 5,
+    borderWidth: 1.5,
+    borderColor: '#444',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    margin: 4,
+    backgroundColor: 'rgba(0,8,20,0.85)',
   },
   header: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 8,
   },
   roundText: {
     color: Colors.white,
-    fontSize: 20,
+    fontSize: 16,
     fontFamily: 'Poppins_700Bold',
-    marginBottom: 10,
+    marginBottom: 6,
     letterSpacing: 1,
   },
+  timerWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   timerText: {
-    fontSize: 48,
-    fontFamily: 'Poppins_700Bold',
-    color: Colors.primary,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    overflow: 'hidden',
+    fontSize: 36,
+    fontFamily: 'Poppins_900Black',
+    color: NEON_GREEN,
+    textShadowColor: 'rgba(0,255,136,0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
   gameArea: {
     flex: 1,
@@ -441,8 +474,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginVertical: 14,
-    gap: 16
+    marginVertical: 10,
+    gap: 12
   },
   wordRow: {
     flexDirection: 'row',
@@ -450,9 +483,9 @@ const styles = StyleSheet.create({
   },
   charBox: {
     borderWidth: 1.5,
-    borderColor: 'rgba(0,191,255,0.5)',
+    borderColor: 'rgba(0,191,255,0.4)',
     borderRadius: 8,
-    backgroundColor: 'rgba(0,191,255,0.12)',
+    backgroundColor: 'rgba(0,191,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -460,23 +493,43 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'Poppins_700Bold'
   },
-  hintsContainer: {
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 15,
-    padding: 20,
-    minHeight: 150,
+  cluesCard: {
+    marginHorizontal: 16,
+    marginVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,191,255,0.25)',
+    backgroundColor: 'rgba(0,191,255,0.05)',
+    padding: 10,
+    width: '90%',
+    minHeight: 120,
   },
-  hintText: {
-    fontSize: 22,
-    color: '#FFD700',
+  clueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  clueText: {
+    color: '#ffffff',
     fontFamily: 'Poppins_700Bold',
-    marginVertical: 5,
+    fontSize: 15,
+    flex: 1,
+    textShadowColor: 'rgba(0,191,255,0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 3,
+  },
+  emptyCluesText: {
+    color: '#555',
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'center',
+    marginTop: 20,
   },
   inputArea: {
     flexDirection: 'row',
-    marginBottom: Platform.OS === 'ios' ? 24 : 14, // klavye ustune oturma rahatlıgı
+    marginBottom: Platform.OS === 'ios' ? 24 : 14,
     paddingHorizontal: 16,
   },
   invisibleInput: {
@@ -485,76 +538,87 @@ const styles = StyleSheet.create({
     height: 0,
     opacity: 0,
   },
-  sendButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 25,
+  inlineTimerWrap: {
+    width: 50,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#ff4444',
+    backgroundColor: 'rgba(255,68,68,0.06)',
     justifyContent: 'center',
-    paddingHorizontal: 25,
-    height: 50,
+    alignItems: 'center',
   },
-  sendButtonText: {
-    color: Colors.white,
+  guessTimerText: {
+    color: '#ff4444',
+    fontSize: 16,
+    fontFamily: 'Poppins_900Black',
+  },
+  guessBtn: {
+    flex: 1,
+    backgroundColor: NEON_GREEN,
+    borderRadius: 12,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  guessBtnText: {
+    color: '#000814',
     fontFamily: 'Poppins_700Bold',
-    fontSize: 14,
+    fontSize: 15,
   },
   buzzerButton: {
     flex: 1,
-    backgroundColor: Colors.warning,
-    borderRadius: 25,
+    backgroundColor: NEON_GOLD,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 60,
-    borderWidth: 3,
-    borderColor: Colors.white,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
+    height: 52,
+    borderWidth: 1.5,
+    borderColor: NEON_GOLD,
+    shadowColor: NEON_GOLD,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
     shadowRadius: 8,
-    elevation: 12,
+    elevation: 8,
   },
   buzzerButtonLocked: {
-    backgroundColor: '#555',
-    borderColor: '#777',
+    backgroundColor: 'rgba(255,215,0,0.1)',
+    borderColor: 'rgba(255,215,0,0.2)',
     shadowOpacity: 0,
     elevation: 0,
   },
   buzzerButtonText: {
-    color: Colors.black,
+    color: '#000',
     fontFamily: 'Poppins_900Black',
-    fontSize: 24,
-    letterSpacing: 2,
-  },
-  guessTimerText: {
-    color: Colors.white,
-    fontSize: 20,
-    fontFamily: 'Poppins_700Bold',
-    alignSelf: 'center',
-    marginRight: 10,
-    backgroundColor: Colors.danger,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    overflow: 'hidden',
+    fontSize: 16,
+    letterSpacing: 1,
   },
   waitingContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 25,
+    backgroundColor: 'rgba(0,8,20,0.85)',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#444',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 50,
+    height: 52,
   },
   waitingText: {
-    color: '#FFD700',
-    fontSize: 16,
-    fontFamily: 'Poppins_700Bold',
+    color: '#aaa',
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
   },
   wrongGuessText: {
-    color: Colors.danger,
-    fontSize: 18,
+    color: '#ff4444',
+    fontSize: 15,
     fontFamily: 'Poppins_700Bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   gameOverCard: {
     flex: 1,
