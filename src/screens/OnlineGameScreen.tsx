@@ -253,7 +253,73 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           </View>
           
           <View style={styles.gameArea}>
-            <Text style={styles.hiddenWord}>{wordHint}</Text>
+            {/* Word Letter Placeholders with dynamic guess mapping */}
+            {(() => {
+              // wordHint formatı sunucudan "M _ _ S I" veya "_ _ _ _" şeklinde boşluklu gelir
+              const chars = wordHint.split(' ');
+              const guessChars = guess.split('');
+              let typedIndex = 0;
+
+              // Harf sayısına göre dinamik kutu boyutu
+              const longestWordLength = chars.length;
+              let boxWidth = 32;
+              let boxHeight = 40;
+              let fontSize = 18;
+
+              if (longestWordLength >= 14) {
+                boxWidth = 20;
+                boxHeight = 28;
+                fontSize = 12;
+              } else if (longestWordLength >= 11) {
+                boxWidth = 24;
+                boxHeight = 32;
+                fontSize = 14;
+              } else if (longestWordLength >= 9) {
+                boxWidth = 28;
+                boxHeight = 36;
+                fontSize = 16;
+              }
+
+              const isMyTurn = guessingPlayerId === socket.id;
+
+              return (
+                <View style={styles.wordsWrapper}>
+                  <View style={styles.wordRow}>
+                    {chars.map((char, index) => {
+                      const isRevealed = char !== '_';
+                      let displayChar = '';
+                      let isPrediction = false;
+
+                      if (isRevealed) {
+                        displayChar = char.toUpperCase();
+                      } else {
+                        // Eğer sıra bizdeyse ve tahmin yazmışsak sıradaki boşluğa harfi koy
+                        if (isMyTurn && typedIndex < guessChars.length) {
+                          displayChar = guessChars[typedIndex].toUpperCase();
+                          isPrediction = true;
+                          typedIndex++;
+                        }
+                      }
+
+                      return (
+                        <View 
+                          key={index} 
+                          style={[
+                            styles.charBox, 
+                            { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
+                            isPrediction && { borderColor: '#00FF88', backgroundColor: 'rgba(0,255,136,0.08)' }
+                          ]}
+                        >
+                          <Text style={[styles.charText, { fontSize }, isPrediction && { color: '#00FF88' }]}>
+                            {displayChar}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            })()}
             
             <View style={styles.hintsContainer}>
               {hints.map((h, i) => (
@@ -274,23 +340,25 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 </Text>
               </TouchableOpacity>
             ) : guessingPlayerId === socket.id ? (
-              <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'center' }}>
                 <Text style={styles.guessTimerText}>{guessTimeLeft}sn</Text>
                 <TextInput
-                  style={styles.input}
+                  style={styles.invisibleInput}
                   value={guess}
-                  onChangeText={setGuess}
-                  placeholder="Tahmin..."
-                  placeholderTextColor="#999"
+                  onChangeText={(text) => {
+                    const cleanText = text.replace(/\s+/g, '');
+                    setGuess(cleanText);
+                  }}
                   onSubmitEditing={sendGuess}
-                  autoCapitalize="none"
+                  autoCapitalize="characters"
                   autoCorrect={false}
                   autoFocus
+                  maxLength={wordHint.split(' ').filter(c => c === '_').length}
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={sendGuess}>
+                <TouchableOpacity style={[styles.sendButton, { flex: 1, marginLeft: 10 }]} onPress={sendGuess}>
                   <Text style={styles.sendButtonText}>Gönder</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             ) : (
               <View style={styles.waitingContainer}>
                 <Text style={styles.waitingText}>{guessingPlayerName} tahmin ediyor... ({guessTimeLeft})</Text>
@@ -368,13 +436,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  hiddenWord: {
-    fontSize: 40,
-    fontFamily: 'Poppins_900Black',
-    color: Colors.white,
-    letterSpacing: 10,
-    marginBottom: 40,
-    textAlign: 'center',
+  wordsWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginVertical: 14,
+    gap: 16
+  },
+  wordRow: {
+    flexDirection: 'row',
+    gap: 5
+  },
+  charBox: {
+    borderWidth: 1.5,
+    borderColor: 'rgba(0,191,255,0.5)',
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,191,255,0.12)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  charText: {
+    color: '#fff',
+    fontFamily: 'Poppins_700Bold'
   },
   hintsContainer: {
     width: '100%',
@@ -382,7 +467,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 15,
     padding: 20,
-    minHeight: 200,
+    minHeight: 150,
   },
   hintText: {
     fontSize: 22,
@@ -392,22 +477,20 @@ const styles = StyleSheet.create({
   },
   inputArea: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: Platform.OS === 'ios' ? 24 : 14, // klavye ustune oturma rahatlıgı
+    paddingHorizontal: 16,
   },
-  input: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    fontSize: 18,
-    marginRight: 10,
-    height: 50,
+  invisibleInput: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    opacity: 0,
   },
   sendButton: {
     backgroundColor: Colors.primary,
     borderRadius: 25,
     justifyContent: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: 25,
     height: 50,
   },
   sendButtonText: {

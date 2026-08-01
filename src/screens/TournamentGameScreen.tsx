@@ -177,7 +177,11 @@ export default function TournamentGameScreen() {
   const renderWordPlaceholder = () => {
     // Kelimeleri boşluklara göre bölüyoruz
     const words = currentCard.word.split(' ');
+    
+    // Kullanıcının yazdığı harfleri (boşluksuz) bir diziye çeviriyoruz
+    const guessChars = guess.split('');
     let globalCharIndex = 0;
+    let typedIndex = 0; // Yazılan tahminlerin sırasını takip etmek için
 
     // Kelimedeki toplam karakter sayısını bulalım (boşluksuz en uzun kelime)
     const longestWordLength = Math.max(...words.map(w => w.length));
@@ -208,16 +212,32 @@ export default function TournamentGameScreen() {
             const index = globalCharIndex;
             globalCharIndex++; // global index takibi
             const isRevealed = revealedIndices.includes(index);
+            
+            let displayChar = '';
+            let isPrediction = false;
+
+            if (isRevealed) {
+              displayChar = char.toUpperCase();
+            } else {
+              // Harf al ile açılmamışsa, kullanıcının sıradaki tahmin harfini buraya koyuyoruz
+              if (typedIndex < guessChars.length) {
+                displayChar = guessChars[typedIndex].toUpperCase();
+                isPrediction = true;
+                typedIndex++;
+              }
+            }
+
             return (
               <View 
                 key={charIdx} 
                 style={[
                   styles.charBox, 
-                  { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 }
+                  { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
+                  isPrediction && { borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.08)' } // Kullanıcının yazdıkları yeşil neon parlasın
                 ]}
               >
-                <Text style={[styles.charText, { fontSize }]}>
-                  {isRevealed ? char.toUpperCase() : ''}
+                <Text style={[styles.charText, { fontSize }, isPrediction && { color: NEON_GREEN }]}>
+                  {displayChar}
                 </Text>
               </View>
             );
@@ -378,20 +398,25 @@ export default function TournamentGameScreen() {
               {renderWordPlaceholder()}
             </View>
 
-            {/* Input Section - KeyboardAvoidingView will push this exactly above keyboard */}
+            {/* Input Section - KeyboardAvoidingView will push the action buttons above keyboard */}
             <View style={styles.inputSection}>
+              {/* Invisible TextInput that keeps focus and captures keyboard events */}
               <TextInput
                 ref={inputRef}
-                style={styles.input}
+                style={styles.invisibleInput}
                 value={guess}
-                onChangeText={setGuess}
-                placeholder="Cevabınızı yazın..."
-                placeholderTextColor="#555"
+                onChangeText={(text) => {
+                  // Sadece harfleri alıp boşluksuz tutuyoruz
+                  const cleanText = text.replace(/\s+/g, '');
+                  setGuess(cleanText);
+                }}
                 onSubmitEditing={handleGuess}
                 autoCorrect={false}
-                autoCapitalize="words"
+                autoCapitalize="characters"
                 returnKeyType="send"
                 editable={!feedback}
+                maxLength={currentCard.word.replace(/\s+/g, '').length - revealedIndices.length}
+                autoFocus={true}
               />
 
               <View style={styles.actionRow}>
@@ -560,11 +585,11 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 24 : 14, // klavyeye çok yapışmasın diye alt boşluk
     marginTop: 'auto'
   },
-  input: {
-    borderWidth: 1.5, borderColor: NEON_GREEN, borderRadius: 12,
-    backgroundColor: 'rgba(0,255,136,0.06)', color: '#fff',
-    fontFamily: 'Poppins_500Medium', fontSize: 15, paddingHorizontal: 14, paddingVertical: 12,
-    marginBottom: 8,
+  invisibleInput: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    opacity: 0,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
