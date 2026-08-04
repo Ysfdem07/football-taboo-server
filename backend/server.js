@@ -48,7 +48,7 @@ function sendResendEmail(email, username, code) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       from: 'FutTaboo Destek <onboarding@resend.dev>',
-      to: [email],
+      to: [process.env.RESEND_TEST_TO || 'wordrushtr@gmail.com'], // Domain doğrulanana kadar test adresi
       subject: 'FutTaboo - Şifre Sıfırlama Kodu',
       html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
