@@ -88,8 +88,32 @@ function sendResendEmail(email, username, code) {
 }
 
 async function sendResetEmail(email, username, code) {
+  // Try SMTP first (Primary production mailer)
+  if (smtpUser && smtpPass) {
+    const mailOptions = {
+      from: `"FutTaboo Destek" <${smtpUser}>`,
+      to: email,
+      subject: 'FutTaboo - Şifre Sıfırlama Kodu',
+      text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      const msg = `Reset email sent successfully via SMTP to ${email} at ${new Date().toISOString()}`;
+      console.log(msg);
+      mailSuccessLog = msg;
+      mailErrorLog = 'None';
+      try { await db.saveLog('smtp_success', msg); } catch(e) {}
+      return { success: true };
+    } catch (err) {
+      const msg = `SMTP failed, trying Resend. Error: ${err.message}`;
+      console.warn(msg);
+      try { await db.saveLog('smtp_error', msg); } catch(e) {}
+    }
+  }
+
+  // Fallback: Try Resend API
   const resendKey = process.env.RESEND_API_KEY || '';
-  
   if (resendKey) {
     try {
       await sendResendEmail(email, username, code);
@@ -98,46 +122,22 @@ async function sendResetEmail(email, username, code) {
       mailSuccessLog = msg;
       mailErrorLog = 'None';
       try { await db.saveLog('smtp_success', msg); } catch(e) {}
+      return { success: true };
     } catch (err) {
-      const msg = `Failed to send reset email via Resend to ${email}: ${err.stack || err.message || err}`;
+      const msg = `Failed to send reset email via Resend fallback to ${email}: ${err.message}`;
       console.error(msg);
       mailErrorLog = msg;
       mailSuccessLog = 'None';
       try { await db.saveLog('smtp_error', msg); } catch(e) {}
+      return { success: false, error: err.message };
     }
-    return;
   }
 
-  // Fallback to Nodemailer SMTP
-  if (!smtpUser || !smtpPass) {
-    const msg = `SMTP user or pass is not set. Resending code via logs: [Reset Code for ${email}]: ${code}`;
-    console.warn(`[Mail Warning] ${msg}`);
-    mailErrorLog = `Configuration missing: ${msg}`;
-    try { await db.saveLog('smtp_error', msg); } catch(e) {}
-    return;
-  }
-
-  const mailOptions = {
-    from: `"FutTaboo Destek" <${smtpUser || 'no-reply@futtaboo.com'}>`,
-    to: email,
-    subject: 'FutTaboo - Şifre Sıfırlama Kodu',
-    text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    const msg = `Reset email sent successfully to ${email} at ${new Date().toISOString()}`;
-    console.log(msg);
-    mailSuccessLog = msg;
-    mailErrorLog = 'None';
-    try { await db.saveLog('smtp_success', msg); } catch(e) {}
-  } catch (err) {
-    const msg = `Failed to send reset email to ${email}: ${err.stack || err.message || err}`;
-    console.error(msg);
-    mailErrorLog = msg;
-    mailSuccessLog = 'None';
-    try { await db.saveLog('smtp_error', msg); } catch(e) {}
-  }
+  // Final fallback (Developer mode logs)
+  const msg = `No active mail configuration. Code for ${email}: ${code}`;
+  console.warn(`[Mail DevMode] ${msg}`);
+  mailErrorLog = `No mail configuration active: ${msg}`;
+  return { success: true, devMode: true };
 }
 
 function normalizeText(text) {
@@ -400,43 +400,20 @@ io.on('connection', (socket) => {
       return socket.emit('forgot_password_response', { success: false, error: result.error });
     }
 
-    const resendKey = process.env.RESEND_API_KEY || '';
-    if (resendKey) {
-      try {
-        await sendResendEmail(email, result.username, result.code);
-        
-        // Log success
-        const msg = `Reset email sent successfully via Resend API to ${email}`;
-        mailSuccessLog = msg;
-        mailErrorLog = 'None';
-        try { await db.saveLog('smtp_success', msg); } catch(e) {}
+    // Call unified mailer
+    const mailResult = await sendResetEmail(email, result.username, result.code);
 
-        socket.emit('forgot_password_response', { 
-          success: true, 
-          message: 'Doğrulama kodu e-posta adresinize gönderildi.'
-        });
-      } catch (err) {
-        // Log error
-        const msg = `Failed to send reset email via Resend to ${email}: ${err.message || err}`;
-        mailErrorLog = msg;
-        mailSuccessLog = 'None';
-        try { await db.saveLog('smtp_error', msg); } catch(e) {}
-
-        // Return error to client so they see the API error immediately
-        socket.emit('forgot_password_response', { 
-          success: false, 
-          error: `E-posta gönderilemedi: ${err.message}`
-        });
-      }
-    } else {
-      // Fallback: SMTP / Developer Mode
-      const hasSMTP = !!(smtpUser && smtpPass);
-      sendResetEmail(email, result.username, result.code); // SMTP can run in background
+    if (mailResult.success) {
       socket.emit('forgot_password_response', { 
         success: true, 
-        message: hasSMTP ? 'Doğrulama kodu e-posta adresinize gönderildi.' : 'Geliştirici Modu: Kod sunucu tarafından üretildi.',
-        code: hasSMTP ? null : result.code,
-        devMode: !hasSMTP
+        message: mailResult.devMode ? 'Geliştirici Modu: Kod sunucu tarafından üretildi.' : 'Doğrulama kodu e-posta adresinize gönderildi.',
+        code: mailResult.devMode ? result.code : null,
+        devMode: !!mailResult.devMode
+      });
+    } else {
+      socket.emit('forgot_password_response', { 
+        success: false, 
+        error: `E-posta gönderilemedi: ${mailResult.error || 'Bilinmeyen posta hatası'}`
       });
     }
   });
