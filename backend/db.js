@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/futtaboo';
+// Stable MongoDB Atlas production URI (Bypasses Railway internal connection errors)
+const MONGO_URI = 'mongodb+srv://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush.sphwagn.mongodb.net/futtaboo?retryWrites=true&w=majority';
 
 let isConnected = false;
 
