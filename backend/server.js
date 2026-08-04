@@ -31,14 +31,14 @@ let mailErrorLog = 'None';
 let mailSuccessLog = 'None';
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: '74.125.130.108', // smtp.gmail.com IPv4 - Railway IPv6 engeli asildi
   port: 587,
-  secure: false, // TLS via STARTTLS (not SSL)
-  family: 4,     // Force IPv4 - Railway blocks IPv6 SMTP connections
+  secure: false,
   auth: {
     user: smtpUser,
     pass: smtpPass
   },
+  tls: { servername: 'smtp.gmail.com' },
   connectionTimeout: 15000,
   socketTimeout: 15000
 });
@@ -403,20 +403,13 @@ io.on('connection', (socket) => {
     const { email } = data;
     console.log(`[ForgotPwd Request] Received forgot_password event for email: "${email}"`);
     
-    // Check if database is connected using exposed getter.
-    const isDBConnected = db.getIsConnected() === true; 
-    
+    // generateResetCode internally calls connectDB() - no need to pre-check
     let result;
-    if (!isDBConnected) {
-      console.warn(`[ForgotPwd Warning] Database is not connected! Using offline fallback mode.`);
-      result = { success: true, code: '777777', username: 'TestOyuncusu', devMode: true };
-    } else {
-      try {
-        result = await db.generateResetCode(email);
-      } catch (dbErr) {
-        console.error(`[ForgotPwd Error] generateResetCode database exception:`, dbErr);
-        result = { error: 'Veritabanı sorgu hatası. Geçici olarak çevrimdışı moda geçiliyor.', code: '777777', username: 'TestOyuncusu', devMode: true };
-      }
+    try {
+      result = await db.generateResetCode(email);
+    } catch (dbErr) {
+      console.error(`[ForgotPwd Error] generateResetCode exception:`, dbErr.message);
+      return socket.emit('forgot_password_response', { success: false, error: 'Sunucu hatası. Lütfen tekrar deneyin.' });
     }
 
     if (result.error && !result.devMode) {
