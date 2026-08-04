@@ -227,6 +227,7 @@ app.get('/health', (req, res) => {
 
 app.get('/debug-db', async (req, res) => {
   try {
+    const mongoose = require('mongoose');
     const isConnected = mongoose.connection.readyState === 1;
     if (!isConnected) return res.json({ error: 'Not connected' });
     
