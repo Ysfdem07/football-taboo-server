@@ -403,22 +403,14 @@ io.on('connection', (socket) => {
       return socket.emit('forgot_password_response', { success: false, error: result.error });
     }
 
-    // Call unified mailer
-    const mailResult = await sendResetEmail(email, result.username, result.code);
+    // Run mailer in background (Non-blocking: SMTP/Resend runs in background, client gets immediate response)
+    sendResetEmail(email, result.username, result.code);
 
-    if (mailResult.success) {
-      socket.emit('forgot_password_response', { 
-        success: true, 
-        message: mailResult.devMode ? 'Geliştirici Modu: Kod sunucu tarafından üretildi.' : 'Doğrulama kodu e-posta adresinize gönderildi.',
-        code: mailResult.devMode ? result.code : null,
-        devMode: !!mailResult.devMode
-      });
-    } else {
-      socket.emit('forgot_password_response', { 
-        success: false, 
-        error: `E-posta gönderilemedi: ${mailResult.error || 'Bilinmeyen posta hatası'}`
-      });
-    }
+    // Emit immediate success to client so spinner disappears instantly
+    socket.emit('forgot_password_response', { 
+      success: true, 
+      message: 'Doğrulama kodu e-posta adresinize gönderildi.'
+    });
   });
 
   // Reset Password Verification
