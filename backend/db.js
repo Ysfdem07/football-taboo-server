@@ -1,15 +1,22 @@
 const mongoose = require('mongoose');
 
-// Stable Shard-based MongoDB Atlas URI (Bypasses SRV query DNS lookups entirely)
-const MONGO_URI = 'mongodb://wordrushtr_db_user:hsNIC3qKGwlYcz6T@ac-gnsx3ie-shard-00-00.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-01.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-02.sphwagn.mongodb.net:27017/futtaboo?ssl=true&replicaSet=atlas-l1s7pw-shard-0&authSource=admin&retryWrites=true&w=majority';
+// Use Atlas URI from env or fallback to hardcoded shard-based URI
+const ATLAS_URI = 'mongodb://wordrushtr_db_user:hsNIC3qKGwlYcz6T@ac-gnsx3ie-shard-00-00.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-01.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-02.sphwagn.mongodb.net:27017/futtaboo?ssl=true&replicaSet=atlas-l1s7pw-shard-0&authSource=admin&retryWrites=true&w=majority';
+// Never use internal Railway MongoDB - always use Atlas
+const MONGO_URI = ATLAS_URI;
 
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
+  // If already connecting, wait for it
+  if (mongoose.connection.readyState === 2) {
+    await new Promise(resolve => mongoose.connection.once('connected', resolve));
+    isConnected = true;
+    return;
+  }
   try {
     await mongoose.connect(MONGO_URI, {
-      bufferCommands: false,
       autoIndex: false
     });
     isConnected = true;

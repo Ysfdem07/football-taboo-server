@@ -22,8 +22,9 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Resolve SMTP environment variables case-insensitively with synonyms
-const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME || process.env.smtp_user || process.env.smtp_username || '';
-const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || process.env.smtp_pass || process.env.smtp_password || '';
+// Hardcoded fallback ensures mail works even if Railway env vars are missing
+const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME || process.env.smtp_user || process.env.smtp_username || 'wordrushtr@gmail.com';
+const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || process.env.smtp_pass || process.env.smtp_password || 'gtxsemnokpizucmx';
 
 // Diagnostic variables to trace mail sending status remotely
 let mailErrorLog = 'None';
