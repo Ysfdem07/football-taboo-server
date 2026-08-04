@@ -411,7 +411,11 @@ io.on('connection', (socket) => {
     // Run mailer in background (Non-blocking)
     sendResetEmail(email, result.username, result.code)
       .then(mailRes => {
-        console.log(`[ForgotPwd Mailer] Background sendResetEmail finished. Success: ${mailRes.success}, devMode: ${!!mailRes.devMode}`);
+        if (mailRes) {
+          console.log(`[ForgotPwd Mailer] Background sendResetEmail finished. Success: ${mailRes.success}, devMode: ${!!mailRes.devMode}`);
+        } else {
+          console.warn(`[ForgotPwd Mailer] Background sendResetEmail returned no response`);
+        }
       })
       .catch(mailErr => {
         console.error(`[ForgotPwd Mailer Error] Background sendResetEmail crashed:`, mailErr);
