@@ -1,22 +1,21 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/futtaboo';
+// Absolute MongoDB Atlas URI (Bypasses Railway internal docker connection proxy issues)
+const MONGO_URI = 'mongodb+srv://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush.sphwagn.mongodb.net/futtaboo?retryWrites=true&w=majority';
 
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
   try {
-    // Disable buffering so that queries fail instantly instead of hanging/crashing the node process
     await mongoose.connect(MONGO_URI, {
       bufferCommands: false,
       autoIndex: false
     });
     isConnected = true;
-    console.log('MongoDB connected successfully');
+    console.log('MongoDB connected successfully to Atlas');
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    // Don't kill the server process so socket connections can still respond with errors
     isConnected = false;
   }
 }
@@ -35,6 +34,8 @@ const playerSchema = new mongoose.Schema({
   taboos: { type: Number, default: 0 },
   resetCode: { type: String, default: null },
   resetExpires: { type: Date, default: null }
+}, {
+  bufferCommands: false // Disable buffering on schema level
 });
 
 const Player = mongoose.model('Player', playerSchema);
@@ -43,6 +44,8 @@ const systemLogSchema = new mongoose.Schema({
   type: { type: String, required: true },
   message: { type: String, required: true },
   timestamp: { type: Date, default: Date.now }
+}, {
+  bufferCommands: false // Disable buffering on schema level
 });
 
 const SystemLog = mongoose.model('SystemLog', systemLogSchema);
@@ -68,6 +71,8 @@ const weeklyTournamentSchema = new mongoose.Schema({
   cards:        { type: Array, required: true },  // [{ word, forbidden }] x20
   scores:       { type: [tournamentScoreSchema], default: [] },
   rewardsGiven: { type: Boolean, default: false }
+}, {
+  bufferCommands: false // Disable buffering on schema level
 });
 
 const WeeklyTournament = mongoose.model('WeeklyTournament', weeklyTournamentSchema);
