@@ -17,13 +17,14 @@ async function connectDB() {
   }
   try {
     await mongoose.connect(MONGO_URI, {
-      autoIndex: false, serverSelectionTimeoutMS: 3000, socketTimeoutMS: 10000
+      autoIndex: false, serverSelectionTimeoutMS: 10000, socketTimeoutMS: 10000
     });
     isConnected = true;
     console.log('MongoDB connected successfully to Atlas');
   } catch (err) {
     console.error('MongoDB connection error:', err);
     isConnected = false;
+    throw err;
   }
 }
 
