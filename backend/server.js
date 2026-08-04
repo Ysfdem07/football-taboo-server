@@ -8,6 +8,19 @@ const path = require('path');
 const db = require('./db');
 const nodemailer = require('nodemailer');
 
+// Global crash logging helper to debug cloud environment startup issues
+process.on('uncaughtException', (err) => {
+  const logMsg = `\n[${new Date().toISOString()}] UNCAUGHT EXCEPTION: ${err.stack || err.message || err}\n`;
+  console.error(logMsg);
+  try { fs.appendFileSync('crash_log.txt', logMsg); } catch(e) {}
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  const logMsg = `\n[${new Date().toISOString()}] UNHANDLED REJECTION: ${reason?.stack || reason?.message || reason}\n`;
+  console.error(logMsg);
+  try { fs.appendFileSync('crash_log.txt', logMsg); } catch(e) {}
+});
+
 // Resolve SMTP environment variables case-insensitively with synonyms
 const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME || process.env.smtp_user || process.env.smtp_username || '';
 const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || process.env.smtp_pass || process.env.smtp_password || '';
