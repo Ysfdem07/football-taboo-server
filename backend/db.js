@@ -218,19 +218,28 @@ module.exports = {
   // ─── Weekly Tournament Functions ─────────────────────────────────────────
 
   ensureWeeklyTournament: async (wordList) => {
-    await connectDB();
-    const weekId = getWeekId();
-    const existing = await WeeklyTournament.findOne({ weekId });
-    if (existing) return existing;
+    try {
+      await connectDB();
+      if (!isConnected) {
+        console.warn(`[Tournament Warning] Database not connected. Skipping tournament check.`);
+        return null;
+      }
+      const weekId = getWeekId();
+      const existing = await WeeklyTournament.findOne({ weekId });
+      if (existing) return existing;
 
-    // Pick 20 random cards
-    const shuffled = [...wordList].sort(() => Math.random() - 0.5);
-    const cards = shuffled.slice(0, 20);
-    const { startDate, endDate } = getWeekBounds();
-    const tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
-    await tournament.save();
-    console.log(`[Tournament] Created new tournament for ${weekId} with ${cards.length} cards`);
-    return tournament;
+      // Pick 20 random cards
+      const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+      const cards = shuffled.slice(0, 20);
+      const { startDate, endDate } = getWeekBounds();
+      const tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
+      await tournament.save();
+      console.log(`[Tournament] Created new tournament for ${weekId} with ${cards.length} cards`);
+      return tournament;
+    } catch (err) {
+      console.error(`[Tournament Error] Failed to ensure weekly tournament:`, err);
+      return null;
+    }
   },
 
   getWeeklyTournament: async (playerId, wordList) => {

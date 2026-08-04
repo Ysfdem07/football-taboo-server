@@ -313,16 +313,16 @@ setInterval(loadWords, 3600000);
 
 // ─── Tournament Init ─────────────────────────────────────────────────────────
 async function initTournament() {
-  try {
-    // Wait a bit for words to load
-    setTimeout(async () => {
+  // Wait a bit for words to load
+  setTimeout(async () => {
+    try {
       const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
       await db.ensureWeeklyTournament(wordSource);
       console.log('[Tournament] Weekly tournament ensured.');
-    }, 5000);
-  } catch (e) {
-    console.error('[Tournament] Init error:', e);
-  }
+    } catch (e) {
+      console.error('[Tournament] Async Init error:', e);
+    }
+  }, 5000);
 }
 initTournament();
 
