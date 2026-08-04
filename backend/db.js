@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-// Absolute MongoDB Atlas URI (Bypasses Railway internal docker connection proxy issues)
-const MONGO_URI = 'mongodb+srv://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush.sphwagn.mongodb.net/futtaboo?retryWrites=true&w=majority';
+// Stable Shard-based MongoDB Atlas URI (Bypasses SRV query DNS lookups entirely)
+const MONGO_URI = 'mongodb://wordrushtr_db_user:hsNIC3qKGwlYcz6T@ac-gnsx3ie-shard-00-00.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-01.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-02.sphwagn.mongodb.net:27017/futtaboo?ssl=true&replicaSet=atlas-l1s7pw-shard-0&authSource=admin&retryWrites=true&w=majority';
 
 let isConnected = false;
 
