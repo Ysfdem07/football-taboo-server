@@ -31,13 +31,16 @@ let mailErrorLog = 'None';
 let mailSuccessLog = 'None';
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // TLS via STARTTLS (not SSL)
+  family: 4,     // Force IPv4 - Railway blocks IPv6 SMTP connections
   auth: {
     user: smtpUser,
     pass: smtpPass
   },
-  connectionTimeout: 10000, // 10 seconds connection timeout
-  socketTimeout: 10000      // 10 seconds socket timeout
+  connectionTimeout: 15000,
+  socketTimeout: 15000
 });
 
 // Send mail using Resend API over HTTPS (Bypasses Render SMTP port blocking)
