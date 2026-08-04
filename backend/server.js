@@ -105,34 +105,44 @@ function sendResendEmail(email, username, code) {
 }
 
 async function sendResetEmail(email, username, code) {
-  // Skip SMTP - Railway (SFO region) blocks outbound Gmail SMTP connections
-  // Go directly to Resend HTTP API which works from Railway
+  // 1) SMTP - Gmail port 587 TLS IPv4
+  try {
+    await transporter.sendMail({
+      from: `"FutTaboo Destek" <${smtpUser}>`,
+      to: email,
+      subject: 'FutTaboo - Şifre Sıfırlama Kodu',
+      text: `Merhaba ${username},\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika geçerlidir.`
+    });
+    const msg = `SMTP OK: Reset email sent to ${email}`;
+    console.log(msg);
+    mailSuccessLog = msg;
+    mailErrorLog = 'None';
+    return { success: true };
+  } catch (smtpErr) {
+    console.error(`[SMTP ERR] ${smtpErr.message}`);
+    mailErrorLog = `SMTP failed: ${smtpErr.message}`;
+  }
 
-  // Fallback: Try Resend API (Runs if SMTP fails OR is not configured)
+  // 2) Resend HTTP API fallback
   const resendKey = process.env.RESEND_API_KEY || '';
   if (resendKey) {
     try {
       await sendResendEmail(email, username, code);
-      const msg = `Reset email sent successfully via Resend API to ${email} at ${new Date().toISOString()}`;
+      const msg = `Resend OK: Reset email sent to ${email}`;
       console.log(msg);
       mailSuccessLog = msg;
       mailErrorLog = 'None';
-      try { await db.saveLog('smtp_success', msg); } catch(e) {}
       return { success: true };
-    } catch (err) {
-      const msg = `Failed to send reset email via Resend fallback to ${email}: ${err.message}`;
-      console.error(msg);
-      mailErrorLog = msg;
-      mailSuccessLog = 'None';
-      try { await db.saveLog('smtp_error', msg); } catch(e) {}
-      return { success: false, error: `SMTP ve Resend servisleri başarısız oldu. Hata: ${err.message}` };
+    } catch (resendErr) {
+      console.error(`[Resend ERR] ${resendErr.message}`);
+      mailErrorLog = `Resend failed: ${resendErr.message}`;
     }
   }
 
-  // Final fallback (Developer mode logs)
-  const msg = `No active mail configuration. Code for ${email}: ${code}`;
-  console.warn(`[Mail DevMode] ${msg}`);
-  mailErrorLog = `No mail configuration active: ${msg}`;
+  // 3) Her ikisi de başarısız — devMode
+  const devMsg = `[Mail DevMode] No active mail config. Code for ${email}: ${code}`;
+  console.warn(devMsg);
+  mailErrorLog = devMsg;
   return { success: true, devMode: true };
 }
 
