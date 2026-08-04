@@ -48,7 +48,7 @@ function sendResendEmail(email, username, code) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       from: 'FutTaboo Destek <onboarding@resend.dev>',
-      to: [process.env.RESEND_TEST_TO || 'wordrushtr@gmail.com'], // Domain doğrulanana kadar test adresi
+      to: [email],
       subject: 'FutTaboo - Şifre Sıfırlama Kodu',
       html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
@@ -105,32 +105,8 @@ function sendResendEmail(email, username, code) {
 }
 
 async function sendResetEmail(email, username, code) {
-  let smtpFailed = false;
-
-  // Try SMTP first (Primary production mailer)
-  if (smtpUser && smtpPass) {
-    const mailOptions = {
-      from: `"FutTaboo Destek" <${smtpUser}>`,
-      to: email,
-      subject: 'FutTaboo - Şifre Sıfırlama Kodu',
-      text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
-    };
-
-    try {
-      await transporter.sendMail(mailOptions);
-      const msg = `Reset email sent successfully via SMTP to ${email} at ${new Date().toISOString()}`;
-      console.log(msg);
-      mailSuccessLog = msg;
-      mailErrorLog = 'None';
-      try { await db.saveLog('smtp_success', msg); } catch(e) {}
-      return { success: true };
-    } catch (err) {
-      smtpFailed = true;
-      const msg = `SMTP failed, trying Resend. Error: ${err.message}`;
-      console.warn(msg);
-      try { await db.saveLog('smtp_error', msg); } catch(e) {}
-    }
-  }
+  // Skip SMTP - Railway (SFO region) blocks outbound Gmail SMTP connections
+  // Go directly to Resend HTTP API which works from Railway
 
   // Fallback: Try Resend API (Runs if SMTP fails OR is not configured)
   const resendKey = process.env.RESEND_API_KEY || '';
