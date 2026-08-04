@@ -1,19 +1,23 @@
 const mongoose = require('mongoose');
 
-// Stable MongoDB Atlas production URI (Bypasses Railway internal connection errors)
-const MONGO_URI = 'mongodb+srv://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush.sphwagn.mongodb.net/futtaboo?retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/futtaboo';
 
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
   try {
-    await mongoose.connect(MONGO_URI);
+    // Disable buffering so that queries fail instantly instead of hanging/crashing the node process
+    await mongoose.connect(MONGO_URI, {
+      bufferCommands: false,
+      autoIndex: false
+    });
     isConnected = true;
     console.log('MongoDB connected successfully');
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1);
+    // Don't kill the server process so socket connections can still respond with errors
+    isConnected = false;
   }
 }
 
