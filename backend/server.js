@@ -398,14 +398,26 @@ io.on('connection', (socket) => {
   // Forgot Password Code Request
   socket.on('forgot_password', async (data) => {
     const { email } = data;
+    console.log(`[ForgotPwd Request] Received forgot_password event for email: "${email}"`);
+    
     const result = await db.generateResetCode(email);
     if (result.error) {
+      console.warn(`[ForgotPwd Warning] generateResetCode failed: ${result.error}`);
       return socket.emit('forgot_password_response', { success: false, error: result.error });
     }
 
-    // Run mailer in background (Non-blocking: SMTP/Resend runs in background, client gets immediate response)
-    sendResetEmail(email, result.username, result.code);
+    console.log(`[ForgotPwd Info] Generated reset code for ${email}. Triggering sendResetEmail...`);
+    
+    // Run mailer in background (Non-blocking)
+    sendResetEmail(email, result.username, result.code)
+      .then(mailRes => {
+        console.log(`[ForgotPwd Mailer] Background sendResetEmail finished. Success: ${mailRes.success}, devMode: ${!!mailRes.devMode}`);
+      })
+      .catch(mailErr => {
+        console.error(`[ForgotPwd Mailer Error] Background sendResetEmail crashed:`, mailErr);
+      });
 
+    console.log(`[ForgotPwd Success] Emitting immediate forgot_password_response to client`);
     // Emit immediate success to client so spinner disappears instantly
     socket.emit('forgot_password_response', { 
       success: true, 
