@@ -88,6 +88,8 @@ function sendResendEmail(email, username, code) {
 }
 
 async function sendResetEmail(email, username, code) {
+  let smtpFailed = false;
+
   // Try SMTP first (Primary production mailer)
   if (smtpUser && smtpPass) {
     const mailOptions = {
@@ -106,13 +108,14 @@ async function sendResetEmail(email, username, code) {
       try { await db.saveLog('smtp_success', msg); } catch(e) {}
       return { success: true };
     } catch (err) {
+      smtpFailed = true;
       const msg = `SMTP failed, trying Resend. Error: ${err.message}`;
       console.warn(msg);
       try { await db.saveLog('smtp_error', msg); } catch(e) {}
     }
   }
 
-  // Fallback: Try Resend API
+  // Fallback: Try Resend API (Runs if SMTP fails OR is not configured)
   const resendKey = process.env.RESEND_API_KEY || '';
   if (resendKey) {
     try {
@@ -129,7 +132,7 @@ async function sendResetEmail(email, username, code) {
       mailErrorLog = msg;
       mailSuccessLog = 'None';
       try { await db.saveLog('smtp_error', msg); } catch(e) {}
-      return { success: false, error: err.message };
+      return { success: false, error: `SMTP ve Resend servisleri başarısız oldu. Hata: ${err.message}` };
     }
   }
 
