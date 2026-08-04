@@ -366,6 +366,10 @@ module.exports = {
     tournament.rewardsGiven = true;
     await tournament.save();
     return { success: true, rewarded: sorted.length };
+  },
+
+  getIsConnected: () => {
+    return isConnected;
   }
 };
 

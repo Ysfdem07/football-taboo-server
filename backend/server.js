@@ -413,8 +413,8 @@ io.on('connection', (socket) => {
     const { email } = data;
     console.log(`[ForgotPwd Request] Received forgot_password event for email: "${email}"`);
     
-    // Check if database is connected. If not, generate a test code directly to bypass database errors
-    const isDBConnected = db.isConnected !== false; 
+    // Check if database is connected using exposed getter.
+    const isDBConnected = db.getIsConnected() === true; 
     
     let result;
     if (!isDBConnected) {
