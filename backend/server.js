@@ -32,8 +32,8 @@ let mailSuccessLog = 'None';
 
 const transporter = nodemailer.createTransport({
   host: '74.125.130.108', // smtp.gmail.com IPv4 - Railway IPv6 engeli asildi
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
     user: smtpUser,
     pass: smtpPass
