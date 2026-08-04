@@ -42,7 +42,7 @@ const playerSchema = new mongoose.Schema({
   resetCode: { type: String, default: null },
   resetExpires: { type: Date, default: null }
 }, {
-  bufferCommands: false // Disable buffering on schema level
+  // bufferCommands: default true - allows queuing until connected
 });
 
 const Player = mongoose.model('Player', playerSchema);
@@ -52,7 +52,7 @@ const systemLogSchema = new mongoose.Schema({
   message: { type: String, required: true },
   timestamp: { type: Date, default: Date.now }
 }, {
-  bufferCommands: false // Disable buffering on schema level
+  // bufferCommands: default true - allows queuing until connected
 });
 
 const SystemLog = mongoose.model('SystemLog', systemLogSchema);
@@ -79,7 +79,7 @@ const weeklyTournamentSchema = new mongoose.Schema({
   scores:       { type: [tournamentScoreSchema], default: [] },
   rewardsGiven: { type: Boolean, default: false }
 }, {
-  bufferCommands: false // Disable buffering on schema level
+  // bufferCommands: default true - allows queuing until connected
 });
 
 const WeeklyTournament = mongoose.model('WeeklyTournament', weeklyTournamentSchema);
