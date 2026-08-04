@@ -221,7 +221,32 @@ app.get('/seed-players', async (req, res) => {
   }
 });
 
-app.get('/health', async (req, res) => {
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+app.get('/debug-db', async (req, res) => {
+  try {
+    const isConnected = mongoose.connection.readyState === 1;
+    if (!isConnected) return res.json({ error: 'Not connected' });
+    
+    const db = mongoose.connection.db;
+    const collections = await db.listCollections().toArray();
+    const players = await mongoose.connection.collection('players').find({}).toArray();
+    
+    res.json({
+      databaseName: db.databaseName,
+      collections: collections.map(c => c.name),
+      playersCount: players.length,
+      playerEmails: players.map(p => p.email),
+      playerUsernames: players.map(p => p.username)
+    });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+app.get('/health-legacy', async (req, res) => {
   const uri = process.env.MONGODB_URI || 'not-set';
   const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
   
