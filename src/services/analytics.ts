@@ -1,5 +1,4 @@
 // src/services/analytics.ts
-import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 export interface AnalyticsEventParams {
   [key: string]: any;
@@ -116,40 +115,50 @@ class ConsoleAnalyticsProvider implements AnalyticsProvider {
 /**
  * Meta (Facebook) Analytics Provider
  * Uses react-native-fbsdk-next to send AppEvents for ROAS and App Install tracking.
+ * Safely handles environments where native modules are missing (like Expo Go) without crashing.
  */
 class MetaAnalyticsProvider implements AnalyticsProvider {
   name = 'Meta';
+  private appEventsLogger: any = null;
 
   async init(): Promise<void> {
-    if (__DEV__) {
-      console.log('[Analytics] Meta Provider initialized (events logged to console in dev but not sent).');
+    try {
+      // Dynamic require ensures Expo Go does not crash if native module is missing
+      const fbsdk = require('react-native-fbsdk-next');
+      this.appEventsLogger = fbsdk.AppEventsLogger;
+      if (__DEV__) {
+        console.log('[Analytics] Meta Provider initialized (events logged to console in dev but not sent).');
+      }
+    } catch (err) {
+      if (__DEV__) {
+        console.log('[Analytics] Meta SDK native module is not available. Skipping Meta initialization (expected in Expo Go).');
+      }
     }
-    // Meta SDK auto-initializes via app.json config in Expo
   }
 
   trackEvent(eventName: string, params?: AnalyticsEventParams): void {
-    if (!__DEV__) {
+    if (this.appEventsLogger && !__DEV__) {
       try {
-        AppEventsLogger.logEvent(eventName, params ? params.valueToSum || undefined : undefined, params);
+        this.appEventsLogger.logEvent(eventName, params ? params.valueToSum || undefined : undefined, params);
       } catch (err) {
         console.warn('[Analytics] Meta failed to log event:', err);
       }
-    } else {
+    } else if (__DEV__) {
       console.log(`[Analytics] [Meta Stub] Would track event: "${eventName}"`, params);
     }
   }
 
   setUserProperties(userId: string, properties?: Record<string, any>): void {
-    if (!__DEV__) {
+    if (this.appEventsLogger && !__DEV__) {
       try {
-        AppEventsLogger.setUserID(userId);
+        this.appEventsLogger.setUserID(userId);
         if (properties) {
-          AppEventsLogger.setUserData(properties);
+          this.appEventsLogger.setUserData(properties);
         }
       } catch (err) {
         console.warn('[Analytics] Meta failed to set user data:', err);
       }
-    } else {
+    } else if (__DEV__) {
       console.log(`[Analytics] [Meta Stub] Would set user property: "${userId}"`, properties);
     }
   }
