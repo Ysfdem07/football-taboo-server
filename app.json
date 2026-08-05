@@ -3,16 +3,14 @@
     "sdkVersion": "54.0.0",
     "newArchEnabled": true,
     "name": "Wordico",
-    "slug": "FootballTaboo",
+    "slug": "wordico",
     "owner": "ysfdem",
     "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/b0f238c2-3524-4f60-beb6-63f5f9911f4e",
-      "enabled": true,
-      "fallbackToCacheTimeout": 0
+      "url": "https://u.expo.dev/b0f238c2-3524-4f60-beb6-63f5f9911f4e"
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -36,14 +34,8 @@
     },
     "extra": {
       "eas": {
-        "projectId": "b0f238c2-3524-4f60-beb6-63f5f9911f4e"
+        "projectId": "0abb9bc7-7d1c-4365-9190-cecab60b2274"
       }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/b0f238c2-3524-4f60-beb6-63f5f9911f4e"
     },
     "plugins": [
       "@react-native-firebase/app",
