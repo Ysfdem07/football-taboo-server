@@ -289,37 +289,41 @@ const io = require('socket.io')(server, {
 const Papa = require('papaparse');
 const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv";
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
-let wordsDb = [];
+let wordsDb = { football: [], cinema: [], music: [] };
 
 async function loadWords() {
-  try {
-    const response = await fetch(GOOGLE_SHEET_CSV_URL);
-    const csvText = await response.text();
-    Papa.parse(csvText, {
-      header: false,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const newWords = [];
-        const rows = results.data;
-        for (let i = 1; i < rows.length; i++) {
-          const row = rows[i];
-          if (!row[0] || row[0].trim() === '') continue;
-          const word = row[0].trim();
-          const forbidden = [];
-          for (let col = 1; col <= 5; col++) {
-             if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+  for (const category of Object.keys(CSV_URLS)) {
+    try {
+      const response = await fetch(CSV_URLS[category]);
+      const csvText = await response.text();
+      Papa.parse(csvText, {
+        header: false,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const newWords = [];
+          const rows = results.data;
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row[0] || row[0].trim() === '') continue;
+            const word = row[0].trim();
+            const forbidden = [];
+            for (let col = 1; col <= 5; col++) {
+               if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+            }
+            newWords.push({ word, forbidden });
           }
-          newWords.push({ word, forbidden });
+          if (newWords.length > 0) {
+            wordsDb[category] = newWords;
+            console.log(`Loaded ${wordsDb[category].length} words from Cloud Database for ${category}.`);
+          }
         }
-        if (newWords.length > 0) {
-          wordsDb = newWords;
-          console.log(`Loaded ${wordsDb.length} words from Cloud Database.`);
-        }
+      });
+    } catch (e) {
+      console.error(`Cloud fetch failed for ${category}, falling back to local words.json if football`, e);
+      if (category === 'football') {
+         wordsDb.football = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
       }
-    });
-  } catch (e) {
-    console.error("Cloud fetch failed, falling back to local words.json", e);
-    wordsDb = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+    }
   }
 }
 
@@ -329,12 +333,15 @@ setInterval(loadWords, 3600000);
 
 // ─── Tournament Init ─────────────────────────────────────────────────────────
 async function initTournament() {
-  // Wait a bit for words to load
   setTimeout(async () => {
     try {
-      const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
-      await db.ensureWeeklyTournament(wordSource);
-      console.log('[Tournament] Weekly tournament ensured.');
+      for (const category of Object.keys(wordsDb)) {
+        const wordSource = wordsDb[category].length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+        if (wordSource.length > 0) {
+           await db.ensureWeeklyTournament(wordSource, category);
+           console.log(`[Tournament] Weekly tournament ensured for ${category}.`);
+        }
+      }
     } catch (e) {
       console.error('[Tournament] Async Init error:', e);
     }
@@ -352,8 +359,12 @@ setInterval(async () => {
   }
   // Monday = 1, after 00:01 — ensure new tournament exists
   if (now.getDay() === 1 && now.getHours() === 0) {
-    const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
-    await db.ensureWeeklyTournament(wordSource);
+    for (const category of Object.keys(wordsDb)) {
+      const wordSource = wordsDb[category].length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+      if (wordSource.length > 0) {
+         await db.ensureWeeklyTournament(wordSource, category);
+      }
+    }
   }
 }, 3600000);
 
@@ -367,30 +378,32 @@ io.on('connection', (socket) => {
   // ─── Tournament Events ──────────────────────────────────────────────────
   socket.on('get_weekly_tournament', async (data) => {
     const playerId = data?.playerId || 'guest';
-    const wordSource = wordsDb.length > 0 ? wordsDb : JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
-    const result = await db.getWeeklyTournament(playerId, wordSource);
+    const category = data?.category || 'football';
+    const wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+    const result = await db.getWeeklyTournament(playerId, wordSource, category);
     socket.emit('weekly_tournament_data', result);
   });
 
   socket.on('grant_tournament_ad_attempt', async (data) => {
-    const { playerId } = data;
+    const { playerId, category } = data;
     if (!playerId) return;
-    const result = await db.grantAdAttempt(playerId);
+    const result = await db.grantAdAttempt(playerId, category || 'football');
     socket.emit('weekly_tournament_data', result);
   });
 
   socket.on('submit_tournament_score', async (data) => {
-    const { playerId, username, avatar, score, correctCount } = data;
+    const { playerId, username, avatar, score, correctCount, category } = data;
     if (!playerId || !username) {
       socket.emit('tournament_score_result', { error: 'Skoru kaydetmek için giriş yapmalısın.' });
       return;
     }
-    const result = await db.submitTournamentScore(playerId, username, avatar, score, correctCount);
+    const result = await db.submitTournamentScore(playerId, username, avatar, score, correctCount, category || 'football');
     socket.emit('tournament_score_result', result);
   });
 
-  socket.on('get_tournament_leaderboard', async () => {
-    const board = await db.getTournamentLeaderboard();
+  socket.on('get_tournament_leaderboard', async (data) => {
+    const category = data?.category || 'football';
+    const board = await db.getTournamentLeaderboard(category);
     socket.emit('tournament_leaderboard', board);
   });
   // ────────────────────────────────────────────────────────────────────────
@@ -493,16 +506,19 @@ io.on('connection', (socket) => {
     // Make sure user isn't already in queue
     if (queue.find(u => u.id === socket.id)) return;
     
-    console.log(socket.id, 'joined queue. Name:', data.name, 'DB Player ID:', data.dbPlayerId);
+    const category = data.category || 'football';
+    console.log(socket.id, 'joined queue. Name:', data.name, 'DB Player ID:', data.dbPlayerId, 'Category:', category);
     queue.push({ 
       id: socket.id, 
       name: data.name || 'Misafir',
-      dbPlayerId: data.dbPlayerId || null 
+      dbPlayerId: data.dbPlayerId || null,
+      category 
     });
 
-    if (queue.length >= 2) {
-      const p1 = queue.shift();
-      const p2 = queue.shift();
+    const categoryQueue = queue.filter(u => u.category === category);
+    if (categoryQueue.length >= 2) {
+      const p1 = queue.splice(queue.findIndex(u => u.id === categoryQueue[0].id), 1)[0];
+      const p2 = queue.splice(queue.findIndex(u => u.id === categoryQueue[1].id), 1)[0];
       
       const roomId = `room_${Date.now()}_${Math.random()}`;
       
@@ -511,6 +527,7 @@ io.on('connection', (socket) => {
       io.sockets.sockets.get(p2.id)?.join(roomId);
 
       activeRooms[roomId] = {
+        category,
         isPrivate: false,
         isRanked1v1: true,
         status: 'playing',
@@ -547,6 +564,7 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     
     activeRooms[roomId] = {
+      category: data.category || 'football',
       isPrivate: true,
       isGroupRanked: data.isRanked || false,
       roomCode: code,
@@ -810,8 +828,16 @@ async function startRound(roomId) {
   }
 
   // Pick a random card that hasn't been used yet
-  const availableWords = wordsDb.filter(w => !room.usedWords.includes(w.word));
-  const cardList = availableWords.length > 0 ? availableWords : wordsDb; // fallback if we somehow exhaust all words
+  const roomCategory = room.category || 'football';
+  const availableWords = (wordsDb[roomCategory] || []).filter(w => !room.usedWords.includes(w.word));
+  const cardList = availableWords.length > 0 ? availableWords : (wordsDb[roomCategory] || []); // fallback if we somehow exhaust all words
+  
+  if (cardList.length === 0) {
+    // Failsafe in case words haven't loaded for this category
+    console.error(`No words found for category ${roomCategory}`);
+    return;
+  }
+  
   const card = cardList[Math.floor(Math.random() * cardList.length)];
   
   room.usedWords.push(card.word);

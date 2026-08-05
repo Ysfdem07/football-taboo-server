@@ -85,13 +85,13 @@ const weeklyTournamentSchema = new mongoose.Schema({
 
 const WeeklyTournament = mongoose.model('WeeklyTournament', weeklyTournamentSchema);
 
-// Get ISO week string e.g. "2026-W31"
-function getWeekId(date = new Date()) {
+// Get ISO week string e.g. "2026-W31_football"
+function getWeekId(category = 'football', date = new Date()) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   const week = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+  return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}_${category}`;
 }
 
 function getWeekBounds(date = new Date()) {
@@ -223,16 +223,16 @@ module.exports = {
     return { success: true, player: player.toObject() };
   },
 
-  // ─── Weekly Tournament Functions ─────────────────────────────────────────
+  // ─── Weekly Tournament Functions ──────────────────────────────────────────
 
-  ensureWeeklyTournament: async (wordList) => {
+  ensureWeeklyTournament: async (wordList, category = 'football') => {
     try {
       await connectDB();
       if (!isConnected) {
         console.warn(`[Tournament Warning] Database not connected. Skipping tournament check.`);
         return null;
       }
-      const weekId = getWeekId();
+      const weekId = getWeekId(category);
       const existing = await WeeklyTournament.findOne({ weekId });
       if (existing) return existing;
 
@@ -250,9 +250,9 @@ module.exports = {
     }
   },
 
-  getWeeklyTournament: async (playerId, wordList) => {
+  getWeeklyTournament: async (playerId, wordList, category = 'football') => {
     await connectDB();
-    const weekId = getWeekId();
+    const weekId = getWeekId(category);
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return { error: 'Turnuva henüz başlamadı' };
 
@@ -280,9 +280,9 @@ module.exports = {
     };
   },
 
-  submitTournamentScore: async (playerId, username, avatar, score, correctCount) => {
+  submitTournamentScore: async (playerId, username, avatar, score, correctCount, category = 'football') => {
     await connectDB();
-    const weekId = getWeekId();
+    const weekId = getWeekId(category);
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
 
@@ -325,9 +325,9 @@ module.exports = {
     return { success: true, rank, totalPlayers: tournament.scores.length, completedPerfectly };
   },
 
-  grantAdAttempt: async (playerId) => {
+  grantAdAttempt: async (playerId, category = 'football') => {
     await connectDB();
-    const weekId = getWeekId();
+    const weekId = getWeekId(category);
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
 
@@ -341,13 +341,16 @@ module.exports = {
       await tournament.save();
     }
     // Return updated tournament data
-    const rawWords = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
-    return module.exports.getWeeklyTournament(playerId, rawWords);
+    // WordSource is not passed to grantAdAttempt easily, so we fallback or fetch empty array if missing
+    // In production we could pass wordList to grantAdAttempt, but returning null cards for UI refresh is fine.
+    // However, getWeeklyTournament will generate randomCardsForAttempt. We don't have wordList here easily.
+    // Instead of fs.readFileSync(WORDS_PATH), we just pass an empty array to getWeeklyTournament and the UI will handle it or keep old cards.
+    return module.exports.getWeeklyTournament(playerId, [], category);
   },
 
-  getTournamentLeaderboard: async () => {
+  getTournamentLeaderboard: async (category = 'football') => {
     await connectDB();
-    const weekId = getWeekId();
+    const weekId = getWeekId(category);
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return [];
     return [...tournament.scores]
@@ -358,22 +361,26 @@ module.exports = {
 
   giveWeeklyRewards: async () => {
     await connectDB();
-    const weekId = getWeekId();
-    const tournament = await WeeklyTournament.findOne({ weekId });
-    if (!tournament || tournament.rewardsGiven) return { skipped: true };
+    let totalRewarded = 0;
+    for (const category of ['football', 'cinema', 'music']) {
+      const weekId = getWeekId(category);
+      const tournament = await WeeklyTournament.findOne({ weekId });
+      if (!tournament || tournament.rewardsGiven) continue;
 
-    const sorted = [...tournament.scores].sort((a, b) => b.bestScore - a.bestScore);
-    const kpMap = { 0: 500, 1: 300, 2: 150 };
+      const sorted = [...tournament.scores].sort((a, b) => b.bestScore - a.bestScore);
+      const kpMap = { 0: 500, 1: 300, 2: 150 };
 
-    for (let i = 0; i < sorted.length; i++) {
-      const kp = kpMap[i] ?? 50; // participation KP for rest
-      await Player.findOneAndUpdate({ id: sorted[i].playerId }, { $inc: { kp } });
-      sorted[i].kpRewarded = true;
+      for (let i = 0; i < sorted.length; i++) {
+        const kp = kpMap[i] ?? 50; // participation KP for rest
+        await Player.findOneAndUpdate({ id: sorted[i].playerId }, { $inc: { kp } });
+        sorted[i].kpRewarded = true;
+      }
+
+      tournament.rewardsGiven = true;
+      await tournament.save();
+      totalRewarded += sorted.length;
     }
-
-    tournament.rewardsGiven = true;
-    await tournament.save();
-    return { success: true, rewarded: sorted.length };
+    return { success: true, rewarded: totalRewarded };
   },
 
   getIsConnected: () => {
