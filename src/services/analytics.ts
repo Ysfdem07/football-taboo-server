@@ -1,4 +1,5 @@
 // src/services/analytics.ts
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 export interface AnalyticsEventParams {
   [key: string]: any;
@@ -113,28 +114,43 @@ class ConsoleAnalyticsProvider implements AnalyticsProvider {
 }
 
 /**
- * MMP (Mobile Measurement Partner) Analytics Provider
- * Currently acts as a passive adapter. Will not send any real data yet, 
- * but the interface and integration hooks are fully ready for AppsFlyer/Adjust/Firebase/Meta/TikTok.
+ * Meta (Facebook) Analytics Provider
+ * Uses react-native-fbsdk-next to send AppEvents for ROAS and App Install tracking.
  */
-class MMPAnalyticsProvider implements AnalyticsProvider {
-  name = 'MMP';
+class MetaAnalyticsProvider implements AnalyticsProvider {
+  name = 'Meta';
 
   async init(): Promise<void> {
     if (__DEV__) {
-      console.log('[Analytics] MMP Passive Provider initialized. Ready for AppsFlyer/Adjust/Meta SDKs.');
+      console.log('[Analytics] Meta Provider initialized (events logged to console in dev but not sent).');
     }
+    // Meta SDK auto-initializes via app.json config in Expo
   }
 
   trackEvent(eventName: string, params?: AnalyticsEventParams): void {
-    if (__DEV__) {
-      console.log(`[Analytics] [MMP Stub] Would track event: "${eventName}"`, params);
+    if (!__DEV__) {
+      try {
+        AppEventsLogger.logEvent(eventName, params ? params.valueToSum || undefined : undefined, params);
+      } catch (err) {
+        console.warn('[Analytics] Meta failed to log event:', err);
+      }
+    } else {
+      console.log(`[Analytics] [Meta Stub] Would track event: "${eventName}"`, params);
     }
   }
 
   setUserProperties(userId: string, properties?: Record<string, any>): void {
-    if (__DEV__) {
-      console.log(`[Analytics] [MMP Stub] Would set user property: "${userId}"`, properties);
+    if (!__DEV__) {
+      try {
+        AppEventsLogger.setUserID(userId);
+        if (properties) {
+          AppEventsLogger.setUserData(properties);
+        }
+      } catch (err) {
+        console.warn('[Analytics] Meta failed to set user data:', err);
+      }
+    } else {
+      console.log(`[Analytics] [Meta Stub] Would set user property: "${userId}"`, properties);
     }
   }
 }
@@ -146,7 +162,7 @@ class AnalyticsService {
     this.providers = [
       new ConsoleAnalyticsProvider(),
       new FirebaseAnalyticsProvider(),
-      new MMPAnalyticsProvider(),
+      new MetaAnalyticsProvider(),
     ];
   }
 
@@ -194,11 +210,14 @@ class AnalyticsService {
 
   logUserRegister(playerId: string, username: string): void {
     this.identify(playerId, { username });
+    this.logEvent('fb_mobile_complete_registration', { fb_registration_method: 'in_app' }); // Meta standard
+    this.logEvent('sign_up', { method: 'in_app' }); // Google standard
     this.logEvent('user_register', { player_id: playerId, username });
   }
 
   logUserLogin(playerId: string, username: string): void {
     this.identify(playerId, { username });
+    this.logEvent('login', { method: 'in_app' }); // Meta and Google standard
     this.logEvent('user_login', { player_id: playerId, username });
   }
 

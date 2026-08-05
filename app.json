@@ -47,6 +47,19 @@
           "androidAppId": "ca-app-pub-2870765498397878~3197565436",
           "iosAppId": "ca-app-pub-2870765498397878~3197565436"
         }
+      ],
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "27431147593233821",
+          "clientToken": "7695a6f5ff97777868aabed2b510e4c3",
+          "displayName": "Wordico",
+          "scheme": "fb27431147593233821",
+          "advertiserIDCollectionEnabled": true,
+          "autoLogAppEventsEnabled": true,
+          "isAutoInitEnabled": true,
+          "iosUserTrackingPermission": "Bu izin, size daha ilgili ve kişiselleştirilmiş oyun içi reklamlar ve teklifler sunabilmemiz için kullanılmaktadır."
+        }
       ]
     ]
   }
