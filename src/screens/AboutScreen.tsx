@@ -28,7 +28,7 @@ export default function AboutScreen({ navigation }: Props) {
   const privacyText = `GİZLİLİK POLİTİKASI
 Son Güncelleme: 26 Temmuz 2026
 
-FootballTaboo ("Uygulama"), kullanıcıların gizliliğine son derece önem vermektedir. Bu gizlilik politikası, uygulamamızı kullandığınızda toplanan veriler ve gizlilik haklarınız hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.
+Wordico ("Uygulama"), kullanıcıların gizliliğine son derece önem vermektedir. Bu gizlilik politikası, uygulamamızı kullandığınızda toplanan veriler ve gizlilik haklarınız hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.
 
 Veri Toplama ve Kullanımı
 
@@ -40,12 +40,12 @@ Veri Toplama ve Kullanımı
 Çocukların Gizliliği
 Uygulamamız COPPA (Çocukların Çevrimiçi Gizliliğini Koruma Yasası) ve GDPR (Genel Veri Koruma Yönetmeliği) kurallarına tamamen uygundur. E-posta kaydı 13 yaş altı kullanıcılar için uygun değildir.`;
 
-  const termsText = `KULLANIM KOŞULLARI\nSon Güncelleme: 26 Temmuz 2026\n\nFootballTaboo uygulamasını indirerek veya kullanarak bu koşulları kabul etmiş sayılırsınız.\n\nHizmetin Kullanımı\n\n• FootballTaboo, bireysel ve eğlence amaçlı kullanım için sunulmuş ücretsiz bir mobil oyundur.\n• Uygulamanın kodlarını kopyalamak, değiştirmek veya tersine mühendislik işlemlerine tabi tutmak yasaktır.\n• Kelime listeleri veya oyun içeriği ticari amaçlarla kullanılamaz.\n\nSorumluluk Sınırlandırması\n\n• Uygulama "olduğu gibi" (as-is) sunulmaktadır. Kelime listelerindeki hatalardan, veri kayıplarından veya uygulamanın kullanımı sırasında oluşabilecek geçici kesintilerden geliştirici sorumlu tutulamaz.`;
+  const termsText = `KULLANIM KOŞULLARI\nSon Güncelleme: 26 Temmuz 2026\n\nWordico uygulamasını indirerek veya kullanarak bu koşulları kabul etmiş sayılırsınız.\n\nHizmetin Kullanımı\n\n• Wordico, bireysel ve eğlence amaçlı kullanım için sunulmuş ücretsiz bir mobil oyundur.\n• Uygulamanın kodlarını kopyalamak, değiştirmek veya tersine mühendislik işlemlerine tabi tutmak yasaktır.\n• Kelime listeleri veya oyun içeriği ticari amaçlarla kullanılamaz.\n\nSorumluluk Sınırlandırması\n\n• Uygulama "olduğu gibi" (as-is) sunulmaktadır. Kelime listelerindeki hatalardan, veri kayıplarından veya uygulamanın kullanımı sırasında oluşabilecek geçici kesintilerden geliştirici sorumlu tutulamaz.`;
 
   const englishPrivacyText = `PRIVACY POLICY
 Last Updated: July 26, 2026
 
-FootballTaboo ("the App") is committed to protecting user privacy. This Privacy Policy explains our practices regarding data collection and your privacy rights.
+Wordico ("the App") is committed to protecting user privacy. This Privacy Policy explains our practices regarding data collection and your privacy rights.
 
 Data Collection and Usage
 
@@ -57,7 +57,7 @@ Data Collection and Usage
 Children's Privacy
 The App complies with COPPA and GDPR regulations. Registration is restricted for users under 13 years of age.`;
 
-  const englishTermsText = `TERMS OF SERVICE\nLast Updated: July 25, 2026\n\nBy downloading or using the FootballTaboo App, you agree to be bound by these terms.\n\nUse of Service\n\n• FootballTaboo is a free mobile game provided for personal and entertainment purposes only.\n• You may not copy, modify, or attempt to reverse-engineer any part of the App's source code.\n• The word lists and game content cannot be extracted or used for commercial purposes.\n\nLimitation of Liability\n\n• The App is provided "as is" without warranty of any kind. The developer shall not be liable for any temporary service interruptions, data losses, or errors in the word database.`;
+  const englishTermsText = `TERMS OF SERVICE\nLast Updated: July 25, 2026\n\nBy downloading or using the Wordico App, you agree to be bound by these terms.\n\nUse of Service\n\n• Wordico is a free mobile game provided for personal and entertainment purposes only.\n• You may not copy, modify, or attempt to reverse-engineer any part of the App's source code.\n• The word lists and game content cannot be extracted or used for commercial purposes.\n\nLimitation of Liability\n\n• The App is provided "as is" without warranty of any kind. The developer shall not be liable for any temporary service interruptions, data losses, or errors in the word database.`;
 
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
@@ -71,10 +71,10 @@ The App complies with COPPA and GDPR regulations. Registration is restricted for
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.infoCard}>
-            <Text style={styles.appName}>FootballTaboo</Text>
+            <Text style={styles.appName}>Wordico</Text>
             <Text style={styles.appVersion}>Versiyon 1.0.0</Text>
             <Text style={styles.appDescription}>
-              FootballTaboo, futbolseverler için tasarlanmış, en güncel ve en zengin futbolcu veritabanına sahip dinamik bir tabu kelime tahmin oyunudur.
+              Wordico, futbolseverler için tasarlanmış, en güncel ve en zengin futbolcu veritabanına sahip dinamik bir tabu kelime tahmin oyunudur.
             </Text>
           </View>
 

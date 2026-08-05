@@ -203,7 +203,19 @@ export default function ProfileScreen({ navigation }: Props) {
       return;
     }
     setLoading(true);
+
+    // Safety timeout: If socket fails to respond in 15 seconds, close spinner and show alert
+    const safetyTimeout = setTimeout(() => {
+      setLoading(false);
+      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+    }, 15000);
+
     socket.emit('forgot_password', { email: resetEmail.trim() });
+
+    // Store timeout reference on socket or clean it up dynamically when response arrives
+    socket.once('forgot_password_response', () => {
+      clearTimeout(safetyTimeout);
+    });
   };
 
   const handleForgotVerify = () => {

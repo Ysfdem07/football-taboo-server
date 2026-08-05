@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "FutTaboo Game Server",
+  "description": "Wordico Game Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

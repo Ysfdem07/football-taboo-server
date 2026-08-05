@@ -99,7 +99,7 @@ const MockBannerAd = () => {
     <View style={styles.mockBannerContainer}>
       <TouchableOpacity activeOpacity={0.8} style={styles.mockBannerContent}>
         <Text style={styles.mockBadge}>SPONSOR</Text>
-        <Text style={styles.mockTitle}>⚽ FutTaboo Premium!</Text>
+        <Text style={styles.mockTitle}>⚽ Wordico Premium!</Text>
         <Text style={styles.mockDesc}>Reklamsız oyun, sınırsız kelimeler ve özel ligler için hemen yükseltin.</Text>
       </TouchableOpacity>
     </View>
