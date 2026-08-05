@@ -147,15 +147,20 @@ export default function GameScreen({ route, navigation }: Props) {
   if (!isPlaying) {
     return (
       <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+        <View style={styles.cyberOverlay} />
         <SafeAreaView style={styles.container}>
           <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
-            <Ionicons name="home" size={28} color={Colors.white} />
+            <Ionicons name="home" size={28} color={'#00FF88'} />
           </TouchableOpacity>
-          <Text style={styles.readyText}>Sıra: {currentTeam === 'A' ? teamA : teamB}</Text>
-          <View style={styles.scoreBoard}>
-            <Text style={styles.scoreText}>{teamA}: {teamAScore}</Text>
-            <Text style={styles.scoreText}>{teamB}: {teamBScore}</Text>
+          
+          <View style={styles.glassCardMenu}>
+            <Text style={styles.readyText}>Sıra: {currentTeam === 'A' ? teamA : teamB}</Text>
+            <View style={styles.scoreBoard}>
+              <Text style={styles.scoreText}>{teamA}: {teamAScore}</Text>
+              <Text style={styles.scoreText}>{teamB}: {teamBScore}</Text>
+            </View>
           </View>
+
           <TouchableOpacity style={styles.startRoundBtn} onPress={startRound}>
             <Text style={styles.startRoundText}>TURU BAŞLAT</Text>
           </TouchableOpacity>
@@ -166,14 +171,15 @@ export default function GameScreen({ route, navigation }: Props) {
 
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+      <View style={styles.cyberOverlay} />
       <SafeAreaView style={styles.container}>
       {!isPaused && (
         <View style={styles.topActionBar}>
           <TouchableOpacity onPress={handlePause} style={styles.topActionBtn}>
-            <Ionicons name="pause" size={24} color={Colors.white} />
+            <Ionicons name="pause" size={28} color={'#00E5FF'} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleEndGame} style={styles.topActionBtn}>
-            <Ionicons name="stop" size={24} color={Colors.danger} />
+            <Ionicons name="stop" size={28} color={'#FF0055'} />
           </TouchableOpacity>
         </View>
       )}
@@ -183,7 +189,7 @@ export default function GameScreen({ route, navigation }: Props) {
           <Text style={[styles.teamName, currentTeam === 'A' && styles.activeTeam]}>{teamA}</Text>
           <Text style={styles.score}>{teamAScore}</Text>
         </View>
-        <View style={styles.timerContainer}>
+        <View style={[styles.timerContainer, timeLeft <= 10 && styles.timerContainerDanger]}>
           <Text style={[styles.timer, timeLeft <= 10 && styles.timerDanger]}>{timeLeft}</Text>
         </View>
         <View style={styles.scoreContainer}>
@@ -194,13 +200,15 @@ export default function GameScreen({ route, navigation }: Props) {
 
       {isPaused ? (
         <View style={styles.pausedContainer}>
-          <Text style={styles.pausedText}>MOLA</Text>
-          <TouchableOpacity style={styles.startRoundBtn} onPress={handleResume}>
-            <Text style={styles.startRoundText}>DEVAM ET</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.startRoundBtn, { backgroundColor: Colors.danger, marginTop: 20 }]} onPress={handleEndGame}>
-            <Text style={styles.startRoundText}>OYUNU BİTİR</Text>
-          </TouchableOpacity>
+          <View style={styles.glassCardMenu}>
+            <Text style={styles.pausedText}>MOLA</Text>
+            <TouchableOpacity style={styles.startRoundBtn} onPress={handleResume}>
+              <Text style={styles.startRoundText}>DEVAM ET</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.startRoundBtn, styles.endGameBtn]} onPress={handleEndGame}>
+              <Text style={[styles.startRoundText, { color: '#FFF' }]}>OYUNU BİTİR</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <>
@@ -215,14 +223,14 @@ export default function GameScreen({ route, navigation }: Props) {
           )}
 
           <View style={styles.controls}>
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.danger }]} onPress={handleTaboo}>
+            <TouchableOpacity style={[styles.actionBtn, styles.btnTaboo]} onPress={handleTaboo}>
               <Text style={styles.actionText}>TABU (-1)</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.warning }]} onPress={handlePass}>
-              <Text style={styles.actionText}>PAS</Text>
+            <TouchableOpacity style={[styles.actionBtn, styles.btnPass]} onPress={handlePass}>
+              <Text style={[styles.actionText, { color: '#000' }]}>PAS</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.success }]} onPress={handleCorrect}>
-              <Text style={styles.actionText}>DOĞRU (+1)</Text>
+            <TouchableOpacity style={[styles.actionBtn, styles.btnCorrect]} onPress={handleCorrect}>
+              <Text style={[styles.actionText, { color: '#000' }]}>DOĞRU (+1)</Text>
             </TouchableOpacity>
           </View>
         </>
@@ -234,15 +242,23 @@ export default function GameScreen({ route, navigation }: Props) {
 
 const { width } = Dimensions.get('window');
 
+const NEON_GREEN = '#00FF88';
+const NEON_CYAN = '#00E5FF';
+const NEON_GOLD = '#FFD700';
+const NEON_RED = '#FF0055';
+
 const styles = StyleSheet.create({
   bgImage: {
     flex: 1,
     width: '100%',
     height: '100%',
   },
+  cyberOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 8, 20, 0.90)',
+  },
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // semi-transparent background to let image show through
   },
   homeButton: {
     position: 'absolute',
@@ -250,21 +266,37 @@ const styles = StyleSheet.create({
     left: 20,
     padding: 10,
     zIndex: 10,
+    backgroundColor: 'rgba(0,255,136,0.1)',
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: 'rgba(0,255,136,0.3)',
+  },
+  glassCardMenu: {
+    backgroundColor: 'rgba(0, 255, 136, 0.05)',
+    marginHorizontal: 30,
+    marginTop: '30%',
+    marginBottom: 40,
+    borderRadius: 20,
+    padding: 30,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 136, 0.2)',
   },
   readyText: {
     fontSize: 32,
     fontFamily: 'Poppins_700Bold',
-    color: Colors.primary,
+    color: NEON_CYAN,
     textAlign: 'center',
-    marginTop: '40%',
     marginBottom: 30,
+    textShadowColor: 'rgba(0,229,255,0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   scoreBoard: {
-    backgroundColor: Colors.cardBackground,
-    marginHorizontal: 40,
+    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 20,
     borderRadius: 15,
-    marginBottom: 40,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   scoreText: {
     fontSize: 24,
@@ -274,16 +306,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
   },
   startRoundBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: NEON_GREEN,
     marginHorizontal: 60,
     padding: 20,
     borderRadius: 30,
     alignItems: 'center',
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  endGameBtn: {
+    backgroundColor: NEON_RED,
+    marginTop: 20,
+    shadowColor: NEON_RED,
   },
   startRoundText: {
-    color: Colors.white,
+    color: '#000',
     fontSize: 20,
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'Poppins_800ExtraBold',
+    letterSpacing: 1,
   },
   topActionBar: {
     flexDirection: 'row',
@@ -293,25 +336,31 @@ const styles = StyleSheet.create({
   },
   topActionBtn: {
     padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   pausedContainer: {
     flex: 1,
     justifyContent: 'center',
-    paddingTop: 40,
   },
   pausedText: {
     fontSize: 36,
-    color: Colors.warning,
-    fontFamily: 'Poppins_700Bold',
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_900Black',
     textAlign: 'center',
     marginBottom: 40,
+    textShadowColor: 'rgba(255,215,0,0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 30,
     paddingBottom: 20,
   },
   scoreContainer: {
@@ -325,8 +374,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   activeTeam: {
-    color: Colors.primary,
+    color: NEON_GREEN,
     fontFamily: 'Poppins_700Bold',
+    textShadowColor: 'rgba(0,255,136,0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   score: {
     color: Colors.white,
@@ -334,35 +386,44 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
   },
   timerContainer: {
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: 'rgba(0,255,136,0.05)',
     width: 80,
     height: 80,
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: NEON_GREEN,
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+  },
+  timerContainerDanger: {
+    backgroundColor: 'rgba(255,0,85,0.1)',
+    borderColor: NEON_RED,
+    shadowColor: NEON_RED,
   },
   timer: {
-    color: Colors.primary,
+    color: NEON_GREEN,
     fontSize: 32,
     fontFamily: 'Poppins_700Bold',
   },
   timerDanger: {
-    color: Colors.danger,
+    color: NEON_RED,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(0, 255, 136, 0.05)',
     marginHorizontal: 30,
     marginTop: 20,
     borderRadius: 20,
     padding: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
+    borderColor: 'rgba(0, 255, 136, 0.2)',
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 10,
   },
@@ -372,16 +433,19 @@ const styles = StyleSheet.create({
     color: Colors.white,
     marginBottom: 15,
     textAlign: 'center',
+    textShadowColor: 'rgba(255,255,255,0.2)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   divider: {
     height: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     width: '100%',
     marginBottom: 15,
   },
   forbiddenWord: {
     fontSize: 20,
-    color: '#FFD700', // Yellow
+    color: NEON_GOLD,
     marginVertical: 8,
     fontFamily: 'Poppins_600SemiBold',
   },
@@ -399,10 +463,31 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+  },
+  btnTaboo: {
+    backgroundColor: 'rgba(255,0,85,0.15)',
+    borderColor: NEON_RED,
+  },
+  btnPass: {
+    backgroundColor: NEON_GOLD,
+    borderColor: NEON_GOLD,
+    shadowColor: NEON_GOLD,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+  },
+  btnCorrect: {
+    backgroundColor: NEON_GREEN,
+    borderColor: NEON_GREEN,
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
   },
   actionText: {
     color: Colors.white,
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'Poppins_800ExtraBold',
     fontSize: 16,
   },
 });
