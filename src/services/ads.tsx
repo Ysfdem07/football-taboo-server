@@ -7,9 +7,11 @@ const isFirebaseAvailable = !!NativeModules.RNFBAppModule;
 let MobileAds: any = null;
 let InterstitialAd: any = null;
 let BannerAd: any = null;
+let RewardedAd: any = null;
 let BannerAdSize: any = null;
 let TestIds: any = null;
 let AdEventType: any = null;
+let RewardedAdEventType: any = null;
 
 if (isFirebaseAvailable) {
   try {
@@ -17,17 +19,26 @@ if (isFirebaseAvailable) {
     MobileAds = googleAds.default;
     InterstitialAd = googleAds.InterstitialAd;
     BannerAd = googleAds.BannerAd;
+    RewardedAd = googleAds.RewardedAd;
     BannerAdSize = googleAds.BannerAdSize;
     TestIds = googleAds.TestIds;
     AdEventType = googleAds.AdEventType;
+    RewardedAdEventType = googleAds.RewardedAdEventType;
   } catch (err) {
     console.warn('[Ads] Failed to load Google Mobile Ads library:', err);
   }
 }
 
-// Keep track of the interstitial ad instance
+// AD UNIT IDs
+const BANNER_ID = __DEV__ ? (TestIds ? TestIds.BANNER : '') : 'ca-app-pub-2870765498397878/4112026008';
+const INTERSTITIAL_ID = __DEV__ ? (TestIds ? TestIds.INTERSTITIAL : '') : 'ca-app-pub-2870765498397878/3325557941';
+const REWARDED_ID = __DEV__ ? (TestIds ? TestIds.REWARDED : '') : 'ca-app-pub-2870765498397878/8083060602';
+
+// Keep track of ad instances
 let interstitialAdInstance: any = null;
 let isInterstitialLoaded = false;
+let rewardedAdInstance: any = null;
+let isRewardedLoaded = false;
 
 export const initAds = async (): Promise<void> => {
   if (!isFirebaseAvailable || !MobileAds) {
@@ -43,16 +54,17 @@ export const initAds = async (): Promise<void> => {
       console.log('[Ads] Google Mobile Ads SDK initialized:', adapterStatuses);
     }
     loadInterstitial();
+    loadRewarded();
   } catch (err) {
     console.warn('[Ads] Initialization failed:', err);
   }
 };
 
 const loadInterstitial = () => {
-  if (!isFirebaseAvailable || !InterstitialAd || !TestIds) return;
+  if (!isFirebaseAvailable || !InterstitialAd || !INTERSTITIAL_ID) return;
 
   try {
-    interstitialAdInstance = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+    interstitialAdInstance = InterstitialAd.createForAdRequest(INTERSTITIAL_ID, {
       requestNonPersonalizedAdsOnly: true,
     });
 
@@ -70,6 +82,31 @@ const loadInterstitial = () => {
     interstitialAdInstance.load();
   } catch (err) {
     console.warn('[Ads] Failed to load interstitial:', err);
+  }
+};
+
+const loadRewarded = () => {
+  if (!isFirebaseAvailable || !RewardedAd || !REWARDED_ID) return;
+
+  try {
+    rewardedAdInstance = RewardedAd.createForAdRequest(REWARDED_ID, {
+      requestNonPersonalizedAdsOnly: true,
+    });
+
+    rewardedAdInstance.addAdEventListener(RewardedAdEventType.LOADED, () => {
+      isRewardedLoaded = true;
+      if (__DEV__) console.log('[Ads] Rewarded Ad loaded.');
+    });
+
+    rewardedAdInstance.addAdEventListener(AdEventType.CLOSED, () => {
+      isRewardedLoaded = false;
+      if (__DEV__) console.log('[Ads] Rewarded Ad closed. Loading next one...');
+      loadRewarded(); // Preload the next one
+    });
+
+    rewardedAdInstance.load();
+  } catch (err) {
+    console.warn('[Ads] Failed to load rewarded ad:', err);
   }
 };
 
@@ -93,6 +130,52 @@ export const showInterstitial = (): void => {
   }
 };
 
+export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: () => void): void => {
+  if (!isFirebaseAvailable || !rewardedAdInstance) {
+    if (__DEV__) {
+      console.log('[Ads Mock] [Expo Go] Rewarded Ad Triggered! (Simulating 100 Gold reward)');
+      onRewardEarned({ type: 'gold', amount: 100 });
+      if (onClose) onClose();
+    }
+    return;
+  }
+
+  try {
+    if (isRewardedLoaded) {
+      // Set up the earner listener specifically for this view
+      let earned = false;
+      const unsubscribeEarned = rewardedAdInstance.addAdEventListener(
+        RewardedAdEventType.EARNED_REWARD,
+        (reward: any) => {
+          if (__DEV__) console.log('[Ads] Reward Earned:', reward);
+          earned = true;
+          onRewardEarned(reward);
+          unsubscribeEarned();
+        }
+      );
+
+      // Set up a temporary close listener
+      const unsubscribeClosed = rewardedAdInstance.addAdEventListener(
+        AdEventType.CLOSED,
+        () => {
+          if (onClose) onClose();
+          unsubscribeClosed();
+          unsubscribeEarned(); // cleanup just in case
+        }
+      );
+
+      rewardedAdInstance.show();
+    } else {
+      if (__DEV__) console.log('[Ads] Rewarded Ad not loaded yet. Retrying load...');
+      rewardedAdInstance.load();
+      if (onClose) onClose();
+    }
+  } catch (err) {
+    console.warn('[Ads] Failed to show rewarded ad:', err);
+    if (onClose) onClose();
+  }
+};
+
 // Premium Mock Banner component for Expo Go testing
 const MockBannerAd = () => {
   return (
@@ -108,7 +191,7 @@ const MockBannerAd = () => {
 
 // Unified Banner Ad Component
 export const BannerAdComponent: React.FC = () => {
-  if (!isFirebaseAvailable || !BannerAd || !TestIds || !BannerAdSize) {
+  if (!isFirebaseAvailable || !BannerAd || !BANNER_ID || !BannerAdSize) {
     return <MockBannerAd />;
   }
 
@@ -116,7 +199,7 @@ export const BannerAdComponent: React.FC = () => {
     return (
       <View style={styles.bannerContainer}>
         <BannerAd
-          unitId={TestIds.BANNER}
+          unitId={BANNER_ID}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,

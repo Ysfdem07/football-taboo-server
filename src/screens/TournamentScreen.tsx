@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
-import { BannerAdComponent } from '../services/ads';
+import { BannerAdComponent, showRewarded } from '../services/ads';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Tournament'>;
 
@@ -118,15 +118,21 @@ export default function TournamentScreen() {
   const handleWatchAd = () => {
     if (!player) return;
     setWatchingAd(true);
-    // Simulate 4 seconds of ad watching
-    setTimeout(() => {
-      setWatchingAd(false);
-      const socket = getSocket();
-      if (socket) {
-        socket.emit('grant_tournament_ad_attempt', { playerId: player.id });
-        Alert.alert('Tebrikler!', 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎮');
+    
+    showRewarded(
+      (reward) => {
+        // This runs if the user actually watched the ad to the end
+        const socket = getSocket();
+        if (socket) {
+          socket.emit('grant_tournament_ad_attempt', { playerId: player.id });
+          Alert.alert('Tebrikler!', 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎁');
+        }
+      },
+      () => {
+        // This runs when the ad is closed (either successfully finished or skipped)
+        setWatchingAd(false);
       }
-    }, 4000);
+    );
   };
 
   const getRankEmoji = (rank: number) => {
