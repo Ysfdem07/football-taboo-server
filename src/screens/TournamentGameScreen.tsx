@@ -337,7 +337,12 @@ export default function TournamentGameScreen() {
           keyboardVerticalOffset={Platform.OS === 'ios' ? 95 : 0}
         >
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
-            <View>
+            <ScrollView 
+              style={{ flex: 1 }} 
+              contentContainerStyle={{ paddingBottom: 20 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
               {/* Top Bar */}
               <View style={styles.topBar}>
                 <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
@@ -409,7 +414,7 @@ export default function TournamentGameScreen() {
 
               {/* Word Letter Placeholders */}
               {renderWordPlaceholder()}
-            </View>
+            </ScrollView>
 
             {/* Input Section - KeyboardAvoidingView will push the action buttons above keyboard */}
             <View style={styles.inputSection}>

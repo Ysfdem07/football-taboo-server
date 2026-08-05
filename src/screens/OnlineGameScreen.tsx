@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -311,14 +311,20 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           style={styles.keyboardView}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
-          <View style={styles.header}>
-            <Text style={styles.roundText}>TUR {currentRound} / {maxRounds}</Text>
-            <View style={styles.timerWrap}>
-              <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>{timeLeft}</Text>
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.header}>
+              <Text style={styles.roundText}>TUR {currentRound} / {maxRounds}</Text>
+              <View style={styles.timerWrap}>
+                <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>{timeLeft}</Text>
+              </View>
             </View>
-          </View>
-          
-          <View style={styles.gameArea}>
+            
+            <View style={styles.gameArea}>
             {/* Word Letter Placeholders with dynamic guess mapping */}
             {(() => {
               // wordHint formatı sunucudan "M____" veya "____ ____" şeklinde boşluklu gelir.
@@ -422,7 +428,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <Text style={styles.emptyCluesText}>Henüz ipucu verilmedi...</Text>
               )}
             </View>
-          </View>
+            </View>
+          </ScrollView>
 
           <View style={styles.inputArea}>
             {!guessingPlayerId ? (
