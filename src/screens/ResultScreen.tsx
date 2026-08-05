@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
 
 type ResultScreenRouteProp = RouteProp<RootStackParamList, 'Result'>;
@@ -13,43 +14,83 @@ type Props = {
   navigation: ResultScreenNavigationProp;
 };
 
+const NEON_GREEN = '#00FF88';
+const NEON_CYAN = '#00E5FF';
+const NEON_GOLD = '#FFD700';
+
 export default function ResultScreen({ route, navigation }: Props) {
   const { teamAScore, teamBScore, teamA, teamB } = route.params;
 
   let winner = '';
+  let isTie = false;
   if (teamAScore > teamBScore) winner = teamA;
   else if (teamBScore > teamAScore) winner = teamB;
-  else winner = 'Berabere!';
+  else {
+    winner = 'Berabere!';
+    isTie = true;
+  }
 
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
-      <View style={styles.container}>
-      <Text style={styles.header}>OYUN BİTTİ</Text>
+      <View style={styles.cyberOverlay} />
       
-      <View style={styles.card}>
-        <Text style={styles.winnerText}>
-          {winner === 'Berabere!' ? 'Maç Berabere!' : `KAZANAN:\n${winner}`}
-        </Text>
-        
-        <View style={styles.divider} />
-        
-        <View style={styles.scoreRow}>
-          <Text style={styles.teamText}>{teamA}</Text>
-          <Text style={styles.scoreText}>{teamAScore}</Text>
-        </View>
-        <View style={styles.scoreRow}>
-          <Text style={styles.teamText}>{teamB}</Text>
-          <Text style={styles.scoreText}>{teamBScore}</Text>
-        </View>
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          
+          {/* HEADER ICON */}
+          <View style={styles.iconContainer}>
+            <Ionicons 
+              name={isTie ? "git-compare-outline" : "trophy"} 
+              size={64} 
+              color={isTie ? NEON_CYAN : NEON_GOLD} 
+            />
+          </View>
+          
+          <Text style={styles.header}>MAÇ SONUCU</Text>
+          
+          {/* GLASSMORPHIC CARD */}
+          <View style={styles.glassCard}>
+            
+            <View style={styles.winnerSection}>
+              <Text style={styles.winnerLabel}>
+                {isTie ? 'SONUÇ' : '🏆 KAZANAN 🏆'}
+              </Text>
+              <Text style={[styles.winnerText, isTie && { color: NEON_CYAN }]}>
+                {winner}
+              </Text>
+            </View>
+            
+            <View style={styles.divider} />
+            
+            {/* SCORE ROWS */}
+            <View style={styles.scoreRow}>
+              <Text style={styles.teamText} numberOfLines={1} adjustsFontSizeToFit>{teamA}</Text>
+              <View style={styles.scoreBox}>
+                <Text style={styles.scoreText}>{teamAScore}</Text>
+              </View>
+            </View>
+            
+            <View style={styles.scoreRow}>
+              <Text style={styles.teamText} numberOfLines={1} adjustsFontSizeToFit>{teamB}</Text>
+              <View style={styles.scoreBox}>
+                <Text style={styles.scoreText}>{teamBScore}</Text>
+              </View>
+            </View>
+            
+          </View>
 
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={() => navigation.navigate('Home')}
-      >
-        <Text style={styles.buttonText}>ANA MENÜYE DÖN</Text>
-      </TouchableOpacity>
-    </View>
+          {/* ACTION BUTTON */}
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Home')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="home" size={20} color="#000" style={{ marginRight: 8 }} />
+            <Text style={styles.actionButtonText}>ANA MENÜYE DÖN</Text>
+          </TouchableOpacity>
+          
+        </View>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
@@ -60,70 +101,120 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  cyberOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 8, 20, 0.88)',
+  },
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    padding: 20,
+    padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    fontSize: 40,
-    fontFamily: 'Poppins_900Black',
-    color: Colors.white,
-    marginBottom: 40,
+  iconContainer: {
+    marginBottom: 10,
+    shadowColor: NEON_GOLD,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
   },
-  card: {
-    backgroundColor: Colors.cardBackground,
+  header: {
+    fontSize: 28,
+    fontFamily: 'Poppins_900Black',
+    color: '#FFFFFF',
+    letterSpacing: 3,
+    marginBottom: 30,
+    textShadowColor: 'rgba(255,255,255,0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  glassCard: {
+    backgroundColor: 'rgba(0, 255, 136, 0.05)',
     width: '100%',
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 30,
     marginBottom: 40,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 136, 0.2)',
+  },
+  winnerSection: {
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  winnerLabel: {
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
+    color: 'rgba(255,255,255,0.6)',
+    letterSpacing: 2,
+    marginBottom: 5,
   },
   winnerText: {
-    fontSize: 32,
-    fontFamily: 'Poppins_700Bold',
-    color: Colors.primary,
+    fontSize: 34,
+    fontFamily: 'Poppins_900Black',
+    color: NEON_GOLD,
     textAlign: 'center',
-    marginBottom: 20,
+    textShadowColor: 'rgba(255,215,0,0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
   },
   divider: {
     height: 1,
-    backgroundColor: '#444',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     width: '100%',
-    marginVertical: 20,
+    marginBottom: 25,
   },
   scoreRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   teamText: {
-    fontSize: 24,
-    color: Colors.textSecondary,
+    flex: 1,
+    fontSize: 20,
+    color: '#E0E0E0',
     fontFamily: 'Poppins_600SemiBold',
+    marginRight: 15,
+  },
+  scoreBox: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    minWidth: 70,
+    alignItems: 'center',
   },
   scoreText: {
-    fontSize: 24,
-    color: Colors.white,
+    fontSize: 26,
+    color: '#FFFFFF',
     fontFamily: 'Poppins_700Bold',
   },
-  button: {
-    backgroundColor: Colors.primary,
+  actionButton: {
+    flexDirection: 'row',
+    backgroundColor: NEON_GREEN,
     paddingVertical: 18,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 12,
+    paddingHorizontal: 30,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 8,
   },
-  buttonText: {
-    color: Colors.white,
-    fontSize: 18,
-    fontFamily: 'Poppins_700Bold',
+  actionButtonText: {
+    color: '#000000',
+    fontSize: 16,
+    fontFamily: 'Poppins_800ExtraBold',
+    letterSpacing: 1,
   },
 });
