@@ -363,6 +363,14 @@ export default function TournamentGameScreen() {
 
               {/* Clues */}
               <View style={styles.cluesCard}>
+                {/* Potential Score Badge */}
+                <View style={styles.potentialScoreContainer}>
+                  <Ionicons name="star" size={16} color={NEON_GOLD} />
+                  <Text style={styles.potentialScoreText}>
+                    Kazanılacak Puan: {Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10)}
+                  </Text>
+                </View>
+
                 {currentCard.forbidden.map((clue, i) => (
                   <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
                     <Ionicons
@@ -376,7 +384,7 @@ export default function TournamentGameScreen() {
                   </View>
                 ))}
 
-                {/* Yan Yana Aksiyon Butonları (Dikeyde yer kazanmak ve simetri sağlamak için) */}
+                {/* Yan Yana Aksiyon Butonları */}
                 <View style={styles.gameActionsRow}>
                   <TouchableOpacity 
                     style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
@@ -509,6 +517,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
     backgroundColor: 'rgba(0,191,255,0.05)', padding: 8,
+  },
+  potentialScoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: NEON_GOLD,
+    borderRadius: 8,
+    paddingVertical: 6,
+    marginBottom: 8,
+    gap: 6,
+  },
+  potentialScoreText: {
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 14,
   },
   clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   clueHidden:     { opacity: 0.3 },

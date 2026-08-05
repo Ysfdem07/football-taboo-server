@@ -404,6 +404,14 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             
             {/* Clues Card style list */}
             <View style={styles.cluesCard}>
+              {/* Potential Score Badge */}
+              <View style={styles.potentialScoreContainer}>
+                <Ionicons name="star" size={16} color={NEON_GOLD} />
+                <Text style={styles.potentialScoreText}>
+                  Kazanılacak Puan: {Math.max(10, 100 - Math.max(0, hints.length - 1) * 10 - wordHint.replace(/[\s_]/g, '').length * 10)}
+                </Text>
+              </View>
+
               {hints.map((h, i) => (
                 <View key={i} style={styles.clueRow}>
                   <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
@@ -575,6 +583,23 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '90%',
     minHeight: 120,
+  },
+  potentialScoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: NEON_GOLD,
+    borderRadius: 8,
+    paddingVertical: 6,
+    marginBottom: 10,
+    gap: 6,
+  },
+  potentialScoreText: {
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 14,
   },
   clueRow: {
     flexDirection: 'row',
