@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, Image, useWindowDimensions, Linking } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
@@ -169,6 +169,12 @@ export default function HomeScreen({ navigation }: Props) {
               <TouchableOpacity style={styles.infoLink} onPress={() => navigation.navigate('About')}>
                 <Ionicons name="information-circle-outline" size={15} color="rgba(255,255,255,0.4)" style={{ marginRight: 6 }} />
                 <Text style={styles.infoLinkText}>Hakkımızda / Bilgi</Text>
+              </TouchableOpacity>
+
+              {/* WEB SITEMIZ */}
+              <TouchableOpacity style={styles.infoLink} onPress={() => Linking.openURL('https://wordico.net')}>
+                <Ionicons name="globe-outline" size={15} color="rgba(255,255,255,0.4)" style={{ marginRight: 6 }} />
+                <Text style={styles.infoLinkText}>wordico.net</Text>
               </TouchableOpacity>
             </>
           )}
