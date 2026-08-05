@@ -334,7 +334,7 @@ export default function TournamentGameScreen() {
         <KeyboardAvoidingView 
           style={{ flex: 1, justifyContent: 'space-between' }} 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 95 : 0}
+          keyboardVerticalOffset={0}
         >
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <ScrollView 
@@ -617,8 +617,7 @@ const styles = StyleSheet.create({
   inputSection: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 14,
-    marginTop: 'auto',
+    paddingBottom: 16,
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',

@@ -309,7 +309,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
           style={styles.keyboardView}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+          keyboardVerticalOffset={0}
         >
           <ScrollView
             style={{ flex: 1 }}
@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
   },
   inputArea: {
     flexDirection: 'row',
-    paddingBottom: Platform.OS === 'ios' ? 24 : 14,
+    paddingBottom: 16,
     paddingTop: 12,
     paddingHorizontal: 16,
     backgroundColor: 'rgba(0,8,20,0.95)',
