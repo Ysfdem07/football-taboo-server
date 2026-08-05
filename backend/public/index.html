@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordico - Kelime Tahmin Oyunu</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #121212;
+            --light: #ffffff;
+            --gray: #f5f5f5;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark);
+            color: var(--light);
+            text-align: center;
+        }
+        header {
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            border-bottom: 3px solid var(--primary);
+        }
+        h1 {
+            font-size: 3em;
+            margin: 0;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        p.subtitle {
+            font-size: 1.2em;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .feature-box {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 30%;
+            min-width: 200px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .feature-box h3 {
+            color: var(--primary);
+        }
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #000;
+            color: #777;
+        }
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .links {
+            margin-top: 30px;
+        }
+        .links a {
+            margin: 0 15px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Wordico</h1>
+        <p class="subtitle">Yeni Nesil Kelime Tahmin Oyunu</p>
+    </header>
+
+    <div class="container">
+        <p>Wordico ile arkadaşlarınızla veya dünyanın dört bir yanından oyuncularla rekabet edin. Kelime bilginizi sınayın, ipuçlarını kullanın ve zirveye çıkın!</p>
+
+        <div class="features">
+            <div class="feature-box">
+                <h3>Çok Oyunculu</h3>
+                <p>Arkadaşlarınızla odalar kurun ve eş zamanlı oynayın.</p>
+            </div>
+            <div class="feature-box">
+                <h3>Zengin İçerik</h3>
+                <p>Sürekli güncellenen binlerce kelime ve futbol konsepti.</p>
+            </div>
+            <div class="feature-box">
+                <h3>Hızlı ve Eğlenceli</h3>
+                <p>Sadece 5 saniyelik ipuçlarıyla hızlı düşünme pratiği.</p>
+            </div>
+        </div>
+
+        <div class="links">
+            <a href="/gizlilik.html">Gizlilik Politikası</a>
+            <a href="/sartlar.html">Kullanım Koşulları</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Wordico. Tüm hakları saklıdır.</p>
+        <p>İletişim: destek@wordico.net</p>
+    </footer>
+
+</body>
+</html>
