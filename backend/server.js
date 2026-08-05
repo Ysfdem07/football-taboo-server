@@ -166,8 +166,8 @@ function normalizeText(text) {
 }
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
-
 // Seed route to insert initial players into MongoDB Atlas
 app.get('/seed-players', async (req, res) => {
   try {
