@@ -64,7 +64,7 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.topBarButtonText}>Profilim</Text>
           </TouchableOpacity>
 
-          <Text style={styles.topBarTitle}>FUTBOL TABU</Text>
+          <Text style={styles.topBarTitle}>WORDICO</Text>
 
           <TouchableOpacity style={styles.topBarButton} onPress={() => navigation.navigate('Leaderboard')}>
             <Ionicons name="trophy-outline" size={18} color="#FFD700" style={{ marginRight: 5 }} />
