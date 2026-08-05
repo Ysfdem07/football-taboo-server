@@ -47,7 +47,7 @@ const transporter = nodemailer.createTransport({
 function sendResendEmail(email, username, code) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      from: 'FutTaboo Destek <onboarding@resend.dev>',
+      from: 'Wordico Destek <noreply@wordico.net>',
       to: [email],
       subject: 'FutTaboo - Şifre Sıfırlama Kodu',
       html: `
@@ -108,7 +108,7 @@ async function sendResetEmail(email, username, code) {
   // 1) SMTP - Gmail port 587 TLS IPv4
   try {
     await transporter.sendMail({
-      from: `"FutTaboo Destek" <${smtpUser}>`,
+      from: `Wordico Destek <${smtpUser}>`,
       to: email,
       subject: 'FutTaboo - Şifre Sıfırlama Kodu',
       text: `Merhaba ${username},\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika geçerlidir.`
