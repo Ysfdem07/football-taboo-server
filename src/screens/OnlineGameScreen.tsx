@@ -633,8 +633,12 @@ const styles = StyleSheet.create({
   },
   inputArea: {
     flexDirection: 'row',
-    marginBottom: Platform.OS === 'ios' ? 24 : 14,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 14,
+    paddingTop: 12,
     paddingHorizontal: 16,
+    backgroundColor: 'rgba(0,8,20,0.95)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
   },
   invisibleInput: {
     position: 'absolute',

@@ -616,9 +616,12 @@ const styles = StyleSheet.create({
 
   inputSection: {
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 14, // klavyeye çok yapışmasın diye alt boşluk
-    marginTop: 'auto'
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 14,
+    marginTop: 'auto',
+    backgroundColor: 'rgba(0,8,20,0.95)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
   },
   invisibleInput: {
     position: 'absolute',
