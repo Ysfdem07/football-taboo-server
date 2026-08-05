@@ -165,17 +165,18 @@ export default function HomeScreen({ navigation }: Props) {
                 <Text style={styles.howToPlayText}>NASIL OYNANIR?</Text>
               </TouchableOpacity>
 
-              {/* HAKKIMIZDA */}
-              <TouchableOpacity style={styles.infoLink} onPress={() => navigation.navigate('About')}>
-                <Ionicons name="information-circle-outline" size={15} color="rgba(255,255,255,0.4)" style={{ marginRight: 6 }} />
-                <Text style={styles.infoLinkText}>Hakkımızda / Bilgi</Text>
-              </TouchableOpacity>
+              {/* FOOTER LINKS */}
+              <View style={styles.footerLinksRow}>
+                <TouchableOpacity style={styles.infoLink} onPress={() => navigation.navigate('About')}>
+                  <Ionicons name="information-circle-outline" size={15} color="#FFF275" style={{ marginRight: 6 }} />
+                  <Text style={styles.infoLinkText}>Hakkımızda</Text>
+                </TouchableOpacity>
 
-              {/* WEB SITEMIZ */}
-              <TouchableOpacity style={styles.infoLink} onPress={() => Linking.openURL('https://wordico.net')}>
-                <Ionicons name="globe-outline" size={15} color="rgba(255,255,255,0.4)" style={{ marginRight: 6 }} />
-                <Text style={styles.infoLinkText}>wordico.net</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.infoLink} onPress={() => Linking.openURL('https://wordico.net')}>
+                  <Ionicons name="globe-outline" size={15} color="#FFF275" style={{ marginRight: 6 }} />
+                  <Text style={styles.infoLinkText}>Websitemiz</Text>
+                </TouchableOpacity>
+              </View>
             </>
           )}
         </View>
@@ -409,16 +410,24 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // ── INFO LINK ──
+  // 🔗 INFO LINK 🔗
+  footerLinksRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 30, // 30px spacing between links
+  },
   infoLink: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   infoLinkText: {
-    color: 'rgba(255,255,255,0.35)',
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 12,
+    color: '#FFF275', // Light bright yellow
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 13,
+    letterSpacing: 0.5,
   },
 
   // ── SYNCING ──
