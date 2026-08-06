@@ -658,6 +658,45 @@ io.on('connection', (socket) => {
     }, 1000);
   });
 
+  socket.on('pass_round', (data) => {
+    const { roomId } = data;
+    const room = activeRooms[roomId];
+    if (!room || !room.roundActive || room.isPaused) return;
+
+    if (!room.passVotes) {
+      room.passVotes = new Set();
+    }
+    room.passVotes.add(socket.id);
+
+    const votesCount = room.passVotes.size;
+    const totalPlayers = room.players.length;
+
+    io.to(roomId).emit('pass_update', {
+      votesCount,
+      totalPlayers,
+      voterId: socket.id
+    });
+
+    if (votesCount >= totalPlayers) {
+      room.roundActive = false;
+      room.isPaused = false;
+      if (room.timer) clearInterval(room.timer);
+      if (room.guessTimer) clearInterval(room.guessTimer);
+
+      io.to(roomId).emit('round_ended', {
+        winnerId: null,
+        winnerName: null,
+        word: room.card.word,
+        reason: 'pass',
+        scores: room.scores
+      });
+
+      setTimeout(() => {
+        startRound(roomId);
+      }, 4000);
+    }
+  });
+
   socket.on('guess_word', (data) => {
     const { roomId, guess } = data;
     const room = activeRooms[roomId];
@@ -677,23 +716,23 @@ io.on('connection', (socket) => {
       room.guessingPlayerId = null;
       clearInterval(room.timer);
       
+      const hintsPenalty = Math.max(0, (room.hintsShown - 1));
+      const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
+
       let pointsEarned = 5;
       if (room.isRanked1v1 || room.isGroupRanked) {
-        // Variable scoring: 100 - 10 per hint (excluding first) - 10 per letter, min 10
-        const hintsPenalty = (room.hintsShown - 1) * 10;
-        const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0) * 10;
-        pointsEarned = Math.max(10, 100 - hintsPenalty - lettersPenalty);
+        pointsEarned = Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
       } else {
-        if (room.revealedIndices && room.revealedIndices.length === 0) {
-          pointsEarned += 3; // Bonus for guessing before letters reveal
-        }
+        pointsEarned = Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
       }
       
       room.scores[socket.id] += pointsEarned;
       
+      const winnerPlayer = room.players.find(p => p.id === socket.id);
+      
       io.to(roomId).emit('round_ended', {
         winnerId: socket.id,
-        winnerName: room.players.find(p => p.id === socket.id)?.name,
+        winnerName: winnerPlayer ? winnerPlayer.name : 'Oyuncu',
         word: room.card.word,
         reason: 'correct_guess',
         scores: room.scores
@@ -851,6 +890,7 @@ async function startRound(roomId) {
   room.card = card;
   room.timeLeft = 30;
   room.hintsShown = 1; // First hint immediately
+  room.passVotes = new Set();
 
   // Create word hint replacing only non-space chars with underscore
   room.wordHintArray = card.word.split('').map(c => c === ' ' ? ' ' : '_');
