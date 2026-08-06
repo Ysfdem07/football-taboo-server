@@ -36,6 +36,11 @@ const playerSchema = new mongoose.Schema({
   marketingConsent: { type: Boolean, default: false },
   avatar: { type: String, default: '⚽' },
   kp: { type: Number, default: 0 },
+  categoryKp: {
+    football: { type: Number, default: 0 },
+    cinema:   { type: Number, default: 0 },
+    music:    { type: Number, default: 0 }
+  },
   matches_played: { type: Number, default: 0 },
   matches_won: { type: Number, default: 0 },
   correct_guesses: { type: Number, default: 0 },
@@ -163,12 +168,19 @@ module.exports = {
     return { player: player.toObject() };
   },
 
-  updatePlayerStats: async (playerId, kpChange, isWin, correctGuesses = 0, taboos = 0) => {
+  updatePlayerStats: async (playerId, kpChange, isWin, correctGuesses = 0, taboos = 0, category = 'football') => {
     await connectDB();
     const player = await Player.findOne({ id: playerId });
     if (!player) return null;
 
     player.kp = Math.max(0, player.kp + kpChange);
+
+    // Category-specific KP (never goes below 0)
+    if (!player.categoryKp) player.categoryKp = { football: 0, cinema: 0, music: 0 };
+    const cat = ['football', 'cinema', 'music'].includes(category) ? category : 'football';
+    player.categoryKp[cat] = Math.max(0, (player.categoryKp[cat] || 0) + kpChange);
+    player.markModified('categoryKp');
+
     player.matches_played += 1;
     if (isWin) player.matches_won += 1;
     player.correct_guesses += correctGuesses;
@@ -178,13 +190,30 @@ module.exports = {
     return player.toObject();
   },
 
-  getLeaderboard: async () => {
+  getLeaderboard: async (category = null) => {
     await connectDB();
+    if (category && ['football', 'cinema', 'music'].includes(category)) {
+      const sortField = `categoryKp.${category}`;
+      const players = await Player.find({})
+        .select(`id username avatar kp categoryKp matches_won matches_played -_id`)
+        .sort({ [sortField]: -1 })
+        .limit(50);
+      return players.map(p => {
+        const obj = p.toObject();
+        obj.displayKp = (obj.categoryKp && obj.categoryKp[category]) || 0;
+        return obj;
+      });
+    }
+    // Global leaderboard (fallback)
     const players = await Player.find({})
-      .select('id username avatar kp matches_won matches_played -_id')
+      .select('id username avatar kp categoryKp matches_won matches_played -_id')
       .sort({ kp: -1 })
       .limit(50);
-    return players.map(p => p.toObject());
+    return players.map(p => {
+      const obj = p.toObject();
+      obj.displayKp = obj.kp;
+      return obj;
+    });
   },
 
   generateResetCode: async (email) => {

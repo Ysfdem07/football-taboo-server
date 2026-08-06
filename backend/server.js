@@ -501,9 +501,10 @@ io.on('connection', (socket) => {
   });
 
   // Global Leaderboard Fetch
-  socket.on('get_leaderboard', async () => {
-    const leaderboard = await db.getLeaderboard();
-    socket.emit('leaderboard_data', { leaderboard });
+  socket.on('get_leaderboard', async (data) => {
+    const category = data?.category || null;
+    const leaderboard = await db.getLeaderboard(category);
+    socket.emit('leaderboard_data', { leaderboard, category });
   });
 
   socket.on('join_queue', (data) => {
@@ -752,16 +753,17 @@ io.on('connection', (socket) => {
                  clearInterval(room.timer);
                  if(room.guessTimer) clearInterval(room.guessTimer);
                  
-                 // Apply rage quit penalty if ranked 1v1
-                 if (room.isRanked1v1) {
-                   const remainingPlayer = room.players[0];
-                   if (remainingPlayer && remainingPlayer.dbPlayerId) {
-                     await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true);
-                   }
-                   if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
-                     await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false);
-                   }
-                 }
+                  // Apply rage quit penalty if ranked 1v1
+                  if (room.isRanked1v1) {
+                    const roomCat = room.category || 'football';
+                    const remainingPlayer = room.players[0];
+                    if (remainingPlayer && remainingPlayer.dbPlayerId) {
+                      await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true, 0, 0, roomCat);
+                    }
+                    if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
+                      await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false, 0, 0, roomCat);
+                    }
+                  }
                  
                  io.to(roomId).emit('opponent_disconnected'); 
                  delete activeRooms[roomId];
@@ -789,6 +791,7 @@ async function startRound(roomId) {
   room.currentRound++;
   if (room.currentRound > room.maxRounds) {
     const kpChanges = {};
+    const roomCat = room.category || 'football';
     if (room.isRanked1v1 && room.players.length === 2) {
       const p1 = room.players[0];
       const p2 = room.players[1];
@@ -796,28 +799,28 @@ async function startRound(roomId) {
       const s2 = room.scores[p2.id] || 0;
       
       if (s1 > s2) {
-        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 50, true);
-        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, -25, false);
+        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 50, true, 0, 0, roomCat);
+        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, -25, false, 0, 0, roomCat);
         kpChanges[p1.id] = 50;
         kpChanges[p2.id] = -25;
       } else if (s2 > s1) {
-        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, -25, false);
-        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 50, true);
+        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, -25, false, 0, 0, roomCat);
+        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 50, true, 0, 0, roomCat);
         kpChanges[p1.id] = -25;
         kpChanges[p2.id] = 50;
       } else {
-        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 10, false);
-        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 10, false);
+        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 10, false, 0, 0, roomCat);
+        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 10, false, 0, 0, roomCat);
         kpChanges[p1.id] = 10;
         kpChanges[p2.id] = 10;
       }
     } else if (room.isGroupRanked && room.players.length >= 3) {
       const sorted = [...room.players].sort((a, b) => (room.scores[b.id] || 0) - (room.scores[a.id] || 0));
       // 1st place
-      if (sorted[0].dbPlayerId) await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true);
+      if (sorted[0].dbPlayerId) await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true, 0, 0, roomCat);
       kpChanges[sorted[0].id] = 125;
       // 2nd place
-      if (sorted[1].dbPlayerId) await db.updatePlayerStats(sorted[1].dbPlayerId, 50, false);
+      if (sorted[1].dbPlayerId) await db.updatePlayerStats(sorted[1].dbPlayerId, 50, false, 0, 0, roomCat);
       kpChanges[sorted[1].id] = 50;
       // Others
       for (let i = 2; i < sorted.length; i++) {
