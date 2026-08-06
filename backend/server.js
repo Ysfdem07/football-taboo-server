@@ -287,7 +287,11 @@ const io = require('socket.io')(server, {
 });
 
 const Papa = require('papaparse');
-const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv";
+const CSV_URLS = {
+  football: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=0",
+  cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=927039923",
+  music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227"
+};
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
 let wordsDb = { football: [], cinema: [], music: [] };
 
