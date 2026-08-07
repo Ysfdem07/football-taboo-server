@@ -167,6 +167,15 @@ function normalizeText(text) {
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Web page route aliases
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'gizlilik.html')));
+app.get('/privacy.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'gizlilik.html')));
+app.get('/gizlilik', (req, res) => res.sendFile(path.join(__dirname, 'public', 'gizlilik.html')));
+app.get('/gizlilik.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'gizlilik.html')));
+app.get('/sartlar', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sartlar.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'public', 'sartlar.html')));
+
 app.use(cors());
 // Seed route to insert initial players into MongoDB Atlas
 app.get('/seed-players', async (req, res) => {
