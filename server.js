@@ -172,12 +172,14 @@ const getPublicFile = (filename) => {
   if (fs.existsSync(rootPath)) return rootPath;
   const backendPath = path.join(__dirname, 'backend', 'public', filename);
   if (fs.existsSync(backendPath)) return backendPath;
-  return path.join(__dirname, filename);
+  return path.join(__dirname, 'public', 'gizlilik.html');
 };
 
-// Web page route aliases (Registered BEFORE static middleware for 100% reliability)
-app.get('/privacy', (req, res) => res.sendFile(getPublicFile('privacy.html')));
-app.get('/privacy.html', (req, res) => res.sendFile(getPublicFile('privacy.html')));
+// Web page route aliases (Maps all privacy routes directly to bilingual gizlilik.html)
+app.get('/privacy', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
+app.get('/privacy.html', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
+app.get('/privacy-policy', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
+app.get('/privacy-policy.html', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
 app.get('/gizlilik', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
 app.get('/gizlilik.html', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
 app.get('/sartlar', (req, res) => res.sendFile(getPublicFile('sartlar.html')));
