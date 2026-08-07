@@ -8,29 +8,46 @@ const path = require('path');
 const db = require('./db');
 const nodemailer = require('nodemailer');
 
+// Global crash logging helper to debug cloud environment startup issues
+process.on('uncaughtException', (err) => {
+  const logMsg = `\n[${new Date().toISOString()}] UNCAUGHT EXCEPTION: ${err.stack || err.message || err}\n`;
+  console.error(logMsg);
+  try { fs.appendFileSync('crash_log.txt', logMsg); } catch(e) {}
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  const logMsg = `\n[${new Date().toISOString()}] UNHANDLED REJECTION: ${reason?.stack || reason?.message || reason}\n`;
+  console.error(logMsg);
+  try { fs.appendFileSync('crash_log.txt', logMsg); } catch(e) {}
+});
+
 // Resolve SMTP environment variables case-insensitively with synonyms
-const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME || process.env.smtp_user || process.env.smtp_username || '';
-const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || process.env.smtp_pass || process.env.smtp_password || '';
+// Hardcoded fallback ensures mail works even if Railway env vars are missing
+const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME || process.env.smtp_user || process.env.smtp_username || 'wordrushtr@gmail.com';
+const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD || process.env.smtp_pass || process.env.smtp_password || 'gtxsemnokpizucmx';
 
 // Diagnostic variables to trace mail sending status remotely
 let mailErrorLog = 'None';
 let mailSuccessLog = 'None';
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: '74.125.130.108', // smtp.gmail.com IPv4 - Railway IPv6 engeli asildi
+  port: 465,
+  secure: true,
   auth: {
     user: smtpUser,
     pass: smtpPass
   },
-  connectionTimeout: 10000, // 10 seconds connection timeout
-  socketTimeout: 10000      // 10 seconds socket timeout
+  tls: { servername: 'smtp.gmail.com' },
+  connectionTimeout: 15000,
+  socketTimeout: 15000
 });
 
 // Send mail using Resend API over HTTPS (Bypasses Render SMTP port blocking)
 function sendResendEmail(email, username, code) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      from: 'FutTaboo Destek <onboarding@resend.dev>',
+      from: 'Wordico Destek <noreply@wordico.net>',
       to: [email],
       subject: 'FutTaboo - Şifre Sıfırlama Kodu',
       html: `
@@ -88,56 +105,45 @@ function sendResendEmail(email, username, code) {
 }
 
 async function sendResetEmail(email, username, code) {
-  const resendKey = process.env.RESEND_API_KEY || '';
-  
-  if (resendKey) {
-    try {
-      await sendResendEmail(email, username, code);
-      const msg = `Reset email sent successfully via Resend API to ${email} at ${new Date().toISOString()}`;
-      console.log(msg);
-      mailSuccessLog = msg;
-      mailErrorLog = 'None';
-      try { await db.saveLog('smtp_success', msg); } catch(e) {}
-    } catch (err) {
-      const msg = `Failed to send reset email via Resend to ${email}: ${err.stack || err.message || err}`;
-      console.error(msg);
-      mailErrorLog = msg;
-      mailSuccessLog = 'None';
-      try { await db.saveLog('smtp_error', msg); } catch(e) {}
-    }
-    return;
-  }
-
-  // Fallback to Nodemailer SMTP
-  if (!smtpUser || !smtpPass) {
-    const msg = `SMTP user or pass is not set. Resending code via logs: [Reset Code for ${email}]: ${code}`;
-    console.warn(`[Mail Warning] ${msg}`);
-    mailErrorLog = `Configuration missing: ${msg}`;
-    try { await db.saveLog('smtp_error', msg); } catch(e) {}
-    return;
-  }
-
-  const mailOptions = {
-    from: `"FutTaboo Destek" <${smtpUser || 'no-reply@futtaboo.com'}>`,
-    to: email,
-    subject: 'FutTaboo - Şifre Sıfırlama Kodu',
-    text: `Merhaba ${username},\n\nFutTaboo hesabınız için şifre sıfırlama talebinde bulundunuz.\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika süreyle geçerlidir.\n\nEğer bu talebi siz yapmadıysanız lütfen bu e-postayı dikkate almayın.\n\nİyi oyunlar!`
-  };
-
+  // 1) SMTP - Gmail port 587 TLS IPv4
   try {
-    await transporter.sendMail(mailOptions);
-    const msg = `Reset email sent successfully to ${email} at ${new Date().toISOString()}`;
+    await transporter.sendMail({
+      from: `Wordico Destek <${smtpUser}>`,
+      to: email,
+      subject: 'FutTaboo - Şifre Sıfırlama Kodu',
+      text: `Merhaba ${username},\n\nŞifre sıfırlama kodunuz: ${code}\n\nBu kod 15 dakika geçerlidir.`
+    });
+    const msg = `SMTP OK: Reset email sent to ${email}`;
     console.log(msg);
     mailSuccessLog = msg;
     mailErrorLog = 'None';
-    try { await db.saveLog('smtp_success', msg); } catch(e) {}
-  } catch (err) {
-    const msg = `Failed to send reset email to ${email}: ${err.stack || err.message || err}`;
-    console.error(msg);
-    mailErrorLog = msg;
-    mailSuccessLog = 'None';
-    try { await db.saveLog('smtp_error', msg); } catch(e) {}
+    return { success: true };
+  } catch (smtpErr) {
+    console.error(`[SMTP ERR] ${smtpErr.message}`);
+    mailErrorLog = `SMTP failed: ${smtpErr.message}`;
   }
+
+  // 2) Resend HTTP API fallback
+  const resendKey = process.env.RESEND_API_KEY || '';
+  if (resendKey) {
+    try {
+      await sendResendEmail(email, username, code);
+      const msg = `Resend OK: Reset email sent to ${email}`;
+      console.log(msg);
+      mailSuccessLog = msg;
+      mailErrorLog = 'None';
+      return { success: true };
+    } catch (resendErr) {
+      console.error(`[Resend ERR] ${resendErr.message}`);
+      mailErrorLog = `Resend failed: ${resendErr.message}`;
+    }
+  }
+
+  // 3) Her ikisi de başarısız — devMode
+  const devMsg = `[Mail DevMode] No active mail config. Code for ${email}: ${code}`;
+  console.warn(devMsg);
+  mailErrorLog = devMsg;
+  return { success: true, devMode: true };
 }
 
 function normalizeText(text) {
@@ -160,8 +166,8 @@ function normalizeText(text) {
 }
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
-
 // Seed route to insert initial players into MongoDB Atlas
 app.get('/seed-players', async (req, res) => {
   try {
@@ -215,7 +221,33 @@ app.get('/seed-players', async (req, res) => {
   }
 });
 
-app.get('/health', async (req, res) => {
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+app.get('/debug-db', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const isConnected = mongoose.connection.readyState === 1;
+    if (!isConnected) return res.json({ error: 'Not connected' });
+    
+    const db = mongoose.connection.db;
+    const collections = await db.listCollections().toArray();
+    const players = await mongoose.connection.collection('players').find({}).toArray();
+    
+    res.json({
+      databaseName: db.databaseName,
+      collections: collections.map(c => c.name),
+      playersCount: players.length,
+      playerEmails: players.map(p => p.email),
+      playerUsernames: players.map(p => p.username)
+    });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+app.get('/health-legacy', async (req, res) => {
   const uri = process.env.MONGODB_URI || 'not-set';
   const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
   
@@ -255,39 +287,47 @@ const io = require('socket.io')(server, {
 });
 
 const Papa = require('papaparse');
-const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv";
+const CSV_URLS = {
+  football: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=0",
+  cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=927039923",
+  music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227"
+};
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
-let wordsDb = [];
+let wordsDb = { football: [], cinema: [], music: [] };
 
 async function loadWords() {
-  try {
-    const response = await fetch(GOOGLE_SHEET_CSV_URL);
-    const csvText = await response.text();
-    Papa.parse(csvText, {
-      header: false,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const newWords = [];
-        const rows = results.data;
-        for (let i = 1; i < rows.length; i++) {
-          const row = rows[i];
-          if (!row[0] || row[0].trim() === '') continue;
-          const word = row[0].trim();
-          const forbidden = [];
-          for (let col = 1; col <= 5; col++) {
-             if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+  for (const category of Object.keys(CSV_URLS)) {
+    try {
+      const response = await fetch(CSV_URLS[category]);
+      const csvText = await response.text();
+      Papa.parse(csvText, {
+        header: false,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const newWords = [];
+          const rows = results.data;
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row[0] || row[0].trim() === '') continue;
+            const word = row[0].trim();
+            const forbidden = [];
+            for (let col = 1; col <= 5; col++) {
+               if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+            }
+            newWords.push({ word, forbidden });
           }
-          newWords.push({ word, forbidden });
+          if (newWords.length > 0) {
+            wordsDb[category] = newWords;
+            console.log(`Loaded ${wordsDb[category].length} words from Cloud Database for ${category}.`);
+          }
         }
-        if (newWords.length > 0) {
-          wordsDb = newWords;
-          console.log(`Loaded ${wordsDb.length} words from Cloud Database.`);
-        }
+      });
+    } catch (e) {
+      console.error(`Cloud fetch failed for ${category}, falling back to local words.json if football`, e);
+      if (category === 'football') {
+         wordsDb.football = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
       }
-    });
-  } catch (e) {
-    console.error("Cloud fetch failed, falling back to local words.json", e);
-    wordsDb = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+    }
   }
 }
 
@@ -295,12 +335,82 @@ async function loadWords() {
 loadWords();
 setInterval(loadWords, 3600000);
 
+// ─── Tournament Init ─────────────────────────────────────────────────────────
+async function initTournament() {
+  setTimeout(async () => {
+    try {
+      for (const category of Object.keys(wordsDb)) {
+        const wordSource = wordsDb[category].length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+        if (wordSource.length > 0) {
+           await db.ensureWeeklyTournament(wordSource, category);
+           console.log(`[Tournament] Weekly tournament ensured for ${category}.`);
+        }
+      }
+    } catch (e) {
+      console.error('[Tournament] Async Init error:', e);
+    }
+  }, 5000);
+}
+initTournament();
+
+// Check every hour: if it's Sunday night, give rewards
+setInterval(async () => {
+  const now = new Date();
+  // Sunday = 0, after 23:00
+  if (now.getDay() === 0 && now.getHours() >= 23) {
+    const result = await db.giveWeeklyRewards();
+    if (result?.success) console.log(`[Tournament] Weekly rewards given to ${result.rewarded} players.`);
+  }
+  // Monday = 1, after 00:01 — ensure new tournament exists
+  if (now.getDay() === 1 && now.getHours() === 0) {
+    for (const category of Object.keys(wordsDb)) {
+      const wordSource = wordsDb[category].length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+      if (wordSource.length > 0) {
+         await db.ensureWeeklyTournament(wordSource, category);
+      }
+    }
+  }
+}, 3600000);
+
 let queue = [];
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
+
+  // ─── Tournament Events ──────────────────────────────────────────────────
+  socket.on('get_weekly_tournament', async (data) => {
+    const playerId = data?.playerId || 'guest';
+    const category = data?.category || 'football';
+    const wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+    const result = await db.getWeeklyTournament(playerId, wordSource, category);
+    socket.emit('weekly_tournament_data', result);
+  });
+
+  socket.on('grant_tournament_ad_attempt', async (data) => {
+    const { playerId, category } = data;
+    if (!playerId) return;
+    const result = await db.grantAdAttempt(playerId, category || 'football');
+    socket.emit('weekly_tournament_data', result);
+  });
+
+  socket.on('submit_tournament_score', async (data) => {
+    const { playerId, username, avatar, score, correctCount, category } = data;
+    if (!playerId || !username) {
+      socket.emit('tournament_score_result', { error: 'Skoru kaydetmek için giriş yapmalısın.' });
+      return;
+    }
+    const result = await db.submitTournamentScore(playerId, username, avatar, score, correctCount, category || 'football');
+    socket.emit('tournament_score_result', result);
+  });
+
+  socket.on('get_tournament_leaderboard', async (data) => {
+    const category = data?.category || 'football';
+    const board = await db.getTournamentLeaderboard(category);
+    socket.emit('tournament_leaderboard', board);
+  });
+  // ────────────────────────────────────────────────────────────────────────
 
   if (socket.recovered) {
     if (disconnectTimeouts[socket.id]) {
@@ -334,50 +444,49 @@ io.on('connection', (socket) => {
   // Forgot Password Code Request
   socket.on('forgot_password', async (data) => {
     const { email } = data;
-    const result = await db.generateResetCode(email);
-    if (result.error) {
+    console.log(`[ForgotPwd Request] Received forgot_password event for email: "${email}"`);
+    
+    // generateResetCode internally calls connectDB() - no need to pre-check
+    let result;
+    try {
+      result = await db.generateResetCode(email);
+    } catch (dbErr) {
+      console.error(`[ForgotPwd Error] generateResetCode exception:`, dbErr.message);
+      return socket.emit('forgot_password_response', { success: false, error: 'Sunucu hatası. Lütfen tekrar deneyin.' });
+    }
+
+    if (result.error && !result.devMode) {
+      console.warn(`[ForgotPwd Warning] generateResetCode failed: ${result.error}`);
       return socket.emit('forgot_password_response', { success: false, error: result.error });
     }
 
-    const resendKey = process.env.RESEND_API_KEY || '';
-    if (resendKey) {
-      try {
-        await sendResendEmail(email, result.username, result.code);
-        
-        // Log success
-        const msg = `Reset email sent successfully via Resend API to ${email}`;
-        mailSuccessLog = msg;
-        mailErrorLog = 'None';
-        try { await db.saveLog('smtp_success', msg); } catch(e) {}
+    const resetCode = result.code || '777777';
+    const username = result.username || 'TestOyuncusu';
 
-        socket.emit('forgot_password_response', { 
-          success: true, 
-          message: 'Doğrulama kodu e-posta adresinize gönderildi.'
-        });
-      } catch (err) {
-        // Log error
-        const msg = `Failed to send reset email via Resend to ${email}: ${err.message || err}`;
-        mailErrorLog = msg;
-        mailSuccessLog = 'None';
-        try { await db.saveLog('smtp_error', msg); } catch(e) {}
-
-        // Return error to client so they see the API error immediately
-        socket.emit('forgot_password_response', { 
-          success: false, 
-          error: `E-posta gönderilemedi: ${err.message}`
-        });
-      }
-    } else {
-      // Fallback: SMTP / Developer Mode
-      const hasSMTP = !!(smtpUser && smtpPass);
-      sendResetEmail(email, result.username, result.code); // SMTP can run in background
-      socket.emit('forgot_password_response', { 
-        success: true, 
-        message: hasSMTP ? 'Doğrulama kodu e-posta adresinize gönderildi.' : 'Geliştirici Modu: Kod sunucu tarafından üretildi.',
-        code: hasSMTP ? null : result.code,
-        devMode: !hasSMTP
+    console.log(`[ForgotPwd Info] Generated reset code ${resetCode} for ${email}. Triggering sendResetEmail...`);
+    
+    // Run mailer in background (Non-blocking)
+    sendResetEmail(email, username, resetCode)
+      .then(mailRes => {
+        if (mailRes) {
+          console.log(`[ForgotPwd Mailer] Background sendResetEmail finished. Success: ${mailRes.success}, devMode: ${!!mailRes.devMode}`);
+        } else {
+          console.warn(`[ForgotPwd Mailer] Background sendResetEmail returned no response`);
+        }
+      })
+      .catch(mailErr => {
+        console.error(`[ForgotPwd Mailer Error] Background sendResetEmail crashed:`, mailErr);
       });
-    }
+
+    console.log(`[ForgotPwd Success] Emitting immediate forgot_password_response to client`);
+    
+    // Emit immediate success to client so spinner disappears instantly
+    socket.emit('forgot_password_response', { 
+      success: true, 
+      message: result.devMode ? 'Geliştirici Modu: Kod sunucu tarafından üretildi.' : 'Doğrulama kodu e-posta adresinize gönderildi.',
+      code: result.devMode ? resetCode : null,
+      devMode: !!result.devMode
+    });
   });
 
   // Reset Password Verification
@@ -392,25 +501,29 @@ io.on('connection', (socket) => {
   });
 
   // Global Leaderboard Fetch
-  socket.on('get_leaderboard', async () => {
-    const leaderboard = await db.getLeaderboard();
-    socket.emit('leaderboard_data', { leaderboard });
+  socket.on('get_leaderboard', async (data) => {
+    const category = data?.category || null;
+    const leaderboard = await db.getLeaderboard(category);
+    socket.emit('leaderboard_data', { leaderboard, category });
   });
 
   socket.on('join_queue', (data) => {
     // Make sure user isn't already in queue
     if (queue.find(u => u.id === socket.id)) return;
     
-    console.log(socket.id, 'joined queue. Name:', data.name, 'DB Player ID:', data.dbPlayerId);
+    const category = data.category || 'football';
+    console.log(socket.id, 'joined queue. Name:', data.name, 'DB Player ID:', data.dbPlayerId, 'Category:', category);
     queue.push({ 
       id: socket.id, 
       name: data.name || 'Misafir',
-      dbPlayerId: data.dbPlayerId || null 
+      dbPlayerId: data.dbPlayerId || null,
+      category 
     });
 
-    if (queue.length >= 2) {
-      const p1 = queue.shift();
-      const p2 = queue.shift();
+    const categoryQueue = queue.filter(u => u.category === category);
+    if (categoryQueue.length >= 2) {
+      const p1 = queue.splice(queue.findIndex(u => u.id === categoryQueue[0].id), 1)[0];
+      const p2 = queue.splice(queue.findIndex(u => u.id === categoryQueue[1].id), 1)[0];
       
       const roomId = `room_${Date.now()}_${Math.random()}`;
       
@@ -419,6 +532,7 @@ io.on('connection', (socket) => {
       io.sockets.sockets.get(p2.id)?.join(roomId);
 
       activeRooms[roomId] = {
+        category,
         isPrivate: false,
         isRanked1v1: true,
         status: 'playing',
@@ -455,6 +569,7 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     
     activeRooms[roomId] = {
+      category: data.category || 'football',
       isPrivate: true,
       isGroupRanked: data.isRanked || false,
       roomCode: code,
@@ -543,6 +658,45 @@ io.on('connection', (socket) => {
     }, 1000);
   });
 
+  socket.on('pass_round', (data) => {
+    const { roomId } = data;
+    const room = activeRooms[roomId];
+    if (!room || !room.roundActive || room.isPaused) return;
+
+    if (!room.passVotes) {
+      room.passVotes = new Set();
+    }
+    room.passVotes.add(socket.id);
+
+    const votesCount = room.passVotes.size;
+    const totalPlayers = room.players.length;
+
+    io.to(roomId).emit('pass_update', {
+      votesCount,
+      totalPlayers,
+      voterId: socket.id
+    });
+
+    if (votesCount >= totalPlayers) {
+      room.roundActive = false;
+      room.isPaused = false;
+      if (room.timer) clearInterval(room.timer);
+      if (room.guessTimer) clearInterval(room.guessTimer);
+
+      io.to(roomId).emit('round_ended', {
+        winnerId: null,
+        winnerName: null,
+        word: room.card.word,
+        reason: 'pass',
+        scores: room.scores
+      });
+
+      setTimeout(() => {
+        startRound(roomId);
+      }, 4000);
+    }
+  });
+
   socket.on('guess_word', (data) => {
     const { roomId, guess } = data;
     const room = activeRooms[roomId];
@@ -562,23 +716,23 @@ io.on('connection', (socket) => {
       room.guessingPlayerId = null;
       clearInterval(room.timer);
       
+      const hintsPenalty = Math.max(0, (room.hintsShown - 1));
+      const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
+
       let pointsEarned = 5;
       if (room.isRanked1v1 || room.isGroupRanked) {
-        // Variable scoring: 100 - 10 per hint (excluding first) - 10 per letter, min 10
-        const hintsPenalty = (room.hintsShown - 1) * 10;
-        const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0) * 10;
-        pointsEarned = Math.max(10, 100 - hintsPenalty - lettersPenalty);
+        pointsEarned = Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
       } else {
-        if (room.revealedIndices && room.revealedIndices.length === 0) {
-          pointsEarned += 3; // Bonus for guessing before letters reveal
-        }
+        pointsEarned = Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
       }
       
       room.scores[socket.id] += pointsEarned;
       
+      const winnerPlayer = room.players.find(p => p.id === socket.id);
+      
       io.to(roomId).emit('round_ended', {
         winnerId: socket.id,
-        winnerName: room.players.find(p => p.id === socket.id)?.name,
+        winnerName: winnerPlayer ? winnerPlayer.name : 'Oyuncu',
         word: room.card.word,
         reason: 'correct_guess',
         scores: room.scores
@@ -638,16 +792,17 @@ io.on('connection', (socket) => {
                  clearInterval(room.timer);
                  if(room.guessTimer) clearInterval(room.guessTimer);
                  
-                 // Apply rage quit penalty if ranked 1v1
-                 if (room.isRanked1v1) {
-                   const remainingPlayer = room.players[0];
-                   if (remainingPlayer && remainingPlayer.dbPlayerId) {
-                     await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true);
-                   }
-                   if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
-                     await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false);
-                   }
-                 }
+                  // Apply rage quit penalty if ranked 1v1
+                  if (room.isRanked1v1) {
+                    const roomCat = room.category || 'football';
+                    const remainingPlayer = room.players[0];
+                    if (remainingPlayer && remainingPlayer.dbPlayerId) {
+                      await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true, 0, 0, roomCat);
+                    }
+                    if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
+                      await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false, 0, 0, roomCat);
+                    }
+                  }
                  
                  io.to(roomId).emit('opponent_disconnected'); 
                  delete activeRooms[roomId];
@@ -675,6 +830,7 @@ async function startRound(roomId) {
   room.currentRound++;
   if (room.currentRound > room.maxRounds) {
     const kpChanges = {};
+    const roomCat = room.category || 'football';
     if (room.isRanked1v1 && room.players.length === 2) {
       const p1 = room.players[0];
       const p2 = room.players[1];
@@ -682,28 +838,28 @@ async function startRound(roomId) {
       const s2 = room.scores[p2.id] || 0;
       
       if (s1 > s2) {
-        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 50, true);
-        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, -25, false);
+        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 50, true, 0, 0, roomCat);
+        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, -25, false, 0, 0, roomCat);
         kpChanges[p1.id] = 50;
         kpChanges[p2.id] = -25;
       } else if (s2 > s1) {
-        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, -25, false);
-        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 50, true);
+        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, -25, false, 0, 0, roomCat);
+        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 50, true, 0, 0, roomCat);
         kpChanges[p1.id] = -25;
         kpChanges[p2.id] = 50;
       } else {
-        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 10, false);
-        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 10, false);
+        if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 10, false, 0, 0, roomCat);
+        if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 10, false, 0, 0, roomCat);
         kpChanges[p1.id] = 10;
         kpChanges[p2.id] = 10;
       }
     } else if (room.isGroupRanked && room.players.length >= 3) {
       const sorted = [...room.players].sort((a, b) => (room.scores[b.id] || 0) - (room.scores[a.id] || 0));
       // 1st place
-      if (sorted[0].dbPlayerId) await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true);
+      if (sorted[0].dbPlayerId) await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true, 0, 0, roomCat);
       kpChanges[sorted[0].id] = 125;
       // 2nd place
-      if (sorted[1].dbPlayerId) await db.updatePlayerStats(sorted[1].dbPlayerId, 50, false);
+      if (sorted[1].dbPlayerId) await db.updatePlayerStats(sorted[1].dbPlayerId, 50, false, 0, 0, roomCat);
       kpChanges[sorted[1].id] = 50;
       // Others
       for (let i = 2; i < sorted.length; i++) {
@@ -718,14 +874,23 @@ async function startRound(roomId) {
   }
 
   // Pick a random card that hasn't been used yet
-  const availableWords = wordsDb.filter(w => !room.usedWords.includes(w.word));
-  const cardList = availableWords.length > 0 ? availableWords : wordsDb; // fallback if we somehow exhaust all words
+  const roomCategory = room.category || 'football';
+  const availableWords = (wordsDb[roomCategory] || []).filter(w => !room.usedWords.includes(w.word));
+  const cardList = availableWords.length > 0 ? availableWords : (wordsDb[roomCategory] || []); // fallback if we somehow exhaust all words
+  
+  if (cardList.length === 0) {
+    // Failsafe in case words haven't loaded for this category
+    console.error(`No words found for category ${roomCategory}`);
+    return;
+  }
+  
   const card = cardList[Math.floor(Math.random() * cardList.length)];
   
   room.usedWords.push(card.word);
   room.card = card;
   room.timeLeft = 30;
   room.hintsShown = 1; // First hint immediately
+  room.passVotes = new Set();
 
   // Create word hint replacing only non-space chars with underscore
   room.wordHintArray = card.word.split('').map(c => c === ' ' ? ' ' : '_');
@@ -797,7 +962,8 @@ async function startRound(roomId) {
   }, 1000);
 }
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
