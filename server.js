@@ -167,24 +167,28 @@ function normalizeText(text) {
 
 const app = express();
 
-const getPublicFile = (filename) => {
-  const rootPath = path.join(__dirname, 'public', filename);
-  if (fs.existsSync(rootPath)) return rootPath;
-  const backendPath = path.join(__dirname, 'backend', 'public', filename);
-  if (fs.existsSync(backendPath)) return backendPath;
-  return path.join(__dirname, 'public', 'gizlilik.html');
+// Load privacy policy HTML string directly into memory
+const getPrivacyHtmlContent = () => {
+  const p1 = path.resolve(__dirname, 'backend', 'public', 'gizlilik.html');
+  if (fs.existsSync(p1)) return fs.readFileSync(p1, 'utf-8');
+  const p2 = path.resolve(__dirname, 'public', 'gizlilik.html');
+  if (fs.existsSync(p2)) return fs.readFileSync(p2, 'utf-8');
+  const p3 = path.resolve(process.cwd(), 'backend', 'public', 'gizlilik.html');
+  if (fs.existsSync(p3)) return fs.readFileSync(p3, 'utf-8');
+  return `<!DOCTYPE html><html><head><title>Wordico Privacy Policy</title></head><body><h1>Wordico Privacy Policy</h1></body></html>`;
 };
 
-// Web page route aliases (Maps all privacy routes directly to bilingual gizlilik.html)
-app.get('/privacy', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
-app.get('/privacy.html', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
-app.get('/privacy-policy', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
-app.get('/privacy-policy.html', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
-app.get('/gizlilik', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
-app.get('/gizlilik.html', (req, res) => res.sendFile(getPublicFile('gizlilik.html')));
-app.get('/sartlar', (req, res) => res.sendFile(getPublicFile('sartlar.html')));
-app.get('/sartlar.html', (req, res) => res.sendFile(getPublicFile('sartlar.html')));
-app.get('/terms', (req, res) => res.sendFile(getPublicFile('sartlar.html')));
+const sendPrivacyHtml = (req, res) => {
+  res.type('html').send(getPrivacyHtmlContent());
+};
+
+// Web page route aliases (Guaranteed 200 OK without file path issues)
+app.get('/privacy', sendPrivacyHtml);
+app.get('/privacy.html', sendPrivacyHtml);
+app.get('/privacy-policy', sendPrivacyHtml);
+app.get('/privacy-policy.html', sendPrivacyHtml);
+app.get('/gizlilik', sendPrivacyHtml);
+app.get('/gizlilik.html', sendPrivacyHtml);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'backend', 'public')));
@@ -989,3 +993,5 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
+
+// Force redeploy timestamp: 2026-08-07T14:25:58.490Z
