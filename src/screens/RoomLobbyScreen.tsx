@@ -12,22 +12,32 @@ type Props = {
   route: RouteProp<RootStackParamList, 'RoomLobby'>;
 };
 
+const THEMES = {
+  football: require('../../assets/images/football_bg.jpg'),
+  cinema: require('../../assets/images/cinema_bg.jpg'),
+  music: require('../../assets/images/music_bg.jpg'),
+};
+
 export default function RoomLobbyScreen({ navigation, route }: Props) {
-  const { roomId, roomCode, isHost } = route.params;
+  const { roomId, roomCode, isHost, categoryId } = route.params;
   const [players, setPlayers] = useState<any[]>([]);
   const [currentHostId, setCurrentHostId] = useState<string | null>(null);
+  const [roomCategory, setRoomCategory] = useState<string>(categoryId || 'football');
   const socket = getSocket();
 
   useEffect(() => {
     socket.on('room_update', (data: any) => {
       setPlayers(data.players);
       setCurrentHostId(data.hostId);
+      if (data.category) {
+        setRoomCategory(data.category);
+      }
     });
 
     socket.on('game_starting_soon', () => {
       // Small delay before transition to make UI feel smooth
       setTimeout(() => {
-        navigation.replace('OnlineGame', { roomId });
+        navigation.replace('OnlineGame', { roomId, categoryId: roomCategory || categoryId || 'football' });
       }, 1000);
     });
 
@@ -35,7 +45,7 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
       socket.off('room_update');
       socket.off('game_starting_soon');
     };
-  }, []);
+  }, [roomCategory, categoryId]);
 
   const startGame = () => {
     if (players.length < 2) {
@@ -51,9 +61,10 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
   };
 
   const isCurrentHost = currentHostId === socket.id;
+  const currentCategory = roomCategory || categoryId || 'football';
 
   return (
-    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+    <ImageBackground source={THEMES[currentCategory as keyof typeof THEMES] || THEMES.football} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>ÖZEL ODA</Text>
         

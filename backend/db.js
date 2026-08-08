@@ -288,9 +288,21 @@ module.exports = {
     const today = getTodayString();
     const myEntry = tournament.scores.find(s => s.playerId === playerId);
 
-    // Her denemede farklı 20 kart için rastgele seçiyoruz
-    const shuffled = [...wordList].sort(() => Math.random() - 0.5);
-    const randomCardsForAttempt = shuffled.slice(0, 20);
+    // Her denemede farklı 20 kart için rastgele seçiyoruz ve ipucu sırasını karıştırıyoruz
+    const shuffleArray = (arr) => {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
+    const shuffled = shuffleArray(wordList);
+    const randomCardsForAttempt = shuffled.slice(0, 20).map(c => ({
+      ...c,
+      forbidden: shuffleArray(c.forbidden || [])
+    }));
 
     const attemptsToday = myEntry && myEntry.lastPlayedDate === today ? myEntry.attempts : 0;
 

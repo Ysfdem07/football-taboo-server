@@ -11,22 +11,28 @@ import HowToPlayScreen from '../screens/HowToPlayScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 import TournamentScreen from '../screens/TournamentScreen';
+import CategoryMenuScreen from '../screens/CategoryMenuScreen';
 import TournamentGameScreen from '../screens/TournamentGameScreen';
+import CardAlbumScreen from '../screens/CardAlbumScreen';
+import PitchBattleScreen from '../screens/PitchBattleScreen';
 
 export type RootStackParamList = {
   Home: undefined;
-  Settings: undefined;
+  Settings: { categoryId?: string };
   Game: { timeLimit: number; winScore: number; teamA: string; teamB: string };
   Result: { teamAScore: number; teamBScore: number; teamA: string; teamB: string };
-  OnlineLobby: undefined;
-  RoomLobby: { roomId: string, roomCode: string, isHost: boolean };
-  OnlineGame: { roomId: string };
+  OnlineLobby: { categoryId?: string };
+  RoomLobby: { roomId: string, roomCode: string, isHost: boolean, categoryId?: string };
+  OnlineGame: { roomId: string, categoryId?: string };
   About: undefined;
   HowToPlay: undefined;
   Profile: undefined;
-  Leaderboard: undefined;
-  Tournament: undefined;
-  TournamentGame: { cards: { word: string; forbidden: string[] }[] };
+  Leaderboard: { categoryId?: string };
+  Tournament: { categoryId?: string };
+  CategoryMenu: { categoryId: string };
+  TournamentGame: { cards: { word: string; forbidden: string[] }[]; categoryId?: string };
+  CardAlbum: { categoryId?: string };
+  PitchBattle: undefined;
 };
 
 import RoomLobbyScreen from '../screens/RoomLobbyScreen';
@@ -50,7 +56,8 @@ export default function AppNavigator() {
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="CategoryMenu" component={CategoryMenuScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Game" component={GameScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="OnlineLobby" component={OnlineLobbyScreen} />
@@ -62,6 +69,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="Tournament" component={TournamentScreen} />
         <Stack.Screen name="TournamentGame" component={TournamentGameScreen} />
+        <Stack.Screen name="CardAlbum" component={CardAlbumScreen} />
+        <Stack.Screen name="PitchBattle" component={PitchBattleScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

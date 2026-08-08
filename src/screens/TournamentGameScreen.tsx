@@ -20,6 +20,12 @@ const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
 const SECS_PER_Q  = 40; // 40 saniyeye yukseltildi
 
+const THEMES = {
+  football: require('../../assets/images/football_bg.jpg'),
+  cinema: require('../../assets/images/cinema_bg.jpg'),
+  music: require('../../assets/images/music_bg.jpg'),
+};
+
 function normalizeText(t: string) {
   return t.toLowerCase()
     .replace(/ı/g, 'i').replace(/İ/g, 'i')
@@ -38,7 +44,8 @@ function normalizeText(t: string) {
 export default function TournamentGameScreen() {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<Route>();
-  const { cards }  = route.params;
+  const { cards, categoryId: catId } = route.params;
+  const categoryId = catId || 'football';
 
   const [qIndex, setQIndex]           = useState(0);
   const [hintsShown, setHintsShown]   = useState(1);
@@ -95,7 +102,14 @@ export default function TournamentGameScreen() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [qIndex, feedback, finished]);
 
-  const currentCard = cards[qIndex];
+  const rawCard = cards[qIndex];
+  const currentCard = React.useMemo(() => {
+    if (!rawCard) return rawCard;
+    return {
+      ...rawCard,
+      forbidden: [...(rawCard.forbidden || [])].sort(() => Math.random() - 0.5)
+    };
+  }, [qIndex, rawCard]);
 
   const flashScreen = (correct: boolean, text: string) => {
     setFeedback(correct ? 'correct' : 'wrong');
@@ -115,8 +129,13 @@ export default function TournamentGameScreen() {
     flashScreen(false, `SÜRE DOLDU! ⏱️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
   };
 
+  const ensureFocus = () => {
+    if (!feedback && !finished) {
+      inputRef.current?.focus();
+    }
+  };
+
   const handleGuess = () => {
-    Keyboard.dismiss();
     if (!guess.trim() || feedback) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
@@ -144,6 +163,7 @@ export default function TournamentGameScreen() {
     if (hintsShown < currentCard.forbidden.length) {
       setHintsShown(prev => prev + 1);
     }
+    setTimeout(() => inputRef.current?.focus(), 80);
   };
 
   const handleShowLetter = () => {
@@ -161,6 +181,7 @@ export default function TournamentGameScreen() {
       const randIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
       setRevealedIndices(prev => [...prev, randIdx]);
     }
+    setTimeout(() => inputRef.current?.focus(), 80);
   };
 
   const nextQuestion = () => {
@@ -173,7 +194,7 @@ export default function TournamentGameScreen() {
       setRevealedIndices([]);
       setTimeLeft(SECS_PER_Q);
       setGuess('');
-      setTimeout(() => inputRef.current?.focus(), 300);
+      setTimeout(() => inputRef.current?.focus(), 150);
     }
   };
 
@@ -268,13 +289,14 @@ export default function TournamentGameScreen() {
     // Submit score
     const socket = getSocket();
     if (socket && player) {
-      socket.emit('submit_tournament_score', {
-        playerId: player.id,
-        username: player.username,
-        avatar: player.avatar,
-        score: totalScore,
-        correctCount,
-      });
+        socket.emit('submit_tournament_score', {
+          playerId: player.id,
+          username: player.username,
+          avatar: player.avatar,
+          score: totalScore,
+          correctCount,
+          category: categoryId,
+        });
     }
   };
 
@@ -289,7 +311,7 @@ export default function TournamentGameScreen() {
   // ─── Finished Screen ─────────────────────────────────────────────────────
   if (finished) {
     return (
-      <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bg}>
+      <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
         <View style={styles.overlay} />
         <SafeAreaView style={styles.finishedContainer}>
           <Text style={styles.finishedTitle}>TURNUVA BITTI</Text>
@@ -314,7 +336,7 @@ export default function TournamentGameScreen() {
             </View>
           )}
 
-          <TouchableOpacity style={styles.backToTournamentBtn} onPress={() => navigation.navigate('Tournament')}>
+          <TouchableOpacity style={styles.backToTournamentBtn} onPress={() => navigation.navigate('Tournament', { categoryId })}>
             <Text style={styles.backToTournamentText}>SIRALAMAYI GÖR</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.homeBtn} onPress={() => navigation.navigate('Home')}>
@@ -327,7 +349,7 @@ export default function TournamentGameScreen() {
 
   // ─── Game Screen ──────────────────────────────────────────────────────────
   return (
-    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bg}>
+    <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
       <View style={styles.overlay} />
       <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
       <SafeAreaView style={{ flex: 1 }}>
@@ -367,7 +389,7 @@ export default function TournamentGameScreen() {
               </View>
 
               {/* Clues */}
-              <View style={styles.cluesCard}>
+              <TouchableOpacity activeOpacity={0.95} onPress={ensureFocus} style={styles.cluesCard}>
                 {/* Potential Score Badge */}
                 <View style={styles.potentialScoreContainer}>
                   <Ionicons name="star" size={16} color={NEON_GOLD} />
@@ -410,10 +432,12 @@ export default function TournamentGameScreen() {
                     <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </TouchableOpacity>
 
               {/* Word Letter Placeholders */}
-              {renderWordPlaceholder()}
+              <TouchableOpacity activeOpacity={1} onPress={ensureFocus}>
+                {renderWordPlaceholder()}
+              </TouchableOpacity>
             </ScrollView>
 
             {/* Input Section - KeyboardAvoidingView will push the action buttons above keyboard */}
@@ -624,9 +648,11 @@ const styles = StyleSheet.create({
   },
   invisibleInput: {
     position: 'absolute',
-    width: 0,
-    height: 0,
-    opacity: 0,
+    left: -999,
+    top: 0,
+    width: 40,
+    height: 40,
+    opacity: 0.01,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {

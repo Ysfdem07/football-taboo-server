@@ -14,6 +14,12 @@ const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
 
+const THEMES = {
+  football: require('../../assets/images/football_bg.jpg'),
+  cinema: require('../../assets/images/cinema_bg.jpg'),
+  music: require('../../assets/images/music_bg.jpg'),
+};
+
 type Props = {
   route: RouteProp<RootStackParamList, 'OnlineGame'>;
   navigation: NativeStackNavigationProp<RootStackParamList, 'OnlineGame'>;
@@ -21,6 +27,8 @@ type Props = {
 
 export default function OnlineGameScreen({ route, navigation }: Props) {
   const { roomId } = route.params;
+  const categoryId = route.params?.categoryId || 'football';
+  const bgImageSource = THEMES[categoryId as keyof typeof THEMES] || THEMES.football;
   const socket = getSocket();
 
   const [wordHint, setWordHint] = useState<string>('...');
@@ -38,8 +46,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [guessingPlayerId, setGuessingPlayerId] = useState<string | null>(null);
   const [guessTimeLeft, setGuessTimeLeft] = useState<number>(0);
   const [buzzerLocked, setBuzzerLocked] = useState(false);
+  const [passVotesCount, setPassVotesCount] = useState<number>(0);
+  const [hasPassed, setHasPassed] = useState<boolean>(false);
   const [kpChanges, setKpChanges] = useState<Record<string, number>>({});
 
+  const inputRef = React.useRef<TextInput>(null);
   const transitionAnim = React.useRef(new Animated.Value(0)).current;
 
   // Smooth fade-in for round transition screens
@@ -54,6 +65,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       transitionAnim.setValue(0);
     }
   }, [gameOver, isFinal]);
+
+  const buzzerTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const toastTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     Analytics.logScreenView('OnlineGame');
@@ -70,10 +84,18 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.scores) setScores(data.scores);
       if (data.players) setPlayers(data.players);
       setGuess('');
+      setPassVotesCount(0);
+      setHasPassed(false);
     });
 
     socket.on('time_tick', (data: any) => {
       setTimeLeft(data.timeLeft);
+    });
+
+    socket.on('pass_update', (data: any) => {
+      if (data && data.votesCount !== undefined) {
+        setPassVotesCount(data.votesCount);
+      }
     });
 
     socket.on('hint_revealed', (data: any) => {
@@ -103,12 +125,14 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       
       if (data && data.playerId === socket.id) {
         setBuzzerLocked(true);
-        setTimeout(() => {
+        if (buzzerTimerRef.current) clearTimeout(buzzerTimerRef.current);
+        buzzerTimerRef.current = setTimeout(() => {
           setBuzzerLocked(false);
         }, 5000);
       }
 
-      setTimeout(() => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => {
         setShowWrongGuess(false);
       }, 2000);
     });
@@ -120,8 +144,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         if (data.winnerId === socket.id) {
           setWinnerMessage('TEBRİKLER! KELİMEYİ BİLDİNİZ!\n\nKelime: ' + data.word);
         } else {
-          setWinnerMessage('RAKİBİNİZ KELİMEYİ BİLDİ!\n\nKelime: ' + data.word);
+          const winnerName = data.winnerName || 'RAKİBİNİZ';
+          setWinnerMessage(winnerName.toUpperCase() + ' KELİMEYİ BİLDİ!\n\nKelime: ' + data.word);
         }
+      } else if (data.reason === 'pass') {
+        setWinnerMessage('PAS GEÇİLDİ!\nTüm oyuncular pas geçti.\n\nKelime: ' + data.word);
       } else {
         setWinnerMessage('SÜRE DOLDU!\nKimse bilemedi.\n\nKelime: ' + data.word);
       }
@@ -153,8 +180,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     return () => {
+      if (buzzerTimerRef.current) clearTimeout(buzzerTimerRef.current);
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       socket.off('game_start');
       socket.off('time_tick');
+      socket.off('pass_update');
       socket.off('hint_revealed');
       socket.off('word_hint_update');
       socket.off('guess_turn_started');
@@ -163,6 +193,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       socket.off('wrong_guess');
       socket.off('round_ended');
       socket.off('game_over');
+      socket.off('player_disconnected');
       socket.off('opponent_disconnected');
     };
   }, []);
@@ -178,10 +209,16 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     socket.emit('request_guess_turn', { roomId });
   };
 
+  const sendPass = () => {
+    if (gameOver || hasPassed || guessingPlayerId) return;
+    setHasPassed(true);
+    socket.emit('pass_round', { roomId });
+  };
+
   if (gameOver) {
     if (!isFinal) {
       const isTimeout = winnerMessage.includes('SÜRE');
-      const isOpponentWin = winnerMessage.includes('RAKİBİNİZ');
+      const isPass = winnerMessage.includes('PAS');
       const isCorrectWin = winnerMessage.includes('TEBRİKLER');
 
       // Renk ve ikon seçimi
@@ -193,25 +230,33 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         cardBorderColor = NEON_GREEN;
         titleColor = NEON_GREEN;
         statusIcon = 'checkmark-circle-outline';
-      } else if (isTimeout || isOpponentWin) {
+      } else if (isPass) {
+        cardBorderColor = NEON_BLUE;
+        titleColor = NEON_BLUE;
+        statusIcon = 'play-skip-forward-outline';
+      } else if (isTimeout) {
         cardBorderColor = '#ff4444';
         titleColor = '#ff4444';
-        statusIcon = isTimeout ? 'time-outline' : 'close-circle-outline';
+        statusIcon = 'time-outline';
+      } else {
+        cardBorderColor = NEON_GOLD;
+        titleColor = NEON_GOLD;
+        statusIcon = 'trophy-outline';
       }
 
       return (
-        <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+        <ImageBackground source={bgImageSource} style={styles.bgImage}>
           <View style={styles.overlay} />
           <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
             <Animated.View style={[styles.transitionCard, { opacity: transitionAnim, borderColor: cardBorderColor, shadowColor: cardBorderColor }]}>
               <Ionicons name={statusIcon as any} size={48} color={titleColor} style={{ marginBottom: 12 }} />
               
               <Text style={[styles.transitionTitle, { color: titleColor }]}>
-                {isCorrectWin ? 'TEBRİKLER!' : isTimeout ? 'SÜRE DOLDU!' : 'TUR SONU!'}
+                {isCorrectWin ? 'TEBRİKLER!' : isPass ? 'PAS GEÇİLDİ!' : isTimeout ? 'SÜRE DOLDU!' : 'TUR SONU!'}
               </Text>
               
               <Text style={styles.transitionDetail}>
-                {winnerMessage.replace('TEBRİKLER! KELİMEYİ BİLDİNİZ!\n\n', '').replace('RAKİBİNİZ KELİMEYİ BİLDİ!\n\n', '').replace('SÜRE DOLDU!\nKimse bilemedi.\n\n', '')}
+                {winnerMessage}
               </Text>
 
               <View style={styles.loadingSection}>
@@ -249,7 +294,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     }
 
     return (
-      <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+      <ImageBackground source={bgImageSource} style={styles.bgImage}>
         <SafeAreaView style={styles.container}>
           <Text style={styles.gameOverTitle}>OYUN BİTTİ</Text>
           <Text style={styles.resultText}>{resultText}</Text>
@@ -290,7 +335,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const guessingPlayerName = guessingPlayer ? (guessingPlayer.id === socket.id ? guessingPlayer.name + " (Sen)" : guessingPlayer.name) : "Oyuncu";
 
   return (
-    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+    <ImageBackground source={bgImageSource} style={styles.bgImage}>
       {/* Dark Cyber Stadium Overlay */}
       <View style={styles.overlay} />
 
@@ -360,8 +405,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               const isMyTurn = guessingPlayerId === socket.id;
 
               return (
-                <View style={styles.wordsWrapper}>
-                  {words.map((word, wordIdx) => {
+                <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()}>
+                  <View style={styles.wordsWrapper}>
+                    {words.map((word, wordIdx) => {
                     const charBoxes = word.split('').map((char, charIdx) => {
                       const isRevealed = char !== '_';
                       let displayChar = '';
@@ -404,7 +450,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                       </View>
                     );
                   })}
-                </View>
+                  </View>
+                </TouchableOpacity>
               );
             })()}
             
@@ -414,7 +461,15 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <View style={styles.potentialScoreContainer}>
                 <Ionicons name="star" size={16} color={NEON_GOLD} />
                 <Text style={styles.potentialScoreText}>
-                  Kazanılacak Puan: {Math.max(10, 100 - Math.max(0, hints.length - 1) * 10 - wordHint.replace(/[\s_]/g, '').length * 10)}
+                  {(() => {
+                    const isRanked = (route.params as any)?.isRanked || (players && players.length > 2);
+                    const hintsPenalty = Math.max(0, hints.length - 1);
+                    const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
+                    const potentialScore = isRanked 
+                      ? Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10)
+                      : Math.max(5, 20 - hintsPenalty * 2 - revealedLetters * 2);
+                    return `Kazanılacak Puan: ${potentialScore}`;
+                  })()}
                 </Text>
               </View>
 
@@ -433,20 +488,34 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
           <View style={styles.inputArea}>
             {!guessingPlayerId ? (
-              <TouchableOpacity 
-                style={[styles.buzzerButton, buzzerLocked && styles.buzzerButtonLocked]} 
-                onPress={requestGuessTurn}
-                disabled={buzzerLocked}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.buzzerButtonText}>
-                  {buzzerLocked ? 'BEKLEYİN (5)' : '⚡ TAHMİN ET! (BUZZER)'}
-                </Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 10, width: '100%', paddingHorizontal: 16 }}>
+                <TouchableOpacity 
+                  style={[styles.buzzerButton, { flex: 1 }, buzzerLocked && styles.buzzerButtonLocked]} 
+                  onPress={requestGuessTurn}
+                  disabled={buzzerLocked}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.buzzerButtonText}>
+                    {buzzerLocked ? 'BEKLEYİN (5)' : '⚡ TAHMİN ET!'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled]} 
+                  onPress={sendPass}
+                  disabled={hasPassed}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.passBtnText}>
+                    {hasPassed ? `✓ PAS (${passVotesCount}/${players.length || 2})` : `⏭ PAS (${passVotesCount}/${players.length || 2})`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             ) : guessingPlayerId === socket.id ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingHorizontal: 16 }}>
                 {/* Invisible input */}
                 <TextInput
+                  ref={inputRef}
                   style={styles.invisibleInput}
                   value={guess}
                   onChangeText={(text) => {
@@ -642,9 +711,11 @@ const styles = StyleSheet.create({
   },
   invisibleInput: {
     position: 'absolute',
-    width: 0,
-    height: 0,
-    opacity: 0,
+    left: -999,
+    top: 0,
+    width: 40,
+    height: 40,
+    opacity: 0.01,
   },
   inlineTimerWrap: {
     width: 50,
@@ -827,5 +898,26 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 18,
     fontFamily: 'Poppins_700Bold',
+  },
+  passBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    borderRadius: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  passBtnDisabled: {
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    opacity: 0.6,
+  },
+  passBtnText: {
+    color: '#ffffff',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 15,
+    letterSpacing: 0.5,
   },
 });

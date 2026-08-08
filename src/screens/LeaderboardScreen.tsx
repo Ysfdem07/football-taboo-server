@@ -1,42 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, FlatList, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, TouchableOpacity, ImageBackground,
+  SafeAreaView, FlatList, ActivityIndicator, ScrollView, useWindowDimensions
+} from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { Colors } from '../constants/Colors';
 import { getSocket } from '../services/socket';
 import { getLeagueForKp, LEAGUES } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
 import { Analytics } from '../services/analytics';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
-};
+type Nav = NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
 
 interface LeaderboardItem {
   id: string;
   username: string;
   avatar: string;
   kp: number;
+  displayKp: number;
+  categoryKp?: { football: number; cinema: number; music: number };
   matches_won: number;
   matches_played: number;
 }
 
-export default function LeaderboardScreen({ navigation }: Props) {
+const CATEGORIES = [
+  { id: 'football', label: 'FUTBOL',  icon: 'football',       color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
+  { id: 'cinema',   label: 'SİNEMA',  icon: 'videocam',        color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg')   },
+  { id: 'music',    label: 'MÜZİK',   icon: 'musical-notes',   color: '#ff1493', bg: require('../../assets/images/music_bg.jpg')    },
+];
+
+const LEAGUE_FILTERS = ['Tümü', 'Amatör Küme', '3. Lig', '2. Lig', '1. Lig', 'Süper Lig', 'Şampiyonlar Ligi'];
+
+export default function LeaderboardScreen() {
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Leaderboard'>>();
+  const initialCategory = (route.params as any)?.categoryId || 'football';
+
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+  const [selectedLeague, setSelectedLeague] = useState('Tümü');
 
-  const filteredLeaderboard = selectedLeague 
-    ? leaderboard.filter(item => getLeagueForKp(item.kp).name === selectedLeague)
-    : leaderboard;
+  const currentCat = CATEGORIES.find(c => c.id === activeCategory) || CATEGORIES[0];
+  const NEON = currentCat.color;
 
-  const socket = getSocket();
+  const fetchLeaderboard = useCallback((category: string) => {
+    const socket = getSocket();
+    if (!socket) return;
+    setLoading(true);
+    socket.emit('get_leaderboard', { category });
+  }, []);
 
   useEffect(() => {
     Analytics.logScreenView('Leaderboard');
-    const emitLeaderboard = () => {
-      socket.emit('get_leaderboard');
-    };
+    const socket = getSocket();
+    if (!socket) return;
 
     socket.on('leaderboard_data', (res: any) => {
       setLeaderboard(res.leaderboard || []);
@@ -44,35 +63,47 @@ export default function LeaderboardScreen({ navigation }: Props) {
     });
 
     if (socket.connected) {
-      emitLeaderboard();
+      fetchLeaderboard(activeCategory);
     } else {
-      socket.once('connect', emitLeaderboard);
+      socket.once('connect', () => fetchLeaderboard(activeCategory));
       socket.connect();
     }
 
     return () => {
-      socket.off('connect', emitLeaderboard);
       socket.off('leaderboard_data');
     };
   }, []);
 
+  const handleCategoryChange = (catId: string) => {
+    setActiveCategory(catId);
+    setSelectedLeague('Tümü');
+    fetchLeaderboard(catId);
+  };
+
+  const filteredLeaderboard = selectedLeague === 'Tümü'
+    ? leaderboard
+    : leaderboard.filter(item => getLeagueForKp(item.displayKp ?? item.kp).name === selectedLeague);
+
   const renderItem = ({ item, index }: { item: LeaderboardItem; index: number }) => {
-    const league = getLeagueForKp(item.kp);
+    const kpToShow = item.displayKp ?? item.kp;
+    const league = getLeagueForKp(kpToShow);
     const isTopThree = index < 3;
-    const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32']; // Gold, Silver, Bronze
+    const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
     return (
-      <View style={[styles.leaderboardItem, isTopThree && { borderColor: rankColors[index], borderWidth: 1 }]}>
+      <View style={[
+        styles.leaderboardItem,
+        { borderColor: isTopThree ? rankColors[index] : `${NEON}30` },
+        isTopThree && { backgroundColor: `${rankColors[index]}10` }
+      ]}>
         <View style={styles.itemLeft}>
-          {/* Rank Number or Medal */}
           {isTopThree ? (
             <Text style={styles.medalIcon}>
               {index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}
             </Text>
           ) : (
-            <Text style={styles.rankNumber}>{index + 1}</Text>
+            <Text style={[styles.rankNumber, { color: NEON }]}>{index + 1}</Text>
           )}
-          
           <Text style={styles.avatarEmoji}>{item.avatar || '⚽'}</Text>
           <View style={styles.playerInfo}>
             <Text style={styles.username}>{item.username}</Text>
@@ -81,9 +112,8 @@ export default function LeaderboardScreen({ navigation }: Props) {
             </Text>
           </View>
         </View>
-
         <View style={styles.itemRight}>
-          <Text style={styles.kpText}>{item.kp} KP</Text>
+          <Text style={[styles.kpText, { color: NEON }]}>{kpToShow} KP</Text>
           <Text style={styles.wonMatchesText}>{item.matches_won} Galibiyet</Text>
         </View>
       </View>
@@ -91,249 +121,178 @@ export default function LeaderboardScreen({ navigation }: Props) {
   };
 
   return (
-    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+    <ImageBackground source={currentCat.bg} style={styles.bgImage}>
+      <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.65)' }]} />
       <SafeAreaView style={styles.container}>
+
+        {/* HEADER */}
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={Colors.white} />
+            <Ionicons name="chevron-back" size={26} color="#FFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Lig Sıralamaları</Text>
+          <Text style={[styles.headerTitle, { color: NEON, textShadowColor: NEON }]}>
+            LİG SIRALAMALARI
+          </Text>
+          <View style={{ width: 40 }} />
         </View>
 
-        {/* Horizontal League Selector */}
-        <View style={styles.leagueSelectorContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.leagueScroll}>
-            <TouchableOpacity 
-              style={[styles.leagueTabCard, selectedLeague === null && styles.leagueTabCardActive, selectedLeague === null && { borderColor: Colors.primary }]}
-              onPress={() => setSelectedLeague(null)}
+        {/* CATEGORY TABS */}
+        <View style={styles.categoryTabs}>
+          {CATEGORIES.map(cat => (
+            <TouchableOpacity
+              key={cat.id}
+              style={[
+                styles.catTab,
+                { borderColor: activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.15)' },
+                activeCategory === cat.id && { backgroundColor: `${cat.color}20` }
+              ]}
+              onPress={() => handleCategoryChange(cat.id)}
+              activeOpacity={0.8}
             >
-              <Text style={styles.leagueTabIcon}>🌍</Text>
-              <Text style={styles.leagueTabName}>Genel</Text>
-              <Text style={styles.leagueTabKp}>Tüm Ligler</Text>
+              <Ionicons name={cat.icon as any} size={16} color={activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.5)'} />
+              <Text style={[styles.catTabText, { color: activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.5)' }]}>
+                {cat.label}
+              </Text>
             </TouchableOpacity>
-
-            {LEAGUES.map((league) => (
-              <TouchableOpacity 
-                key={league.name}
-                style={[
-                  styles.leagueTabCard, 
-                  selectedLeague === league.name && styles.leagueTabCardActive,
-                  { borderColor: selectedLeague === league.name ? league.color : 'rgba(255,255,255,0.05)' }
-                ]}
-                onPress={() => setSelectedLeague(league.name)}
-              >
-                <Text style={styles.leagueTabIcon}>{league.icon}</Text>
-                <Text style={[styles.leagueTabName, { color: league.color }]}>{league.name}</Text>
-                <Text style={styles.leagueTabKp}>
-                  {league.maxKp === Infinity ? `${league.minKp}+ KP` : `${league.minKp}-${league.maxKp} KP`}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          ))}
         </View>
 
+        {/* LEAGUE FILTER */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.leagueFilterScroll} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+          {LEAGUES.map(lg => (
+            <TouchableOpacity
+              key={lg.name}
+              style={[
+                styles.leagueFilterBtn,
+                { borderColor: selectedLeague === lg.name ? lg.color : 'rgba(255,255,255,0.15)' },
+                selectedLeague === lg.name && { backgroundColor: `${lg.color}25` }
+              ]}
+              onPress={() => setSelectedLeague(selectedLeague === lg.name ? 'Tümü' : lg.name)}
+            >
+              <Text style={{ fontSize: 14 }}>{lg.icon}</Text>
+              <Text style={[styles.leagueFilterText, { color: selectedLeague === lg.name ? lg.color : 'rgba(255,255,255,0.6)' }]}>
+                {lg.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* LEADERBOARD LIST */}
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-            <Text style={styles.loadingText}>Sıralama Yükleniyor...</Text>
+            <ActivityIndicator size="large" color={NEON} />
+            <Text style={[styles.loadingText, { color: NEON }]}>Yükleniyor...</Text>
+          </View>
+        ) : filteredLeaderboard.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <Ionicons name="trophy-outline" size={60} color={`${NEON}50`} />
+            <Text style={[styles.emptyText, { color: `${NEON}80` }]}>Henüz sıralama yok</Text>
+            <Text style={styles.emptySubText}>Bu kategoride düello oyna ve ilk sıraya gir!</Text>
           </View>
         ) : (
           <FlatList
             data={filteredLeaderboard}
-            keyExtractor={(item) => item.id || item.username}
+            keyExtractor={item => item.id}
             renderItem={renderItem}
-            contentContainerStyle={styles.listContainer}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Ionicons name="trophy-outline" size={48} color={Colors.textSecondary} />
-                <Text style={styles.emptyText}>
-                  {selectedLeague ? `${selectedLeague} Liginde Oyuncu Yok` : 'Henüz kayıtlı oyuncu yok.'}
-                </Text>
-                <Text style={styles.emptySubtext}>
-                  {selectedLeague 
-                    ? 'Dereceli maçları kazanarak bu lige ilk yükselen oyuncu siz olun!' 
-                    : 'Profil oluşturup dereceli maçlarda yarışan ilk oyuncu siz olun!'}
-                </Text>
-              </View>
-            }
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
           />
         )}
+
       </SafeAreaView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  bgImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 8, 20, 0.88)',
-  },
+  bgImage: { flex: 1, width: '100%', height: '100%' },
+  overlay: { ...StyleSheet.absoluteFillObject },
+  container: { flex: 1 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    marginBottom: 16,
   },
   backButton: {
-    padding: 8,
-    backgroundColor: 'rgba(0,255,136,0.08)',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(0,255,136,0.25)',
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
   },
   headerTitle: {
-    fontSize: 22,
-    fontFamily: 'Poppins_700Bold',
-    color: '#00FF88',
-    marginLeft: 15,
-    textShadowColor: 'rgba(0,255,136,0.5)',
+    fontSize: 20,
+    fontFamily: 'Poppins_900Black',
+    letterSpacing: 2,
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    textShadowRadius: 12,
   },
-  loadingContainer: {
+  categoryTabs: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 8,
+    marginBottom: 12,
+  },
+  catTab: {
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  loadingText: {
-    color: '#00FF88',
-    marginTop: 10,
-    fontSize: 16,
+  catTabText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 10,
+    letterSpacing: 0.5,
   },
-  listContainer: {
-    padding: 20,
-    paddingBottom: 40,
+  leagueFilterScroll: {
+    maxHeight: 44,
+    marginBottom: 12,
   },
+  leagueFilterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+  },
+  leagueFilterText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 11,
+  },
+  listContent: { paddingHorizontal: 16, paddingBottom: 20 },
   leaderboardItem: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    padding: 16,
-    borderRadius: 18,
-    marginBottom: 12,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(0,255,136,0.15)',
-  },
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  medalIcon: {
-    fontSize: 22,
-    width: 30,
-    textAlign: 'center',
-  },
-  rankNumber: {
-    fontSize: 16,
-    fontFamily: 'Poppins_700Bold',
-    color: Colors.textSecondary,
-    width: 30,
-    textAlign: 'center',
-  },
-  avatarEmoji: {
-    fontSize: 28,
-    marginHorizontal: 12,
-  },
-  playerInfo: {
-    flex: 1,
-  },
-  username: {
-    fontSize: 16,
-    fontFamily: 'Poppins_700Bold',
-    color: Colors.white,
-    marginBottom: 2,
-  },
-  leagueLabel: {
-    fontSize: 12,
-    fontFamily: 'Poppins_600SemiBold',
-  },
-  itemRight: {
-    alignItems: 'flex-end',
-  },
-  kpText: {
-    fontSize: 16,
-    fontFamily: 'Poppins_700Bold',
-    color: '#00FF88',
-    marginBottom: 2,
-  },
-  wonMatchesText: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 80,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontFamily: 'Poppins_700Bold',
-    color: Colors.white,
-    marginTop: 15,
-    marginBottom: 5,
-  },
-  emptySubtext: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    paddingHorizontal: 30,
-    lineHeight: 18,
-  },
-  leagueSelectorContainer: {
-    height: 125,
-    marginVertical: 12,
-  },
-  leagueScroll: {
-    paddingHorizontal: 15,
-    alignItems: 'center',
-  },
-  leagueTabCard: {
-    backgroundColor: 'rgba(0,255,136,0.05)',
-    borderRadius: 18,
+    paddingHorizontal: 14,
     paddingVertical: 12,
-    paddingHorizontal: 18,
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: 'rgba(0,255,136,0.15)',
-    minWidth: 120,
-    height: 98,
+    marginBottom: 8,
   },
-  leagueTabCardActive: {
-    backgroundColor: 'rgba(0,255,136,0.15)',
-    shadowColor: '#00FF88',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-    elevation: 12,
-  },
-  leagueTabIcon: {
-    fontSize: 30,
-    marginBottom: 5,
-    textShadowColor: 'rgba(255, 255, 255, 0.4)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 6,
-  },
-  leagueTabName: {
-    fontSize: 13,
-    fontFamily: 'Poppins_700Bold',
-    color: '#fff',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  leagueTabKp: {
-    fontSize: 10,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
+  itemLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  medalIcon: { fontSize: 24, marginRight: 8, width: 32, textAlign: 'center' },
+  rankNumber: { fontSize: 16, fontFamily: 'Poppins_700Bold', width: 32, textAlign: 'center' },
+  avatarEmoji: { fontSize: 24, marginRight: 10 },
+  playerInfo: { flex: 1 },
+  username: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 14 },
+  leagueLabel: { fontFamily: 'Poppins_400Regular', fontSize: 11, marginTop: 1 },
+  itemRight: { alignItems: 'flex-end' },
+  kpText: { fontFamily: 'Poppins_900Black', fontSize: 15 },
+  wonMatchesText: { color: 'rgba(255,255,255,0.5)', fontFamily: 'Poppins_400Regular', fontSize: 11, marginTop: 2 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
+  loadingText: { fontFamily: 'Poppins_700Bold', fontSize: 14 },
+  emptyText: { fontFamily: 'Poppins_700Bold', fontSize: 18, marginTop: 8 },
+  emptySubText: { color: 'rgba(255,255,255,0.4)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', paddingHorizontal: 30 },
 });

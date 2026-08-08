@@ -15,15 +15,15 @@ let RewardedAdEventType: any = null;
 
 if (isFirebaseAvailable) {
   try {
-    const googleAds = require('react-native-google-mobile-ads');
-    MobileAds = googleAds.default;
-    InterstitialAd = googleAds.InterstitialAd;
-    BannerAd = googleAds.BannerAd;
-    RewardedAd = googleAds.RewardedAd;
-    BannerAdSize = googleAds.BannerAdSize;
-    TestIds = googleAds.TestIds;
-    AdEventType = googleAds.AdEventType;
-    RewardedAdEventType = googleAds.RewardedAdEventType;
+    // const googleAds = require('react-native-google-mobile-ads');
+    // MobileAds = googleAds.default;
+    // InterstitialAd = googleAds.InterstitialAd;
+    // BannerAd = googleAds.BannerAd;
+    // RewardedAd = googleAds.RewardedAd;
+    // BannerAdSize = googleAds.BannerAdSize;
+    // TestIds = googleAds.TestIds;
+    // AdEventType = googleAds.AdEventType;
+    // RewardedAdEventType = googleAds.RewardedAdEventType;
   } catch (err) {
     console.warn('[Ads] Failed to load Google Mobile Ads library:', err);
   }

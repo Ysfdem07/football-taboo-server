@@ -255,7 +255,16 @@ export default function ProfileScreen({ navigation }: Props) {
   // League computation
   const kp = player ? player.kp : 0;
   const league = getLeagueForKp(kp);
-  const nextLeague = getLeagueForKp(kp + 1000); // Simple threshold estimate
+  const nextLeague = getLeagueForKp(kp + 1000);
+
+  const CATEGORY_META = [
+    { id: 'football', label: 'Futbol',  icon: '⚽', color: '#39ff14' },
+    { id: 'cinema',   label: 'Sinema',  icon: '🎬', color: '#b026ff' },
+    { id: 'music',    label: 'Müzik',   icon: '🎵', color: '#ff1493' },
+  ];
+  const getCategoryKp = (catId: string) => {
+    return (player as any)?.categoryKp?.[catId] ?? 0;
+  };
   
   // Calculate win rate
   const winRate = player && player.matches_played > 0 
@@ -304,6 +313,24 @@ export default function ProfileScreen({ navigation }: Props) {
                 <Text style={styles.progressText}>
                   Sonraki Kupa için: {1000 - (player.kp % 1000)} KP gerekli
                 </Text>
+              </View>
+
+              {/* Category League Badges */}
+              <Text style={styles.sectionHeader}>Kategori Ligleri</Text>
+              <View style={styles.categoryLeaguesGrid}>
+                {CATEGORY_META.map(cat => {
+                  const catKp = getCategoryKp(cat.id);
+                  const catLeague = getLeagueForKp(catKp);
+                  return (
+                    <View key={cat.id} style={[styles.categoryLeagueCard, { borderColor: `${cat.color}50` }]}>
+                      <Text style={styles.categoryLeagueEmoji}>{cat.icon}</Text>
+                      <Text style={[styles.categoryLeagueLabel, { color: cat.color }]}>{cat.label}</Text>
+                      <Text style={styles.categoryLeagueIcon}>{catLeague.icon}</Text>
+                      <Text style={[styles.categoryLeagueName, { color: catLeague.color }]}>{catLeague.name}</Text>
+                      <Text style={[styles.categoryKpText, { color: cat.color }]}>{catKp} KP</Text>
+                    </View>
+                  );
+                })}
               </View>
 
               {/* Statistics Grid */}
@@ -666,7 +693,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: 'rgba(0,255,136,0.25)',
-    marginBottom: 25,
+    marginBottom: 16,
+  },
+  categoryLeaguesGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+    marginBottom: 20,
+  },
+  categoryLeagueCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    gap: 3,
+  },
+  categoryLeagueEmoji: {
+    fontSize: 22,
+    marginBottom: 2,
+  },
+  categoryLeagueLabel: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 10,
+    letterSpacing: 0.5,
+  },
+  categoryLeagueIcon: {
+    fontSize: 20,
+    marginTop: 4,
+  },
+  categoryLeagueName: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 9,
+    textAlign: 'center',
+    lineHeight: 12,
+  },
+  categoryKpText: {
+    fontFamily: 'Poppins_900Black',
+    fontSize: 11,
+    marginTop: 2,
   },
   leagueIcon: {
     fontSize: 50,

@@ -34,6 +34,11 @@ if (__DEV__) {
 let socket: any = null;
 
 const socketOptions = {
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 1000,
+  timeout: 20000,
   extraHeaders: {
     'Bypass-Tunnel-Reminder': 'true',
     'ngrok-skip-browser-warning': 'true'

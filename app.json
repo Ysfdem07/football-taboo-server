@@ -60,7 +60,8 @@
           "isAutoInitEnabled": true,
           "iosUserTrackingPermission": "Bu izin, size daha ilgili ve kişiselleştirilmiş oyun içi reklamlar ve teklifler sunabilmemiz için kullanılmaktadır."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

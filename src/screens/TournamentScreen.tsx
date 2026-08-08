@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
   ImageBackground, SafeAreaView, ActivityIndicator, Alert
 } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,6 +17,12 @@ const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
+
+const THEMES = {
+  football: require('../../assets/images/football_bg.jpg'),
+  cinema: require('../../assets/images/cinema_bg.jpg'),
+  music: require('../../assets/images/music_bg.jpg'),
+};
 
 interface LeaderboardEntry {
   rank: number; playerId: string; username: string;
@@ -33,6 +39,8 @@ interface TournamentData {
 
 export default function TournamentScreen() {
   const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Tournament'>>();
+  const categoryId = (route.params as any)?.categoryId || 'football';
   const [tournamentData, setTournamentData] = useState<TournamentData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +57,9 @@ export default function TournamentScreen() {
   const fetchTournament = useCallback(() => {
     const socket = getSocket();
     if (!socket) return;
-    socket.emit('get_weekly_tournament', { playerId: player?.id || 'guest' });
-    socket.emit('get_tournament_leaderboard');
-  }, [player]);
+    socket.emit('get_weekly_tournament', { playerId: player?.id || 'guest', category: categoryId });
+    socket.emit('get_tournament_leaderboard', { category: categoryId });
+  }, [player, categoryId]);
 
   useFocusEffect(useCallback(() => {
     loadPlayer();
@@ -112,7 +120,7 @@ export default function TournamentScreen() {
       return;
     }
     if (!tournamentData?.cards?.length) return;
-    navigation.navigate('TournamentGame', { cards: tournamentData.cards });
+    navigation.navigate('TournamentGame', { cards: tournamentData.cards, categoryId });
   };
 
   const handleWatchAd = () => {
@@ -124,7 +132,7 @@ export default function TournamentScreen() {
         // This runs if the user actually watched the ad to the end
         const socket = getSocket();
         if (socket) {
-          socket.emit('grant_tournament_ad_attempt', { playerId: player.id });
+          socket.emit('grant_tournament_ad_attempt', { playerId: player.id, category: categoryId });
           Alert.alert('Tebrikler!', 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎁');
         }
       },
@@ -168,7 +176,7 @@ export default function TournamentScreen() {
   const status = getStatusInfo();
 
   return (
-    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bg}>
+    <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
       <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
         {/* Header */}

@@ -8,12 +8,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { Analytics } from '../services/analytics';
 import { BannerAdComponent } from '../services/ads';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const THEMES = {
+  football: require('../../assets/images/football_bg.jpg'),
+  cinema: require('../../assets/images/cinema_bg.jpg'),
+  music: require('../../assets/images/music_bg.jpg'),
+};
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'OnlineLobby'>;
 };
 
-export default function OnlineLobbyScreen({ navigation }: Props) {
+export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [lobbyStatus, setLobbyStatus] = useState<'idle' | 'searching_match' | 'creating_room' | 'joining_room'>('idle');
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [roomCodeInput, setRoomCodeInput] = useState('');
@@ -64,7 +72,7 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
     initDynamicTunnel();
     
     return () => {
-      if (socket) socket.disconnect();
+      // Do not disconnect shared singleton socket when navigating to OnlineGame or RoomLobby
     };
   }, []);
 
@@ -100,6 +108,8 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
     setSocket(s);
   };
 
+  const categoryId = route.params?.categoryId || 'football';
+
   const findMatch = () => {
     if (!profile || !profile.email) {
       Alert.alert(
@@ -117,12 +127,13 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
     ensureSocket((s) => {
       s.emit('join_queue', { 
         name: playerName.trim() || 'Oyuncu',
-        dbPlayerId: profile?.id || null 
+        dbPlayerId: profile?.id || null,
+        category: categoryId
       });
       s.on('match_found', (data: any) => {
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
-        navigation.navigate('OnlineGame', { roomId: data.roomId });
+        navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId });
       });
     }, () => {
       Analytics.logEvent('join_queue_failed');
@@ -150,12 +161,13 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
         name: playerName.trim() || 'Oyuncu', 
         maxRounds: isRanked ? 10 : maxRounds,
         isRanked,
-        dbPlayerId: profile?.id || null
+        dbPlayerId: profile?.id || null,
+        category: categoryId
       });
       s.on('room_created', (data: any) => {
         Analytics.logEvent('create_room_success', { roomId: data.roomId, isRanked });
         setLobbyStatus('idle');
-        navigation.navigate('RoomLobby', { roomId: data.roomId, roomCode: data.roomCode, isHost: true });
+        navigation.navigate('RoomLobby', { roomId: data.roomId, roomCode: data.roomCode, isHost: true, categoryId: data.category || categoryId });
       });
     }, () => {
       Analytics.logEvent('create_room_failed', { isRanked });
@@ -178,7 +190,7 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
       s.on('room_joined', (data: any) => {
         Analytics.logEvent('join_room_success', { roomId: data.roomId });
         setLobbyStatus('idle');
-        navigation.navigate('RoomLobby', { roomId: data.roomId, roomCode: data.roomCode, isHost: false });
+        navigation.navigate('RoomLobby', { roomId: data.roomId, roomCode: data.roomCode, isHost: false, categoryId: data.category || categoryId });
       });
       
       s.on('join_error', (data: any) => {
@@ -201,7 +213,7 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
   const subIconSize = Math.round(subCardW * 0.52);
 
   return (
-    <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
+    <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bgImage}>
       <View style={styles.cyberOverlay} />
       <SafeAreaView style={styles.container}>
         <View style={styles.mainWrapper}>
@@ -251,11 +263,11 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
               <>
                 {/* Collapse header */}
                 <TouchableOpacity
-                  style={styles.collapseHeader}
+                  style={[styles.collapseHeader, { borderColor: 'rgba(168,85,247,0.4)' }]}
                   onPress={() => setShowRankedOptions(false)}
                   activeOpacity={0.8}
                 >
-                  <Image source={require('../../assets/icons/ranked.jpg')} style={styles.collapseIcon} />
+                  <Ionicons name="trophy" size={24} color={NEON_PURPLE} style={{ marginRight: 14 }} />
                   <Text style={styles.collapseTitle}>DERECELİ OYNA</Text>
                   <Ionicons name="chevron-up" size={20} color="#A855F7" style={{ marginLeft: 'auto' }} />
                 </TouchableOpacity>
@@ -267,10 +279,12 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                     onPress={findMatch}
                     activeOpacity={0.8}
                   >
-                    <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,191,255,0.1)' }]} />
-                    <Image source={require('../../assets/icons/quick_match.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
-                    <Text style={styles.subCardLabel}>1v1 HIZLI</Text>
-                    <Text style={styles.subCardSub}>EŞLEŞME</Text>
+                    <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                      <LinearGradient colors={['rgba(0,191,255,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                      <Ionicons name="flash" size={subIconSize * 0.8} color="#00BFFF" style={{ marginBottom: 8 }} />
+                      <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>1v1 HIZLI</Text>
+                      <Text style={[styles.subCardSub, { color: '#fff' }]}>EŞLEŞME</Text>
+                    </BlurView>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -278,10 +292,12 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                     onPress={() => createRoom(true)}
                     activeOpacity={0.8}
                   >
-                    <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
-                    <Image source={require('../../assets/icons/create_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
-                    <Text style={styles.subCardLabel}>ODA KUR</Text>
-                    <Text style={styles.subCardSub}>DERECELİ</Text>
+                    <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                      <LinearGradient colors={['rgba(0,255,136,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                      <Ionicons name="add-circle" size={subIconSize * 0.8} color="#00FF88" style={{ marginBottom: 8 }} />
+                      <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODA KUR</Text>
+                      <Text style={[styles.subCardSub, { color: '#fff' }]}>DERECELİ</Text>
+                    </BlurView>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -289,10 +305,12 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                     onPress={() => setShowJoinInput(true)}
                     activeOpacity={0.8}
                   >
-                    <View style={[styles.subCardGlow, { backgroundColor: 'rgba(168,85,247,0.1)' }]} />
-                    <Image source={require('../../assets/icons/join_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
-                    <Text style={styles.subCardLabel}>ODAYA</Text>
-                    <Text style={styles.subCardSub}>KATIL</Text>
+                    <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                      <LinearGradient colors={['rgba(168,85,247,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                      <Ionicons name="enter" size={subIconSize * 0.8} color="#A855F7" style={{ marginBottom: 8 }} />
+                      <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODAYA</Text>
+                      <Text style={[styles.subCardSub, { color: '#fff' }]}>KATIL</Text>
+                    </BlurView>
                   </TouchableOpacity>
                 </View>
               </>
@@ -303,11 +321,11 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
               <>
                 {/* Collapse header */}
                 <TouchableOpacity
-                  style={[styles.collapseHeader, { borderColor: 'rgba(0,255,136,0.3)' }]}
+                  style={[styles.collapseHeader, { borderColor: 'rgba(0,255,136,0.4)' }]}
                   onPress={() => { setShowFriendlyOptions(false); setShowFriendlyRoomSettings(false); }}
                   activeOpacity={0.8}
                 >
-                  <Image source={require('../../assets/icons/friendly.jpg')} style={styles.collapseIcon} />
+                  <Ionicons name="people" size={24} color={NEON_GREEN} style={{ marginRight: 14 }} />
                   <Text style={styles.collapseTitle}>DOSTLUK MAÇI</Text>
                   <Ionicons name="chevron-up" size={20} color="#00FF88" style={{ marginLeft: 'auto' }} />
                 </TouchableOpacity>
@@ -320,10 +338,12 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                       onPress={findMatch}
                       activeOpacity={0.8}
                     >
-                      <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,191,255,0.1)' }]} />
-                      <Image source={require('../../assets/icons/quick_match.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
-                      <Text style={styles.subCardLabel}>1v1 HIZLI</Text>
-                      <Text style={styles.subCardSub}>EŞLEŞME</Text>
+                      <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                        <LinearGradient colors={['rgba(0,191,255,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                        <Ionicons name="flash" size={subIconSize * 0.8} color="#00BFFF" style={{ marginBottom: 8 }} />
+                        <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>1v1 HIZLI</Text>
+                        <Text style={[styles.subCardSub, { color: '#fff' }]}>EŞLEŞME</Text>
+                      </BlurView>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -331,10 +351,12 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                       onPress={() => setShowFriendlyRoomSettings(true)}
                       activeOpacity={0.8}
                     >
-                      <View style={[styles.subCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
-                      <Image source={require('../../assets/icons/create_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
-                      <Text style={styles.subCardLabel}>ODA KUR</Text>
-                      <Text style={styles.subCardSub}>DOSTLUK</Text>
+                      <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                        <LinearGradient colors={['rgba(0,255,136,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                        <Ionicons name="add-circle" size={subIconSize * 0.8} color="#00FF88" style={{ marginBottom: 8 }} />
+                        <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODA KUR</Text>
+                        <Text style={[styles.subCardSub, { color: '#fff' }]}>DOSTLUK</Text>
+                      </BlurView>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -342,10 +364,12 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                       onPress={() => setShowJoinInput(true)}
                       activeOpacity={0.8}
                     >
-                      <View style={[styles.subCardGlow, { backgroundColor: 'rgba(168,85,247,0.1)' }]} />
-                      <Image source={require('../../assets/icons/join_room.jpg')} style={{ width: subIconSize, height: subIconSize, borderRadius: subIconSize * 0.22 }} />
-                      <Text style={styles.subCardLabel}>ODAYA</Text>
-                      <Text style={styles.subCardSub}>KATIL</Text>
+                      <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                        <LinearGradient colors={['rgba(168,85,247,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                        <Ionicons name="enter" size={subIconSize * 0.8} color="#A855F7" style={{ marginBottom: 8 }} />
+                        <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODAYA</Text>
+                        <Text style={[styles.subCardSub, { color: '#fff' }]}>KATIL</Text>
+                      </BlurView>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -388,13 +412,22 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                   onPress={() => { setShowRankedOptions(true); setShowFriendlyOptions(false); }}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.modeCardGlow, { backgroundColor: 'rgba(168,85,247,0.1)' }]} />
-                  <Image
-                    source={require('../../assets/icons/ranked.jpg')}
-                    style={{ width: mainIconSize, height: mainIconSize, borderRadius: mainIconSize * 0.22 }}
-                  />
-                  <Text style={styles.modeLabel}>DERECELİ</Text>
-                  <Text style={styles.modeSubLabel}>OYNA</Text>
+                  <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                    <LinearGradient
+                      colors={['rgba(168,85,247,0.4)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={StyleSheet.absoluteFillObject}
+                    />
+                    <Ionicons 
+                      name="trophy" 
+                      size={mainIconSize * 0.8} 
+                      color={NEON_PURPLE} 
+                      style={{ marginBottom: 12 }} 
+                    />
+                    <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DERECELİ</Text>
+                    <Text style={[styles.modeSubLabel, { color: '#fff' }]}>OYNA</Text>
+                  </BlurView>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -402,13 +435,22 @@ export default function OnlineLobbyScreen({ navigation }: Props) {
                   onPress={() => { setShowFriendlyOptions(true); setShowRankedOptions(false); }}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.modeCardGlow, { backgroundColor: 'rgba(0,255,136,0.08)' }]} />
-                  <Image
-                    source={require('../../assets/icons/friendly.jpg')}
-                    style={{ width: mainIconSize, height: mainIconSize, borderRadius: mainIconSize * 0.22 }}
-                  />
-                  <Text style={styles.modeLabel}>DOSTLUK</Text>
-                  <Text style={styles.modeSubLabel}>MAÇI</Text>
+                  <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                    <LinearGradient
+                      colors={['rgba(0,255,136,0.4)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={StyleSheet.absoluteFillObject}
+                    />
+                    <Ionicons 
+                      name="people" 
+                      size={mainIconSize * 0.8} 
+                      color={NEON_GREEN} 
+                      style={{ marginBottom: 12 }} 
+                    />
+                    <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DOSTLUK</Text>
+                    <Text style={[styles.modeSubLabel, { color: '#fff' }]}>MAÇI</Text>
+                  </BlurView>
                 </TouchableOpacity>
               </View>
             )}
@@ -457,9 +499,6 @@ const styles = StyleSheet.create({
     color: NEON_GREEN,
     marginBottom: 6,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 255, 136, 0.6)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 16,
   },
   subtitle: {
     fontSize: 15,
@@ -525,7 +564,8 @@ const styles = StyleSheet.create({
   },
   modeGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: 20,
     width: '100%',
   },
   modeCard: {
@@ -692,3 +732,4 @@ const styles = StyleSheet.create({
   },
   roundOptionTextActive: { color: '#000' },
 });
+

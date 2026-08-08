@@ -576,7 +576,8 @@ io.on('connection', (socket) => {
 
       io.to(roomId).emit('match_found', {
         players: [p1, p2],
-        roomId
+        roomId,
+        category
       });
 
       // Give 3 seconds before starting the game
@@ -613,8 +614,8 @@ io.on('connection', (socket) => {
       guessTimer: null
     };
     
-    socket.emit('room_created', { roomCode: code, roomId });
-    io.to(roomId).emit('room_update', { players: activeRooms[roomId].players, hostId: socket.id });
+    socket.emit('room_created', { roomCode: code, roomId, category: activeRooms[roomId].category });
+    io.to(roomId).emit('room_update', { players: activeRooms[roomId].players, hostId: socket.id, category: activeRooms[roomId].category });
   });
 
   socket.on('join_room', (data) => {
@@ -638,8 +639,8 @@ io.on('connection', (socket) => {
     room.players.push({ id: socket.id, name: name || 'Oyuncu', dbPlayerId: dbPlayerId || null });
     room.scores[socket.id] = 0;
     
-    socket.emit('room_joined', { roomId, roomCode: room.roomCode });
-    io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
+    socket.emit('room_joined', { roomId, roomCode: room.roomCode, category: room.category });
+    io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId, category: room.category });
   });
 
   socket.on('start_room_game', (data) => {
@@ -661,7 +662,7 @@ io.on('connection', (socket) => {
 
     room.guessingPlayerId = socket.id;
     room.isPaused = true;
-    let guessTimeLeft = 10;
+    let guessTimeLeft = 15; // Increased to 15 seconds as requested!
 
     io.to(roomId).emit('guess_turn_started', { playerId: socket.id, time: guessTimeLeft });
 
@@ -687,32 +688,36 @@ io.on('connection', (socket) => {
   socket.on('pass_round', (data) => {
     const { roomId } = data;
     const room = activeRooms[roomId];
-    if (!room || !room.roundActive || room.isPaused) return;
+    if (!room || !room.roundActive) return; // Allow pass even if timer is paused
 
     if (!room.passVotes) {
       room.passVotes = new Set();
     }
     room.passVotes.add(socket.id);
 
+    const activeSockets = io.sockets.adapter.rooms.get(roomId);
+    const activeCount = activeSockets ? activeSockets.size : room.players.length;
+
     const votesCount = room.passVotes.size;
-    const totalPlayers = room.players.length;
+    const requiredVotes = Math.max(1, activeCount);
 
     io.to(roomId).emit('pass_update', {
       votesCount,
-      totalPlayers,
+      totalPlayers: requiredVotes,
       voterId: socket.id
     });
 
-    if (votesCount >= totalPlayers) {
+    if (votesCount >= requiredVotes) {
       room.roundActive = false;
       room.isPaused = false;
+      room.guessingPlayerId = null;
       if (room.timer) clearInterval(room.timer);
       if (room.guessTimer) clearInterval(room.guessTimer);
 
       io.to(roomId).emit('round_ended', {
         winnerId: null,
         winnerName: null,
-        word: room.card.word,
+        word: room.card ? room.card.word : 'PAS',
         reason: 'pass',
         scores: room.scores
       });
@@ -912,8 +917,16 @@ async function startRound(roomId) {
   
   const card = cardList[Math.floor(Math.random() * cardList.length)];
   
+  // Dynamic Fisher-Yates Clue Rotation: Ensure forbidden clues never appear in fixed order
+  const shuffledForbidden = [...(card.forbidden || [])];
+  for (let i = shuffledForbidden.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledForbidden[i], shuffledForbidden[j]] = [shuffledForbidden[j], shuffledForbidden[i]];
+  }
+  const rotatedCard = { ...card, forbidden: shuffledForbidden };
+
   room.usedWords.push(card.word);
-  room.card = card;
+  room.card = rotatedCard;
   room.timeLeft = 30;
   room.hintsShown = 1; // First hint immediately
   room.passVotes = new Set();
@@ -927,7 +940,7 @@ async function startRound(roomId) {
   io.to(roomId).emit('game_start', {
     wordLength: card.word.length,
     wordHint: room.wordHintArray.join(''),
-    firstHint: card.forbidden[0],
+    firstHint: rotatedCard.forbidden[0],
     timeLeft: room.timeLeft,
     currentRound: room.currentRound,
     maxRounds: room.maxRounds,
