@@ -8,7 +8,7 @@ const CSV_URLS: { [key: string]: string } = {
   music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227"
 };
 
-const WORDS_STORAGE_KEY_PREFIX = '@taboo_words_v4_';
+const WORDS_STORAGE_KEY_PREFIX = '@taboo_words_v5_';
 
 export interface Word {
   word: string;
