@@ -747,17 +747,8 @@ io.on('connection', (socket) => {
       room.guessingPlayerId = null;
       clearInterval(room.timer);
       
-      const hintsPenalty = Math.max(0, (room.hintsShown - 1));
-      const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
-
-      let pointsEarned = 5;
-      if (room.isRanked1v1 || room.isGroupRanked) {
-        pointsEarned = Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
-      } else {
-        pointsEarned = Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
-      }
-      
-      room.scores[socket.id] += pointsEarned;
+      const pointsEarned = getPotentialScore(room);
+      room.scores[socket.id] = (room.scores[socket.id] || 0) + pointsEarned;
       
       const winnerPlayer = room.players.find(p => p.id === socket.id);
       
@@ -766,6 +757,7 @@ io.on('connection', (socket) => {
         winnerName: winnerPlayer ? winnerPlayer.name : 'Oyuncu',
         word: room.card.word,
         reason: 'correct_guess',
+        pointsEarned: pointsEarned,
         scores: room.scores
       });
       
@@ -775,11 +767,11 @@ io.on('connection', (socket) => {
     } else {
       // Incorrect guess
       const penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
-      room.scores[socket.id] -= penalty;
+      room.scores[socket.id] = Math.max(0, (room.scores[socket.id] || 0) - penalty);
       room.guessingPlayerId = null;
       room.isPaused = false;
 
-      io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'incorrect', playerId: socket.id });
+      io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: 'incorrect', playerId: socket.id });
       io.to(roomId).emit('guess_turn_ended');
     }
   });
@@ -925,6 +917,16 @@ async function startRound(roomId) {
   }
   const rotatedCard = { ...card, forbidden: shuffledForbidden };
 
+function getPotentialScore(room) {
+  if (!room) return 10;
+  const hintsPenalty = Math.max(0, (room.hintsShown || 1) - 1);
+  const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
+  if (room.isRanked1v1 || room.isGroupRanked) {
+    return Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
+  }
+  return Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
+}
+
   room.usedWords.push(card.word);
   room.card = rotatedCard;
   room.timeLeft = 30;
@@ -941,6 +943,7 @@ async function startRound(roomId) {
     wordLength: card.word.length,
     wordHint: room.wordHintArray.join(''),
     firstHint: rotatedCard.forbidden[0],
+    potentialScore: getPotentialScore(room),
     timeLeft: room.timeLeft,
     currentRound: room.currentRound,
     maxRounds: room.maxRounds,
@@ -957,7 +960,7 @@ async function startRound(roomId) {
     if (room.timeLeft % 5 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < 5) {
       const hintWord = card.forbidden[room.hintsShown];
       room.hintsShown++;
-      io.to(roomId).emit('hint_revealed', { hint: hintWord });
+      io.to(roomId).emit('hint_revealed', { hint: hintWord, potentialScore: getPotentialScore(room) });
     }
 
     // After all hints are shown (timeLeft < 10), reveal one letter every 2 seconds, max 3 letters
@@ -972,7 +975,7 @@ async function startRound(roomId) {
         const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
         room.revealedIndices.push(randomIndex);
         room.wordHintArray[randomIndex] = card.word[randomIndex];
-        io.to(roomId).emit('word_hint_update', { wordHint: room.wordHintArray.join('') });
+        io.to(roomId).emit('word_hint_update', { wordHint: room.wordHintArray.join(''), potentialScore: getPotentialScore(room) });
       }
       
       // If we just revealed the 3rd letter, or no more letters can be revealed

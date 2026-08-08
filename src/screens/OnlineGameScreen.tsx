@@ -49,6 +49,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [passVotesCount, setPassVotesCount] = useState<number>(0);
   const [hasPassed, setHasPassed] = useState<boolean>(false);
   const [kpChanges, setKpChanges] = useState<Record<string, number>>({});
+  const [serverPotentialScore, setServerPotentialScore] = useState<number | null>(null);
+  const [lastPenalty, setLastPenalty] = useState<number>(10);
 
   const inputRef = React.useRef<TextInput>(null);
   const transitionAnim = React.useRef(new Animated.Value(0)).current;
@@ -58,7 +60,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     if (gameOver && !isFinal) {
       Animated.timing(transitionAnim, {
         toValue: 1,
-        duration: 350,
+        duration: 400,
         useNativeDriver: true,
       }).start();
     } else {
@@ -78,6 +80,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setWordHint(data.wordHint);
       setTimeLeft(data.timeLeft);
       setHints([data.firstHint]);
+      if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
       setCurrentRound(data.currentRound);
       if (data.maxRounds) setMaxRounds(data.maxRounds);
       setGuessingPlayerId(null);
@@ -100,10 +103,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
     socket.on('hint_revealed', (data: any) => {
       setHints(prev => [...prev, data.hint]);
+      if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
     });
 
     socket.on('word_hint_update', (data: any) => {
       setWordHint(data.wordHint);
+      if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
     });
 
     socket.on('guess_turn_started', (data: any) => {
@@ -121,6 +126,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
     socket.on('wrong_guess', (data?: any) => {
       setShowWrongGuess(true);
+      if (data && data.penalty !== undefined) setLastPenalty(data.penalty);
       if (data && data.scores) setScores(data.scores);
       
       if (data && data.playerId === socket.id) {
@@ -308,9 +314,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <View key={p.id} style={styles.finalScoreRow}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                     <Text style={styles.finalScoreLabel} numberOfLines={1}>{p.id === socket.id ? p.name + " (Sen)" : p.name}</Text>
-                    {kpTextStr ? <Text style={{ color: kpColorStr, fontFamily: 'Poppins_700Bold', marginLeft: 6, fontSize: 13 }}>{kpTextStr}</Text> : null}
+                    {kpTextStr ? <Text style={{ color: kpColorStr, fontFamily: 'Poppins_700Bold', marginLeft: 8, fontSize: 13 }}>{kpTextStr}</Text> : null}
                   </View>
-                  <Text style={styles.finalScoreValue}>{scores[p.id] || 0}</Text>
+                  <Text style={styles.finalScoreValue}>{scores[p.id] || 0} Puan</Text>
                 </View>
               );
             })}
@@ -462,13 +468,13 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <Ionicons name="star" size={16} color={NEON_GOLD} />
                 <Text style={styles.potentialScoreText}>
                   {(() => {
-                    const isRanked = (route.params as any)?.isRanked || (players && players.length > 2);
+                    if (serverPotentialScore !== null) {
+                      return `Kazanılacak Puan: +${serverPotentialScore}`;
+                    }
                     const hintsPenalty = Math.max(0, hints.length - 1);
                     const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
-                    const potentialScore = isRanked 
-                      ? Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10)
-                      : Math.max(5, 20 - hintsPenalty * 2 - revealedLetters * 2);
-                    return `Kazanılacak Puan: ${potentialScore}`;
+                    const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
+                    return `Kazanılacak Puan: +${potentialScore}`;
                   })()}
                 </Text>
               </View>
@@ -546,7 +552,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           </View>
 
           {showWrongGuess && (
-            <Text style={styles.wrongGuessText}>❌ Yanlış Tahmin! (-3 Puan)</Text>
+            <Text style={styles.wrongGuessText}>❌ Yanlış Tahmin! (-{lastPenalty} Puan)</Text>
           )}
 
         </KeyboardAvoidingView>
