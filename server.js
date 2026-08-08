@@ -576,7 +576,8 @@ io.on('connection', (socket) => {
 
       io.to(roomId).emit('match_found', {
         players: [p1, p2],
-        roomId
+        roomId,
+        category
       });
 
       // Give 3 seconds before starting the game
@@ -613,8 +614,8 @@ io.on('connection', (socket) => {
       guessTimer: null
     };
     
-    socket.emit('room_created', { roomCode: code, roomId });
-    io.to(roomId).emit('room_update', { players: activeRooms[roomId].players, hostId: socket.id });
+    socket.emit('room_created', { roomCode: code, roomId, category: activeRooms[roomId].category });
+    io.to(roomId).emit('room_update', { players: activeRooms[roomId].players, hostId: socket.id, category: activeRooms[roomId].category });
   });
 
   socket.on('join_room', (data) => {
@@ -638,8 +639,8 @@ io.on('connection', (socket) => {
     room.players.push({ id: socket.id, name: name || 'Oyuncu', dbPlayerId: dbPlayerId || null });
     room.scores[socket.id] = 0;
     
-    socket.emit('room_joined', { roomId, roomCode: room.roomCode });
-    io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
+    socket.emit('room_joined', { roomId, roomCode: room.roomCode, category: room.category });
+    io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId, category: room.category });
   });
 
   socket.on('start_room_game', (data) => {
@@ -994,4 +995,4 @@ server.listen(PORT, () => {
 });
 
 
-// Force redeploy timestamp: 2026-08-07T14:25:58.490Z
+// Force redeploy timestamp: 2026-08-08T10:47:58.424Z
