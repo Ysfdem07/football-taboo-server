@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { Ionicons } from '@expo/vector-icons';
 import { Analytics } from '../services/analytics';
 
@@ -145,6 +146,8 @@ The App complies with COPPA and GDPR regulations. Registration is restricted for
             </View>
           </View>
         </Modal>
+
+        <BottomNavBar activeTab="none" navigation={navigation} />
       </SafeAreaView>
     </ImageBackground>
   );

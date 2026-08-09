@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, S
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { getSocket } from '../services/socket';
 import { getLeagueForKp } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
@@ -525,6 +526,7 @@ export default function ProfileScreen({ navigation }: Props) {
             )
           }
         </ScrollView>
+        <BottomNavBar activeTab="profile" navigation={navigation} />
       </SafeAreaView>
     </ImageBackground>
   );

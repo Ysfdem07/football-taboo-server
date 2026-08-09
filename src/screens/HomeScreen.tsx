@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -136,24 +137,7 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* BOTTOM TAB BAR */}
-        <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.tabItem} disabled>
-            <Ionicons name="home" size={24} color="#00FFFF" />
-            <Text style={[styles.tabText, { color: '#00FFFF' }]}>Ana Sayfa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('HowToPlay')}>
-            <Ionicons name="help-circle-outline" size={24} color="#888" />
-            <Text style={styles.tabText}>Nasıl Oynanır?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Leaderboard', {})}>
-            <Ionicons name="trophy-outline" size={24} color="#888" />
-            <Text style={styles.tabText}>Sıralama</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('Profile')}>
-            <Ionicons name="person-outline" size={24} color="#888" />
-            <Text style={styles.tabText}>Profil</Text>
-          </TouchableOpacity>
-        </View>
+        <BottomNavBar activeTab="home" navigation={navigation} />
 
       </SafeAreaView>
     </ImageBackground>

@@ -9,6 +9,9 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { getLeagueForKp, LEAGUES } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { Analytics } from '../services/analytics';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
@@ -199,6 +202,7 @@ export default function LeaderboardScreen() {
           />
         )}
 
+        <BottomNavBar activeTab="leaderboard" navigation={navigation} />
       </SafeAreaView>
     </ImageBackground>
   );

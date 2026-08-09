@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { Ionicons } from '@expo/vector-icons';
 import { Analytics } from '../services/analytics';
 
@@ -157,6 +158,7 @@ export default function HowToPlayScreen({ navigation }: Props) {
           </View>
           
         </ScrollView>
+        <BottomNavBar activeTab="howToPlay" navigation={navigation} />
       </SafeAreaView>
     </ImageBackground>
   );

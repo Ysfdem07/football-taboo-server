@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import { BottomNavBar } from '../components/BottomNavBar';
 
 type CategoryMenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CategoryMenu'>;
 type CategoryMenuScreenRouteProp = RouteProp<RootStackParamList, 'CategoryMenu'>;
@@ -213,6 +214,8 @@ export default function CategoryMenuScreen() {
           {/* Pitch Battle (Beta mode - disabled for initial release) */}
         </ScrollView>
 
+        <BottomNavBar activeTab="none" navigation={navigation} />
+
       </SafeAreaView>
     </ImageBackground>
   );
@@ -262,8 +265,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
     gap: 20, 
   },
   topRow: {
