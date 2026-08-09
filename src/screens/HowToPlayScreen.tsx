@@ -41,7 +41,7 @@ export default function HowToPlayScreen({ navigation }: Props) {
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>2</Text></View>
-              <Text style={styles.stepText}>Sistem, ekrandaki futbolcuyu tarif eden ipuçlarını **5'er saniye aralıklarla** otomatik olarak sırayla ekranda gösterir.</Text>
+              <Text style={styles.stepText}>Sistem, seçilen kategorideki hedef kelimeyi tarif eden ipuçlarını **5'er saniye aralıklarla** otomatik olarak sırayla ekranda gösterir.</Text>
             </View>
 
             <View style={styles.step}>

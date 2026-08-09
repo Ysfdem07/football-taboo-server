@@ -74,7 +74,7 @@ The App complies with COPPA and GDPR regulations. Registration is restricted for
             <Text style={styles.appName}>Wordico</Text>
             <Text style={styles.appVersion}>Versiyon 1.0.0</Text>
             <Text style={styles.appDescription}>
-              Wordico, futbolseverler için tasarlanmış, en güncel ve en zengin futbolcu veritabanına sahip dinamik bir tabu kelime tahmin oyunudur.
+              Wordico; Futbol, Sinema, Müzik, Tarih ve popüler kültür gibi birçok farklı kategoride binlerce güncel kelimeye sahip, eğlenceli ve dinamik bir kelime tahmin oyunudur.
             </Text>
           </View>
 
