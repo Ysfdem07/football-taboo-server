@@ -70,9 +70,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICO</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
-            <TouchableOpacity style={[styles.iconButton, { borderColor: '#FFD700' }]} onPress={() => navigation.navigate('CardAlbum', { categoryId: 'football' })}>
-              <Ionicons name="albums-outline" size={20} color="#FFD700" />
-            </TouchableOpacity>
             <TouchableOpacity style={[styles.iconButton, { borderColor: '#00FFFF' }]} onPress={() => navigation.navigate('Profile')}>
               <Ionicons name="person" size={20} color="#00FFFF" />
             </TouchableOpacity>
@@ -143,10 +140,6 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.tabItem} disabled>
             <Ionicons name="home" size={24} color="#00FFFF" />
             <Text style={[styles.tabText, { color: '#00FFFF' }]}>Ana Sayfa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('CardAlbum', { categoryId: 'football' })}>
-            <Ionicons name="albums-outline" size={24} color="#FFD700" />
-            <Text style={[styles.tabText, { color: '#FFD700' }]}>Albüm</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.tabItem} onPress={() => navigation.navigate('HowToPlay')}>
             <Ionicons name="help-circle-outline" size={24} color="#888" />
