@@ -91,12 +91,16 @@ export default function CategoryMenuScreen() {
               {theme.title}
             </Text>
           </View>
-          <TouchableOpacity 
-            style={[styles.backBtn, { borderColor: `${NEON_COLOR}80` }]} 
-            onPress={() => navigation.navigate('CardAlbum', { categoryId } as any)}
-          >
-            <Ionicons name="albums-outline" size={20} color={NEON_COLOR} />
-          </TouchableOpacity>
+          {categoryId === 'football' ? (
+            <TouchableOpacity 
+              style={[styles.backBtn, { borderColor: `${NEON_COLOR}80` }]} 
+              onPress={() => navigation.navigate('CardAlbum', { categoryId: 'football' } as any)}
+            >
+              <Ionicons name="albums-outline" size={20} color={NEON_COLOR} />
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 44 }} />
+          )}
         </View>
 
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -206,29 +210,31 @@ export default function CategoryMenuScreen() {
             </BlurView>
           </TouchableOpacity>
 
-          {/* MARVEL SNAP STYLE PITCH BATTLE */}
-          <TouchableOpacity
-            style={[styles.leaderboardBtn, { borderColor: '#FFD700', shadowColor: '#FFD700', marginTop: 10 }]}
-            onPress={() => navigation.navigate('PitchBattle')}
-            activeOpacity={0.85}
-          >
-            <BlurView intensity={40} tint="dark" style={styles.leaderboardGlassCard}>
-              <LinearGradient
-                colors={['rgba(255,215,0,0.3)', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.95)']}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={styles.gradientOverlay}
-              />
-              <View style={[styles.neonBorder, { borderColor: '#FFD700' }]} />
-              <View style={styles.leaderboardContent}>
-                <Ionicons name="flame" size={28} color="#FFD700" />
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={{ color: '#FFD700', fontWeight: 'bold', fontSize: 15 }} allowFontScaling={false}>SAHA SAVAŞI</Text>
-                  <Text style={{ color: '#AAA', fontSize: 10 }} allowFontScaling={false}>Marvel Snap Mantığında 3 Bölge Kart Savaşı</Text>
+          {/* MARVEL SNAP STYLE PITCH BATTLE (Futbol Özel) */}
+          {categoryId === 'football' && (
+            <TouchableOpacity
+              style={[styles.leaderboardBtn, { borderColor: '#FFD700', shadowColor: '#FFD700', marginTop: 10 }]}
+              onPress={() => navigation.navigate('PitchBattle')}
+              activeOpacity={0.85}
+            >
+              <BlurView intensity={40} tint="dark" style={styles.leaderboardGlassCard}>
+                <LinearGradient
+                  colors={['rgba(255,215,0,0.3)', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.95)']}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                  style={styles.gradientOverlay}
+                />
+                <View style={[styles.neonBorder, { borderColor: '#FFD700' }]} />
+                <View style={styles.leaderboardContent}>
+                  <Ionicons name="flame" size={28} color="#FFD700" />
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <Text style={{ color: '#FFD700', fontWeight: 'bold', fontSize: 15 }} allowFontScaling={false}>SAHA SAVAŞI</Text>
+                    <Text style={{ color: '#AAA', fontSize: 10 }} allowFontScaling={false}>Marvel Snap Mantığında 3 Bölge Kart Savaşı</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color="#FFD700" />
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#FFD700" />
-              </View>
-            </BlurView>
-          </TouchableOpacity>
+              </BlurView>
+            </TouchableOpacity>
+          )}
         </ScrollView>
 
       </SafeAreaView>

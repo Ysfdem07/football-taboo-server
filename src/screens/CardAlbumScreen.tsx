@@ -42,7 +42,7 @@ type Props = {
 };
 
 export default function CardAlbumScreen({ navigation, route }: Props) {
-  const [category, setCategory] = useState<string>(route.params?.categoryId || 'football');
+  const [category] = useState<string>('football');
   const [cards, setCards] = useState<any[]>([]);
   const [unlockedWords, setUnlockedWords] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -112,7 +112,7 @@ export default function CardAlbumScreen({ navigation, route }: Props) {
   const progressPercent = cards.length > 0 ? Math.round((unlockedCount / cards.length) * 100) : 0;
 
   return (
-    <ImageBackground source={THEMES[category] || THEMES.football} style={styles.bgImage}>
+    <ImageBackground source={THEMES.football} style={styles.bgImage}>
       <View style={styles.darkOverlay} />
       <SafeAreaView style={styles.container}>
         
@@ -121,35 +121,8 @@ export default function CardAlbumScreen({ navigation, route }: Props) {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={GOLD_NEON} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>KART ALBÜMÜ</Text>
+          <Text style={styles.headerTitle}>FUTBOL KART ALBÜMÜ</Text>
           <View style={{ width: 40 }} />
-        </View>
-
-        {/* Category Selector Tabs */}
-        <View style={styles.tabBar}>
-          <TouchableOpacity
-            style={[styles.tab, category === 'football' && styles.activeTab]}
-            onPress={() => setCategory('football')}
-          >
-            <Ionicons name="football-outline" size={18} color={category === 'football' ? GOLD_NEON : '#888'} />
-            <Text style={[styles.tabText, category === 'football' && styles.activeTabText]}>FUTBOL</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, category === 'cinema' && styles.activeTab]}
-            onPress={() => setCategory('cinema')}
-          >
-            <Ionicons name="film-outline" size={18} color={category === 'cinema' ? GOLD_NEON : '#888'} />
-            <Text style={[styles.tabText, category === 'cinema' && styles.activeTabText]}>SİNEMA</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, category === 'music' && styles.activeTab]}
-            onPress={() => setCategory('music')}
-          >
-            <Ionicons name="musical-notes-outline" size={18} color={category === 'music' ? GOLD_NEON : '#888'} />
-            <Text style={[styles.tabText, category === 'music' && styles.activeTabText]}>MÜZİK</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Progress Bar & Stats */}
