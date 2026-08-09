@@ -55,32 +55,32 @@ export default function HowToPlayScreen({ navigation }: Props) {
             </View>
           </View>
 
-          {/* Çevrimdışı Mod */}
-          <View style={[styles.modeCard, { borderColor: Colors.primary }]}>
+          {/* Haftalık Turnuva Modu */}
+          <View style={[styles.modeCard, { borderColor: '#FFD700' }]}>
             <View style={styles.cardHeader}>
-              <Ionicons name="people" size={28} color={Colors.primary} />
-              <Text style={[styles.cardTitle, { color: Colors.primary }]}>Geleneksel Tabu</Text>
+              <Ionicons name="trophy" size={28} color="#FFD700" />
+              <Text style={[styles.cardTitle, { color: '#FFD700' }]}>Haftalık Turnuva Modu</Text>
             </View>
-            <Text style={styles.cardSubtitle}>Aynı ortamda arkadaşlarınızla yan yana oynamak için tasarlanmıştır.</Text>
-            
+            <Text style={styles.cardSubtitle}>Pazartesi – Pazar günleri arasında her kategoride (Futbol, Sinema, Müzik) düzenlenen haftalık liderlik yarışmasıdır.</Text>
+
             <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: Colors.primary }]}><Text style={styles.stepNumberText}>1</Text></View>
-              <Text style={styles.stepText}>Oyuncular iki takıma ayrılır (Takım A ve Takım B). Süre ve hedef puan belirlenir.</Text>
-            </View>
-            
-            <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: Colors.primary }]}><Text style={styles.stepNumberText}>2</Text></View>
-              <Text style={styles.stepText}>Sırası gelen anlatıcı telefonu eline alır. Ekranda bir futbolcu/terim (Ana Kelime) ve altında yasaklı kelimeler (ipuçları) belirir.</Text>
+              <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>1</Text></View>
+              <Text style={styles.stepText}>**Kategori Seçimi:** İstediğiniz kategoride (Futbol, Sinema, Müzik) Haftalık Turnuva moduna girin ve yarışmayı başlatın.</Text>
             </View>
 
             <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: Colors.primary }]}><Text style={styles.stepNumberText}>3</Text></View>
-              <Text style={styles.stepText}>Anlatıcı, yasaklı kelimelerin hiçbirini kullanmadan ve onların köklerini telaffuz etmeden ana kelimeyi kendi takım arkadaşlarına anlatmaya çalışır.</Text>
+              <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>2</Text></View>
+              <Text style={styles.stepText}>**Süreyle Yarış:** Belirlenen süre içerisinde sıralı kelimeler ekrana gelir. İpuçlarını ve harf yardımlarını kullanarak doğru tahminde bulunun.</Text>
             </View>
 
             <View style={styles.step}>
-              <View style={[styles.stepNumber, { backgroundColor: Colors.primary }]}><Text style={styles.stepNumberText}>4</Text></View>
-              <Text style={styles.stepText}>Takım doğru tahmin ederse <Text style={{color: Colors.success, fontFamily: 'Poppins_700Bold'}}>DOĞRU (+1)</Text>, yasaklı kelime kullanılırsa <Text style={{color: Colors.danger, fontFamily: 'Poppins_700Bold'}}>TABU (-1)</Text> butonuna basılır. Hedef puana ilk ulaşan takım kazanır!</Text>
+              <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>3</Text></View>
+              <Text style={styles.stepText}>**Seri Doğru & Erken Tahmin Bonusu:** Kelimeyi ne kadar az ipucu açarak doğru tahmin ederseniz tur sonu kazandığınız puan o kadar yüksek olur.</Text>
+            </View>
+
+            <View style={styles.step}>
+              <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>4</Text></View>
+              <Text style={styles.stepText}>**Haftalık Sıralama & Kupa Ödülleri:** Hafta sonunda her kategoride ilk 3'e giren oyuncular Liderlik Tablosu'nda özel Şampiyonluk Kupa ve Rozetlerini kazanır!</Text>
             </View>
           </View>
 
@@ -88,22 +88,18 @@ export default function HowToPlayScreen({ navigation }: Props) {
           <View style={[styles.modeCard, { borderColor: '#E67E22' }]}>
             <View style={styles.cardHeader}>
               <Ionicons name="calculator" size={26} color="#E67E22" />
-              <Text style={[styles.cardTitle, { color: '#F5B041' }]}>3. Puanlama ve KP Mekanizmaları</Text>
+              <Text style={[styles.cardTitle, { color: '#F5B041' }]}>Puanlama ve KP Mekanizmaları</Text>
             </View>
             <Text style={styles.cardSubtitle}>Farklı modlarda aldığınız skorlar ve Dereceli Lig KP (Kariyer Puanı) kazanımları aşağıdaki gibidir:</Text>
 
-            <Text style={styles.subSectionTitle}>Klasik Çevrimdışı (Offline) Mod</Text>
+            <Text style={styles.subSectionTitle}>Haftalık Turnuva Modu</Text>
             <View style={styles.bulletRow}>
               <Ionicons name="add-circle" size={16} color={Colors.success} style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Her Doğru Kelime:** +1 Skor Puanı</Text>
+              <Text style={styles.bulletText}>**Hızlı Doğru Tahmin:** +100 Yüksek Skor Puanı</Text>
             </View>
             <View style={styles.bulletRow}>
-              <Ionicons name="remove-circle" size={16} color={Colors.danger} style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Her Tabu (Yasaklı Kelime):** -1 Skor Puanı</Text>
-            </View>
-            <View style={styles.bulletRow}>
-              <Ionicons name="arrow-forward-circle" size={16} color="#aaa" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Her Pas:** 0 Puan (Etkisiz)</Text>
+              <Ionicons name="sparkles" size={16} color="#FFD700" style={{ marginRight: 8 }} />
+              <Text style={styles.bulletText}>**Açılan İpucu / Harf İndirimi:** İpucu açıldıkça turun potansiyel puanı kademeli azalır.</Text>
             </View>
 
             <Text style={[styles.subSectionTitle, { marginTop: 15 }]}>Düello (Online) Modu</Text>

@@ -102,30 +102,30 @@ export default function CategoryMenuScreen() {
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           
           <View style={styles.topRow}>
-            {/* CLASSIC MODE */}
+            {/* WEEKLY TOURNAMENT BOX CARD */}
             <TouchableOpacity 
               style={[styles.halfButtonContainer, { shadowColor: NEON_COLOR }]}
-              onPress={() => navigation.navigate('Settings' as any, { categoryId })}
+              onPress={() => checkWordsAndNavigate('Tournament')}
               disabled={loading}
               activeOpacity={0.8}
             >
               <BlurView intensity={40} tint="dark" style={styles.glassCard}>
                 <LinearGradient
-                  colors={[`${NEON_COLOR}30`, 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
+                  colors={[`${NEON_COLOR}40`, 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.gradientOverlay}
                 />
-                <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}70` }]} />
+                <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}80` }]} />
                 
-                <Ionicons name={theme.classicIcon as any} size={48} color={NEON_COLOR} style={[styles.halfIcon]} />
+                <Ionicons name={theme.tournamentIcon as any} size={44} color={NEON_COLOR} style={[styles.halfIcon]} />
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
                   allowFontScaling={false} 
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  GELENEKSEL
+                  HAFTALIK
                 </Text>
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
@@ -133,12 +133,17 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  MOD
+                  TURNUVA
                 </Text>
+                
+                <View style={styles.tournamentSubRowShort}>
+                  <Ionicons name="calendar-outline" size={11} color="rgba(255,255,255,0.7)" />
+                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>{getWeekRange()}</Text>
+                </View>
               </BlurView>
             </TouchableOpacity>
 
-            {/* ONLINE DUEL */}
+            {/* ONLINE DUEL BOX CARD */}
             <TouchableOpacity 
               style={[styles.halfButtonContainer, { shadowColor: NEON_COLOR }]}
               onPress={() => checkWordsAndNavigate('OnlineLobby')}
@@ -154,7 +159,7 @@ export default function CategoryMenuScreen() {
                 />
                 <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}70` }]} />
 
-                <Ionicons name={theme.duelIcon as any} size={48} color={NEON_COLOR} style={[styles.halfIcon]} />
+                <Ionicons name={theme.duelIcon as any} size={44} color={NEON_COLOR} style={[styles.halfIcon]} />
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
                   allowFontScaling={false} 
@@ -171,43 +176,14 @@ export default function CategoryMenuScreen() {
                 >
                   DÜELLO
                 </Text>
+
+                <View style={styles.tournamentSubRowShort}>
+                  <Ionicons name="people-outline" size={11} color="rgba(255,255,255,0.7)" />
+                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>1v1 & Lobi Maçı</Text>
+                </View>
               </BlurView>
             </TouchableOpacity>
           </View>
-
-          {/* WEEKLY TOURNAMENT */}
-          <TouchableOpacity 
-            style={[styles.tournamentBtn, { shadowColor: NEON_COLOR }]}
-            onPress={() => checkWordsAndNavigate('Tournament')}
-            disabled={loading}
-            activeOpacity={0.8}
-          >
-            <BlurView intensity={40} tint="dark" style={styles.tournamentGlassCard}>
-              <LinearGradient
-                colors={[`${NEON_COLOR}40`, 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradientOverlay}
-              />
-              <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}80` }]} />
-
-              <View style={styles.tournamentContent}>
-                <Ionicons 
-                  name={theme.tournamentIcon as any} 
-                  size={60} 
-                  color={NEON_COLOR} 
-                />
-                <View style={styles.tournamentTextWrap}>
-                  <Text style={[styles.tournamentTitle, { color: '#fff' }]} allowFontScaling={false}>HAFTALIK TURNUVA</Text>
-                  
-                  <View style={styles.tournamentSubRow}>
-                    <Ionicons name="calendar-outline" size={13} color="rgba(255,255,255,0.7)" />
-                    <Text style={styles.tournamentSub} allowFontScaling={false}>{getWeekRange()}</Text>
-                  </View>
-                </View>
-              </View>
-            </BlurView>
-          </TouchableOpacity>
 
           {/* LEADERBOARD */}
           <TouchableOpacity
@@ -394,6 +370,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 12,
     letterSpacing: 1,
+  },
+  tournamentSubRowShort: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  tournamentSubShort: {
+    color: 'rgba(255,255,255,0.85)',
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 10,
+    letterSpacing: 0.5,
   },
   loadingText: {
     fontFamily: 'Poppins_900Black',
