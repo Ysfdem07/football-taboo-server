@@ -155,7 +155,7 @@ export default function LeaderboardScreen() {
           <View style={styles.playerInfo}>
             <Text style={styles.username}>{item.username}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3, gap: 6 }}>
-              <LeagueBadge league={league} size="small" />
+              <LeagueBadge league={league} categoryId={activeCategory} size="small" />
               <Text style={[styles.leagueLabel, { color: league.color }]}>
                 {league.name}
               </Text>

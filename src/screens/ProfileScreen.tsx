@@ -361,9 +361,10 @@ export default function ProfileScreen({ navigation }: Props) {
                   const catLeague = getLeagueForKp(catKp);
                   return (
                     <View key={cat.id} style={[styles.categoryLeagueCard, { borderColor: `${cat.color}50` }]}>
-                      <Text style={styles.categoryLeagueEmoji}>{cat.icon}</Text>
                       <Text style={[styles.categoryLeagueLabel, { color: cat.color }]}>{cat.label}</Text>
-                      <Text style={styles.categoryLeagueIcon}>{catLeague.icon}</Text>
+                      <View style={{ marginVertical: 6 }}>
+                        <LeagueBadge league={catLeague} categoryId={cat.id} size="medium" />
+                      </View>
                       <Text style={[styles.categoryLeagueName, { color: catLeague.color }]}>{catLeague.name}</Text>
                       <Text style={[styles.categoryKpText, { color: cat.color }]}>{catKp} KP</Text>
                     </View>
