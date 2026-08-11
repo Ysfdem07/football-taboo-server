@@ -118,16 +118,16 @@ export default function CategoryMenuScreen() {
               disabled={loading}
               activeOpacity={0.8}
             >
-              <BlurView intensity={40} tint="dark" style={styles.glassCard}>
+              <View style={[styles.glassCard, { backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}>
                 <LinearGradient
-                  colors={[`${NEON_COLOR}40`, 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
+                  colors={[`${NEON_COLOR}40`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.gradientOverlay}
                 />
                 <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}80` }]} />
                 
-                <Ionicons name={theme.tournamentIcon as any} size={44} color={NEON_COLOR} style={[styles.halfIcon]} />
+                <Ionicons name={theme.tournamentIcon as any} size={48} color={NEON_COLOR} style={[styles.halfIcon]} />
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
                   allowFontScaling={false} 
@@ -149,7 +149,7 @@ export default function CategoryMenuScreen() {
                   <Ionicons name="calendar-outline" size={11} color="rgba(255,255,255,0.7)" />
                   <Text style={styles.tournamentSubShort} allowFontScaling={false}>{getWeekRange()}</Text>
                 </View>
-              </BlurView>
+              </View>
             </TouchableOpacity>
 
             {/* ONLINE DUEL BOX CARD */}
@@ -159,16 +159,16 @@ export default function CategoryMenuScreen() {
               disabled={loading}
               activeOpacity={0.8}
             >
-              <BlurView intensity={40} tint="dark" style={styles.glassCard}>
+              <View style={[styles.glassCard, { backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}>
                 <LinearGradient
-                  colors={[`${NEON_COLOR}30`, 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
+                  colors={[`${NEON_COLOR}35`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.gradientOverlay}
                 />
                 <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}70` }]} />
 
-                <Ionicons name={theme.duelIcon as any} size={44} color={NEON_COLOR} style={[styles.halfIcon]} />
+                <Ionicons name={theme.duelIcon as any} size={48} color={NEON_COLOR} style={[styles.halfIcon]} />
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
                   allowFontScaling={false} 
@@ -190,7 +190,7 @@ export default function CategoryMenuScreen() {
                   <Ionicons name="people-outline" size={11} color="rgba(255,255,255,0.7)" />
                   <Text style={styles.tournamentSubShort} allowFontScaling={false}>1v1 & Lobi Maçı</Text>
                 </View>
-              </BlurView>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -200,9 +200,9 @@ export default function CategoryMenuScreen() {
             onPress={() => navigation.navigate('Leaderboard', { categoryId })}
             activeOpacity={0.8}
           >
-            <BlurView intensity={30} tint="dark" style={styles.leaderboardGlassCard}>
+            <View style={[styles.leaderboardGlassCard, { backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}>
               <LinearGradient
-                colors={[`${NEON_COLOR}20`, 'rgba(0,0,0,0.6)']}
+                colors={[`${NEON_COLOR}25`, 'rgba(5,11,20,0.9)']}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.gradientOverlay}
               />
@@ -212,7 +212,7 @@ export default function CategoryMenuScreen() {
                 <Text style={[styles.leaderboardBtnText, { color: '#FFFFFF' }]} allowFontScaling={false}>LİG SIRALAMASI</Text>
                 <Ionicons name="chevron-forward" size={18} color={`${NEON_COLOR}80`} />
               </View>
-            </BlurView>
+            </View>
           </TouchableOpacity>
 
           {/* Pitch Battle (Beta mode - disabled for initial release) */}

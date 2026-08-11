@@ -84,28 +84,28 @@ export default function HomeScreen() {
         {/* CATEGORIES LIST SCROLLVIEW */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.categoriesContainer} showsVerticalScrollIndicator={false}>
           {CATEGORIES.map((cat) => (
-            <View key={cat.id} style={[styles.categoryCard, { borderColor: cat.color, shadowColor: cat.color, backgroundColor: 'rgba(5, 11, 20, 0.75)' }]}>
+            <TouchableOpacity 
+              key={cat.id} 
+              style={[styles.categoryCard, { borderColor: cat.color, shadowColor: cat.color, backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}
+              onPress={() => navigation.navigate('CategoryMenu', { categoryId: cat.id })}
+              activeOpacity={0.85}
+            >
               <LinearGradient
-                colors={[`${cat.color}30`, 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.85)']}
+                colors={[`${cat.color}35`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={StyleSheet.absoluteFillObject}
               />
-              {/* Top Section */}
-              <TouchableOpacity 
-                style={styles.cardTop} 
-                onPress={() => navigation.navigate('CategoryMenu', { categoryId: cat.id })}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.iconContainer, (cat.id === 'football' || cat.id === 'cinema' || cat.id === 'music') && { overflow: 'hidden', borderRadius: 30 }]}>
+              <View style={styles.cardTop}>
+                <View style={styles.iconContainerClean}>
                   {cat.id === 'football' ? (
-                    <Image source={require('../../assets/icons/football_logo.jpg')} style={{ width: 60, height: 60, opacity: 0.9 }} />
+                    <Image source={require('../../assets/icons/football_logo.jpg')} style={styles.catImageLarge} />
                   ) : cat.id === 'cinema' ? (
-                    <Image source={require('../../assets/icons/cinema_logo.jpg')} style={{ width: 60, height: 60, opacity: 0.9 }} />
+                    <Image source={require('../../assets/icons/cinema_logo.jpg')} style={styles.catImageLarge} />
                   ) : cat.id === 'music' ? (
-                    <Image source={require('../../assets/icons/music_logo.jpg')} style={{ width: 60, height: 60, opacity: 0.9 }} />
+                    <Image source={require('../../assets/icons/music_logo.jpg')} style={styles.catImageLarge} />
                   ) : (
-                    <Ionicons name={cat.icon as any} size={42} color={cat.color} />
+                    <Ionicons name={cat.icon as any} size={52} color={cat.color} />
                   )}
                 </View>
                 <View style={styles.textContainer}>
@@ -119,24 +119,11 @@ export default function HomeScreen() {
                   </Text>
                   <Text style={styles.cardSubtitle} allowFontScaling={false}>{cat.subtitle}</Text>
                 </View>
-                <View style={[styles.modlarBtn, { borderColor: cat.color, backgroundColor: `${cat.color}20` }]}>
-                  <Text style={[styles.modlarText, { color: '#FFF' }]} allowFontScaling={false}>MODLAR &gt;</Text>
+                <View style={[styles.modlarBtn, { borderColor: cat.color, backgroundColor: `${cat.color}30` }]}>
+                  <Text style={[styles.modlarText, { color: '#FFF' }]} allowFontScaling={false}>OYNA ▶</Text>
                 </View>
-              </TouchableOpacity>
-
-              {/* Bottom Section (Tournament) */}
-              <TouchableOpacity 
-                style={[styles.tournamentBanner, { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' }]}
-                onPress={() => navigation.navigate('Tournament', { categoryId: cat.id })}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.tournamentText} allowFontScaling={false}>Haftalık Turnuva</Text>
-                <View style={styles.oynaBtn}>
-                  <Text style={[styles.oynaText, { color: cat.color }]} allowFontScaling={false}>Oyna</Text>
-                  <Ionicons name="play" size={16} color={cat.color} />
-                </View>
-              </TouchableOpacity>
-            </View>
+              </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
 
@@ -206,15 +193,22 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingVertical: 18,
   },
-  iconContainer: {
-    width: 70,
-    height: 70,
+  iconContainerClean: {
+    width: 68,
+    height: 68,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  catImageLarge: {
+    width: 68,
+    height: 68,
+    borderRadius: 20,
   },
   textContainer: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 14,
   },
   cardTitle: {
     fontFamily: 'Poppins_900Black',
