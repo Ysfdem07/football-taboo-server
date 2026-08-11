@@ -10,11 +10,19 @@ interface BottomNavBarProps {
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigation }) => {
   const insets = useSafeAreaInsets();
-  // Ensure Android 3-button bar or gesture bar safe area inset is respected
-  const extraBottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 12) : Math.max(insets.bottom, 6);
+  
+  // Platform-specific dynamic safe area spacing
+  const isIOS = Platform.OS === 'ios';
+  const bottomInset = isIOS 
+    ? (insets.bottom > 0 ? 16 : 4) 
+    : Math.max(insets.bottom, 10);
+    
+  const barHeight = isIOS 
+    ? (insets.bottom > 0 ? 70 : 56) 
+    : (56 + Math.max(insets.bottom, 10));
 
   return (
-    <View style={[styles.bottomBar, { paddingBottom: extraBottomPadding, height: 56 + extraBottomPadding }]}>
+    <View style={[styles.bottomBar, { paddingBottom: bottomInset, height: barHeight }]}>
       <TouchableOpacity 
         style={styles.tabItem} 
         onPress={() => activeTab !== 'home' && navigation.navigate('Home')}
