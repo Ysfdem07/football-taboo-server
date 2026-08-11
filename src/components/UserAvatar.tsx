@@ -1,157 +1,72 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Image, StyleSheet, ImageSourcePropType } from 'react-native';
 
 export interface AvatarOption {
   id: string;
-  name: string;
-  category: string;
-  iconType: 'Ionicons' | 'MaterialCommunityIcons';
-  iconName: string;
-  colors: [string, string];
+  image: ImageSourcePropType;
   borderColor: string;
-  badgeText: string;
 }
 
-export const AVATAR_OPTIONS: AvatarOption[] = [
-  {
-    id: 'cyber_fox',
-    name: 'Siber Tilki',
-    category: 'Cartoon Gamer',
-    iconType: 'MaterialCommunityIcons',
-    iconName: 'fox',
-    colors: ['#FF512F', '#DD2476'],
-    borderColor: '#FF512F',
-    badgeText: 'TILKİ'
-  },
-  {
-    id: 'lion_king',
-    name: 'Aslan Kral',
-    category: 'Cartoon Gamer',
-    iconType: 'Ionicons',
-    iconName: 'paw',
-    colors: ['#F857A6', '#FF5858'],
-    borderColor: '#FFD700',
-    badgeText: 'KRAL'
-  },
-  {
-    id: 'panda_gamer',
-    name: 'Panda Oyuncu',
-    category: 'Cartoon Gamer',
-    iconType: 'MaterialCommunityIcons',
-    iconName: 'panda',
-    colors: ['#00F2FE', '#4FACFE'],
-    borderColor: '#00F2FE',
-    badgeText: 'PANDA'
-  },
-  {
-    id: 'soccer_hero',
-    name: 'Futbol Efsanesi',
-    category: 'Football',
-    iconType: 'Ionicons',
-    iconName: 'football',
-    colors: ['#11998E', '#38EF7D'],
-    borderColor: '#38EF7D',
-    badgeText: 'GOAT'
-  },
-  {
-    id: 'cyber_hero',
-    name: 'Siber Şampiyon',
-    category: 'Gaming',
-    iconType: 'Ionicons',
-    iconName: 'game-controller',
-    colors: ['#8E2DE2', '#4A00E0'],
-    borderColor: '#A855F7',
-    badgeText: 'ESPOR'
-  },
-  {
-    id: 'flash_speed',
-    name: 'Yıldırım Kahraman',
-    category: 'Gaming',
-    iconType: 'Ionicons',
-    iconName: 'flash',
-    colors: ['#FFB75E', '#ED8F03'],
-    borderColor: '#FFD700',
-    badgeText: 'FLASH'
-  },
-  {
-    id: 'diamond_dragon',
-    name: 'Elmas Ejder',
-    category: 'Special',
-    iconType: 'MaterialCommunityIcons',
-    iconName: 'dragon',
-    colors: ['#00C6FF', '#0072FF'],
-    borderColor: '#00F0FF',
-    badgeText: 'ELİT'
-  },
-  {
-    id: 'ninja_ace',
-    name: 'Ninja Nişancı',
-    category: 'Gaming',
-    iconType: 'MaterialCommunityIcons',
-    iconName: 'ninja',
-    colors: ['#FF416C', '#FF4B2B'],
-    borderColor: '#FF416C',
-    badgeText: 'NINJA'
-  },
-  {
-    id: 'cyber_knight',
-    name: 'Zırhlı Şövalye',
-    category: 'Gaming',
-    iconType: 'MaterialCommunityIcons',
-    iconName: 'shield-crown',
-    colors: ['#616161', '#242424'],
-    borderColor: '#E2E8F0',
-    badgeText: 'ŞÖVALYE'
-  },
-  {
-    id: 'cinema_director',
-    name: 'Sinema Yıldızı',
-    category: 'Cinema',
-    iconType: 'Ionicons',
-    iconName: 'videocam',
-    colors: ['#B224EF', '#7579FF'],
-    borderColor: '#E040FB',
-    badgeText: 'SİNEMA'
-  },
-  {
-    id: 'music_maestro',
-    name: 'Ses Virtüözü',
-    category: 'Music',
-    iconType: 'Ionicons',
-    iconName: 'musical-notes',
-    colors: ['#F107A3', '#7B2CBF'],
-    borderColor: '#FF1493',
-    badgeText: 'MÜZİK'
-  },
-  {
-    id: 'golden_trophy',
-    name: 'Altın Kupa',
-    category: 'Special',
-    iconType: 'Ionicons',
-    iconName: 'trophy',
-    colors: ['#FFE000', '#799F0C'],
-    borderColor: '#FFD700',
-    badgeText: 'ŞAMPİYON'
-  }
+export const AVATAR_MAP: Record<string, ImageSourcePropType> = {
+  avatar_1: require('../../assets/avatars/avatar_1.png'),
+  avatar_2: require('../../assets/avatars/avatar_2.png'),
+  avatar_3: require('../../assets/avatars/avatar_3.jpg'),
+  avatar_4: require('../../assets/avatars/avatar_4.png'),
+  avatar_5: require('../../assets/avatars/avatar_5.jpg'),
+  avatar_6: require('../../assets/avatars/avatar_6.jpg'),
+  avatar_7: require('../../assets/avatars/avatar_7.jpg'),
+  avatar_8: require('../../assets/avatars/avatar_8.jpg'),
+  avatar_9: require('../../assets/avatars/avatar_9.jpg'),
+  avatar_10: require('../../assets/avatars/avatar_10.jpg'),
+  avatar_11: require('../../assets/avatars/avatar_11.jpg'),
+  avatar_12: require('../../assets/avatars/avatar_12.jpg'),
+  avatar_13: require('../../assets/avatars/avatar_13.jpg'),
+  avatar_14: require('../../assets/avatars/avatar_14.jpg'),
+  avatar_15: require('../../assets/avatars/avatar_15.jpg'),
+};
+
+const BORDER_COLORS = [
+  '#00FF88', '#00BFFF', '#A855F7', '#FFD700', '#FF1493',
+  '#39FF14', '#00F0FF', '#FF5722', '#FACC15', '#C026D3',
+  '#10B981', '#38BDF8', '#EC4899', '#F59E0B', '#A0AEC0'
 ];
 
-const EMOJI_MAP: Record<string, string> = {
-  '⚽': 'soccer_hero',
-  '👑': 'lion_king',
-  '🔥': 'ninja_ace',
-  '⚡': 'flash_speed',
-  '💎': 'diamond_dragon',
-  '🚀': 'cyber_hero',
-  '🌟': 'cyber_fox',
-  '🎯': 'ninja_ace',
+export const AVATAR_OPTIONS: AvatarOption[] = Array.from({ length: 15 }, (_, i) => {
+  const id = `avatar_${i + 1}`;
+  return {
+    id,
+    image: AVATAR_MAP[id],
+    borderColor: BORDER_COLORS[i % BORDER_COLORS.length],
+  };
+});
+
+const LEGACY_MAP: Record<string, string> = {
+  '⚽': 'avatar_1',
+  '👑': 'avatar_2',
+  '🔥': 'avatar_3',
+  '⚡': 'avatar_4',
+  '💎': 'avatar_5',
+  '🚀': 'avatar_6',
+  '🌟': 'avatar_7',
+  '🎯': 'avatar_8',
+  'soccer_hero': 'avatar_1',
+  'cyber_fox': 'avatar_2',
+  'lion_king': 'avatar_3',
+  'panda_gamer': 'avatar_4',
+  'cyber_hero': 'avatar_5',
+  'flash_speed': 'avatar_6',
+  'diamond_dragon': 'avatar_7',
+  'ninja_ace': 'avatar_8',
+  'cyber_knight': 'avatar_9',
+  'cinema_director': 'avatar_10',
+  'music_maestro': 'avatar_11',
+  'golden_trophy': 'avatar_12',
 };
 
 export function getAvatarOption(avatarIdOrEmoji?: string): AvatarOption {
   if (!avatarIdOrEmoji) return AVATAR_OPTIONS[0];
 
-  const mappedId = EMOJI_MAP[avatarIdOrEmoji] || avatarIdOrEmoji;
+  const mappedId = LEGACY_MAP[avatarIdOrEmoji] || avatarIdOrEmoji;
   const found = AVATAR_OPTIONS.find(a => a.id === mappedId);
   return found || AVATAR_OPTIONS[0];
 }
@@ -159,81 +74,46 @@ export function getAvatarOption(avatarIdOrEmoji?: string): AvatarOption {
 interface UserAvatarProps {
   avatar?: string;
   size?: number;
-  showBadge?: boolean;
 }
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ 
   avatar, 
-  size = 40,
-  showBadge = false 
+  size = 40
 }) => {
   const option = getAvatarOption(avatar);
-  const iconSize = Math.round(size * 0.54);
 
   return (
-    <View style={styles.container}>
-      <View 
-        style={[
-          styles.avatarFrame, 
-          { 
-            width: size, 
-            height: size, 
-            borderRadius: size / 2, 
-            borderColor: option.borderColor,
-            shadowColor: option.borderColor 
-          }
-        ]}
-      >
-        <LinearGradient
-          colors={option.colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-        {option.iconType === 'MaterialCommunityIcons' ? (
-          <MaterialCommunityIcons name={option.iconName as any} size={iconSize} color="#FFFFFF" />
-        ) : (
-          <Ionicons name={option.iconName as any} size={iconSize} color="#FFFFFF" />
-        )}
-      </View>
-
-      {showBadge && (
-        <View style={[styles.badgePill, { borderColor: option.borderColor }]}>
-          <Text style={[styles.badgeText, { color: option.borderColor }]} allowFontScaling={false}>
-            {option.badgeText}
-          </Text>
-        </View>
-      )}
+    <View 
+      style={[
+        styles.avatarFrame, 
+        { 
+          width: size, 
+          height: size, 
+          borderRadius: size / 2, 
+          borderColor: option.borderColor,
+          shadowColor: option.borderColor 
+        }
+      ]}
+    >
+      <Image 
+        source={option.image} 
+        style={{ width: size - 4, height: size - 4, borderRadius: (size - 4) / 2 }}
+        resizeMode="cover"
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   avatarFrame: {
-    borderWidth: 2.5,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  badgePill: {
-    marginTop: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    borderWidth: 1,
-    backgroundColor: 'rgba(5, 11, 20, 0.9)',
-  },
-  badgeText: {
-    fontSize: 9,
-    fontFamily: 'Poppins_700Bold',
-    letterSpacing: 0.5,
+    shadowOpacity: 0.85,
+    shadowRadius: 8,
+    elevation: 6,
+    backgroundColor: '#0F172A',
   }
 });

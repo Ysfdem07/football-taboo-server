@@ -313,7 +313,7 @@ export default function ProfileScreen({ navigation }: Props) {
             // LOGGED IN VIEW
             <View style={styles.profileContainer}>
               <View style={{ marginBottom: 6, alignItems: 'center' }}>
-                <UserAvatar avatar={player.avatar} size={84} showBadge />
+                <UserAvatar avatar={player.avatar} size={84} />
               </View>
 
               <TouchableOpacity 
@@ -516,22 +516,19 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 {isRegisterMode && (
                   <View style={styles.avatarSelectionSection}>
-                    <Text style={styles.avatarSelectLabel}>3D Rozet Avatar Seçin:</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll} contentContainerStyle={{ gap: 8 }}>
+                    <Text style={styles.avatarSelectLabel}>Profil Avatarınızı Seçin:</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll} contentContainerStyle={{ gap: 10, paddingVertical: 4 }}>
                       {AVATAR_OPTIONS.map(opt => (
                         <TouchableOpacity 
                           key={opt.id} 
                           style={[
                             styles.avatarSelectorCard,
-                            selectedAvatar === opt.id && { borderColor: opt.borderColor, backgroundColor: `${opt.borderColor}25` }
+                            selectedAvatar === opt.id && { borderColor: opt.borderColor, backgroundColor: `${opt.borderColor}30` }
                           ]}
                           onPress={() => setSelectedAvatar(opt.id)}
                           activeOpacity={0.8}
                         >
-                          <UserAvatar avatar={opt.id} size={42} />
-                          <Text style={[styles.avatarSelectorName, selectedAvatar === opt.id && { color: opt.borderColor }]}>
-                            {opt.name}
-                          </Text>
+                          <UserAvatar avatar={opt.id} size={46} />
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
@@ -548,7 +545,7 @@ export default function ProfileScreen({ navigation }: Props) {
                       {marketingConsent && <Ionicons name="checkmark" size={14} color={Colors.white} />}
                     </View>
                     <Text style={styles.consentText}>
-                      Kullanım Koşulları, Gizlilik Politikası ve reklam benzer hedef kitlesi için veri işlemeyi kabul ediyorum.
+                      Wordico gelişmelerinden ve özel fırsatlardan e-posta ile haberdar olmak istiyorum.
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -557,11 +554,16 @@ export default function ProfileScreen({ navigation }: Props) {
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleAuth}>
-                    <Text style={styles.authButtonText}>{isRegisterMode ? 'KAYIT OL' : 'GİRİŞ YAP'}</Text>
+                    <Text style={styles.authButtonText}>
+                      {isRegisterMode ? 'KAYDOL VE BAŞLA' : 'GİRİŞ YAP'}
+                    </Text>
                   </TouchableOpacity>
                 )}
 
-                <TouchableOpacity onPress={() => setAuthStep(isRegisterMode ? 'login' : 'register')} style={styles.toggleLink}>
+                <TouchableOpacity 
+                  onPress={() => setAuthStep(isRegisterMode ? 'login' : 'register')} 
+                  style={styles.toggleLink}
+                >
                   <Text style={styles.toggleLinkText}>
                     {isRegisterMode ? 'Zaten bir hesabın var mı? Giriş Yap' : 'Henüz hesabın yok mu? Profil Yarat'}
                   </Text>
@@ -590,7 +592,7 @@ export default function ProfileScreen({ navigation }: Props) {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.modalSubtitle}>Profilinde gösterilecek 3D gaming avatarını seç:</Text>
+              <Text style={styles.modalSubtitle}>Profilinizde gösterilecek avatar görselinizi seçin:</Text>
 
               <ScrollView contentContainerStyle={styles.avatarGridContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.avatarGrid}>
@@ -602,15 +604,12 @@ export default function ProfileScreen({ navigation }: Props) {
                         style={[
                           styles.avatarGridCard,
                           { borderColor: isSelected ? opt.borderColor : 'rgba(255,255,255,0.12)' },
-                          isSelected && { backgroundColor: `${opt.borderColor}25` }
+                          isSelected && { backgroundColor: `${opt.borderColor}30` }
                         ]}
                         onPress={() => handleSelectAvatar(opt.id)}
                         activeOpacity={0.8}
                       >
-                        <UserAvatar avatar={opt.id} size={48} showBadge />
-                        <Text style={[styles.avatarGridName, { color: isSelected ? opt.borderColor : '#FFF' }]}>
-                          {opt.name}
-                        </Text>
+                        <UserAvatar avatar={opt.id} size={54} />
                       </TouchableOpacity>
                     );
                   })}
