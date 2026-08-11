@@ -23,15 +23,26 @@ export const AVATAR_MAP: Record<string, ImageSourcePropType> = {
   avatar_13: require('../../assets/avatars/avatar_13.png'),
   avatar_14: require('../../assets/avatars/avatar_14.png'),
   avatar_15: require('../../assets/avatars/avatar_15.png'),
+  avatar_16: require('../../assets/avatars/avatar_16.png'),
+  avatar_17: require('../../assets/avatars/avatar_17.png'),
+  avatar_18: require('../../assets/avatars/avatar_18.png'),
+  avatar_19: require('../../assets/avatars/avatar_19.png'),
+  avatar_20: require('../../assets/avatars/avatar_20.png'),
+  avatar_21: require('../../assets/avatars/avatar_21.png'),
+  avatar_22: require('../../assets/avatars/avatar_22.png'),
+  avatar_23: require('../../assets/avatars/avatar_23.png'),
+  avatar_24: require('../../assets/avatars/avatar_24.png'),
 };
 
 const BORDER_COLORS = [
   '#00FF88', '#00BFFF', '#A855F7', '#FFD700', '#FF1493',
   '#39FF14', '#00F0FF', '#FF5722', '#FACC15', '#C026D3',
-  '#10B981', '#38BDF8', '#EC4899', '#F59E0B', '#A0AEC0'
+  '#10B981', '#38BDF8', '#EC4899', '#F59E0B', '#A0AEC0',
+  '#E11D48', '#8B5CF6', '#06B6D4', '#F97316', '#84CC16',
+  '#D946EF', '#6366F1', '#14B8A6', '#EAB308'
 ];
 
-export const AVATAR_OPTIONS: AvatarOption[] = Array.from({ length: 15 }, (_, i) => {
+export const AVATAR_OPTIONS: AvatarOption[] = Array.from({ length: 24 }, (_, i) => {
   const id = `avatar_${i + 1}`;
   return {
     id,
