@@ -168,6 +168,17 @@ module.exports = {
     return { player: player.toObject() };
   },
 
+  updateAvatar: async (playerId, avatar) => {
+    await connectDB();
+    const player = await Player.findOneAndUpdate(
+      { id: playerId },
+      { $set: { avatar } },
+      { new: true }
+    );
+    if (!player) return null;
+    return player.toObject();
+  },
+
   updatePlayerStats: async (playerId, kpChange, isWin, correctGuesses = 0, taboos = 0, category = 'football') => {
     await connectDB();
     const player = await Player.findOne({ id: playerId });

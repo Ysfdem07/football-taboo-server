@@ -467,6 +467,18 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Update Avatar Request
+  socket.on('update_avatar', async (data) => {
+    const { playerId, avatar } = data;
+    if (!playerId || !avatar) return;
+    const updated = await db.updateAvatar(playerId, avatar);
+    if (updated) {
+      socket.emit('update_avatar_response', { success: true, player: updated });
+    } else {
+      socket.emit('update_avatar_response', { success: false, error: 'Güncellenemedi' });
+    }
+  });
+
   // Forgot Password Code Request
   socket.on('forgot_password', async (data) => {
     const { email } = data;

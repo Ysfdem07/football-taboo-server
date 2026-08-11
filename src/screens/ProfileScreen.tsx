@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, SafeAreaView, ScrollView, Alert, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, SafeAreaView, ScrollView, Alert, ActivityIndicator, StatusBar, Platform, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,24 +11,23 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { LeagueBadge } from '../components/LeagueBadge';
-import { UserAvatar } from '../components/UserAvatar';
+import { UserAvatar, AVATAR_OPTIONS, getAvatarOption } from '../components/UserAvatar';
 import { Analytics } from '../services/analytics';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 };
 
-const AVATARS = ['⚽', '🏆', '🥇', '👕', '👟', '🧤', '📣', '🏟️', '👑', '🔥', '🦁', '🦅'];
-
 export default function ProfileScreen({ navigation }: Props) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authStep, setAuthStep] = useState<'login' | 'register' | 'forgot_request' | 'forgot_verify'>('login');
   const [loading, setLoading] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   
   // Auth Form State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState('⚽');
+  const [selectedAvatar, setSelectedAvatar] = useState('soccer_hero');
   const [email, setEmail] = useState('');
   const [marketingConsent, setMarketingConsent] = useState(false);
 
@@ -145,6 +144,26 @@ export default function ProfileScreen({ navigation }: Props) {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleSelectAvatar = async (avatarId: string) => {
+    if (!player) return;
+    const updatedPlayer = { ...player, avatar: avatarId };
+    setPlayer(updatedPlayer);
+    setSelectedAvatar(avatarId);
+    setShowAvatarModal(false);
+
+    try {
+      await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(updatedPlayer));
+    } catch (e) {
+      console.warn('[Profile] Error saving avatar locally:', e);
+    }
+
+    if (socket && socket.connected) {
+      socket.emit('update_avatar', { playerId: player.id, avatar: avatarId });
+    }
+
+    Alert.alert('Başarılı! 🎉', 'Profil avatarın başarıyla güncellendi.');
   };
 
   const handleAuth = () => {
@@ -293,11 +312,20 @@ export default function ProfileScreen({ navigation }: Props) {
           {isLoggedIn && player ? (
             // LOGGED IN VIEW
             <View style={styles.profileContainer}>
-              <View style={{ marginBottom: 12 }}>
-                <UserAvatar avatar={player.avatar} size={72} />
+              <View style={{ marginBottom: 6, alignItems: 'center' }}>
+                <UserAvatar avatar={player.avatar} size={84} showBadge />
               </View>
+
+              <TouchableOpacity 
+                style={styles.changeAvatarBtn} 
+                onPress={() => setShowAvatarModal(true)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="pencil-sharp" size={13} color="#00FF88" style={{ marginRight: 6 }} />
+                <Text style={styles.changeAvatarText}>AVATAR DEĞİŞTİR</Text>
+              </TouchableOpacity>
               
-              <Text style={styles.username}>{player.username}</Text>
+              <Text style={[styles.username, { marginTop: 8 }]}>{player.username}</Text>
               {player.email && <Text style={styles.emailText}>{player.email}</Text>}
               
               {/* League & KP Card */}
@@ -488,15 +516,22 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 {isRegisterMode && (
                   <View style={styles.avatarSelectionSection}>
-                    <Text style={styles.avatarSelectLabel}>Avatar Seçin:</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll}>
-                      {AVATARS.map(av => (
+                    <Text style={styles.avatarSelectLabel}>3D Rozet Avatar Seçin:</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll} contentContainerStyle={{ gap: 8 }}>
+                      {AVATAR_OPTIONS.map(opt => (
                         <TouchableOpacity 
-                          key={av} 
-                          style={[styles.avatarSelector, selectedAvatar === av && styles.avatarSelectorActive]}
-                          onPress={() => setSelectedAvatar(av)}
+                          key={opt.id} 
+                          style={[
+                            styles.avatarSelectorCard,
+                            selectedAvatar === opt.id && { borderColor: opt.borderColor, backgroundColor: `${opt.borderColor}25` }
+                          ]}
+                          onPress={() => setSelectedAvatar(opt.id)}
+                          activeOpacity={0.8}
                         >
-                          <Text style={styles.avatarSelectorText}>{av}</Text>
+                          <UserAvatar avatar={opt.id} size={42} />
+                          <Text style={[styles.avatarSelectorName, selectedAvatar === opt.id && { color: opt.borderColor }]}>
+                            {opt.name}
+                          </Text>
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
@@ -535,6 +570,56 @@ export default function ProfileScreen({ navigation }: Props) {
             )
           }
         </ScrollView>
+
+        {/* AVATAR SELECTION MODAL */}
+        <Modal
+          visible={showAvatarModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowAvatarModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="sparkles" size={20} color="#00FF88" style={{ marginRight: 8 }} />
+                  <Text style={styles.modalTitle}>AVATAR SEÇ</Text>
+                </View>
+                <TouchableOpacity onPress={() => setShowAvatarModal(false)} style={styles.modalCloseBtn}>
+                  <Ionicons name="close" size={22} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.modalSubtitle}>Profilinde gösterilecek 3D gaming avatarını seç:</Text>
+
+              <ScrollView contentContainerStyle={styles.avatarGridContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.avatarGrid}>
+                  {AVATAR_OPTIONS.map((opt) => {
+                    const isSelected = player?.avatar === opt.id || getAvatarOption(player?.avatar).id === opt.id;
+                    return (
+                      <TouchableOpacity
+                        key={opt.id}
+                        style={[
+                          styles.avatarGridCard,
+                          { borderColor: isSelected ? opt.borderColor : 'rgba(255,255,255,0.12)' },
+                          isSelected && { backgroundColor: `${opt.borderColor}25` }
+                        ]}
+                        onPress={() => handleSelectAvatar(opt.id)}
+                        activeOpacity={0.8}
+                      >
+                        <UserAvatar avatar={opt.id} size={48} showBadge />
+                        <Text style={[styles.avatarGridName, { color: isSelected ? opt.borderColor : '#FFF' }]}>
+                          {opt.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
         <BottomNavBar activeTab="profile" navigation={navigation} />
       </SafeAreaView>
     </ImageBackground>
@@ -887,5 +972,100 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Poppins_600SemiBold',
     textDecorationLine: 'underline',
+  },
+  changeAvatarBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#00FF88',
+    backgroundColor: 'rgba(0, 255, 136, 0.12)',
+    marginTop: 4,
+  },
+  changeAvatarText: {
+    fontSize: 11,
+    fontFamily: 'Poppins_700Bold',
+    color: '#00FF88',
+    letterSpacing: 0.5,
+  },
+  avatarSelectorCard: {
+    padding: 8,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(5, 11, 20, 0.75)',
+    alignItems: 'center',
+    width: 84,
+  },
+  avatarSelectorName: {
+    fontSize: 10,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#FFF',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#0F172A',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 136, 0.3)',
+    padding: 20,
+    maxHeight: '75%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins_900Black',
+    color: '#00FF88',
+    letterSpacing: 1,
+  },
+  modalCloseBtn: {
+    padding: 6,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 16,
+  },
+  avatarGridContainer: {
+    paddingBottom: 30,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  avatarGridCard: {
+    width: '30%',
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarGridName: {
+    fontSize: 11,
+    fontFamily: 'Poppins_700Bold',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
