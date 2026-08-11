@@ -42,7 +42,8 @@ export default function HomeScreen() {
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+  // Balanced top padding for Android header title
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 12) : 14;
 
   useFocusEffect(
     useCallback(() => {
@@ -81,8 +82,12 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* CATEGORIES LIST SCROLLVIEW */}
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.categoriesContainer} showsVerticalScrollIndicator={false}>
+        {/* CATEGORIES LIST SCROLLVIEW - Centered vertically for balanced top/bottom gaps */}
+        <ScrollView 
+          style={{ flex: 1 }} 
+          contentContainerStyle={styles.categoriesContainer} 
+          showsVerticalScrollIndicator={false}
+        >
           {CATEGORIES.map((cat) => (
             <TouchableOpacity 
               key={cat.id} 
@@ -151,8 +156,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 10,
-    marginBottom: 20,
+    marginBottom: 8,
   },
   iconButton: {
     width: 40,
@@ -174,9 +178,11 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 50,
-    gap: 16,
+    paddingTop: 12,
+    paddingBottom: 24,
+    gap: 22,
   },
   categoryCard: {
     borderRadius: 24,
@@ -191,7 +197,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    paddingVertical: 18,
+    paddingVertical: 20,
   },
   iconContainerClean: {
     width: 68,
@@ -232,45 +238,6 @@ const styles = StyleSheet.create({
   },
   modlarText: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 10,
-  },
-  tournamentBanner: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  tournamentText: {
-    color: '#FFF',
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 14,
-  },
-  oynaBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  oynaText: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 14,
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 12,
-    backgroundColor: 'rgba(5,10,20,0.95)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
-  },
-  tabItem: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  tabText: {
-    color: '#888',
-    fontFamily: 'Poppins_400Regular',
     fontSize: 10,
   }
 });
