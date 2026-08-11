@@ -695,19 +695,20 @@ io.on('connection', (socket) => {
     }
     room.passVotes.add(socket.id);
 
-    const activeSockets = io.sockets.adapter.rooms.get(roomId);
-    const activeCount = activeSockets ? activeSockets.size : room.players.length;
+    // Count votes specifically from active room players
+    const activePlayers = room.players || [];
+    const validVotesCount = activePlayers.filter(p => room.passVotes.has(p.id)).length;
+    const requiredVotes = Math.max(1, activePlayers.length);
 
-    const votesCount = room.passVotes.size;
-    const requiredVotes = Math.max(1, activeCount);
+    console.log(`[PassRound] Room ${roomId}: ${validVotesCount}/${requiredVotes} votes (by socket ${socket.id})`);
 
     io.to(roomId).emit('pass_update', {
-      votesCount,
+      votesCount: validVotesCount,
       totalPlayers: requiredVotes,
       voterId: socket.id
     });
 
-    if (votesCount >= requiredVotes) {
+    if (validVotesCount >= requiredVotes) {
       room.roundActive = false;
       room.isPaused = false;
       room.guessingPlayerId = null;
@@ -724,7 +725,7 @@ io.on('connection', (socket) => {
 
       setTimeout(() => {
         startRound(roomId);
-      }, 4000);
+      }, 3000);
     }
   });
 
