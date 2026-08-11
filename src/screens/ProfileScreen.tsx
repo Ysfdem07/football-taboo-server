@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { LeagueBadge } from '../components/LeagueBadge';
+import { UserAvatar } from '../components/UserAvatar';
 import { Analytics } from '../services/analytics';
 
 type Props = {
@@ -292,8 +293,8 @@ export default function ProfileScreen({ navigation }: Props) {
           {isLoggedIn && player ? (
             // LOGGED IN VIEW
             <View style={styles.profileContainer}>
-              <View style={styles.avatarCircle}>
-                <Text style={styles.avatarEmoji}>{player.avatar || '⚽'}</Text>
+              <View style={{ marginBottom: 12 }}>
+                <UserAvatar avatar={player.avatar} size={72} />
               </View>
               
               <Text style={styles.username}>{player.username}</Text>
