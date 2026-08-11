@@ -279,12 +279,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     onPress={findMatch}
                     activeOpacity={0.8}
                   >
-                    <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                      <LinearGradient colors={['rgba(0,191,255,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                    <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 16, overflow: 'hidden', backgroundColor: 'rgba(5, 11, 20, 0.75)' }}>
+                      <LinearGradient colors={['rgba(0,191,255,0.35)', 'rgba(5,11,20,0.85)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
                       <Ionicons name="flash" size={subIconSize * 0.8} color="#00BFFF" style={{ marginBottom: 8 }} />
                       <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>1v1 HIZLI</Text>
                       <Text style={[styles.subCardSub, { color: '#fff' }]}>EŞLEŞME</Text>
-                    </BlurView>
+                    </View>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -292,12 +292,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     onPress={() => createRoom(true)}
                     activeOpacity={0.8}
                   >
-                    <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                      <LinearGradient colors={['rgba(0,255,136,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                    <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 16, overflow: 'hidden', backgroundColor: 'rgba(5, 11, 20, 0.75)' }}>
+                      <LinearGradient colors={['rgba(0,255,136,0.35)', 'rgba(5,11,20,0.85)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
                       <Ionicons name="add-circle" size={subIconSize * 0.8} color="#00FF88" style={{ marginBottom: 8 }} />
                       <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODA KUR</Text>
                       <Text style={[styles.subCardSub, { color: '#fff' }]}>DERECELİ</Text>
-                    </BlurView>
+                    </View>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -305,12 +305,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     onPress={() => setShowJoinInput(true)}
                     activeOpacity={0.8}
                   >
-                    <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                      <LinearGradient colors={['rgba(168,85,247,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                    <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 16, overflow: 'hidden', backgroundColor: 'rgba(5, 11, 20, 0.75)' }}>
+                      <LinearGradient colors={['rgba(168,85,247,0.35)', 'rgba(5,11,20,0.85)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
                       <Ionicons name="enter" size={subIconSize * 0.8} color="#A855F7" style={{ marginBottom: 8 }} />
                       <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODAYA</Text>
                       <Text style={[styles.subCardSub, { color: '#fff' }]}>KATIL</Text>
-                    </BlurView>
+                    </View>
                   </TouchableOpacity>
                 </View>
               </>
@@ -338,12 +338,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       onPress={findMatch}
                       activeOpacity={0.8}
                     >
-                      <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                        <LinearGradient colors={['rgba(0,191,255,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 16, overflow: 'hidden', backgroundColor: 'rgba(5, 11, 20, 0.75)' }}>
+                        <LinearGradient colors={['rgba(0,191,255,0.35)', 'rgba(5,11,20,0.85)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
                         <Ionicons name="flash" size={subIconSize * 0.8} color="#00BFFF" style={{ marginBottom: 8 }} />
                         <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>1v1 HIZLI</Text>
                         <Text style={[styles.subCardSub, { color: '#fff' }]}>EŞLEŞME</Text>
-                      </BlurView>
+                      </View>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -351,12 +351,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       onPress={() => setShowFriendlyRoomSettings(true)}
                       activeOpacity={0.8}
                     >
-                      <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                        <LinearGradient colors={['rgba(0,255,136,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 16, overflow: 'hidden', backgroundColor: 'rgba(5, 11, 20, 0.75)' }}>
+                        <LinearGradient colors={['rgba(0,255,136,0.35)', 'rgba(5,11,20,0.85)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
                         <Ionicons name="add-circle" size={subIconSize * 0.8} color="#00FF88" style={{ marginBottom: 8 }} />
                         <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODA KUR</Text>
                         <Text style={[styles.subCardSub, { color: '#fff' }]}>DOSTLUK</Text>
-                      </BlurView>
+                      </View>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -364,12 +364,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       onPress={() => setShowJoinInput(true)}
                       activeOpacity={0.8}
                     >
-                      <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                        <LinearGradient colors={['rgba(168,85,247,0.3)', 'rgba(0,0,0,0.6)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', borderRadius: 16, overflow: 'hidden', backgroundColor: 'rgba(5, 11, 20, 0.75)' }}>
+                        <LinearGradient colors={['rgba(168,85,247,0.35)', 'rgba(5,11,20,0.85)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
                         <Ionicons name="enter" size={subIconSize * 0.8} color="#A855F7" style={{ marginBottom: 8 }} />
                         <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODAYA</Text>
                         <Text style={[styles.subCardSub, { color: '#fff' }]}>KATIL</Text>
-                      </BlurView>
+                      </View>
                     </TouchableOpacity>
                   </View>
                 ) : (

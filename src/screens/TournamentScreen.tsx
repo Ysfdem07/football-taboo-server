@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
-  ImageBackground, SafeAreaView, ActivityIndicator, Alert
+  ImageBackground, SafeAreaView, ActivityIndicator, Alert, Platform, StatusBar
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { BannerAdComponent, showRewarded } from '../services/ads';
@@ -173,6 +174,9 @@ export default function TournamentScreen() {
     };
   };
 
+  const insets = useSafeAreaInsets();
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+
   const status = getStatusInfo();
 
   return (
@@ -180,7 +184,7 @@ export default function TournamentScreen() {
       <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: topPadding }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Ionicons name="arrow-back-outline" size={20} color={NEON_GREEN} />
           </TouchableOpacity>

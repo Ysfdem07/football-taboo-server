@@ -84,7 +84,7 @@ export default function HomeScreen() {
         {/* CATEGORIES LIST SCROLLVIEW */}
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.categoriesContainer} showsVerticalScrollIndicator={false}>
           {CATEGORIES.map((cat) => (
-            <BlurView intensity={40} tint="dark" key={cat.id} style={[styles.categoryCard, { borderColor: cat.color, shadowColor: cat.color }]}>
+            <View key={cat.id} style={[styles.categoryCard, { borderColor: cat.color, shadowColor: cat.color, backgroundColor: 'rgba(5, 11, 20, 0.75)' }]}>
               <LinearGradient
                 colors={[`${cat.color}30`, 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.85)']}
                 start={{ x: 0, y: 0 }}
@@ -136,7 +136,7 @@ export default function HomeScreen() {
                   <Ionicons name="play" size={16} color={cat.color} />
                 </View>
               </TouchableOpacity>
-            </BlurView>
+            </View>
           ))}
         </ScrollView>
 

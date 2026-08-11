@@ -10,6 +10,7 @@ import { getLeagueForKp } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
+import { LeagueBadge } from '../components/LeagueBadge';
 import { Analytics } from '../services/analytics';
 
 type Props = {
@@ -300,7 +301,9 @@ export default function ProfileScreen({ navigation }: Props) {
               
               {/* League & KP Card */}
               <View style={styles.leagueCard}>
-                <Text style={styles.leagueIcon}>{league.icon}</Text>
+                <View style={{ marginBottom: 8 }}>
+                  <LeagueBadge league={league} size="large" />
+                </View>
                 <Text style={[styles.leagueName, { color: league.color }]}>{league.name}</Text>
                 <Text style={styles.kpText}>{player.kp} KP</Text>
                 

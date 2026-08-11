@@ -13,6 +13,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
+import { LeagueBadge } from '../components/LeagueBadge';
 import { Analytics } from '../services/analytics';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
@@ -114,9 +115,12 @@ export default function LeaderboardScreen() {
           <Text style={styles.avatarEmoji}>{item.avatar || '⚽'}</Text>
           <View style={styles.playerInfo}>
             <Text style={styles.username}>{item.username}</Text>
-            <Text style={[styles.leagueLabel, { color: league.color }]}>
-              {league.icon} {league.name}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2, gap: 6 }}>
+              <LeagueBadge league={league} size="small" />
+              <Text style={[styles.leagueLabel, { color: league.color }]}>
+                {league.name}
+              </Text>
+            </View>
           </View>
         </View>
         <View style={styles.itemRight}>
