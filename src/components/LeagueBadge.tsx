@@ -18,7 +18,7 @@ export const LeagueBadge: React.FC<LeagueBadgeProps> = ({
   const isSmall = size === 'small';
   const isLarge = size === 'large';
 
-  const badgeSize = isSmall ? 40 : isLarge ? 72 : 54;
+  const badgeSize = isSmall ? 38 : isLarge ? 72 : 52;
   const imageSize = badgeSize - 4;
   const logoSource = getLeagueLogo(categoryId, league.id);
 
