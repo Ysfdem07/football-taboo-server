@@ -1,0 +1,251 @@
+Ana Kelime / Hedef	Yasaklı 1	Yasaklı 2	Yasaklı 3	Yasaklı 4	Yasaklı 5
+Prens	Giray Altınok	Bongomia	Krallık	Komedi	BluTV
+Gibi	Feyyaz Yiğit	Yılmaz	İlkkan	Ersoy	Exxen
+Şahsiyet	Haluk Bilginer	Agah Beyoğlu	Unutkanlık	Köpek	Polis
+Kulüp	Gökçe Bahadır	Salih Bademci	Seferad	Gazino	İstanbul
+Bir Başkadır	Öykü Karayel	Meryem	Psikolog	Netflix	Berkun Oya
+Masum	Haluk Bilginer	Ali Atay	Polis	Çiftlik	BluTV
+Cinayet Süsü	Ali Atay	Feyyaz Yiğit	Polis	Seri Katil	Cinayet
+Kuru Otlar Üstüne	Nuri Bilge Ceylan	Merve Dizdar	Erzurum	Öğretmen	Kar
+Bizim İçin Şampiyon	Bold Pilot	Ekin Koç	Farah Zeynep	At	Jokey
+Aşk 101	Alina Boz	Mert Yazıcıoğlu	Işık	Sinan	90'lar
+Erşan Kuneri	Cem Yılmaz	Zafer Algöz	Ezgi Mola	70'ler	Netflix
+Sıcak Kafa	Osman Sonant	Salgın	Abuklama	Şapka	Netflix
+Kübra	Çağatay Ulusoy	Gökhan	Mesaj	Allah	Netflix
+Şahmaran	Serenay Sarıkaya	Burak Deniz	Yılan	Adana	Netflix
+Fatma	Burcu Biricik	Temizlikçi	Cinayet	Koca	Netflix
+Yakamoz S-245	Kıvanç Tatlıtuğ	Denizaltı	Güneş	Sığınak	Netflix
+Terzi	Çağatay Ulusoy	Salih Bademci	Peyami	Esvet	Netflix
+Zeytin Ağacı	Tuba Büyüküstün	Seda Bakan	Aile Dizimi	Ayvalık	Netflix
+Kuş Uçuşu	Birce Akalay	Miray Daner	Aslı	Lale	Televizyon
+Güneşin Oğlu	Haluk Bilginer	Özkan Uğur	Ruh	Güneş	Komedi
+Bihter	Aşk-ı Memnu	Farah Zeynep	Behlül	Adnan	Yalı
+Pek Yakında	Cem Yılmaz	Zafer	Korsan DVD	Film	Yeşilçam
+Kelebeğin Rüyası	Yılmaz Erdoğan	Kıvanç Tatlıtuğ	Şiir	Zonguldak	Verem
+Vizontele Tuuba	Yılmaz Erdoğan	Tuba Ünsal	Devrim	Kütüphane	Vizontele
+Ahlat Ağacı	Nuri Bilge Ceylan	Doğu Demirkol	Yazar	Çanakkale	Kuyu
+Kış Uykusu	Nuri Bilge Ceylan	Haluk Bilginer	Kapadokya	Otel	Altın Palmiye
+Bir Zamanlar Anadolu'da	Nuri Bilge Ceylan	Ceset	Savcı	Doktor	Bozkır
+Uzak	Nuri Bilge Ceylan	Muzaffer Özdemir	Emin Toprak	Kar	İstanbul
+Euphoria	Zendaya	Gençlik	Lise	HBO	Makyaj
+The Mandalorian	Baby Yoda	Star Wars	Kask	Bounty Hunter	Disney+
+Chernobyl	Nükleer	Radyasyon	Santral	Ukrayna	Patlama
+The Crown	Kraliçe Elizabeth	İngiltere	Kraliyet	Saray	Netflix
+Westworld	Robot	Park	Kovboy	Yapay Zeka	HBO
+Better Call Saul	Bob Odenkirk	Avukat	Breaking Bad	Jimmy McGill	Albuquerque
+Homeland	Claire Danes	CIA	Terör	Ajan	Bipolar
+Downton Abbey	İngiltere	Malikane	Hizmetçi	Dük	Aristokrasi
+Twin Peaks	David Lynch	Laura Palmer	Kahve	Kirazlı Pasta	Kasaba
+Fleabag	Phoebe Waller-Bridge	Karakter	Rahip	Londra	Komedi
+Yellowstone	Kevin Costner	Ranç	Kovboy	Montana	Dizi
+Reacher	Alan Ritchson	Kaslı	Askeri Polis	Dev	Amazon
+The Witcher	Henry Cavill	Geralt	Canavar	Mutant	Netflix
+Loki	Tom Hiddleston	TVA	Zaman	Multiverse	Marvel
+Shōgun	Japonya	Samuray	Derebeyi	FX	Kılıç
+Fallout	Sığınak	Nükleer	Kıyamet	Vault 33	Amazon
+Bridgerton	İngiltere	Saray	Balo	Kraliçe	Netflix
+Beef	Steven Yeun	Ali Wong	Yol Öfkesi	Kavga	Netflix
+Abbott Elementary	Okul	Öğretmen	Quinta Brunson	Filadelfiya	Komedi
+Only Murders in the Building	Steve Martin	Martin Short	Selena Gomez	Podcast	Apartman
+The Diplomat	Keri Russell	Elçi	Londra	Politika	Netflix
+The Gentleman	Guy Ritchie	Kenevir	İngiliz	Dük	Netflix
+Baby Reindeer	Richard Gadd	Stalker	Martha	Bira	Netflix
+3 Body Problem	Uzaylı	Fizik	Çin	Kule	Netflix
+Memories of Murder	Bong Joon-ho	Güney Kore	Seri Katil	Dedektif	Cinayet
+Oldboy	Park Chan-wook	İntikam	Çekiç	Hapis	Güney Kore
+Snatch	Guy Ritchie	Brad Pitt	Boksör	Elmas	Londra
+American Psycho	Christian Bale	Patrick Bateman	Baltalı	Kart	Wall Street
+L.A. Confidential	Los Angeles	Polis	Dedektif	Russell Crowe	Kim Basinger
+The Usual Suspects	Keyser Söze	Kevin Spacey	Sorgu	Liman	Şüpheliler
+Unforgiven	Clint Eastwood	Kovboy	Şerif	İntikam	Western
+Do the Right Thing	Spike Lee	Sıcak	Pizzacı	Brooklyn	Irkçılık
+Cinema Paradiso	İtalya	Projeksiyon	Sinema	Ennio Morricone	Çocukluk
+Full Metal Jacket	Stanley Kubrick	Vietnam	Çavuş	Asker	Kask
+Platoon	Oliver Stone	Vietnam Savaşı	Asker	Willem Dafoe	Orman
+The Thing	Kurt Russell	Antarktika	Yaratık	Buzul	Korku
+Raging Bull	Robert De Niro	Boksör	Jake LaMotta	Scorsese	Siyah Beyaz
+Zone of Interest	Auschwitz	Nazi	Ses	Bahçe	Oscar
+Past Lives	Kore	Çocukluk	Aşk	New York	Kader
+Across the Spider-Verse	Miles Morales	Multiverse	Animasyon	Gwen	Spider-Cat
+Guillermo del Toro's Pinocchio	Tahta	Kukla	İtalya	Stop Motion	Oscar
+Tár	Cate Blanchett	Orkestra	Şef	Almanya	Müzik
+The Fabelmans	Steven Spielberg	Kamera	Çocukluk	Sinema	Aile
+Banshees of Inisherin	Colin Farrell	Brendan Gleeson	İrlanda	Parmak	Dostluk
+CODA	İşitme Engelli	Müzik	Şarkı	Balıkçı	Oscar
+Drive My Car	Japonya	Kırmızı Araba	Şoför	Tiyatro	Oscar
+Minari	Yuh-Jung Youn	Kore	Çiftlik	Büyükanne	Amerika
+Nomadland	Frances McDormand	Chloé Zhao	Karavan	Geçe	Oscar
+Promising Young Woman	Carey Mulligan	İntikam	Doktor	Pembe	Oscar
+A Clockwork Orange	Stanley Kubrick	Alex	Süt	Şiddet	Göz
+The Shining	Jack Nicholson	Hotel	Balta	Stanley Kubrick	Cinnet
+The Artist	Siyah Beyaz	Sessiz Film	Fransa	Köpek	Oscar
+The King's Speech	Colin Firth	Kral	Kekeme	Konuşma	İngiltere
+The Hurt Locker	Bomba	Irak	Kathryn Bigelow	Jeremy Renner	İmha
+Slumdog Millionaire	Hindistan	Yarışma	Milyoner	Jamal	Dev Patel
+Million Dollar Baby	Clint Eastwood	Hilary Swank	Boks	Kız	Nakavt
+A Beautiful Mind	Russell Crowe	John Nash	Şizofreni	Matematik	Nobel
+American Beauty	Kevin Spacey	Gül	Komşu	Sam Mendes	Oscar
+Shakespeare in Love	Gwyneth Paltrow	Tiyatro	Şair	İngiltere	Aşk
+Dances with Wolves	Kevin Costner	Kızılderili	Kurt	At	Ordu
+Driving Miss Daisy	Morgan Freeman	Şoför	Yaslı Kadın	Dostluk	Amerika
+Rain Man	Tom Cruise	Dustin Hoffman	Otizm	Kumarhane	Kardeş
+The Last Emperor	Çin	İmparator	Bernardo Bertolucci	Yasak Şehir	Saray
+Out of Africa	Meryl Streep	Robert Redford	Afrika	Kahve	Aşk
+Terms of Endearment	Shirley MacLaine	Debra Winger	Anne Kız	Kanser	Gözyaşı
+Gandhi	Ben Kingsley	Hindistan	Açlık Grevi	Barış	Tuz
+Chariots of Fire	Koşu	Olimpiyat	Müzik	Vangelis	İngiltere
+Ordinary People	Robert Redford	Aile	Trajedi	Psikolog	Kardeş
+Kramer vs. Kramer	Dustin Hoffman	Meryl Streep	Boşanma	Çocuk	Velayet
+The Deer Hunter	Robert De Niro	Vietnam	Rus Ruleti	Düğün	Geyik
+One Flew Over the Cuckoo's Nest	Jack Nicholson	Akıl Hastanesi	Hemşire Ratched	Guguk Kuşu	Deli
+Pedro Almodóvar	Yönetmen	İspanya	Kadınlar	Kırmızı	Melodram
+Wong Kar-wai	Yönetmen	In the Mood for Love	Hong Kong	Müzik	Yavaş Çekim
+Denzel Washington	Oyuncu	Training Day	Malcolm X	Equalizer	Oscar
+Cate Blanchett	Oyuncu	Tár	Carol	Lord of the Rings	Oscar
+Timothée Chalamet	Oyuncu	Dune	Wonka	Call Me By Your Name	Fransız
+Andrew Scott	Oyuncu	Fleabag	Sherlock	Ripley	Moriarty
+Stellan Skarsgård	Oyuncu	Dune	Chernobyl	Mamma Mia	İsveç
+Alexander Skarsgård	Oyuncu	Northman	Succession	True Blood	İsveç
+Bill Skarsgård	Oyuncu	IT	Pennywise	John Wick 4	İsveç
+Willem Dafoe	Oyuncu	Poor Things	Spider-Man	Platoon	Yüz
+J.K. Simmons	Oyuncu	Whiplash	Spider-Man	Oz	Oscar
+Christoph Waltz	Oyuncu	Inglourious Basterds	Django	Tarantino	Oscar
+Javier Bardem	Oyuncu	No Country for Old Men	Dune	Skyfall	İspanya
+Daniel Day-Lewis	Oyuncu	There Will Be Blood	Lincoln	Gangs of New York	3 Oscar
+Colin Firth	Oyuncu	King's Speech	Kingsman	Pride and Prejudice	Oscar
+Ralph Fiennes	Oyuncu	Voldemort	Schindler's List	Grand Budapest	İngiliz
+Ian McKellen	Oyuncu	Gandalf	Magneto	Lord of the Rings	Tiyatro
+Patrick Stewart	Oyuncu	Profösör X	Star Trek	X-Men	Kaptan
+Jeff Bridges	Oyuncu	Big Lebowski	Crazy Heart	Tron	Dude
+Nicolas Cage	Oyuncu	Face/Off	Con Air	National Treasure	Oscar
+John Travolta	Oyuncu	Pulp Fiction	Grease	Face/Off	Dans
+Ethan Hawke	Oyuncu	Before Sunrise	Training Day	Boyhood	Gözlük
+Michael Fassbender	Oyuncu	X-Men	Magneto	Shame	Steve Jobs
+Oscar Isaac	Oyuncu	Dune	Ex Machina	Moon Knight	Star Wars
+Dev Patel	Oyuncu	Slumdog Millionaire	Green Knight	Lion	İngiliz
+Riz Ahmed	Oyuncu	Sound of Metal	Nightcrawler	Rogue One	Rap
+Mahershala Ali	Oyuncu	Moonlight	Green Book	True Detective	2 Oscar
+Sterling K. Brown	Oyuncu	This Is Us	Black Panther	American Fiction	Emmy
+Carey Mulligan	Oyuncu	Promising Young Woman	Drive	Maestro	İngiliz
+Keira Knightley	Oyuncu	Pirates of the Caribbean	Pride and Prejudice	Imitation Game	İngiliz
+Marion Cotillard	Oyuncu	La Vie en Rose	Inception	Dark Knight Rises	Fransa
+Léa Seydoux	Oyuncu	Blue Is the Warmest Color	James Bond	Dune 2	Fransa
+Eva Green	Oyuncu	Casino Royale	Penny Dreadful	Dreamers	Fransa
+Monica Bellucci	Oyuncu	Malèna	Matrix	İtalya	Güzellik
+Penélope Cruz	Oyuncu	Vicky Cristina Barcelona	Volver	İspanya	Oscar
+Salma Hayek	Oyuncu	Frida	Desperado	Eternals	Meksika
+Güneşin Kızları	Hande Erçel	Burcu Özberk	Ali	Selim	Dizi
+Sen Çal Kapımı	Hande Erçel	Kerem Bürsin	Eda	Serkan	Çiçekçi
+Kuzgun	Barış Arduç	Burcu Biricik	İntikam	Polis	Dizi
+Biz Kimseden Korkmayız	Şener Şen	Zeki Alasya	Metin Akpınar	Yeşilçam	Klasik
+Şekerpare	İlyas Salman	Şener Şen	Komiser Rıza	Ziver	Ağa
+Kibar Feyzo	Kemal Sunal	Müjde Ar	Şener Şen	Maho Ağa	Başlık Parası
+Hababam Sınıfı	Kemal Sunal	Tarık Akan	Münir Özkul	İnek Şaban	Mahmut Hoca
+Bizim Aile	Münir Özkul	Adile Naşit	Tarık Akan	Yaşar Usta	Turşu
+Neşeli Günler	Münir Özkul	Adile Naşit	Oya Aydoğan	Sirke	Limon
+Gülen Gözler	Münir Özkul	Adile Naşit	Şener Şen	Vecihi	Uçak
+Çöpçüler Kralı	Kemal Sunal	Şener Şen	Apti	Park	Zabıta
+Kapıcılar Kralı	Kemal Sunal	Seyit	Apartman	Daire	Çöp
+Davaro	Kemal Sunal	Şener Şen	Hıdo	Sülo	Eşkıya
+Korkusuz Korkak	Kemal Sunal	Bombacı Mülayim	Gaddar Kerim	Doktor	Lades
+Sakar Şakir	Kemal Sunal	Marmara Kazım	Gardrop Fuat	Şerbetçi	Otobüs
+Yedi Bela Hüsnü	Kemal Sunal	Oya Aydoğan	Şevket	Cemal	Mahalle
+Propaganda	Kemal Sunal	Sinan Çetin	Sınır	Gümrük	Tel
+Zübük	Kemal Sunal	Aziz Nesin	Milletvekili	Politika	Yalan
+Köyden İndim Şehire	Kemal Sunal	Zeki Alasya	Metin Akpınar	Altın	Ankara
+Salak Milyoner	Kemal Sunal	Zeki Alasya	Metin Akpınar	Define	İstanbul
+Mavi Boncuk	Emel Sayın	Tarık Akan	Kemal Sunal	Halı	Gazino
+Yalancı Yarim	Tarık Akan	Türkan Şoray	Pazarcı	Zengin	Yeşilçam
+Ah Nerede	Tarık Akan	Gülşen Bubikoğlu	Çapkın	Kardeşler	İstanbul
+Gırgırıye	Gülşen Bubikoğlu	Müjdat Gezen	Roman	Sulukule	Klarnet
+Sultan	Türkan Şoray	Bülent Kayabaş	Dolmuşçu	Mahalle	Minibüs
+Devlerin Aşkı	Türkan Şoray	Kadir İnanır	Holding	Aşk	Yeşilçam
+Selvi Boylum Al Yazmalım	Kadir İnanır	Türkan Şoray	İlyas	Asya	Kamyon
+Dila Hanım	Kadir İnanır	Türkan Şoray	Karadağlı Rıza	Ağa	Arazi
+Tatar Ramazan	Kadir İnanır	Hapishane	Koğuş	Bıçak	Korkmuyorum
+Kabadayı	Şener Şen	Kenan İmirzalıoğlu	Ali Sürmeli	Racon	Beyoğlu
+Eşkıya	Şener Şen	Uğur Yücel	Baran	Cumali	Hapse
+Gönül Yarası	Şener Şen	Meltem Cumbul	Timuçin Esen	Taksi	Öğretmen
+Av Mevsimi	Şener Şen	Cem Yılmaz	Çetin Tekindor	Cinayet	Polis
+Hacivat Karagöz Neden Öldürüldü?	Haluk Bilginer	Beyazıt Öztürk	Ezel Akay	Bursa	Osmanlı
+Neredesin Firuze	Haluk Bilginer	Özkan Uğur	Cem Özer	Kaset	Şarkıcı
+7 Kocalı Hürmüz	Nurgül Yeşilçay	Gülse Birsel	Ezel Akay	Kadın	Osmanlı
+Organize İşler	Yılmaz Erdoğan	Tolga Çevik	Cem Yılmaz	Oto Hırsızı	Dayak
+Organize İşler Sazan Sarmalı	Yılmaz Erdoğan	Kıvanç Tatlıtuğ	Sarı Saruhan	Dolandırıcı	İstanbul
+Karakomik Filmler	Cem Yılmaz	Kaçamak	2 Arada	Deli	Sinema
+Arif v 216	Cem Yılmaz	Ozan Güven	Seda Bakan	Robot 216	Yeşilçam
+Çalgı Çengi	Ahmet Kural	Murat Cemcir	Düğün	Müzisyen	Cinayet
+Düğün Dernek	Ahmet Kural	Murat Cemcir	Sivas	Tüpçü Fikret	Halay
+Ayna	Andrei Tarkovsky	Rusya	Şiir	Hafıza	Köy
+Stalker	Andrei Tarkovsky	Bölge	Dilek Oda	Rehber	Bilim Kurgu
+Solaris	Andrei Tarkovsky	Uzay İstasyonu	Okyanus	Hafıza	Rusya
+Persona	Ingmar Bergman	Bibi Andersson	Liv Ullmann	Hemşire	Dilsiz
+The Seventh Seal	Ingmar Bergman	Ölüm	Satranç	Şövalye	Veba
+Wild Strawberries	Ingmar Bergman	Victor Sjöström	Araba Yolculuğu	Rüya	Profesör
+Rashomon	Akira Kurosawa	Toshiro Mifune	Orman	Mahkeme	Gerçek
+Seven Samurai	Akira Kurosawa	Samuray	Köy	Haydut	Japonya
+Ran	Akira Kurosawa	Kral Lear	Kalede	Oğullar	Savaş
+Tokyo Story	Yasujirō Ozu	Anne Baba	Tokyo	Çocuklar	Japonya
+In the Mood for Love	Wong Kar-wai	Maggie Cheung	Tony Leung	Hong Kong	Elbise
+Chungking Express	Wong Kar-wai	Ananas	Polis	Hong Kong	Müzik
+Farewell My Concubine	Chen Kaige	Pekin Operası	Çin	Aktör	Tarih
+Crouching Tiger, Hidden Dragon	Ang Lee	Chow Yun-fat	Michelle Yeoh	Kılıç	Uçan
+Lust, Caution	Ang Lee	Tony Leung	Casus	Şanghay	Aşk
+The Great Beauty	Paolo Sorrentino	Roma	Parti	Yazar	Oscar
+Youth	Paolo Sorrentino	Michael Caine	Harvey Keitel	Alpler	Otel
+Amélie	Audrey Tautou	Paris	Kırmızı	Fotoğraf	İyilik
+La Haine	Vincent Cassel	Paris	Polis	Silah	Siyah Beyaz
+The Intouchables	Omar Sy	François Cluzet	Tekerlekli Sandalye	Bakıcı	Fransa
+Portrait of a Lady on Fire	Noémie Merlant	Adèle Haenel	Ressam	Ada	Fransa
+Blue Is the Warmest Color	Adèle Exarchopoulos	Léa Seydoux	Mavi Saç	Resim	Fransa
+Spirited Away	Hayao Miyazaki	Chihiro	Domuz	Hamam	Anime
+My Neighbor Totoro	Hayao Miyazaki	Orman	Otobüs Kedi	Kızlar	Anime
+Princess Mononoke	Hayao Miyazaki	Kurt	Orman Tanrısı	Demir	Anime
+Howl's Moving Castle	Hayao Miyazaki	Yürüyen Şato	Cadı	Ateş	Anime
+Your Name	Makoto Shinkai	Meteor	Rüya	Japonya	Anime
+Akira	Neo-Tokyo	Motosiklet	Katsuhiro Otomo	Telekinezi	Anime
+Ghost in the Shell	Motoko Kusanagi	Cyberpunk	Cyborg	Japonya	Anime
+Grave of the Fireflies	İkinci Dünya Savaşı	Kardeşler	Ateş Böceği	Ghibli	Japonya
+Suburbicon	George Clooney	Matt Damon	Julianne Moore	Coen	Mahalle
+The Nice Guys	Ryan Gosling	Russell Crowe	Dedektif	70'ler	Komedi
+The Banshees	Colin Farrell	İrlanda	Ada	Eşek	Bar
+Babylon	Margot Robbie	Brad Pitt	Damien Chazelle	Hollywood	Sessiz
+Licorice Pizza	Paul Thomas Anderson	70'ler	Alana Haim	Cooper Hoffman	Aşk
+Nightmare Alley	Guillermo del Toro	Bradley Cooper	Sirk	Zihin Okuma	Karnaval
+The Tragedy of Macbeth	Denzel Washington	Frances McDormand	Shakespeare	Coen	Siyah Beyaz
+West Side Story	Steven Spielberg	Müzikal	Çete	Dans	New York
+Belfast	Kenneth Branagh	Kuzey İrlanda	Çocukluk	Siyah Beyaz	Oscar
+C'mon C'mon	Joaquin Phoenix	Radyo	Yeğen	Siyah Beyaz	Ses
+Last Night in Soho	Edgar Wright	Anya Taylor-Joy	60'lar	Londra	Moda
+The French Dispatch	Wes Anderson	Gazete	Fransa	Bill Murray	Dergi
+Spencer	Kristen Stewart	Prenses Diana	Noel	Kraliyet	Saray
+Annette	Adam Driver	Marion Cotillard	Müzikal	Kukla	Cannes
+Pig	Nicolas Cage	Domuz	Trüf Mantarı	Aşçı	Portland
+Judas and the Black Messiah	Daniel Kaluuya	Black Panther	FBI	FBI	Oscar
+The Trial of the Chicago 7	Sacha Baron Cohen	Eddie Redmayne	Mahkeme	Darbe	60'lar
+The Sound of Metal	Riz Ahmed	Bateri	Sağır	İşitme Cihazı	Oscar
+Cannes Film Festivali	Altın Palmiye	Fransa	Kırmızı Halı	Jüri	Sinema
+Venedik Film Festivali	Altın Aslan	İtalya	Sinema	Kanal	Ödül
+Berlin Film Festivali	Altın Ayı	Almanya	Berlinale	Sinema	Ödül
+Akademi Ödülleri	Oscar	Heykelcik	Los Angeles	Kırmızı Halı	Sinema
+Sundance Film Festivali	Bağımsız Film	Utah	Robert Redford	Sinema	Festival
+Altın Portakal	Antalya	Film Festivali	Türkiye	Heykel	Sinema
+Yeşilçam	Türk Sineması	İstanbul	Beyoğlu	Eski	Siyah Beyaz
+Metot Oyunculuğu	Marlon Brando	De Niro	Daniel Day-Lewis	Karakter	Aktör
+MacGuffin	Alfred Hitchcock	Gizem	Sır	Çanta	Sinema
+Cliffhanger	Asılı Kalma	Heyecan	Son	Sezon	Televizyon
+Jump Scare	Korku	Ani	Ses	Sıçrama	Film
+Kuğu Şarkısı	Son Eser	Jübile	Aktör	Film	Sanat
+Cameo	Kısa Rol	Yönetmen	Stan Lee	Hitchcock	Görünme
+Plot Twist	Ters Köşe	Sürpriz	Son	Şok	Hikaye
+Spin-off	Yan Dizi	Karakter	Ayrı	Hikaye	Televizyon
+Prequel	Öncesi	Geçmiş	Hikaye	Başlangıç	Film
+Sequel	Devam Filmi	İkinci	Sonra	Karakterler	Seri
+Remake	Yeniden Çekim	Eski	Uyarlama	Yeni	Film
+Reboot	Yeniden Başlatma	Seri	Yeni	Karakter	Sinema
+Storyboard	Çizim	Sahneler	Plan	Yönetmen	Kamera
+CGI	Bilgisayar Efekti	Görsel	Yeşil Ekran	Animasyon	Grafik
+Dolly Zoom	Vertigo Efekti	Kamera	Hitchcock	Yakınlaşma	Arka Plan
+Bulmaca Kurgu	Memento	Inception	Zaman	Karmaşık	Film
+B Tipi Film	Düşük Bütçe	Korku	Kült	Ucuz	Sinema
+Mockumentary	Sahte Belgesel	The Office	Komedi	Kamera	Röportaj

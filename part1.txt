@@ -1,0 +1,128 @@
+Ana Kelime / Hedef	Yasaklı 1	Yasaklı 2	Yasaklı 3	Yasaklı 4	Yasaklı 5
+Barbie Film	Margot Robbie	Ryan Gosling	Pembe	Doll	Greta Gerwig
+1917 Savaş	Sam Mendes	Tek Çekim	Birinci Dünya Savaşı	Siper	Haberci
+The Irishman	Martin Scorsese	Robert De Niro	Al Pacino	Mafya	Jimmy Hoffa
+Whiplash Film	Bateri	Miles Teller	J.K. Simmons	Caz	Orkestra
+Her Film	Yapay Zeka	Joaquin Phoenix	Scarlett Johansson	Ses	Gelecek
+Gravity Film	Sandra Bullock	Uzay	Astronot	Alfonso Cuarón	Yerçekimi
+Life of Pi	Kaplan	Sandal	Okyanus	Yann Martel	Surviving
+Drive Film	Ryan Gosling	Sürücü	Akrep	Ceket	Los Angeles
+No Country for Old Men	Javier Bardem	Chigurh	Coen Kardeşler	Para	Çöl
+There Will Be Blood	Daniel Day-Lewis	Petrol	Paul Thomas Anderson	Hırs	Kuyu
+Pan's Labyrinth	Guillermo del Toro	Perili	Labirent	İspanya	Faşizm
+Brokeback Mountain	Heath Ledger	Jake Gyllenhaal	Kovboy	Dağ	Ang Lee
+V for Vendetta	Maske	Guy Fawkes	Hugo Weaving	Natalie Portman	Devrim
+Memories of Murder	Bong Joon-ho	Güney Kore	Seri Katil	Dedektif	Cinayet
+Oldboy	Park Chan-wook	İntikam	Çekiç	Hapis	Güney Kore
+Snatch Film	Guy Ritchie	Brad Pitt	Boksör	Elmas	Londra
+Requiem for a Dream	Bağımlılık	Darren Aronofsky	Jared Leto	Müzik	Kabus
+Gladiator Film	Russell Crowe	Gladyatör	Roma	Ridley Scott	Maximus
+American Psycho	Christian Bale	Patrick Bateman	Baltalı	Kart	Wall Street
+Good Will Hunting	Robin Williams	Matt Damon	Matematik	Dahi	Kapıcı
+L.A. Confidential	Los Angeles	Polis	Dedektif	Russell Crowe	Kim Basinger
+Fargo Film	Coen Kardeşler	Kar	Hamile Polis	Fidye	Cinayet
+The Usual Suspects	Keyser Söze	Kevin Spacey	Sorgu	Liman	Şüpheliler
+Braveheart	Mel Gibson	İskoçya	Özgürlük	Kilt	William Wallace
+Unforgiven	Clint Eastwood	Kovboy	Şerif	İntikam	Western
+Goodfellas	Martin Scorsese	Ray Liotta	Joe Pesci	Mafya	Soygun
+The Silence of the Lambs	Hannibal Lecter	Jodie Foster	Anthony Hopkins	Koyun	Seri Katil
+Do the Right Thing	Spike Lee	Sıcak	Pizzacı	Brooklyn	Irkçılık
+Cinema Paradiso	İtalya	Projeksiyon	Sinema	Ennio Morricone	Çocukluk
+Full Metal Jacket	Stanley Kubrick	Vietnam	Çavuş	Asker	Kask
+Platoon	Oliver Stone	Vietnam Savaşı	Asker	Willem Dafoe	Orman
+Aliens Film	James Cameron	Sigourney Weaver	Yaratık	Uzay	Yumurta
+Amadeus Film	Mozart	Salieri	Beste	Viyana	Kıskançlık
+Scarface Film	Al Pacino	Tony Montana	Kült	Kokain	Miami
+Blade Runner Film	Harrison Ford	Replikant	Ridley Scott	Gelecek	Cyberpunk
+The Thing Film	Kurt Russell	Antarktika	Yaratık	Buzul	Korku
+Raging Bull	Robert De Niro	Boksör	Jake LaMotta	Scorsese	Siyah Beyaz
+The Bear Dizi	Mutfak	Şef	Jeremy Allen White	Restoran	Chicago
+Succession	Roy Ailesi	Medya	Logan Roy	Miras	HBO
+The Last of Us Dizi	Mantar	Pedro Pascal	Bella Ramsey	Kıyamet	Zombi
+House of the Dragon	Targaryen	Ejderha	Westeros	Demir Taht	HBO
+White Lotus	Otel	Tatil	Cinayet	Zengin	HBO
+Euphoria	Zendaya	Gençlik	Lise	HBO	Makyaj
+Squid Game	Güney Kore	Yeşil Eşofman	Kırmızı Işık	Para	Oyun
+Ted Lasso	Futbol	Koç	Jason Sudeikis	İngiltere	Richmond
+The Mandalorian	Baby Yoda	Star Wars	Kask	Bounty Hunter	Disney+
+Chernobyl Dizi	Nükleer	Radyasyon	Santral	Ukrayna	Patlama
+Peaky Blinders	Cillian Murphy	Şapka	Jilet	Birmingham	Gangster
+Dark Dizi	Almanya	Zaman Yolculuğu	Mağara	Nükleer	Netflix
+Stranger Things	Eleven	Upside Down	80'ler	Demogorgon	Hawkins
+Mindhunter	FBI	Seri Katil	David Fincher	Psikoloji	Röportaj
+The Crown	Kraliçe Elizabeth	İngiltere	Kraliyet	Saray	Netflix
+Westworld Dizi	Robot	Park	Kovboy	Yapay Zeka	HBO
+Better Call Saul	Bob Odenkirk	Avukat	Breaking Bad	Jimmy McGill	Albuquerque
+Fargo Dizi	Kar	Minnesota	Suç	Anthology	Polis
+True Detective	Matthew McConaughey	Woody Harrelson	Louisiana	Cinayet	Dedektif
+Narcos Dizi	Pablo Escobar	Kolombiya	Kokain	DEA	Kartel
+Sherlock Dizi	Benedict Cumberbatch	Martin Freeman	Baker Street	Dedektif	BBC
+Black Mirror	Teknoloji	Ekran	Distopya	Gelecek	Netflix
+Game of Thrones	Westeros	Ejderha	Kış Geliyor	Demir Taht	Jon Snow
+Breaking Bad	Walter White	Jesse Pinkman	Kimya	Meth	Albuquerque
+The Walking Dead	Zombi	Rick Grimes	Balta	Kıyamet	Salgın
+Homeland Dizi	Claire Danes	CIA	Terör	Ajan	Bipolar
+Downton Abbey	İngiltere	Malikane	Hizmetçi	Dük	Aristokrasi
+Modern Family	Phil Dunphy	MOCKUMENTARY	Aile	Cam	Gloria
+Parks and Recreation	Amy Poehler	Leslie Knope	Ron Swanson	Park	Belediye
+The Office Dizi	Steve Carell	Michael Scott	Dunder Mifflin	Kağıt	Scranton
+Mad Men	Jon Hamm	Don Draper	Reklam	60'lar	New York
+Dexter Dizi	Michael C. Hall	Kan	Polis	Seri Katil	Miami
+Lost Dizi	Ada	Uçak Kazası	Kutup Ayısı	Duman	Numbers
+The Wire	Baltimore	Uyuşturucu	Polis	Dinleme	HBO
+The Sopranos	Tony Soprano	Mafya	Psikiyatrist	New Jersey	HBO
+Twin Peaks	David Lynch	Laura Palmer	Kahve	Kirazlı Pasta	Kasaba
+Seinfeld	Jerry	George	Kramer	Elaine	New York
+Friends Dizi	Rachel	Ross	Monica	Chandler	Central Perk
+The Simpsons	Homer	Marge	Bart	Springfield	Sarı
+Gibi Dizi	Feyyaz Yiğit	Yılmaz	İlkkan	Ersoy	Exxen
+Prens Dizi	Giray Altınok	Bongomia	Krallık	Komedi	BluTV
+Şahsiyet Dizi	Haluk Bilginer	Agah Beyoğlu	Unutkanlık	Köpek	Polis
+Kulüp Dizi	Gökçe Bahadır	Salih Bademci	Seferad	Gazino	İstanbul
+Bir Başkadır	Öykü Karayel	Meryem	Psikolog	Netflix	Berkun Oya
+Masum Dizi	Haluk Bilginer	Ali Atay	Polis	Çiftlik	BluTV
+Leyla ile Mecnun	Ali Atay	İsmail Abi	Dede	Kireçburnu	Çay
+Behzat Ç.	Erdal Beşikçioğlu	Ankara	Polis	Cinayet Büro	Vosvos
+Ezel Dizi	Kenan İmirzalıoğlu	Ramiz Dayı	Eyşan	Cengiz	İntikam
+Kurtlar Vadisi	Polat Alemdar	Süleyman Çakır	Memati	Racon	Mafya
+A.R.O.G	Cem Yılmaz	Taş Devri	Arif	Futbol	Uzaylı
+G.O.R.A.	Cem Yılmaz	Arif	Garavel	Logar	Halıcı
+Yahşi Batı	Cem Yılmaz	Ozan Güven	Kovboy	Rozet	Amerika
+Pek Yakında	Cem Yılmaz	Zafer	Korsan DVD	Film	Yeşilçam
+Ölümlü Dünya	Ali Atay	Kiralık Katil	Lokanta	Mermer Ailesi	Komedi
+Cinayet Süsü	Ali Atay	Feyyaz Yiğit	Polis	Seri Katil	Cinayet
+Kelebeğin Rüyası	Yılmaz Erdoğan	Kıvanç Tatlıtuğ	Şiir	Zonguldak	Verem
+Vizontele	Yılmaz Erdoğan	Cem Yılmaz	Televizyon	Radyo	Kasaba
+Babam ve Oğlum	Çağan Irmak	Çetin Tekindor	Darbe	Ege	Baba
+Issız Adam	Çağan Irmak	Cemal Hünal	Havuçlu Kek	Restoran	Aşk
+Ayla Film	Kore Savaşı	Çocuk	İsmail Hacıoğlu	Asker	Türk
+7. Koğuştaki Mucize	Aras Bulut İynemli	Ova	Hapishane	Kız	Baba
+Bizim İçin Şampiyon	Bold Pilot	Ekin Koç	Farah Zeynep	At	Jokey
+Bergen Film	Farah Zeynep Abdullah	Arabesk	Kezap	Şarkıcı	Hayat
+Ahlat Ağacı	Nuri Bilge Ceylan	Doğu Demirkol	Yazar	Çanakkale	Kuyu
+Kuru Otlar Üstüne	Nuri Bilge Ceylan	Merve Dizdar	Erzurum	Öğretmen	Kar
+Kış Uykusu	Nuri Bilge Ceylan	Haluk Bilginer	Kapadokya	Otel	Altın Palmiye
+Bir Zamanlar Anadolu'da	Nuri Bilge Ceylan	Ceset	Savcı	Doktor	Bozkır
+Uzak Film	Nuri Bilge Ceylan	Muzaffer Özdemir	Emin Toprak	Kar	İstanbul
+Pedro Almodóvar	Yönetmen	İspanya	Kadınlar	Kırmızı	Melodram
+Bong Joon-ho	Yönetmen	Parasite	Memories of Murder	Güney Kore	Oscar
+Wong Kar-wai	Yönetmen	In the Mood for Love	Hong Kong	Müzik	Yavaş Çekim
+Denzel Washington	Oyuncu	Training Day	Malcolm X	Equalizer	Oscar
+Cate Blanchett	Oyuncu	Tár	Carol	Lord of the Rings	Oscar
+Cillian Murphy	Oyuncu	Oppenheimer	Peaky Blinders	Inception	İrlanda
+Pedro Pascal	Oyuncu	The Last of Us	Mandalorian	Narcos	Şili
+Taxi Driver Film	Robert De Niro	Taksi	Martin Scorsese	Travis Bickle	Gece
+Apocalypse Now	Francis Ford Coppola	Vietnam	Helikopter	Kurtz	Marlon Brando
+A Clockwork Orange	Stanley Kubrick	Alex	Süt	Şiddet	Göz
+The Shining Film	Jack Nicholson	Hotel	Balta	Stanley Kubrick	Cinnet
+Blade Runner 2049	Ryan Gosling	Harrison Ford	Cyberpunk	Denis Villeneuve	Hologram
+Mad Max: Fury Road	Tom Hardy	Charlize Theron	Çöl	Araba	Gitarist
+Arrival Film	Uzaylı	Amy Adams	Dil	Ahtapot	Denis Villeneuve
+Ex Machina	Yapay Zeka	Robot	Alicia Vikander	Oscar Isaac	Dans
+Spotlight Film	Gazete	Kilise	Boston Globe	Taciz	Oscar
+Birdman Film	Michael Keaton	Tek Çekim	Tiyatro	Alejandro Iñárritu	Kuş
+12 Years a Slave	Chiwetel Ejiofor	Köle	Solomon Northup	Oscar	Tarih
+Argo Film	Ben Affleck	İran	Elçilik	Film	Kurtarma
+The Artist	Siyah Beyaz	Sessiz Film	Fransa	Köpek	Oscar
+The King's Speech	Colin Firth	Kral	Kekeme	Konuşma	İngiltere
+The Hurt Locker	Bomba	Irak	Kathryn Bigelow	Jeremy Renner	İmha

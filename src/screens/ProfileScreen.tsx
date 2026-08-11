@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, SafeAreaView, ScrollView, Alert, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { Colors } from '../constants/Colors';
-import { BottomNavBar } from '../components/BottomNavBar';
 import { getSocket } from '../services/socket';
+import { Colors } from '../constants/Colors';
 import { getLeagueForKp } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomNavBar } from '../components/BottomNavBar';
 import { Analytics } from '../services/analytics';
 
 type Props = {
@@ -267,6 +269,9 @@ export default function ProfileScreen({ navigation }: Props) {
     return (player as any)?.categoryKp?.[catId] ?? 0;
   };
   
+  const insets = useSafeAreaInsets();
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+
   // Calculate win rate
   const winRate = player && player.matches_played > 0 
     ? Math.round((player.matches_won / player.matches_played) * 100) 
@@ -275,7 +280,7 @@ export default function ProfileScreen({ navigation }: Props) {
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
-        <View style={styles.headerRow}>
+        <View style={[styles.headerRow, { paddingTop: topPadding }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>

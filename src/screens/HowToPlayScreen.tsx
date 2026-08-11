@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Analytics } from '../services/analytics';
 
 type Props = {
@@ -12,13 +13,16 @@ type Props = {
 };
 
 export default function HowToPlayScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+
   useEffect(() => {
     Analytics.logScreenView('HowToPlay');
   }, []);
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
-        <View style={styles.headerRow}>
+        <View style={[styles.headerRow, { paddingTop: topPadding }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>

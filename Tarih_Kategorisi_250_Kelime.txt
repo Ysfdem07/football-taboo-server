@@ -1,0 +1,255 @@
+Ana Kelime / Hedef	Yasaklı 1	Yasaklı 2	Yasaklı 3	Yasaklı 4	Yasaklı 5
+Malazgirt Meydan Muharebesi	Alparslan	1071	Bizans	Anadolu	Romanos Diogenes
+İstanbul'un Fethi	Fatih Sultan Mehmet	1453	Bizans	Sur	Gemiler
+Çanakkale Savaşı	1915	Mustafa Kemal	Gelibolu	Seyit Onbaşı	Anzak
+Kurtuluş Savaşı	Millî Mücadele	Mustafa Kemal	TBMM	İstiklal	Sakarya
+Sakarya Meydan Muharebesi	Hattı Müdafaa	Mustafa Kemal	Yunan	Başkomutan	1921
+Büyük Taarruz	Başkomutanlık	30 Ağustos	Kocatepe	İzmir	Yunan
+Preveze Deniz Zaferi	Barbaros Hayrettin Paşa	Kaptan-ı Derya	Haçlı	Donanma	1538
+Mohaç Meydan Muharebesi	Kanuni Sultan Süleyman	Macaristan	1526	2 Saat	Zigetvar
+Miryokefalon Savaşı	II. Kılıç Arslan	Bizans	Anadolu	Tapu	1176
+Dandanakan Savaşı	Büyük Selçuklu	Gazneliler	Tuğrul Bey	1040	Devlet
+Pasinler Savaşı	Büyük Selçuklu	Bizans	1048	Tuğrul Bey	Erzurum
+Kösedağ Savaşı	İlhanlılar	Moğollar	Anadolu Selçuklu	1243	Yıkılış
+Yassıçemen Savaşı	Anadolu Selçuklu	Harezmşahlar	I. Alaeddin Keykubad	1230	Erzincan
+Ankara Savaşı	Yıldırım Bayezid	Timur	1402	Fetret Devri	Fil
+Varna Savaşı	II. Murad	Haçlı	1444	Yılanlı	Balkanlar
+II. Kosova Savaşı	II. Murad	Haçlı	1448	Balkanlar	Türk
+Otlukbeli Savaşı	Fatih Sultan Mehmet	Uzun Hasan	Akkoyunlu	1473	Top
+Çaldıran Savaşı	Yavuz Sultan Selim	Şah İsmail	Safevi	1514	Tüfek
+Mercidabık Savaşı	Yavuz Sultan Selim	Memlükler	Mısır	1516	Suriye
+Ridaniye Savaşı	Yavuz Sultan Selim	Memlükler	Mısır	1517	Halifelik
+Zigetvar Kuşatması	Kanuni Sultan Süleyman	Otağ-ı Hümayun	Zrinski	1566	Son Sefer
+I. Viyana Kuşatması	Kanuni Sultan Süleyman	Kış	Avusturya	1529	Surlar
+II. Viyana Kuşatması	Merzifonlu Kara Mustafa Paşa	1683	Kırım	Avusturya	Bozgun
+Haçova Meydan Muharebesi	III. Mehmed	Avusturya	1596	Kazan	Aşçılar
+Kırım Savaşı	Rusya	Osmanlı	Florence Nightingale	1853	Sinop
+93 Harbi	Nene Hatun	Gazi Osman Paşa	Plevne	Rusya	1877
+Plevne Savunması	Gazi Osman Paşa	93 Harbi	Rusya	Tabyalar	Kahraman
+Trablusgarp Savaşı	Mustafa Kemal	Enver Paşa	İtalya	Derne	Tobruk
+Balkan Savaşları	Edirne	Hamidiye	Rauf Orbay	Bab-ı Ali	1912
+I. İnönü Savaşı	İsmet İnönü	Yunanistan	TBMM	Düzenli Ordu	1921
+II. İnönü Savaşı	İsmet İnönü	Mustafa Kemal	Kötü Talih	1921	Yunan
+Lozan Antlaşması	İsmet İnönü	1923	İsviçre	Tapu	Sevr
+Sevr Antlaşması	Ölü Doğmuş	1920	Marmaduke	İtilaf	Osmanlı
+Mondros Ateşkes Antlaşması	7. Madde	Rauf Orbay	1918	İşgal	Liman
+Kadeş Antlaşması	Hattuşili	Ramses	Hitit	Mısır	İlk Yazılı Antlaşma
+Karlofça Antlaşması	1699	Gerileme Devri	Avusturya	Toprak Kaybı	Osmanlı
+Küçük Kaynarca Antlaşması	1774	Rusya	Kırım	Tazminat	Osmanlı
+Amasya Genelgesi	Mustafa Kemal	Vatanın Bütünlüğü	Milletin Azmi	1919	Cevat Abbas
+Erzurum Kongresi	Mustafa Kemal	Milli Sınırlar	Manda ve Himaye	1919	Doğu
+Sivas Kongresi	Mustafa Kemal	Tüm Cemiyetler	İrade-i Milliye	1919	Manda
+Ankara Antlaşması	Fransa	1921	Güney Cephesi	Hatay	TBMM
+Gümrü Antlaşması	Kazım Karabekir	Ermenistan	İlk Antlaşma	1920	TBMM
+Versay Antlaşması	I. Dünya Savaşı	Almanya	1919	Fransa	Ağır Şartlar
+Westfalia Antlaşması	Otuz Yıl Savaşları	1648	Laiklik	Kutsal Roma	Avrupa
+Paris Antlaşması	Kırım Savaşı	1856	Osmanlı	Avrupa Devleti	Boğazlar
+Berlin Antlaşması	1878	93 Harbi	Sırbistan	Karadağ	Romanya
+Uşi Antlaşması	Trablusgarp	İtalya	1912	Oniki Ada	Bingazi
+Brest-Litovsk Antlaşması	Bolşevik	Rusya	1918	I. Dünya Savaşı	Çekilme
+Trianon Antlaşması	Macaristan	I. Dünya Savaşı	1920	Toprak	Müttefikler
+Mustafa Kemal Atatürk	Cumhuriyet	Anıtkabir	Selanik	Gazi	Kemal Paşa
+Fatih Sultan Mehmet	II. Mehmed	İstanbul	Fetih	Avni	Topkapı
+Kanuni Sultan Süleyman	Muhteşem	Süleymaniye	Hürrem Sultan	Zigetvar	Kanun
+Yavuz Sultan Selim	I. Selim	Mısır	8 Yıla 80 Yıl	Küpe	Halife
+Alparslan	Malazgirt	Selçuklu	1071	Sultan	Anadolu
+Mete Han	Onlu Sistem	Hun	Islıklı Ok	Oğuz Kağan	MÖ 209
+Bumin Kağan	Göktürk	Ötüken	İstemi Yabgu	552	Devlet
+Bilge Kağan	Göktürk Kitabeleri	Orhun	Kül Tigin	Tonyukuk	Yazıt
+Osman Bey	Osmanlı	Söğüt	Koyunhisar	Şeyh Edebali	Kurucu
+Orhan Bey	Bursa	Yaya ve Müsellem	Çimpe Kalesi	Divan	Karesioğulları
+II. Abdülhamid	Ulu Hakan	Yıldız Sarayı	31 Mart	Meşrutiyet	Bağdat Demiryolu
+İsmet İnönü	Lozan	İnönü Savaşı	Cumhurbaşkanı	CHP	Milli Şef
+Kazım Karabekir	Altepe	Doğu Cephesi	Yetimler Babası	Gümrü	15. Kolordu
+Büyük İskender	Makedonya	Pers	Gordion	Aristoteles	İskenderiye
+Julius Caesar	Roma	Senato	Brutus	Galya	Rubicon
+Napolyon Bonapart	Fransa	Waterloo	Corsica	İmparator	Sürgün
+Cengiz Han	Moğol	Cengizli	Bozkır	Harzemsahlar	İmparatorluk
+Timur	Ankara Savaşı	Semerkant	Topal	Yıldırım Bayezid	Bozkır
+Barbaros Hayrettin Paşa	Preveze	Kaptan-ı Derya	Cezayir	Donanma	Kızıl Sakal
+Mimar Sinan	Selimiye	Süleymaniye	Ustalık Eseri	Koca Sinan	Cami
+Şeyh Edebali	Osman Bey	Bilecik	Nasihat	Ahilik	Damat
+Fransız İhtilali	1789	Milliyetçilik	Bastille	Özgürlük	Eşitlik
+Sanayi İnkılabı	Buhar Makinesi	İngiltere	Fabrika	Sömürgecilik	James Watt
+Rönesans	Yeniden Doğuş	İtalya	Sanat	Da Vinci	Hümanizm
+Reform	Martin Luther	Almanya	Protestanlık	Tez	Kilise
+Coğrafi Keşifler	Kristof Kolomb	Pusula	Amerika	Ümit Burnu	Baharat
+Kavimler Göçü	Hunlar	375	Roma	Bozkır	Barbar Kavimler
+I. Dünya Savaşı	1914	İttifak	İtilaf	Saraybosna	Franz Ferdinand
+II. Dünya Savaşı	1939	Hitler	Atom Bombası	Soykırım	Normandiya
+Soğuk Savaş	ABD	SSCB	Kutuplu	Berlin Duvarı	Küba Krizi
+Caz Çağı	1920'ler	Amerika	Ekonomi	Büyük Buhran	Radyo
+Büyük Buhran	1929	Kara Perşembe	Wall Street	Ekonomik Kriz	Amerika
+Yazının İcadı	Sümerler	Çivi Yazısı	MÖ 3200	Tarihin Başlangıcı	Kil Tablet
+Piramitler	Mısır	Keops	Firavun	Nil	Giza
+Göbeklitepe	Şanlıurfa	Tarihin Sıfır Noktası	Tapınak	Neolitik	T Sütun
+Taş Devri	Paleolitik	Yontma Taş	Mağara	Ateş	Avcı Toplayıcı
+Cilalı Taş Devri	Neolitik	Tarım	Yerleşik Hayat	Seramik	Köy
+Maden Devri	Tunç	Demir	Bakır	Alet	Eritme
+Osmanlı İmparatorluğu	600 Yıl	İstanbul	Padişah	Üç Kıta	Devlet-i Aliyye
+Büyük Selçuklu Devleti	Tuğıl Bey	Malazgirt	Nizamülmülk	Nizamiye	İsfahan
+Anadolu Selçuklu Devleti	İznik	Konya	Kervansaray	Alaeddin Keykubad	Çini
+Göktürk Kağanlığı	Ötüken	Orhun Kitabeleri	Ergenekon	Bumin Kağan	Türk Adı
+Uygurlar	Yerleşik Hayat	Maniheizm	Matbaa	Baskı	Turfan
+Hun İmparatorluğu	Mete Han	Atilla	Bozkır	Avrupa	Asya
+Sümerler	Yazı	Ziggurat	Çivi Yazısı	Mezopotamya	Tekerlek
+Babil	Hammurabi	Asma Bahçeleri	Mezopotamya	Kanun	Kule
+Hititler	Hattuşaş	Pankuş	Kadeş	Anal	Tavananna
+Frigler	Midas	Gordion	Eşek Kulak	Fibula	Tapates
+Lidyalılar	Para	Sardes	Kral Yolu	Karun	Ege
+Urartular	Tuşpa	Van	Sulama Kanalları	Kale	Madencilik
+Roma İmparatorluğu	Sezar	Kolezyum	Lejyon	Senato	Papanın Evi
+Bizans İmparatorluğu	Doğu Roma	Konstantinopolis	Ayasofya	Grek Greği	Sur
+Pers İmparatorluğu	Satraplık	Kral Yolu	Persepolis	Keyhüsrev	İran
+Kutsal Roma Cermen İmparatorluğu	Şarlman	Almanya	Papa	Prensler	Orta Çağ
+Britanya İmparatorluğu	Üzerinde Güneş Batmayan	Sömürge	Londra	Kraliçe	Donanma
+Maya Uygarlığı	Piramit	Takvim	Meksika	Balta	Astek
+İnka Uygarlığı	Machu Picchu	Peru	And Dağları	Güneş	Kipus
+Aztekler	Tenochtitlan	Meksika	İspanyol	Tapınak	İnsan Kurbanı
+Meşrutiyet	Kanun-ı Esasi	Mebusan Meclisi	Padişah	1876	Anayasa
+Tanzimat Fermanı	Gülhane	Mustafa Reşit Paşa	1839	Kanun Üstünlüğü	Osmanlı
+Islahat Fermanı	Gayrimüslim	1856	Haklar	Tanzimat	Avrupa
+İstiklal Yolu	İnebolu	Kastamonu	Ankara	Cephane	Şerife Bacı
+Misak-ı Milli	Milli Sınırlar	Son Mebusan Meclisi	1920	Vatan	Kararlar
+Kuvayı Milliye	Milis	Düzensiz Ordu	Efeler	Direniş	Kurtuluş Savaşı
+Tekalif-i Milliye	Mustafa Kemal	Yardım	Ordu	Sakarya	Emirler
+Magna Carta	İngiltere	Kral	1215	Özgürlük	Büyük Şart
+Kapitülasyon	Ayrıcalık	Ticaret	Fransa	Kanuni	Lozan
+İpek Yolu	Çin	Ticaret	Kervan	Deve	Avrupa
+Baharat Yolu	Hindistan	Mısır	Ticaret	Baharat	Akdeniz
+Devşirme Sistemi	Janissary	Yeniçeri	Hristiyan Çocuk	Enderun	Osmanlı
+Enderun	Saray Okulu	Devşirme	Sadrazam	Osmanlı	Eğitim
+Tımar Sistemi	Dirlik	Sipahi	Toprak	Vergi	Asker
+İltizam Sistemi	Mültezim	Vergi	İhale	Osmanlı	Peşin
+Yeniçeri Ocağı	Vaka-yı Hayriye	Kapıkulu	Kazan Kaldırma	II. Mahmud	Asker
+Vaka-yı Hayriye	Yeniçeri Ocağı	II. Mahmud	1826	Hayırlı Olay	Kaldırılma
+31 Mart Vakası	Hareket Ordusu	Mustafa Kemal	1909	İsyan	II. Abdülhamid
+Bab-ı Ali Baskını	Enver Paşa	İttihat ve Terakki	1913	Hükümet	Darbe
+Cemiyetler	Zararlı	Yararlı	Müdafaa-i Hukuk	Milli	Kurtuluş Savaşı
+Hilafet	Halifelik	TBMM	1924	Yavuz Sultan Selim	Dini Lider
+Saltanatın Kaldırılması	1 Kasım 1922	Vahdettin	TBMM	Son Padişah	Devlet
+Cumhuriyetin İlanı	29 Ekim 1923	Mustafa Kemal	Ankara	TBMM	Bayram
+Soyadı Kanunu	1934	Atatürk	Unvan	Nüfus	Soyadı
+Harf İnkılabı	1928	Latin	Arapça	Millet Mektepleri	Okuma Yazma
+Şapka Kanunu	Kastamonu	Kılık Kıyafet	1925	Fes	Mustafa Kemal
+Tekke ve Zaviyeler	Kapatılma	1925	Tarikat	Şeyh	Derviş
+Halil İnalcık	Tarihçilerin Kutbu	Osmanlı	Profösör	Yazar	Tarih
+İlber Ortaylı	Tarihçi	Cahil	Osmanlı	Topkapı	Profesör
+Fuad Köprülü	Osmanlı Edebiyatı	Tarihçi	Dışişleri Bakanı	Profösör	Türk
+Ahmet Cevdet Paşa	Mecelle	Tarih-i Cevdet	Osmanlı	Hukukçu	Sadrazam
+Kırım Hanlığı	Giray	Bahçesaray	Kırım	Osmanlı	Rusya
+Akkoyunlular	Uzun Hasan	Dede Korkut	Otlukbeli	Doğu Anadolu	Türkmen
+Karakoyunlular	Kara Yusuf	Doğu Anadolu	Türkmen	Tebriz	Devlet
+Gazneliler	Sultan Mahmud	Hindistan	17 Sefer	Afganistan	Dandanakan
+Harzemşahlar	Celaleddin Harzemşah	Otrar Faciası	Yassıçemen	Moğollar	Devlet
+Memlükler	Mısır	Kölemenler	Ayn Calut	Yavuz Sultan Selim	Baybars
+Eyyubiler	Selahaddin Eyyubi	Hıttın Savaşı	Kudüs	Haçlılar	Mısır
+Selahaddin Eyyubi	Kudüs	Hıttın	Haçlılar	Eyyubi	Sultan
+Hıttın Savaşı	Selahaddin Eyyubi	Kudüs	Haçlılar	1187	Zafer
+Ayn Calut Savaşı	Memlükler	Moğollar	Baybars	1260	Durdurma
+Nizamiye Medreseleri	Nizamülmülk	Büyük Selçuklu	Bağdat	Gazali	Eğitim
+Nizamülmülk	Siyasetname	Büyük Selçuklu	Alparslan	Melikşah	Vezir
+Hasan Sabbah	Alamut Kalesi	Haşhaşiler	Suikast	Fedai	Bâtınilik
+Alamut Kalesi	Hasan Sabbah	Haşhaşiler	Moğollar	Hülagü	Dağ
+Hülagü Han	Moğol	İlhanlılar	Bağdat	Kütüphane	Alamut
+Köprülüler Devri	Köprülü Mehmet Paşa	Şartlı Sadrazam	Duraklama	Osmanlı	Fazıl Ahmet
+Lale Devri	Nevşehirli Damat İbrahim Paşa	III. Ahmed	Nedim	Patrona Halil	1718
+Patrona Halil İsyanı	Lale Devri	III. Ahmed	1730	Hamam	İsyan
+Kabakçı Mustafa İsyanı	Nizam-ı Cedid	III. Selim	1807	Yeniçeri	İsyan
+Nizam-ı Cedid	III. Selim	Yeni Ordu	Fransa	İrad-ı Cedid	Yenilik
+Sened-i İttifak	II. Mahmud	Ayanlar	1808	Kralın Yetkileri	Sözleşme
+Gülhane Hatt-ı Hümayunu	Tanzimat Fermanı	1839	Mustafa Reşit Paşa	Kanun	Osmanlı
+Florence Nightingale	Lambalı Kadın	Kırım Savaşı	Selimiye Kışlası	Hemşire	Hastane
+Seyit Onbaşı	Çanakkale	215 Kilo	Mermi	Ocean	Kahraman
+Nene Hatun	Aziziye Tabyası	93 Harbi	Erzurum	Ruslar	Kahraman Kadın
+Sütçü İmam	Kahramanmaraş	Fransızlar	İlk Kurşun	Kurtuluş Savaşı	Kafile
+Hasan Tahsin	İzmir	İlk Kurşun	Gazeteci	Yunanlar	15 Mayıs 1919
+Şahin Bey	Gaziantep	Fransızlar	Köprü	Kurtuluş Savaşı	Şehit
+Yörük Ali Efe	Aydın	Kuvayı Milliye	Efe	Yunan	Kurtuluş Savaşı
+Çerkez Ethem	Kuvayı Seyyare	İsyan	Düzenli Ordu	Yunanistan	Milis
+Gazi Osman Paşa	Plevne	93 Harbi	Rusya	Tabyalar	Marş
+Enver Paşa	Sarıkamış	İttihat ve Terakki	Balkan	Harbiye Nazırı	Turancılık
+Talat Paşa	İttihat ve Terakki	Tehcir	Sadrazam	Berlin	I. Dünya Savaşı
+Cemal Paşa	Kanal Harekatı	Suriye	İttihat ve Terakki	Bahriye Nazırı	I. Dünya Savaşı
+Sarıkamış Harekatı	Enver Paşa	Donarak Şehit	Rusya	1914	Kars
+Kut'ül Amare	Halil Kut Paşa	İngilizler	Iraklı	Esir	1916
+Halil Kut Paşa	Kut'ül Amare	İngiliz General Townshend	Irak	Zafer	Osmanlı
+Fahreddin Paşa	Medine Müdafii	Çöl Kaplanı	Peygamber Kabri	İngilizler	Kuşatma
+Kutsal Emanetler	Yavuz Sultan Selim	Mısır	Topkapı Sarayı	Hırka-i Şerif	Kabe
+Topkapı Sarayı	Fatih Sultan Mehmet	Osmanlı	Divan	Harem	Enderun
+Dolmabahçe Sarayı	I. Abdülmecid	Boğaz	Atatürk'ün Vefatı	Osmanlı	Saat 09:05
+Yıldız Sarayı	II. Abdülhamid	Beşiktaş	Yönetim Merkezi	Saray	Osmanlı
+Çırağan Sarayı	Sultan Abdülaziz	Ortaköy	Yangın	Saray	Oteller
+Beylerbeyi Sarayı	Sultan Abdülaziz	Üsküdar	Yazlık Saray	Boğaz	Osmanlı
+Rumeli Hisarı	Fatih Sultan Mehmet	Boğazkesen	İstanbul'un Fethi	Sarıyer	Sur
+Anadolu Hisarı	Yıldırım Bayezid	Boğaz	Beykoz	Hisar	Osmanlı
+Galata Kulesi	Cenevizliler	Hezarfen Ahmed Çelebi	İstanbul	Kule	Beyoğlu
+Hezarfen Ahmed Çelebi	Galata Kulesi	Üsküdar	Kanat	IV. Murad	Uçuş
+Lagari Hasan Çelebi	Roket	IV. Murad	Barut	Deniz	Uçuş
+Evliya Çelebi	Seyahatname	Gezgin	Seyahat	IV. Murad	Osmanlı
+Katip Çelebi	Cihannüma	Keşfü'z-Zünûn	Coğrafyacı	Osmanlı	Bilim
+Piri Reis	Dünya Haritası	Kitab-ı Bahriye	Donanma	Amerika	Ceylan Derisi
+Ali Kuşçu	Astronomi	Matematik	Fatih Sultan Mehmet	Semerkant	Akkoyunlu
+Takiyüddin	Rasathane	III. Murad	Astronomi	İstanbul	Gözlemevi
+Akşemseddin	Fatih Sultan Mehmet	Hoca	İstanbul'un Fethi	Mikrop	Göynük
+Molla Gürani	Fatih Sultan Mehmet	Hoca	Şeyhülislam	Osmanlı	Alim
+Ziya Gökalp	Türkçülük	Sosyolog	Türk Medeniyeti Tarihi	İttihat	Yazar
+Namık Kemal	Vatan Şairi	Vatan yahut Silistre	İntibah	Hürriyet Kasidesi	Ziya Paşa
+Mehmet Akif Ersoy	İstiklal Marşı	Safahat	Çanakkale Şehitlerine	Burdur	Milli Şair
+İstiklal Marşı	Mehmet Akif Ersoy	12 Mart 1921	Tacettin Dergahı	Zeki Üngör	TBMM
+Halide Edib Adıvar	Ateşten Gömlek	Vurun Kahpeye	Sultanahmet Mitingi	Onbaşı	Roman
+Yakup Kadri Karaosmanoğlu	Yaban	Kiralık Konak	Sodom ve Gomore	Diplomat	Yazar
+Reşat Nuri Güntekin	Çalıkuşu	Feride	Anadolu	Müfettiş	Roman
+Falih Rıfkı Atay	Zeytindağı	Çankaya	Mustafa Kemal	Gazeteci	Yazar
+Celal Bayar	Galip Hoca	İş Bankası	Cumhurbaşkanı	Demokrat Parti	Kuvayı Milliye
+Adnan Menderes	Demokrat Parti	Başbakan	1960 Darbesi	Yassıada	İdam
+Fatin Rüştü Zorlu	Dışişleri Bakanı	Yassıada	Demokrat Parti	1960	İdam
+Hasan Polatkan	Maliye Bakanı	Yassıada	Demokrat Parti	1960	İdam
+Turgut Özal	ANAP	Serbest Piyasa	Cumhurbaşkanı	80'ler	Özelleştirme
+Süleyman Demirel	Baba	DYP	Cumhurbaşkanı	Barajlar Kralı	Şapka
+Bülent Ecevit	Karaoğlan	Kıbrıs Barış Harekatı	DSP	CHP	Kasket
+Kıbrıs Barış Harekatı	1974	Bülent Ecevit	Ayşe Tatile Çıksın	Rauf Denktaş	Kıbrıs
+Rauf Denktaş	KKTC	Kurucu Cumhurbaşkanı	Kıbrıs	Mücahit	Denktaş
+Karakol Cemiyeti	Milli Mücadele	İstihbarat	İstanbul	Silah Kaçırma	Gizli
+Mim Mim Cemiyeti	Milli Mücadele	İstihbarat	Ankara	Casusluk	Gizli
+Eskişehir-Kütahya Savaşları	Geri Çekilme	Sakarya Nehri	Mustafa Kemal	1921	Yunan
+Gediz Taarruzu	Ali Fuat Cebesoy	Kuvayı Milliye	Yunan	Başarısız	1920
+Havza Genelgesi	Mustafa Kemal	Miting	Protesto	1919	Samsun
+Samsun'a Çıkış	19 Mayıs 1919	Bandırma Vapuru	Mustafa Kemal	Müfettiş	Milli Mücadele
+Bandırma Vapuru	Samsun	19 Mayıs 1919	Mustafa Kemal	Karadeniz	Gemi
+Doğu Cephesi	Kazım Karabekir	Ermeniler	Gümrü Antlaşması	15. Kolordu	Kars
+Güney Cephesi	Fransızlar	Ermeniler	Maraş	Antep	Kuvayı Milliye
+Batı Cephesi	Yunanlar	İsmet İnönü	Mustafa Kemal	Düzenli Ordu	Sakarya
+Kadesh	Savaş	Mısır	Hitit	İlk Antlaşma	Barış
+Waterloo Savaşı	Napolyon	1815	Wellington	Fransa	Yenilgi
+Pearl Harbor Baskını	Japonya	ABD	1941	Uçak	Pasifik
+Normandiya Çıkarması	D-Day	1944	Fransa	Müttefikler	II. Dünya Savaşı
+Hiroşima	Atom Bombası	Japonya	1945	Enola Gay	Nükleer
+Nagasaki	Atom Bombası	Japonya	Fat Man	1945	Nükleer
+Berlin Duvarı	Utanç Duvarı	Almanya	1989	Soğuk Savaş	Yıkılış
+Kırım Hanı	Giray	Kırım	Osmanlı	Karadeniz	Tatarlar
+Kayı Boyu	Ertuğrul Gazi	Iyı	Osmanlı	Söğüt	Tamga
+Ertuğrul Gazi	Kayı Boyu	Söğüt	Osman Bey	Halime Hatun	Bey
+Hayme Ana	Devlet Ana	Kayı	Söğüt	Domaniç	Ertuğrul Gazi
+Gaza ve Cihat	Osmanlı	Fetih	Dini	Savaş	Gazi
+Ahilik Teşkilatı	Ahi Evran	Kırşehir	Esnaf	Lonca	Ahlak
+Ahi Evran	Ahilik	Kırşehir	Esnaf	Deri	Lonca
+Mecelle	Ahmet Cevdet Paşa	Osmanlı	Kanun	Medeni Hukuk	Borçlar
+Nisab-ı Müzakere	TBMM	Tüzük	Meclis	1920	Çalışma
+Teşkilat-ı Esasiye	1921 Anayasası	TBMM	İlk Anayasa	Egemenlik	Milli
+Kanun-ı Esasi	1876	II. Abdülhamid	İlk Anayasa	Osmanlı	Meşrutiyet
+Mebusan Meclisi	Osmanlı	Meşrutiyet	Mebus	İstanbul	Seçim
+Heyet-i Temsiliye	Temsil Heyeti	Sivas Kongresi	Mustafa Kemal	TBMM	Hükümet
+İrade-i Milliye	Sivas Kongresi	Gazete	Mustafa Kemal	Basın	Milli Mücadele
+Hakimiyet-i Milliye	Ankara	Gazete	Mustafa Kemal	Basın	TBMM
+Anadolu Ajansı	Halide Edib	Yunus Nadi	1920	Haber	Ankara
+Düzenli Ordu	Kuvayı Milliye	İsmet İnönü	I. İnönü	TBMM	Batı Cephesi
+Kuvayı Seyyare	Çerkez Ethem	Milis	Gediz	Ayaklanma	İsyan
+Yeşil Ordu	Çerkez Ethem	Sol	TBMM	Milis	Kuvayı Milliye
+Anzavur İsyanı	Ahmet Anzavur	Kuvayı Milliye	Marmara	İsyan	İstanbul Hükümeti
+Düzce İsyanı	Bolu	Hendek	Milli Mücadele	İsyan	TBMM
+Pontus Rum	Karadeniz	Cemiyet	Zararlı	Trabzon	Yunan
+Mavri Mira	Cemiyet	Zararlı	Yunan	Patrikhane	Bizans
+Etniki Eterya	Cemiyet	Yunan	Yunanistan	Zararlı	1814
+Hınçak ve Taşnak	Ermeni	Cemiyet	Zararlı	Doğu Anadolu	Terör
+Milli Kongre Cemiyeti	Dr. Esat Işık	Basın Yayın	Yararlı	Propaganda	İstanbul

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, Image, useWindowDimensions, Linking, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, Image, useWindowDimensions, Linking, ScrollView, StatusBar, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -37,8 +38,11 @@ const CATEGORIES = [
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
   useFocusEffect(
     useCallback(() => {
@@ -65,7 +69,7 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.container}>
         
         {/* TOP BAR */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { paddingTop: topPadding }]}>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('About')}>
             <Ionicons name="information-outline" size={22} color="#FFF" />
           </TouchableOpacity>

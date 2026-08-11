@@ -1,0 +1,498 @@
+Hedef Kelime (Target Word),İpucu 1,İpucu 2,İpucu 3,İpucu 4,İpucu 5
+PULP FICTION,TARANTINO,DANS,ÇANTA,UMA THURMAN,JOHN TRAVOLTA
+INTERSTELLAR,NOLAN,KARA DELIK,UZAY,ZAMAN,KÜTÜPHANE
+THE GODFATHER,CORLEONE,MAFYA,AL PACINO,MARLON BRANDO,ITALYA
+INCEPTION,RÜYA,TOPAÇ,NOLAN,LABIRENT,LEONARDO DICAPRIO
+FIGHT CLUB,KURAL,EDWARD NORTON,SABUN,ŞIZOFREN,BRAD PITT
+AVATAR,MAVI,PANDORA,JAMES CAMERON,KUYRUK,DEV
+JOKER,MERDIVEN,PALYAÇO,MAKYAJ,JOAQUIN PHOENIX,BATMAN
+THE MATRIX,SANAL,ZION,GÖZLÜK,KEANU REEVES,AJAN SMITH
+LA LA LAND,CAZ,DANS,PIYANO,RYAN GOSLING,EMMA STONE
+STAR WARS,DARTH VADER,IŞIN KILIÇI,JEDI,LUKE SKYWALKER,UZAY
+GLADIATOR,RUSSELL CROWE,ROMA,ARENA,SEZAR,IMPARATOR
+TITANIC,GEMI,OKYANUS,JACK,ROSE,BUZDAĞI
+JURASSIC PARK,DINOZOR,SPIELBERG,ADA,DNA,FOSIL
+THE DARK KNIGHT,SERİ,NOLAN,JOKER,GOTHAM,HEATH LEDGER
+HARRY POTTER,BÜYÜ,ASA,HOGWARTS,VOLDEMORT,HERMIONE
+THE HOBBIT,CÜCE,EJDERHA,BILBO BAGGINS,GANDALF,YÜZÜK
+FORREST GUMP,TOM HANKS,ÇIKOLATA,BANK,KOŞMAK,KUTUSU
+THE SHINNING,KORKU,BALTA,KAR,OTEL,JACK NICHOLSON
+SE7EN,GÜNAH,KUTU,BRAD PITT,DEDEKTIF,KATIL
+WHIPLASH,MÜZİK,KONSERVATUAR,CAZ,BATERI,DAVUL
+PARASITE,KORE,OSCAR,EV,BODRUM,ZENGIN
+TERMINATOR,ROBOT,GELECEK,MAKINELER,SCHWARZENEGGER,METAL
+THE TRUMAN SHOW,TV,SAHTE,KAMERA,DÜNYA,JIM CARREY
+CARS,YARIŞ,PASPAS,RADYATÖR,SIMŞEK MCQUEEN,ARABA
+TOY STORY,OYUNCAK,ROBOT,ANDY,WOODY,BUZZ LIGHTYEAR
+SHREK,BATAKLIK,EŞEK,PRENSES,YEŞIL,DEV
+THE LION KING,MUFASA,SIMBA,ORMAN,KRAL,ASLAN
+UP,BALON,EV,YAŞLI,UÇMAK,KÖPEK
+FINDING NEMO,OKYANUS,TURUNCU,KAYIP,BALIK,DORY
+WALL-E,ROBOT,ÇÖP,DÜNYA,EVE,UZAY
+PULP FICTION,TARANTINO,UMA THURMAN,JOHN TRAVOLTA,DANS,ÇANTA
+AMELIE,FRANSIZ,PARIS,KIRMIZI,AŞK,FOTOĞRAF
+PSYCHO,ALFRED HITCHCOCK,DUŞ,BIÇAK,OTEL,BATES
+JAWS,SPIELBERG,OKYANUS,PLAJ,DİŞ,KÖPEKBALIĞI
+DUNKIRK,NOLAN,SAVAŞ,ASKER,GEMI,UÇAK
+OPPENHEIMER,BOMBA,SAVAŞ,FİZİKÇİ,ATOM,NOLAN
+CASABLANCA,Humphrey Bogart,Rick,AŞK,PIYANO,FAS
+SNAKES ON A PLANE,SAMUEL L. JACKSON,UÇAK,ZEHIRLI,YOLCU,YILAN
+ALIEN,SIGOURNEY WEAVER,YUMURTA,GEÇİT,YARATIK,UZAY
+BACK TO THE FUTURE,MARTY MCFLY,DOKTOR,GELECEK,ZAMAN MAKINESI,DELOREAN
+ROCKY,BOKS,RING,SYLVESTER STALLONE,ANTRENMAN,BALBOA
+DIE HARD,NAKATOMI PLAZA,TERÖRIST,YILBAŞI,BRUCE WILLIS,POLIS
+HOME ALONE,YALNIZ,TUZAK,HIRSIZ,MACAULAY CULKIN,NOEL
+GHOSTBUSTERS,EKTO-1,NEW YORK,YEŞIL,HAYALET,AVCI
+PIRATES OF CARIBBEAN,GEMI,OKYANUS,HAZINE,JACK SPARROW,GEMI
+JUMANJI,ZAR,OYUN,ORMAN,ROBIN WILLIAMS,HAYVAN
+THE REVENANT,OSCAR,KAR,SOĞUK,AYI,LEONARDO DICAPRIO
+MAD MAX FURY ROAD,AKSIYON,ARABA,ÇÖL,CHARLIZE THERON,TOM HARDY
+THE DEPARTED,POLIS,DICAPRIO,MATT DAMON,JACK NICHOLSON,İSPİYON
+CATCH ME IF YOU CAN,SAHTEKAR,DOKTOR,DICAPRIO,TOM HANKS,PİLOT
+BLOOD DIAMOND,ELMAS,AFRIKA,DICAPRIO,KAÇAKÇI,SAVAŞ
+SHUTTER ISLAND,DEDEKTIF,AKIL HASTANESI,GİZEM,DICAPRIO,ADA
+THE GREAT GATSBY,ZENGIN,PARTI,DICAPRIO,AŞK,MALIKANE
+THE MARTIAN,UZAY,PATATES,MATT DAMON,EVE DÖNÜŞ,KIZIL GEZEGEN
+GRAVITY,UZAY,SANDRA BULLOCK,ISTASYON,GEORGE CLOONEY,YER ÇEKİMİ
+THE PRESTIGE,CHRISTIAN BALE,HUGH JACKMAN,TESLA,SİHİRBAZ,ILLÜZYON
+MEMENTO,FOTOĞRAF,DÖVME,HAFIZA,KAYIP,NOLAN
+TENET,AKSIYON,NOLAN,AJAN,ZAMAN,TERSINE
+INSOMNIA,DEDEKTIF,ALASKA,AL PACINO,UYKUSUZLUK,NOLAN
+ZODIAC,KATIL,GAZETE,DEDEKTIF,ROBERT DOWNEY JR,FINCHER
+THE SOCIAL NETWORK,FACEBOOK,ZUCKERBERG,INTERNET,HARVARD,FINCHER
+GONE GIRL,KAYIP,EŞ,BEN AFFLECK,GIZEM,FINCHER
+PANIC ROOM,ODA,KASA,HIRSIZ,JODIE FOSTER,SIĞINAK
+THE GAME,OYUN,MICHAEL DOUGLAS,GIZEM,FINCHER,HEDIYE
+SEVEN,GÜNAH,DEDEKTIF,BRAD PITT,KATIL,FINCHER
+ALIEN 3,YARATIK,HAPISHANE,SIGOURNEY WEAVER,UZAY,FINCHER
+THE CURIOUS CASE,BENJAMIN BUTTON,YAŞLANMAK,BRAD PITT,TERSE,FINCHER
+PULP FICTION,TARANTINO,TRAVOLTA,DANS,UMA THURMAN,ÇANTA
+RESERVOIR DOGS,SOYGUN,ELMAS,TARANTINO,DEPO,RENKLER
+KILL BILL,SARU ELBISE,SAMURAY,UMA THURMAN,INTIKAM,GELIN
+INGLOURIOUS BASTERDS,SAVAŞ,NAZI,BRAD PITT,TARANTINO,ALMANYA
+DJANGO UNCHAINED,KÖLE,ZENCIRSIZ,DICAPRIO,TARANTINO,SILAH
+ONCE UPON A TIME,HOLLYWOOD,BRAD PITT,DICAPRIO,TARANTINO,AKTÖR
+THE HATEFUL EIGHT,KAR,POSTA ARABASI,KULÜBE,TARANTINO,SILAH
+DEATH PROOF,ARABA,DUBLÖR,TARANTINO,KAZA,KURT RUSSELL
+JACKIE BROWN,UÇAK,PARA,TARANTINO,PAM GRIER,KURYELER
+REAR WINDOW,PENCERE,ALFRED HITCHCOCK,DÜRBIN,KOMŞU,KATIL
+VERTIGO,YÜKSEKLIK,KORKU,HITCHCOCK,KÖPRÜ,SAN FRANSISCO
+NORTH BY NORTHWEST,UÇAK,TARLA,CARY GRANT,HITCHCOCK,HILAL
+THE BIRDS,KUŞLAR,SALDIRI,HITCHCOCK,KASABA,KORKU
+ROPE,IP,DAIRE,SANDIK,CINAYET,HITCHCOCK
+DIAL M FOR MURDER,TELEFON,CINAYET,HITCHCOCK,ANAHTAR,EŞ
+THE TERMINATOR,ROBOT,ARNOLD,GELECEK,SARAH CONNOR,JAMES CAMERON
+ALIENS,YARATIK,SIGOURNEY WEAVER,JAMES CAMERON,ASKER,GEÇIT
+THE ABYSS,DENIZALTI,OKYANUS,JAMES CAMERON,UZAYLI,DERIN
+TITANIC,JACK,ROSE,GEMI,JAMES CAMERON,BUZDAĞI
+AVATAR,PANDORA,JAMES CAMERON,MAVI,AĞAÇ,OKYANUS
+SCHINDLER'S LIST,NAZI,ALMANYA,SPIELBERG,SAVAŞ,KUTSAL
+SAVING PRIVATE RYAN,NORMANDIYA,TOM HANKS,SPIELBERG,ASKER,SAVAŞ
+JAWS,KÖPEKBALIĞI,OKYANUS,SPIELBERG,PLAJ,DIŞ
+E.T.,UZAYLI,BISIKLET,PARMAK,SPIELBERG,ÇOCUK
+JURASSIC PARK,DINOZOR,ADA,SPIELBERG,PARK,DNA
+INDIANA JONES,KAMÇI,ŞAPKA,HARRISON FORD,SPIELBERG,ARKEOLOG
+CLOSE ENCOUNTERS,UZAYLI,IŞIK,SPIELBERG,DAĞ,UFO
+MINORITY REPORT,GELECEK,TOM CRUISE,SPIELBERG,POLIS,CINAYET
+CATCH ME IF YOU CAN,SAHTEKAR,DICAPRIO,SPIELBERG,TOM HANKS,DOLANDIRICI
+WAR OF THE WORLDS,UZAYLI,ISTILA,TOM CRUISE,SPIELBERG,ROBOT
+LEONARDO DICAPRIO,TITANIC,OSCAR,INCEPTION,REVENANT,AKTÖR
+BRAD PITT,FIGHT CLUB,SEVEN,ANGELINA JOLIE,YAKIŞIKLI,OSCAR
+TOM HANKS,FORREST GUMP,CAST AWAY,OSCAR,TOY STORY,AKTÖR
+AL PACINO,GODFATHER,SCARFACE,SCENT OF A WOMAN,MICHAEL CORLEONE,AKTÖR
+ROBERT DE NIRO,TAXI DRIVER,GODFATHER,GOODFELLAS,OSCAR,AKTÖR
+JOHNNY DEPP,KORSAN,JACK SPARROW,MAKAS ELLER,ALICE,AMBER HEARD
+TOM CRUISE,MISSION IMPOSSIBLE,TOP GUN,SILAH,DUBLÖR,AKSIYON
+WILL SMITH,MEN IN BLACK,OSCAR,TOKAT,RAP,I AM LEGEND
+KEANU REEVES,MATRIX,JOHN WICK,NEO,SPEED,KANADA
+CHRISTIAN BALE,BATMAN,PRESTIGE,MAKINEST,ZAYIFLAMAK,OSCAR
+MATT DAMON,BOURNE,INTERSTELLAR,MARTIAN,BRAD PITT,AKTÖR
+MORGAN FREEMAN,SES,TANRI,SHAWSHANK,YAŞLI,OSCAR
+JACK NICHOLSON,SHINING,BATMAN,JOKER,DEPARTED,OSCAR
+CLINT EASTWOOD,KOVBOY,SILAH,YÖNETMEN,DURAN ADAM,AKTÖR
+MERYL STREEP,OSCAR,DEVIL WEARS PRADA,MAMMA MIA,AKTRIS,ADAYLIK
+ANGELINA JOLIE,BRAD PITT,LARA CROFT,AKTRIS,DÖVME,GÜZEL
+SCARLETT JOHANSSON,BLACK WIDOW,AVENGERS,MARVEL,AKTRIS,SARISIN
+JENNIFER LAWRENCE,HUNGER GAMES,KATNISS,OSCAR,AKTRIS,DÜŞMEK
+EMMA STONE,LA LA LAND,SPIDER MAN,OSCAR,AKTRIS,KIZIL
+MARGOT ROBBIE,BARBIE,HARLEY QUINN,WOLF OF WALL STREET,SARISIN,AKTRIS
+NATALIE PORTMAN,LEON,MATHILDA,BLACK SWAN,OSCAR,STAR WARS
+JULIA ROBERTS,PRETTY WOMAN,OSCAR,GÜLÜŞ,AKTRIS,AŞK
+KATE WINSLET,TITANIC,ROSE,OSCAR,AKTRIS,INGILTERE
+ANNE HATHAWAY,DEVIL WEARS PRADA,BATMAN,LES MISERABLES,OSCAR,AKTRIS
+SANDRA BULLOCK,SPEED,GRAVITY,OSCAR,AKTRIS,AŞK
+NICOLE KIDMAN,OSCAR,TOM CRUISE,SAATLER,AVUSTRALYA,AKTRIS
+CHARLIZE THERON,MAD MAX,MONSTER,OSCAR,AKTRIS,SARISIN
+PENELOPE CRUZ,ISPANYOL,JAVIER BARDEM,OSCAR,AKTRIS,GÜZEL
+EMMA WATSON,HARRY POTTER,HERMIONE,BEAUTY AND THE BEAST,INGILTERE,AKTRIS
+JENNIFER ANISTON,FRIENDS,RACHEL,BRAD PITT,AKTRIS,SAÇ
+BRUCE WILLIS,DIE HARD,ZOR ÖLÜM,PULP FICTION,KEL,AKSIYON
+ARNOLD SCHWARZENEGGER,TERMINATOR,KAS,VALI,AVUSTURYA,ROBOT
+SYLVESTER STALLONE,ROCKY,RAMBO,BOKS,AKSIYON,YAZAR
+JACKIE CHAN,KUNG FU,ÇIN,DÖVÜŞ,KOMEDI,DUBLÖR
+LIAM NEESON,TAKEN,KIZIM,SILAH,AKSIYON,INGILTERE
+HUGH JACKMAN,WOLVERINE,X-MEN,PRESTIGE,AVUSTRALYA,PENÇE
+DANIEL RADCLIFFE,HARRY POTTER,GÖZLÜK,BÜYÜCÜ,ASA,INGILTERE
+ROBERT DOWNEY JR,IRON MAN,AVENGERS,MARVEL,SHERLOCK,OSCAR
+MARK WAHLBERG,MATT DAMON,AKSIYON,KAS,DEPARTED,RAP
+DWAYNE JOHNSON,KAYA,KAS,GÜREŞ,KEL,ROCK
+VIN DIESEL,ARABA,AKSİYON,KEL,SES,DOMINIC
+JASON STATHAM,TRANSPORTER,KEL,INGILTERE,DÖVÜŞ,ARABA
+DANIEL CRAIG,INGILTERE,GÖZ,AJAN,7,JAMES BOND
+RYAN REYNOLDS,DEADPOOL,MARVEL,KOMEDI,BLAKE LIVELY,KIRMIZI
+CHRIS HEMSWORTH,THOR,MARVEL,ÇEKIÇ,AVUSTRALYA,AVENGERS
+CHRIS EVANS,CAPTAIN AMERICA,MARVEL,KALKAN,AVENGERS,AKTÖR
+BEN AFFLECK,BATMAN,JENNIFER LOPEZ,ARGO,OSCAR,AKTÖR
+JARED LETO,JOKER,SAÇ,MÜZISYEN,30 SECONDS TO MARS,OSCAR
+JOAQUIN PHOENIX,JOKER,GLADYATÖR,OSCAR,VEGAN,ROMA
+HEATH LEDGER,JOKER,DARK KNIGHT,OSCAR,ÖLÜM,AVUSTRALYA
+SAMUEL L JACKSON,PULP FICTION,NICK FURY,MARVEL,GÖZLÜK,Zenci
+ANTHONY HOPKINS,HANNIBAL LECTER,KUZULARIN SESSIZLIĞI,OSCAR,YAŞLI,INGILTERE
+DABNEY COLEMAN,AKTÖR,9 TO 5,BIYIK,TV,DRAM
+CLINT EASTWOOD,KOVBOY,SILAH,YÖNETMEN,DURAN ADAM,OSCAR
+BENEDICT CUMBERBATCH,SHERLOCK,DR STRANGE,MARVEL,INGILTERE,SES
+TOM HIDDLESTON,LOKI,MARVEL,THOR,INGILTERE,AVENGERS
+IDRIS ELBA,LUTHER,INGILTERE,AVENGERS,Zenci,AKTÖR
+GARY OLDMAN,BATMAN,HARRY POTTER,SIRIUS BLACK,OSCAR,INGILTERE
+EDWARD NORTON,FIGHT CLUB,HULK,AMERICAN HISTORY X,OSCAR,AKTÖR
+ROWAN ATKINSON,MR BEAN,KOMEDI,ARABA,INGILTERE,JOHNNY ENGLISH
+JIM CARREY,KOMEDI,MASKE,TRUMAN SHOW,YEŞIL,SALAK İLE AVANAK
+ROBIN WILLIAMS,JUMANJI,DEAD POETS,OSCAR,KOMEDI,MIMIK
+STEVE CARELL,THE OFFICE,MICHAEL SCOTT,KOMEDI,AMERIKA,DRAM
+WILL FERRELL,KOMEDI,ANCHORMAN,AMERIKA,BOY,SAÇ
+BEN STILLER,NIGHT AT THE MUSEUM,ZOOLANDER,KOMEDI,AMERIKA,AKTÖR
+ADAM SANDLER,KOMEDI,AMERIKA,AŞK,GÜLMEK,PANTOLON
+SETH ROGEN,KOMEDI,GÖZLÜK,SAKAL,SES,KANADA
+JONAH HILL,WOLF OF WALL STREET,SUPERBAD,ZAYIFLAMAK,KOMEDI,OSCAR
+ZAC EFRON,HIGH SCHOOL MUSICAL,KAS,AMERIKA,GÖZ,AKTÖR
+TIMOTHEE CHALAMET,DUNE,WONKA,GENÇ,KIVIRCIK SAÇ,AŞK
+TOM HOLLAND,SPIDER MAN,MARVEL,ZENDAYA,INGILTERE,AVENGERS
+ZENDAYA,SPIDER MAN,EUPHORIA,DUNE,TOM HOLLAND,AKTRIS
+FLORENCE PUGH,DUNE,OPPENHEIMER,AKTRIS,INGILTERE,GÜZEL
+SAOIRSE RONAN,LITTLE WOMEN,OSCAR,IRLANDA,AKTRIS,GÖZ
+EMILY BLUNT,OPPENHEIMER,A QUIET PLACE,INGILTERE,AKTRIS,OSCAR
+JESSICA CHASTAIN,INTERSTELLAR,OSCAR,KIZIL,AKTRIS,GÜZEL
+AMY ADAMS,ARRIVAL,OSCAR,KIZIL,AKTRIS,SUPERMAN
+LUPITA NYONG'O,OSCAR,BLACK PANTHER,Zenci,AKTRIS,12 YEARS A SLAVE
+VIOLA DAVIS,OSCAR,HOW TO GET AWAY WITH MURDER,Zenci,AKTRIS,EGOT
+OCTAVIA SPENCER,OSCAR,THE HELP,Zenci,AKTRIS,AMERIKA
+CHRISTOPHER NOLAN,INCEPTION,DARK KNIGHT,INTERSTELLAR,ZAMAN,OPPENHEIMER
+QUENTIN TARANTINO,PULP FICTION,KILL BILL,KAN,AYAK,YÖNETMEN
+STEVEN SPIELBERG,JAWS,SCHINDLER'S LIST,DINOZOR,OSCAR,E.T.
+MARTIN SCORSESE,TAXI DRIVER,GOODFELLAS,DICAPRIO,DE NIRO,OSCAR
+ALFRED HITCHCOCK,PSYCHO,VERTIGO,KORKU,KUŞLAR,INGILTERE
+STANLEY KUBRICK,2001 SPACE ODYSSEY,SHINING,CLOCKWORK ORANGE,OSCAR,DAHI
+JAMES CAMERON,TITANIC,AVATAR,TERMINATOR,MAVI,YÖNETMEN
+RIDLEY SCOTT,GLADIATOR,ALIEN,BLADE RUNNER,INGILTERE,YÖNETMEN
+DAVID FINCHER,FIGHT CLUB,SEVEN,ZODIAC,SOCIAL NETWORK,YÖNETMEN
+TIM BURTON,BATMAN,GOTIK,KORKU,JOHNNY DEPP,HELENA BONHAM CARTER
+PETER JACKSON,YÜZÜKLERIN EFENDISI,HOBBIT,OSCAR,YENI ZELANDA,GANDALF
+GEORGE LUCAS,STAR WARS,LUKE SKYWALKER,DARTH VADER,INDIANA JONES,UZAY
+FRANCIS FORD COPPOLA,THE GODFATHER,APOCALYPSE NOW,CORLEONE,OSCAR,SOYAD
+WOODY ALLEN,NEW YORK,GÖZLÜK,KLARNET,KOMEDI,OSCAR
+WES ANDERSON,SIMETRI,GRAND BUDAPEST HOTEL,RENKLER,MARGINAL,PASTEL
+DENIS VILLENEUVE,KANADA,BLADE RUNNER 2049,ARRIVAL,YÖNETMEN,DUNE
+GUILLERMO DEL TORO,MEKSIKA,OSCAR,SHAPE OF WATER,CANAVAR,PAN'IN LABIRENTI
+BONG JOON HO,PARASITE,KORE,OSCAR,ZENGIN,YÖNETMEN
+HAYAO MIYAZAKI,ANIME,JAPONYA,GHIBLI,SPIRITED AWAY,TOTORO
+AKIRA KOROSAWA,JAPONYA,SEVEN SAMURAI,SAMURAY,SINEMA,KLASIK
+DAVID LYNCH,TWIN PEAKS,RÜYA,MULLHOLLAND DRIVE,GIZEM,SÜRREAL
+COEN BROTHERS,FARGO,NO COUNTRY FOR OLD MEN,OSCAR,KARDEŞLER,YÖNETMEN
+ALFONSO CUARON,ROMA,GRAVITY,MEKSIKA,OSCAR,YÖNETMEN
+ALEJANDRO INARRITU,BIRDMAN,REVENANT,OSCAR,MEKSIKA,YÖNETMEN
+NURI BILGE CEYLAN,TÜRK,KASABA,UZAK,KIŞ UYKUSU,KANNES
+FATIH AKIN,DUVARA KARŞI,ALMANYA,TÜRK,GÜNEŞLI,ALTIN AYI
+YAVUZ TURGUL,ŞENER ŞEN,EŞKIYA,MUHSIN BEY,AŞK FILMLERININ,YÖNETMEN
+REHA ERDEM,TÜRK,KASABA,KORKUYORUM ANNE,SINEMA,YÖNETMEN
+SERDAR AKAR,GEMIDE,DAR ALANDA KISA PASLAŞMALAR,TÜRK,YÖNETMEN,KÜLT
+ZAN ZIMMER,MÜZIK,BESTECI,NOLAN,INTERSTELLAR,OSCAR
+JOHN WILLIAMS,BESTECI,STAR WARS,INDIANA JONES,OSCAR,SPIELBERG
+ENnio MORRICONE,BESTECI,KOVBOY,IYI KÖTÜ ÇIRKIN,ITALYA,OSCAR
+DANNY ELFMAN,BESTECI,TIM BURTON,SIMPSONS,BATMAN,MÜZIK
+HOWARD SHORE,BESTECI,YÜZÜKLERIN EFENDISI,OSCAR,MÜZIK,GANDALF
+ALAN SILVESTRI,BESTECI,AVENGERS,BACK TO THE FUTURE,MARVEL,MÜZIK
+JAMES HORNER,BESTECI,TITANIC,AVATAR,OSCAR,MÜZIK
+LUDWIG GORANSSON,BESTECI,OPPENHEIMER,BLACK PANTHER,OSCAR,NOLAN
+BERNARD HERRMANN,BESTECI,PSYCHO,HITCHCOCK,KORKU,MÜZIK
+NINO ROTA,BESTECI,GODFATHER,ITALYA,OSCAR,MÜZIK
+CLINT MANSELL,BESTECI,REQUIEM FOR A DREAM,PIYANO,MÜZIK,KORKU
+HABABAM SINIFI,KEMAL SUNAL,HALİT AKÇATEPE,OKUL,KÜLT,MÜNIR ÖZKUL
+TOSUN PAŞA,ŞENER ŞEN,KEMAL SUNAL,LÜTFÜ,YEŞIL VADI,SEFEROĞULLARI
+SÜT KARDEŞLER,RAMAZAN,ŞABAN,GULYABANI,MÜNIR ÖZKUL,KONAĞI
+EŞKIYA,BARAN,UĞUR YÜCEL,ŞENER ŞEN,ISTANBUL,YAVUZ TURGUL
+KEMAL SUNAL,TÜRK,AKTÖR,KOMEDI,HABABAM SINIFI,ŞABAN
+ŞENER ŞEN,KEMAL SUNAL,TOSUN PAŞA,AKTÖR,BADI EKREM,VECIHI
+TARIK AKAN,AKTÖR,TÜRK,YOL,HABABAM SINIFI,DAMAT FERIT
+CÜNEYT ARKIN,AKTÖR,DÖVÜŞ,BATTAL GAZI,KARA MURAT,TÜRK
+MÜNIR ÖZKUL,TÜRK,AKTÖR,YAŞAR USTA,HABABAM SINIFI,MAHMUT HOCA
+HALIT AKÇATEPE,GÜDÜK NECMI,HABABAM SINIFI,RAMAZAN,TÜRK,AKTÖR
+ADILE NAŞIT,HAFIZE ANA,KAHKAHA,HABABAM SINIFI,TÜRK,AKTRIS
+KAYHAN YILDIZOĞLU,TÜRK,AKTÖR,BIYIK,TV,DRAM
+FILIZ AKIN,GÜZEL,AKTRIS,TÜRK,SARISIN,YEŞILÇAM
+FATMA GIRIK,AKTRIS,TÜRK,GÖZ,YEŞILÇAM,BELEDIYE BAŞKANI
+HÜLYA KOÇYIĞIT,AKTRIS,TÜRK,YEŞILÇAM,SUSUZ YAZ,ROMANTIK
+GÜLŞEN BUBIKOĞLU,TARIK AKAN,GÜZEL,TÜRK,YEŞILÇAM,AKTRIS
+HALUK BILGINER,TÜRK,TATLI HAYAT,EMMY,ŞAHSIYET,AGAH BEYOGLU
+CEM YILMAZ,G.O.R.A.,AROG,STAND UP,KOMEDI,TÜRK
+NURI ALÇO,YEŞILÇAM,TÜRK,KÖTÜ KARAKTER,GAZOZ,İLAÇ
+TECAVÜZCÜ COŞKUN,YEŞILÇAM,TÜRK,KÖTÜ KARAKTER,AKTÖR,TACİZ
+BADI EKREM,KOŞMAK,BEDEN EĞİTİMİ,KIRMIZI EŞOFMAN,HABABAM SINIFI,SENER SEN
+VECIHI,PILOT,UÇAK,GÜLEN GÖZLER,ŞENER ŞEN,AŞK
+AGAH BEYOĞLU,TÜRK,SERI KATIL,UNUTKANLIK,ŞAHSIYET,HALUK BILGINER
+SPIDER MAN,MARVEL,KIRMIZI MAVİ,AĞ,PETER PARKER,YARASA
+IRON MAN,REAKTÖR,MARVEL,MARVEL,TONY STARK,AVENGERS
+BATMAN,BRUCE WAYNE,GOTHAM,PELERIN,YARASA,MAĞARA
+SUPERMAN,UÇMAK,GÖZLÜK,KIRMIZI PELERIN,CLARK KENT,KRIPTON
+SHERLOCK HOLMES,LONDRA,PIPO,WATSON,BÜYÜTEÇ,DEDEKTIF
+DARTH VADER,STAR WARS,LUKE,KIRMIZI IŞIN KILIÇI,SİYAH KASK,BABA
+JAMES BOND,INGILTERE,MARTINI,AJAN,SILAH,7
+Poor Things,Emma Stone,Frankenstein,Yorgos Lanthimos,Oscar,Bebek
+Killers of the Flower Moon,Leonardo DiCaprio,Scorsese,Kızılderili,Petrol,Cinayet
+Dune,Timothee Chalamet,Zendaya,Solucan,Arrakis,Çöl
+Anatomy of a Fall,Fransız,Mahkeme,Düşüş,Köpek,Cinayet
+The Zone of Interest,Nazi,Toplama Kampı,Ses,Duvar,Almanya
+Civil War,Amerika,İç Savaş,Gazeteci,Fotoğraf,Aksiyon
+Challengers,Tenis,Zendaya,Aşk Üçgeni,Raket,Turnuva
+Furiosa,Mad Max,Anya Taylor Joy,Çöl,Aksiyon,Çorak Ülke
+Spider-Man Across the Spider-Verse,Miles Morales,Gwen,Multiverse,Animasyon,Ağ
+Everything Everywhere All at Once,Paralel Evren,Michelle Yeoh,Vergi,Oscar,Sosis
+Top Gun Maverick,Tom Cruise,Savaş Uçağı,Pilot,Donanma,Kask
+Avatar The Way of Water,Okyanus,Pandora,James Cameron,Mavi,Su
+The Batman,Robert Pattinson,Riddler,Gotham,Yağmur,Dedektif
+Glass Onion,Benoit Blanc,Daniel Craig,Cinayet,Gizem,Ada
+Bullet Train,Brad Pitt,Hızlı Tren,Japonya,Suikastçı,Çanta
+Triangle of Sadness,Hüzün Üçgeni,Lüks Yat,Kusmak,Ada,Zengin
+Don't Look Up,Kuyruklu Yıldız,Leonardo DiCaprio,Dünyanın Sonu,Medya,Uzay
+The Power of the Dog,Kovboy,Benedict Cumberbatch,Çiftlik,Piyano,Batı
+Sound of Metal,Sağır,Baterist,İşitme,Müzik,Metal
+The Father,Anthony Hopkins,Demans,Hafıza,Baba,Ev
+Another Round,Alkol,Mads Mikkelsen,Danimarka,Öğretmen,Dans
+Knives Out,Bıçaklar Çekildi,Dedektif,Miras,Cinayet,Malikane
+1917,Birinci Dünya Savaşı,Tek Çekim,Mektup,Siper,İngiliz
+Once Upon a Time in Hollywood,Tarantino,Brad Pitt,DiCaprio,Manson,Actor
+The Irishman,Scorsese,Robert De Niro,Al Pacino,Hoffa,Mafya
+Jojo Rabbit,Hitler,Çocuk,Almanya,Hayali Arkadaş,Komedi
+Marriage Story,Boşanma,Scarlett Johansson,Adam Driver,Avukat,Tiyatro
+Ford v Ferrari,Le Mans,Yarış,Matt Damon,Christian Bale,Araba
+Little Women,Küçük Kadınlar,Kız Kardeş,Yazar,Saoirse Ronan,Roman
+Uncut Gems,Adam Sandler,Elmas,Kumar,Basketbol,Borç
+Midsommar,İsveç,Yaz Ortası,Çiçek Tacı,Korku,Tarikat
+Us,Kopyalar,Kırmızı Elbise,Makas,Korku,Jordan Peele
+Bohemian Rhapsody,Freddie Mercury,Queen,Rami Malek,Rock,Live Aid
+Roma,Alfonso Cuaron,Meksika,Siyah Beyaz,Hizmetçi,Bebek
+A Star Is Born,Lady Gaga,Bradley Cooper,Şarkıcı,Gitar,Müzik
+A Quiet Place,Sessiz Bir Yer,Ses,Yaratık,İşaret Dili,Korku
+Mission Impossible Fallout,Tom Cruise,Helikopter,Ajan,Yamaç,Aksiyon
+Paddington 2,Ayı,Reçel,Londra,Hapishane,Kırmızı Şapka
+The Shape of Water,Suyun Sesi,Deniz Yaratığı,Dilsiz Kadın,Laboratuvar,Oscar
+Three Billboards,Üç Tabela,Cinayet,Kasaba,Anne,Polis
+Lady Bird,Lise,Anne Kız,Saoirse Ronan,Sacramento,Ergenlik
+Blade Runner 2049,Ryan Gosling,Harrison Ford,Replikant,Gelecek,Cyberpunk
+Get Out,Kapan,Jordan Peele,Hipnoz,Çay Kaşığı,Korku
+Call Me by Your Name,İtalya,Yaz,Şeftali,Timothee Chalamet,Bisiklet
+Logan,Wolverine,Hugh Jackman,Yaslı,Pençe,Küçük Kız
+Baby Driver,Sürücü,Kulaklık,Müzik,Banka Soygunu,Araba
+Arrival,Uzay Gemisi,Dilbilim,Ahtapot Uzaylı,Zaman,Amy Adams
+Moonlight,Miami,Çocukluk,Oscar,Mavi,Deniz
+Manchester by the Sea,Acı,Amca,Casey Affleck,Yangın,Kasaba
+Hacksaw Ridge,Savaş Tıbbiyelisi,Silah Taşımayan,Japonya,Andrew Garfield,Savaş
+Zootopia,Tavşan,Tilkiler,Polis,Tembel Hayvan,Şehir
+Spotlight,Gazeteci,Kilise,Taciz,Soruşturma,Boston
+The Big Short,Finans,Kriz,Emlak,Borsa,Christian Bale
+Room,Gizli Oda,Anne Oğul,Kaçış,Brie Larson,Kilit
+Sicario,Meksika,Uyuşturucu Çetesi,FBI,Sınır,Emily Blunt
+Ex Machina,Yapay Zeka,Robot Ava,Test,Laboratuvar,Yazılımcı
+Birdman,Tiyatro,Süper Kahraman,Tek Çekim,Michael Keaton,Kanat
+Boyhood,12 Yıl,Büyümek,Çocuk,Zaman,Richard Linklater
+The Grand Budapest Hotel,Otel,Wes Anderson,Pembe,Tablo,Resepsiyonist
+Nightcrawler,Gece Habercisi,Jake Gyllenhaal,Kaza,Kamera,Gece
+Her,Yapay Zeka,Joaquin Phoenix,Ses,Kırmızı Gömlek,Gelecek
+12 Years a Slave,Kölelik,Solomon Northup,Çiftlik,Keman,Kırbaç
+The Wolf of Wall Street,Borsa,DiCaprio,Hisse,Para,Uyuşturucu
+Prisoners,Kayıp Çocuk,Hugh Jackman,Jake Gyllenhaal,Yağmur,İşkence
+Life of Pi,Kaplan,Sandal,Okyanus,Hindistan,Gemi Batığı
+Silver Linings Playbook,Umut Işığım,Dans Yarışması,Jennifer Lawrence,Bradley Cooper,Psikoloji
+Argo,İran,Elçilik,Ben Affleck,Film Çekimi,Kurtarma
+Drive,Sürücü,Ryan Gosling,Akrep Ceket,Gece,Araba
+District 9,Uzaylı Karides,Güney Afrika,Silah,Bölge,Mutasyon
+No Country for Old Men,Anton Chigurh,Para Çantası,Kovboy,Coen Kardeşler,Oksijen Tüpü
+There Will Be Blood,Petrol,Daniel Day Lewis,Kilise,Kuyu,Kan
+Superbad,Lise Party,Sahte Kimlik,McLovin,Polis,Alkol
+Pan's Labyrinth,İspanya,Yaratık,Peri,Guillermo del Toro,Savaş
+Children of Men,Kısırlık,Son Bebek,Gelecek,Mülteci,Londra
+V for Vendetta,Devrim,İngiltere,5 Kasım,Guy Fawkes,Fikirler Ölümsüzdür
+Sin City,Siyah Beyaz Kırmızı,Çizgi Roman,Bruce Wills,Dedektif,Çete
+Batman Begins,Korkuluk,Gölgeler Birliği,Nolan,Yarasa,Bruce Wayne
+Eternal Sunshine of the Spotless Mind,Hafıza Silme,Clementina,Jim Carrey,Mavi Saç,Unutmak
+The Incredibles,İnanılmaz Aile,Süper Kahraman,Kırmızı Tayt,Özel Güç,Pixar
+The Pianist,Wladyslaw Szpilman,Piyano,Varşova,Nazi,Adrien Brody
+City of God,Tanrı Kent,Brezilya,Favela,Çete,Fotoğrafçı
+Requiem for a Dream,Bir Rüya İçin Ağıt,Bağımlılık,Göz Bebeği,Müzik,Hap
+The Green Mile,Yeşil Yol,John Coffey,Elektrikli Sandalye,Fare,İdam
+Life Is Beautiful,Hayat Güzeldir,Guido,Oyun,Toplama Kampı,İtalya
+Good Will Hunting,Can Dostum,Matematik Dehası,Temizlikçi,Robin Williams,Matt Damon
+Fargo,Kar,Fidye,Hamile Kadın Polis,Coen Kardeşler,Kıyma Makinesi
+Braveheart,Cesur Yürek,William Wallace,İskoçya,Özgürlük,Kilt
+Before Sunrise,Gün Doğmadan,Viyana,Tren,Sohbet,Aşk
+Leon The Professional,Sevginin Gücü,Mathilda,Süt,Saksı Çiçeği,Tetikçi
+Groundhog Day,Köstebek Günü,Aynı Gün,Bill Murray,Hava Durumu,Tekrar
+Silence of the Lambs,Kuzuların Sessizliği,Hannibal Lecter,Clarice Starling,Kelebek,Yamyam
+Goodfellas,Sıkı Dostlar,Henry Hill,Mafya,Scorsese,Ray Liotta
+Amadeus,Mozart,Salieri,Kıskançlık,Klasik Müzik,Viyana
+Terminator 2,Sıvı Metal T-1000,Hasta La Vista,Arnold,Erimiş Çelik,Gelecek
+Apocalypse Now,Kıyamet,Vietnam Savaşı,Helikopter Saldırısı,Kurtz,Marlon Brando
+2001 A Space Odyssey,HAL 9000,Siyah Monolit,Stanley Kubrick,Uzay,Maymun
+Napolyon,Joaquin Phoenix,Ridley Scott,Fransa,İmparator,Savaş
+Saltburn,Barry Keoghan,Jacob Elordi,Malikane,Lüks,Havuz
+Priscilla,Elvis Presley,Jacob Elordi,Sofia Coppola,Graceland,Film
+Wonka,Timothee Chalamet,Çikolata Fabrikası,Oompa Loompa,Şeker,Müzikal
+The Iron Claw,Güreş,Zac Efron,Kardeşler,Ring,Aile
+Anyone But You,Sydney Sweeney,Glen Powell,Romantik Komedi,Avustralya,Düğün
+Argylle,Casus,Kedi,Dua Lipa,Yazar,Aksiyon
+Deadpool and Wolverine,Ryan Reynolds,Hugh Jackman,Marvel,Pençe,Kırmızı Tayt
+Beetlejuice Beetlejuice,Beterböcek,Tim Burton,Michael Keaton,Jenna Ortega,Ruh
+Gladiator II,Paul Mescal,Ridley Scott,Roma,Arena,Dövüş
+Inside Out 2,Kaygı,Duygular,Neşe,Ergenlik,Pixar
+Alien Romulus,Uzay,Yaratık,Korku,Fatih Akın,Bilim Kurgu
+Wicked,Ariana Grande,Cynthia Erivo,Yeşil Cadı,Oz,Müzikal
+Kuru Otlar Ustune,Merve Dizdar,Nuri Bilge Ceylan,Doğu,Öğretmen,Cannes
+Karanlık Gece,Özcan Alper,Berkay Ateş,Av,Kasaba,Suç
+Boğa Boğa,Kıvanç Tatlıtuğ,Asos,İnşaat,Cinayet,Netflix
+Cennetten Kovulanları Dahi Yaşatırlar,Türk Sineması,Film,Dram,Sanat,Festival
+Gönül,Erkan Kolçak Köstendil,Hazar Ergüçlü,Keman,Netflix,Aşk
+Aşıklar Bayramı,Kıvanç Tatlıtuğ,Settar Tanrıöğen,Bağlama,Baba Oğul,Yol
+Cici,Berkun Oya,Çiftlik,Kamera,Geçmiş,Netflix
+Bursa Bülbülü,Ata Demirer,Kaset,80'ler,Müzik,Bursa
+Ölümlü Dünya,Tetikçi,Ali Atay,Feyyaz Yiğit,Doğu Demirkol,Mermer merve
+Lohusa,Gupse Özay,Bebek,Doğum,Anne,Komedi
+Kolpaçino,Şafak Sezer,Özgür,Ganyotçu,Sabri,Komedi
+Zaferin Rengi,Fenerbahçe,Harington Kupası,Kurtuluş Savaşı,Futbol,Tarih
+Mucize 2 Aşk,Mahsun Kırmızıgül,Mert Turak,Köy,Doğu,Ezgiler
+Severance,İş Hafızası,Şirket,Asansör,Ofis,Apple TV
+Succession,Waystar Royco,Logan Roy,Kendall,Miras,Medya
+The Bear,Carmy,Mutfak,Şef,Sandviç Dükkanı,Chef
+Shogun,Samuray,Japonya,Feodal,Toranaga,Kılıç
+House of the Dragon,Targaryen,Ejderha,Westeros,Demir Taht,Valyrian
+Wednesday,Addams Ailesi,Nevermore,Şey,Dans,Zendaya
+The White Lotus,Lüks Otel,Tatilciler,Zengin,Cinayet,Havuz
+Ted Lasso,Richmond AFC,Bisküvi,Koç,İngiliz Futbolu,İnanç
+Andor,Star Wars,İsyancılar,Hapishane,Empire,Diego Luna
+Mare of Easttown,Kate Winslet,Kasaba Dedektifi,Cinayet,Pensilvanya,Bir
+The Queen's Gambit,Satranç,Açılış,Beth Harmon,Piyon,Rusya
+The Boys,Homelander,Kötü Süper Kahramanlar,V Bileşiği,Butcher,Kan
+Mindhunter,FBI,Seri Katiller,Psikoloji,Röportaj,70'ler
+Narcos,Pablo Escobar,Kolombiya,Uyuşturucu Karteli,DEA,Medellin
+Rick and Morty,Portal Tabancası,Çılgın Dede,Torun,Çoklu Evren,Turşu Rick
+Sherlock,Benedict Cumberbatch,221B Baker Street,Dr Watson,Dedektif,Zihin Sarayı
+True Detective,Rust Cohle,Louisiana,Cinayet Soruşturması,Sarı Kral,Zaman Bir Halka
+Fargo Dizi,Minnesotta Kar,Kötü Adam,Cinayet,Absürt,Polis
+The Office,Dunder Mifflin,Michael Scott,Kamera,Ofis,Kağıt
+Parks and Recreation,Leslie Knope,Parklar Müdürlüğü,Ron Swanson,Waffle,Belediye
+Brooklyn Nine-Nine,Jake Peralta,Captain Holt,99 Polis Karakolu,Komedi,Dedektif
+Friends,Central Perk,Rachel,Ross,Monica,Koltuk
+Seinfeld,Hiçbir Şey Hakkında Dizi,Jerry,George,Kramer,Komedyen
+How I Met Your Mother,Sarı Şemsiye,Barney Stinson,Suit Up,Ted Mosby,Anne
+Big Bang Theory,Sheldon Cooper,Bazinga,Fizikçi,Penny,Teori
+Suits,Avukat,Harvey Specter,Mike Ross,Takım Elbise,Hukuk
+House MD,Baston,Lupus,Teşhis,Dr Gregory,Hap Bağımlısı
+Lost,Uçak Kazası,Ada,4 8 15 16 23 42,Siyah Duman,Hatch
+Prison Break,Dövme Harita,Fox River,Michael Scofield,Hapishane Kaçışı,Kardeş
+Dexter,Kan Sıçrama Uzmanı,Seri Katil,Plastik Örtü,Tekne,Miami
+The Sopranos,Psikiyatrist,Mafya Ailesi,New Jersey,Tony Soprano,Puro
+The Wire,Baltimore,Dinleme,Uyuşturucu Sokağı,Polis,Liman
+Kızıl Goncalar,Tarikat,Zeynep,Özkan Deniz,Seküler,Dizi
+Yalı Çapkını,Ferit,Seyran,Gaziantep,Yalı,Mert Ramazan Demir
+Kızılcık Şerbeti,Doğa,Fatih,Pembe Hanım,Seküler Muhafazakar,Dizi
+Bahar,Demet Evgar,Doktor,Karaciğer Nakli,Hastane,Ev Hanımı
+İnci Taneleri,Azem,Dilber,Pavyon Dansı,Yılmaz Erdoğan,Elbise
+Yargı,Ceylin,Ilgaz,Pınar Deniz,Kaan Urgancıoğlu,Mahkeme
+Gönül Dağı,Gedelli,Taner,Uçan Araba,Bozkır,TRT
+Teşkilat,MİT,Ajan,Ankara,Operasyon,TRT
+Kuzey Güney,Kuzey,Güney,Kıvanç Tatlıtuğ,Fırın,Tekinoğlu
+Adını Feriha Koydum,Kapıcı Kızı,Emir Sarrafoğlu,Hazal Kaya,Halı,Apartman
+Öyle Bir Geçer Zaman ki,Ali Kaptan,Cemile,Küçük Osman,Caroline,Tekne
+Yaprak Dökümü,Ali Rıza Bey,Ferhunde,Ağzımızın Tadı,Aydan,Ev
+Sıla,Töre,Mardin,Cansu Dere,Boran Ağa,Aşiret
+Aliye,Çocuklarım Olmadan Asla,Sanem Çelik,Doktor,Boşanma,Dizi
+İşler Güçler,Ahmet Kural,Murat Cemcir,Sadi Celil Cengiz,Dizi Çekimi,Komedi
+Kardeş Payı,Metin Ali Feyyza,Borla Çalışan Motor,Ahmet Kural,Tesisatçı,Mahalle
+1 Erkek 1 Kadın,Zeynep,Ozan,Demet Evgar,Emre Karayel,İlişki
+Ruhsar,Mazhar,Gözlerini Açardı,Yağmur Yağınca,Ruh,Gök
+Sıdıka,Ev Hapsi,Dantel,Baskılı Anne,Hasibe Eren,Mahalle
+Yedi Numara,Köyden Gelen Kızlar,Ahşap Ev,Armğan,Vahit Ballı,Üniversite
+İkinci Bahar,Ali Haydar,Hanım,Kebapçı,Samatya,Şener Şen
+Süper Baba,Fikret,Çengelköy,Bana Bir Masal Anlat Baba,Şevket Altuğ,Mahalle
+Bizimkiler,Kapıcı Cafer,Sabri Bey,Buyruuun,Dunkof,Apartman
+Greta Gerwig,Barbie,Lady Bird,Little Women,Kadın Yönetmen,Oscar
+Bong Joon-ho,Parasite,Snowpiercer,Memories of Murder,Kore,Yönetmen
+Jordan Peele,Get Out,Us,Nope,Korku,Komedyen
+Coen Kardeşler,Fargo,Big Lebowski,No Country for Old Men,İki Kardeş,Yönetmen
+Taika Waititi,Jojo Rabbit,Thor Ragnarok,Yeni Zelanda,Komedi,Yönetmen
+Damien Chazelle,Whiplash,La La Land,Babylon,Müzik,Yönetmen
+Yorgos Lanthimos,Poor Things,The Lobster,The Favourite,Yunanistan,Absürt
+Guy Ritchie,Snatch,Lock Stock,Sherlock Holmes,İngiliz,Çete
+Anya Taylor-Joy,Queens Gambit,Furiosa,The Witch,Gözler,Oyuncu
+Pedro Pascal,The Last of Us,Mandalorian,Narcos,Oberyn Martell,Internet Daddy
+Cillian Murphy,Oppenheimer,Peaky Blinders,Thomas Shelby,Mavi Göz,İrlanda
+Mads Mikkelsen,Hannibal,Another Round,Casino Royale,Danimarka,Kötü Adam
+Austin Butler,Elvis,Dune 2,Masters of the Air,Ses,Oyuncu
+Barry Keoghan,Saltburn,Banshees of Inisherin,Batman,İrlanda,Oyuncu
+Jacob Elordi,Euphoria,Saltburn,Priscilla,Boy,Oyuncu
+Jenna Ortega,Wednesday,Scream,Beetlejuice,Gotik,Oyuncu
+Sydney Sweeney,Euphoria,White Lotus,Anyone But You,Sarışın,Oyuncu
+Paul Mescal,Normal People,Gladiator 2,Aftersun,İrlanda,Oyuncu
+Jeremy Allen White,The Bear,Shameless,Carmy,Mutfak,Oyuncu
+Bella Ramsey,The Last of Us,Ellie,Game of Thrones,Lyanna,Oyuncu
+Elizabeth Debicki,The Crown,Lady Diana,Tenet,Boy,Oyuncu
+Ayo Edebiri,The Bear,Inside Out 2,Komedi,Mutfak,Oyuncu
+Quinta Brunson,Abbott Elementary,Öğretmen,Okul,Komedi,Oyuncu
+Pedro Almodovar,İspanyol,Annem Hakkında Her Şey,Konuş Onunla,Yönetmen,Kırmızı
+Salih Bademci,Kulüp,Terzi,Dilek Taşı,İstanbullu Gelin,Oyuncu
+Pınar Deniz,Yargı,Aşk 101,Ceylin,Kaan Urgancıoğlu,Oyuncu
+Kaan Urgancıoğlu,Yargı,Kara Sevda,Ilgaz Savcı,Aşk 101,Oyuncu
+Afra Saraçoğlu,Yalı Çapkını,Seyran,Fazilet Hanım,Yeşil Deniz,Oyuncu
+Mert Ramazan Demir,Yalı Çapkını,Ferit,Şahmaran,Çıplak,Oyuncu
+Demet Özdemir,Erkenci Kuş,Doğduğun Ev Kaderindir,Adım Farah,Dans,Oyuncu
+Hande Erçel,Sen Çal Kapımı,Güneşin Kızları,Halka,Instagram,Oyuncu
+Kerem Bürsin,Güneşi Beklerken,Sen Çal Kapımı,Ya Çok Seversen,İngilizce,Oyuncu
+Can Yaman,Erkenci Kuş,Dolunay,İtalya,Kas,Oyuncu
+Burak Özçivit,Kuruluş Osman,Kara Sevda,Çalıkuşu,Bıyık,Oyuncu
+Fahriye Evcen,Yaprak Dökümü,Çalıkuşu,Necla,Burak Özçivit,Oyuncu
+Hazal Kaya,Aşk-ı Memnu,Nihal,Adını Feriha Koydum,Pera Palas,Oyuncu
+Çağatay Ulusoy,Adını Feriha Koydum,Medcezir,İçerde,Terzi,Hakan Muhafız
+Merve Dizdar,Kuru Otlar Üstüne,Cannes En İyi Kadın,Masumlar Apartmanı,Gülben,Oyuncu
+Öykü Karayel,Bir Başkadır,Kuzey Güney,Meryem,İpek,Oyuncu
+Gökçe Bahadır,Kulüp,Yaprak Dökümü,Ufak Tefek Cinayetler,Matilda,Oyuncu
+Nejat İşler,Kaybedenler Kulübü,Behzat Ç.,İyi Adamın 10 Günü,Bodrum,Oyuncu
+Erkan Kolçak Köstendil,Çukur,Vartolu,Bandırma Füze Kulübü,Görücü Usulü,Oyuncu
+Erdal Beşikçioğlu,Behzat Ç.,Amirim,Vali,Etimesgut Belediye Başkanı,Tiyatro
+Timuçin Esen,Müslüm,Hekimoğlu,Bodrum Masalı,Gönül İşleri,Oyuncu
+Fikret Kuşkan,Babam ve Oğlum,Zalim İstanbul,Mustafa Hakkında Her Şey,Kabadayı,Oyuncu
+Mehmet Günsür,Muhteşem Yüzyıl,Şehzade Mustafa,Fi,Atiye,İtalya
+Ozan Güven,G.O.R.A.,216,Fi,Muhteşem Yüzyıl,Rustem Paşa
+Zafer Algöz,Cem Yılmaz,GORA,Yahşi Batı,Erşan Kuneri,Beşiktaş
+Özkan Uğur,MFÖ,GORA,Garavel Usta,Cennet Mahallesi,Bknz
+Ferhan Şensoy,Pardon,Şahları da Vururlar,Ortaoyuncular,Ses Tiyatrosu,Yazar
+Levent Kırca,Olacak O Kadar,Niyetiniz Ne,Sarhoş,Komedi,Tiyatro
+Sadri Alışık,Turist Ömer,Offside,Ofside,Sokak Kızı Eleni,Selamunaleykum
+Ayhan Işık,Taçsız Kral,Yeşilçam,Jön,Bıyık,Aktör
+Belgin Doruk,Küçük Hanımefendi,Yeşilçam,Zarafet,Ayhan Işık,Aktris
+Ediz Hun,Yeşilçam,Jön,Biyolog,Romantik,Aktör
+Kartal Tibet,Tarkan,Kurt,Tosun Paşa Yönetmen,Yeşilçam,Cihangir
+Erol Taş,Kötü Adam,Tavuk Yeme Sahnesi,Susuz Yaz,Kahvehane,Yeşilçam
+Hulusi Kentmen,Tatlı Sert Baba,Fabrikatör,Bıyık,Polis,Yeşilçam
+Ali Şen,Şener Şen Baba,Kötü Ağa,Süt Kardeşler,Yeşilçam,Oyuncu
+Kadir Savun,Babacan,Yeşilçam,Bıyıklı Emniyet,Dost,Aktör
+Cevat Kurtuluş,Komik Jest,Yeşilçam,Garson,Gözlük,Komedyen
+Sami Hazinses,Yeşilçam,Kısa Boy,Komedi,Şarkı,Oyuncu
+Pembe,Sibel Taşçıoğlu,Doğa,Fatih,Gelin,Kızılcık Şerbeti
+Yılmaz,Feyyaz Yiğit,İlkkan,Ersoy,Absürt,Gibi
+İlkkan,Kıvanç Kılınç,Yılmaz,Ersoy,Absürt,Gibi
+Ersoy,Ahmet Milena,Yılmaz,İlkkan,Babaanne,Gibi
+Ömer,Selahattin Paşalı,Gökçe Bahadır,Camii,Müezzin,Star TV
+Gaddar,Çağatay Ulusoy,Dağhan,Tetikçi,Aksiyon,FOX NOW
+Selahaddin Eyyubi,Kudüs,TRT,Savaş,Haçlı,Tarih
+Bursa Bülbülü,Ata Demirer,Kaset,80'ler,Müzik,Bursa
+Kurak Günler,Emin Alper,Selahattin Paşalı,Kuyu,Savcı,Kasaba
+Bergen,Farah Zeynep Abdullah,Acıların Kadını,Şarkıcı,Kezzap,Film
+Atatürk,Aras Bulut İynemli,Mustafa Kemal,Cumhuriyet,Tarih,Film

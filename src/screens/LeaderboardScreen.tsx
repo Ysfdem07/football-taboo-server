@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ImageBackground,
-  SafeAreaView, FlatList, ActivityIndicator, ScrollView, useWindowDimensions
+  SafeAreaView, FlatList, ActivityIndicator, ScrollView, useWindowDimensions, StatusBar, Platform
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,6 +11,7 @@ import { getLeagueForKp, LEAGUES } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { Analytics } from '../services/analytics';
 
@@ -38,12 +39,15 @@ const LEAGUE_FILTERS = ['Tümü', 'Amatör Küme', '3. Lig', '2. Lig', '1. Lig',
 export default function LeaderboardScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<RootStackParamList, 'Leaderboard'>>();
+  const insets = useSafeAreaInsets();
   const initialCategory = (route.params as any)?.categoryId || 'football';
 
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState('Tümü');
+
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 12;
 
   const currentCat = CATEGORIES.find(c => c.id === activeCategory) || CATEGORIES[0];
   const NEON = currentCat.color;
@@ -129,7 +133,7 @@ export default function LeaderboardScreen() {
       <SafeAreaView style={styles.container}>
 
         {/* HEADER */}
-        <View style={styles.headerRow}>
+        <View style={[styles.headerRow, { paddingTop: topPadding }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-back" size={26} color="#FFF" />
           </TouchableOpacity>

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Analytics } from './src/services/analytics';
 import { RemoteConfig } from './src/services/remoteConfig';
@@ -35,9 +36,9 @@ export default function App() {
   }
 
   return (
-    <>
-      <StatusBar style="light" />
+    <SafeAreaProvider>
+      <StatusBar style="light" translucent backgroundColor="transparent" />
       <AppNavigator />
-    </>
+    </SafeAreaProvider>
   );
 }

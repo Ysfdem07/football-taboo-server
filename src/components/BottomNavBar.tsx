@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface BottomNavBarProps {
   activeTab: 'home' | 'howToPlay' | 'leaderboard' | 'profile' | 'none';
@@ -8,8 +9,12 @@ interface BottomNavBarProps {
 }
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigation }) => {
+  const insets = useSafeAreaInsets();
+  // Ensure Android 3-button bar or gesture bar safe area inset is respected
+  const extraBottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 12) : Math.max(insets.bottom, 6);
+
   return (
-    <View style={styles.bottomBar}>
+    <View style={[styles.bottomBar, { paddingBottom: extraBottomPadding, height: 56 + extraBottomPadding }]}>
       <TouchableOpacity 
         style={styles.tabItem} 
         onPress={() => activeTab !== 'home' && navigation.navigate('Home')}
@@ -72,19 +77,17 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
 const styles = StyleSheet.create({
   bottomBar: {
     flexDirection: 'row',
-    height: 60,
-    backgroundColor: 'rgba(5, 11, 20, 0.95)',
+    backgroundColor: 'rgba(5, 11, 20, 0.96)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingBottom: 4
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6
+    paddingVertical: 4
   },
   tabText: {
     fontSize: 10,

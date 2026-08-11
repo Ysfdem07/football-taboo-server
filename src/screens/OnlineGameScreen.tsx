@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -7,6 +7,7 @@ import { Colors } from '../constants/Colors';
 import { getSocket } from '../services/socket';
 import { Analytics } from '../services/analytics';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showInterstitial } from '../services/ads';
 
 const NEON_GREEN  = '#00FF88';
@@ -337,6 +338,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     );
   }
 
+  const insets = useSafeAreaInsets();
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+
   const guessingPlayer = players.find(p => p.id === guessingPlayerId);
   const guessingPlayerName = guessingPlayer ? (guessingPlayer.id === socket.id ? guessingPlayer.name + " (Sen)" : guessingPlayer.name) : "Oyuncu";
 
@@ -346,7 +350,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       <View style={styles.overlay} />
 
       <SafeAreaView style={styles.container}>
-        <View style={styles.scoreBoard}>
+        <View style={[styles.scoreBoard, { paddingTop: topPadding }]}>
           {players.map((p, index) => (
             <Text key={p.id} style={[
               styles.scoreText, 

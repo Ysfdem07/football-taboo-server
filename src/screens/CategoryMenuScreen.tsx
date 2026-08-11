@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, ScrollView, StatusBar, Platform } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 
 type CategoryMenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CategoryMenu'>;
@@ -54,8 +55,11 @@ function getWeekRange(): string {
 export default function CategoryMenuScreen() {
   const navigation = useNavigation<CategoryMenuScreenNavigationProp>();
   const route = useRoute<CategoryMenuScreenRouteProp>();
+  const insets = useSafeAreaInsets();
   const { categoryId } = route.params;
   const [loading, setLoading] = useState(false);
+
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
   const theme = THEMES[categoryId as keyof typeof THEMES] || THEMES.football;
   const NEON_COLOR = theme.color;
@@ -82,7 +86,7 @@ export default function CategoryMenuScreen() {
         )}
 
         {/* HEADER */}
-        <View style={styles.header}>
+        <View style={[styles.header, { marginTop: topPadding }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
             <Ionicons name="chevron-back" size={28} color={NEON_COLOR} />
