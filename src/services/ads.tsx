@@ -1,6 +1,7 @@
 // src/services/ads.ts
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, NativeModules } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, NativeModules, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const isFirebaseAvailable = !!NativeModules.RNFBAppModule;
 
@@ -176,10 +177,19 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
   }
 };
 
+interface BannerAdComponentProps {
+  hasBottomTab?: boolean;
+}
+
 // Premium Mock Banner component for Expo Go testing
-const MockBannerAd = () => {
+const MockBannerAd: React.FC<BannerAdComponentProps> = ({ hasBottomTab = false }) => {
+  const insets = useSafeAreaInsets();
+  const extraBottomPadding = hasBottomTab 
+    ? 4 
+    : (Platform.OS === 'android' ? Math.max(insets.bottom, 16) : Math.max(insets.bottom, 6));
+
   return (
-    <View style={styles.mockBannerContainer}>
+    <View style={[styles.mockBannerContainer, { paddingBottom: extraBottomPadding + 4 }]}>
       <TouchableOpacity activeOpacity={0.8} style={styles.mockBannerContent}>
         <Text style={styles.mockBadge}>SPONSOR</Text>
         <Text style={styles.mockTitle}>⚽ Wordico Premium!</Text>
@@ -190,14 +200,19 @@ const MockBannerAd = () => {
 };
 
 // Unified Banner Ad Component
-export const BannerAdComponent: React.FC = () => {
+export const BannerAdComponent: React.FC<BannerAdComponentProps> = ({ hasBottomTab = false }) => {
+  const insets = useSafeAreaInsets();
+  const extraBottomPadding = hasBottomTab 
+    ? 4 
+    : (Platform.OS === 'android' ? Math.max(insets.bottom, 16) : Math.max(insets.bottom, 6));
+
   if (!isFirebaseAvailable || !BannerAd || !BANNER_ID || !BannerAdSize) {
-    return <MockBannerAd />;
+    return <MockBannerAd hasBottomTab={hasBottomTab} />;
   }
 
   try {
     return (
-      <View style={styles.bannerContainer}>
+      <View style={[styles.bannerContainer, { paddingBottom: extraBottomPadding }]}>
         <BannerAd
           unitId={BANNER_ID}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
@@ -212,7 +227,7 @@ export const BannerAdComponent: React.FC = () => {
     );
   } catch (err) {
     console.warn('[Ads] Banner component crashed, rendering fallback:', err);
-    return <MockBannerAd />;
+    return <MockBannerAd hasBottomTab={hasBottomTab} />;
   }
 };
 
