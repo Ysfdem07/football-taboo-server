@@ -8,6 +8,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 
@@ -18,7 +19,7 @@ const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
-const SECS_PER_Q  = 40; // 40 saniye per soru
+const SECS_PER_Q  = 40;
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
@@ -44,6 +45,7 @@ function normalizeText(t: string) {
 export default function TournamentGameScreen() {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<Route>();
+  const insets     = useSafeAreaInsets();
   const { cards, categoryId: catId } = route.params;
   const categoryId = catId || 'football';
 
@@ -79,7 +81,7 @@ export default function TournamentGameScreen() {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
 
-    // Force initial focus
+    // Initial focus on mount
     ensureFocus();
     const t1 = setTimeout(ensureFocus, 100);
     const t2 = setTimeout(ensureFocus, 300);
@@ -92,7 +94,7 @@ export default function TournamentGameScreen() {
     };
   }, []);
 
-  // Guarantee focus re-engagement when question changes
+  // Re-engage focus when question changes or feedback finishes
   useEffect(() => {
     if (!finished && !feedback) {
       ensureFocus();
@@ -222,6 +224,7 @@ export default function TournamentGameScreen() {
 
   // Render the word block helper
   const renderWordPlaceholder = () => {
+    if (!currentCard) return null;
     const words = currentCard.word.split(' ');
     const guessChars = guess.split('');
     let globalCharIndex = 0;
@@ -248,7 +251,7 @@ export default function TournamentGameScreen() {
     }
 
     return (
-      <View style={styles.wordsWrapper}>
+      <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={styles.wordsWrapper}>
         {words.map((word, wordIdx) => {
           const charBoxes = word.split('').map((char, charIdx) => {
             const index = globalCharIndex;
@@ -267,10 +270,8 @@ export default function TournamentGameScreen() {
             }
 
             return (
-              <TouchableOpacity
+              <View 
                 key={charIdx} 
-                activeOpacity={1}
-                onPress={ensureFocus}
                 style={[
                   styles.charBox, 
                   { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
@@ -280,7 +281,7 @@ export default function TournamentGameScreen() {
                 <Text style={[styles.charText, { fontSize }, isPrediction && { color: NEON_GREEN }]}>
                   {displayChar}
                 </Text>
-              </TouchableOpacity>
+              </View>
             );
           });
 
@@ -294,7 +295,7 @@ export default function TournamentGameScreen() {
             </View>
           );
         })}
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -365,20 +366,21 @@ export default function TournamentGameScreen() {
     <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
       <View style={styles.overlay} />
       <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
+      
       <SafeAreaView style={{ flex: 1 }}>
-        <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1 }}>
-          <KeyboardAvoidingView 
-            style={{ flex: 1, justifyContent: 'space-between' }} 
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-          >
-            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-              <ScrollView 
-                style={{ flex: 1 }} 
-                contentContainerStyle={{ paddingBottom: 20 }}
-                keyboardShouldPersistTaps="always"
-                showsVerticalScrollIndicator={false}
-              >
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          <View style={{ flex: 1, justifyContent: 'space-between' }}>
+            <ScrollView 
+              style={{ flex: 1 }} 
+              contentContainerStyle={{ paddingBottom: 20 }}
+              keyboardShouldPersistTaps="always"
+              showsVerticalScrollIndicator={false}
+            >
+              <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1 }}>
                 {/* Top Bar */}
                 <View style={styles.topBar}>
                   <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
@@ -403,7 +405,7 @@ export default function TournamentGameScreen() {
                 </View>
 
                 {/* Clues */}
-                <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={styles.cluesCard}>
+                <View style={styles.cluesCard}>
                   {/* Potential Score Badge */}
                   <View style={styles.potentialScoreContainer}>
                     <Ionicons name="star" size={16} color={NEON_GOLD} />
@@ -425,7 +427,7 @@ export default function TournamentGameScreen() {
                     </View>
                   ))}
 
-                  {/* Yan Yana Aksiyon Butonları */}
+                  {/* Action Buttons */}
                   <View style={styles.gameActionsRow}>
                     <TouchableOpacity 
                       style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
@@ -446,49 +448,47 @@ export default function TournamentGameScreen() {
                       <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
                     </TouchableOpacity>
                   </View>
-                </TouchableOpacity>
+                </View>
 
                 {/* Word Letter Placeholders */}
-                <TouchableOpacity activeOpacity={1} onPress={ensureFocus}>
-                  {renderWordPlaceholder()}
+                {renderWordPlaceholder()}
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Input Section (Actions + Invisible Input) */}
+            <View style={[styles.inputSection, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+              {/* Clean Invisible TextInput */}
+              <TextInput
+                ref={inputRef}
+                style={styles.invisibleInput}
+                value={guess}
+                onChangeText={(text) => {
+                  const cleanText = text.replace(/\s+/g, '');
+                  setGuess(cleanText);
+                }}
+                onSubmitEditing={handleGuess}
+                autoCorrect={false}
+                autoCapitalize="characters"
+                returnKeyType="send"
+                editable={!feedback}
+                maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
+                autoFocus={true}
+                blurOnSubmit={false}
+                showSoftInputOnFocus={true}
+                caretHidden={true}
+              />
+
+              <View style={styles.actionRow}>
+                <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
+                  <Text style={styles.skipBtnText}>PAS GEÇ</Text>
                 </TouchableOpacity>
-              </ScrollView>
-
-              {/* Input Section - KeyboardAvoidingView will push the action buttons above keyboard */}
-              <View style={styles.inputSection}>
-                {/* Invisible TextInput that keeps focus and captures keyboard events */}
-                <TextInput
-                  ref={inputRef}
-                  style={styles.invisibleInput}
-                  value={guess}
-                  onChangeText={(text) => {
-                    const cleanText = text.replace(/\s+/g, '');
-                    setGuess(cleanText);
-                  }}
-                  onSubmitEditing={handleGuess}
-                  autoCorrect={false}
-                  autoCapitalize="characters"
-                  returnKeyType="send"
-                  editable={!feedback}
-                  maxLength={currentCard.word.replace(/\s+/g, '').length}
-                  autoFocus={true}
-                  blurOnSubmit={false}
-                  showSoftInputOnFocus={true}
-                  caretHidden={true}
-                />
-
-                <View style={styles.actionRow}>
-                  <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
-                    <Text style={styles.skipBtnText}>PAS GEÇ</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
-                    <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
-                  </TouchableOpacity>
-                </View>
+                <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
+                  <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </KeyboardAvoidingView>
-        </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
 
       {/* Feedback Overlay */}
@@ -658,20 +658,17 @@ const styles = StyleSheet.create({
   inputSection: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 16,
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
-    position: 'relative',
   },
   invisibleInput: {
     position: 'absolute',
-    left: 0,
     top: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0.001,
-    zIndex: -1,
+    left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
