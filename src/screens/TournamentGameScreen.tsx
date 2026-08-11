@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
   ImageBackground, SafeAreaView, Animated, Keyboard,
@@ -67,13 +67,13 @@ export default function TournamentGameScreen() {
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
 
-  const ensureFocus = () => {
+  const ensureFocus = useCallback(() => {
     if (!feedback && !finished) {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
     }
-  };
+  }, [feedback, finished]);
 
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
@@ -81,7 +81,6 @@ export default function TournamentGameScreen() {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
 
-    // Initial focus on mount
     ensureFocus();
     const t1 = setTimeout(ensureFocus, 100);
     const t2 = setTimeout(ensureFocus, 300);
@@ -92,9 +91,8 @@ export default function TournamentGameScreen() {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, []);
+  }, [ensureFocus]);
 
-  // Re-engage focus when question changes or feedback finishes
   useEffect(() => {
     if (!finished && !feedback) {
       ensureFocus();
@@ -102,9 +100,8 @@ export default function TournamentGameScreen() {
       const t2 = setTimeout(ensureFocus, 200);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
-  }, [qIndex, feedback, finished]);
+  }, [qIndex, feedback, finished, ensureFocus]);
 
-  // Listen for score result
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
@@ -222,7 +219,7 @@ export default function TournamentGameScreen() {
     }
   };
 
-  // Render the word block helper
+  // Render the word block helper (Placed at top for immediate focus)
   const renderWordPlaceholder = () => {
     if (!currentCard) return null;
     const words = currentCard.word.split(' ');
@@ -275,7 +272,7 @@ export default function TournamentGameScreen() {
                 style={[
                   styles.charBox, 
                   { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
-                  isPrediction && { borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.08)' }
+                  isPrediction && { borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.15)' }
                 ]}
               >
                 <Text style={[styles.charText, { fontSize }, isPrediction && { color: NEON_GREEN }]}>
@@ -322,13 +319,15 @@ export default function TournamentGameScreen() {
     outputRange: ['rgba(0,8,20,0)', feedback === 'correct' ? 'rgba(0,255,136,0.25)' : 'rgba(255,68,68,0.25)'],
   });
 
+  const potentialScore = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
+
   // ─── Finished Screen ─────────────────────────────────────────────────────
   if (finished) {
     return (
       <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
         <View style={styles.overlay} />
         <SafeAreaView style={styles.finishedContainer}>
-          <Text style={styles.finishedTitle}>TURNUVA BITTI</Text>
+          <Text style={styles.finishedTitle}>TURNUVA BİTTİ</Text>
           <Text style={styles.finishedScore}>{totalScore}</Text>
           <Text style={styles.finishedScoreLabel}>PUAN</Text>
           <Text style={styles.finishedSub}>{correctCount} / {cards.length} doğru</Text>
@@ -376,7 +375,7 @@ export default function TournamentGameScreen() {
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <ScrollView 
               style={{ flex: 1 }} 
-              contentContainerStyle={{ paddingBottom: 20 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
               keyboardShouldPersistTaps="always"
               showsVerticalScrollIndicator={false}
             >
@@ -404,22 +403,32 @@ export default function TournamentGameScreen() {
                   ))}
                 </View>
 
-                {/* Clues */}
+                {/* 1. WORD LETTER PLACEHOLDERS (MOVED TO TOP ABOVE CLUES CARD) */}
+                {renderWordPlaceholder()}
+
+                {/* 2. CLUES CARD (WITH COMPACT TOP-RIGHT POTENTIAL SCORE BADGE) */}
                 <View style={styles.cluesCard}>
-                  {/* Potential Score Badge */}
-                  <View style={styles.potentialScoreContainer}>
-                    <Ionicons name="star" size={16} color={NEON_GOLD} />
-                    <Text style={styles.potentialScoreText}>
-                      Kazanılacak Puan: {Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10)}
-                    </Text>
+                  {/* Clues Card Header with Compact Score Badge on Right */}
+                  <View style={styles.cluesCardHeader}>
+                    <View style={styles.cluesHeaderLeft}>
+                      <Ionicons name="eye-outline" size={15} color={NEON_BLUE} />
+                      <Text style={styles.cluesHeaderTitle}>YASAKLI KELİME İPUÇLARI</Text>
+                    </View>
+
+                    {/* Compact Right-Aligned Score Counter */}
+                    <View style={styles.compactScoreBadge}>
+                      <Ionicons name="star" size={12} color={NEON_GOLD} />
+                      <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
+                    </View>
                   </View>
 
+                  {/* Forbidden Word Clues */}
                   {currentCard.forbidden.map((clue, i) => (
                     <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
                       <Ionicons
-                        name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
-                        size={14}
-                        color={i < hintsShown ? NEON_BLUE : '#444'}
+                        name={i < hintsShown ? 'chevron-forward-circle' : 'lock-closed-outline'}
+                        size={13}
+                        color={i < hintsShown ? NEON_BLUE : '#555'}
                       />
                       <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
                         {i < hintsShown ? clue : '? ? ? ? ?'}
@@ -427,7 +436,7 @@ export default function TournamentGameScreen() {
                     </View>
                   ))}
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons inside Clues Card */}
                   <View style={styles.gameActionsRow}>
                     <TouchableOpacity 
                       style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
@@ -449,14 +458,11 @@ export default function TournamentGameScreen() {
                     </TouchableOpacity>
                   </View>
                 </View>
-
-                {/* Word Letter Placeholders */}
-                {renderWordPlaceholder()}
               </TouchableOpacity>
             </ScrollView>
 
             {/* Input Section (Actions + Invisible Input) */}
-            <View style={[styles.inputSection, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 8 : Math.max(insets.bottom, 12) }]}>
               {/* Clean Invisible TextInput */}
               <TextInput
                 ref={inputRef}
@@ -476,13 +482,14 @@ export default function TournamentGameScreen() {
                 blurOnSubmit={false}
                 showSoftInputOnFocus={true}
                 caretHidden={true}
+                disableFullscreenUI={true}
               />
 
               <View style={styles.actionRow}>
-                <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
+                <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback} activeOpacity={0.8}>
                   <Text style={styles.skipBtnText}>PAS GEÇ</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
+                <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback} activeOpacity={0.8}>
                   <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
                 </TouchableOpacity>
               </View>
@@ -552,67 +559,24 @@ const styles = StyleSheet.create({
   timerBarFill: { height: 4, borderRadius: 2 },
   scoreText: { color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 14, width: 80, textAlign: 'right' },
 
-  progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 8 },
+  progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 4 },
   dot:          { width: 8, height: 8, borderRadius: 4, backgroundColor: '#333' },
   dotDone:      { backgroundColor: NEON_GREEN },
   dotCurrent:   { backgroundColor: NEON_BLUE, width: 14 },
 
-  cluesCard: {
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
-    backgroundColor: 'rgba(0,191,255,0.05)', padding: 8,
-  },
-  potentialScoreContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 215, 0, 0.15)',
-    borderWidth: 1,
-    borderColor: NEON_GOLD,
-    borderRadius: 8,
-    paddingVertical: 6,
-    marginBottom: 8,
-    gap: 6,
-  },
-  potentialScoreText: {
-    color: NEON_GOLD,
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 14,
-  },
-  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  clueHidden:     { opacity: 0.3 },
-  clueText: { 
-    color: '#ffffff', 
-    fontFamily: 'Poppins_700Bold', 
-    fontSize: 16, 
-    flex: 1,
-    textShadowColor: 'rgba(0,191,255,0.4)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 4
-  },
-  clueTextHidden: { color: 'rgba(255,255,255,0.15)' },
-  gameActionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginTop: 10,
-    width: '100%'
-  },
-
+  // Word Letter Placeholders (Top Section)
   wordsWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginVertical: 14,
-    gap: 16
+    marginVertical: 10,
+    gap: 12
   },
   wordRow: {
     flexDirection: 'row',
-    gap: 5
+    gap: 4
   },
   charBox: {
     width: 30, 
@@ -629,6 +593,72 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Poppins_700Bold'
   },
+
+  // Clues Card (Below Word Placeholders)
+  cluesCard: {
+    marginHorizontal: 16,
+    marginVertical: 6,
+    borderRadius: 14,
+    borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
+    backgroundColor: 'rgba(0,191,255,0.05)', padding: 10,
+  },
+  cluesCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
+  },
+  cluesHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  cluesHeaderTitle: {
+    color: NEON_BLUE,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    letterSpacing: 0.5,
+  },
+  compactScoreBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: NEON_GOLD,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    gap: 4,
+  },
+  compactScoreText: {
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+  },
+
+  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
+  clueHidden:     { opacity: 0.35 },
+  clueText: { 
+    color: '#ffffff', 
+    fontFamily: 'Poppins_700Bold', 
+    fontSize: 15, 
+    flex: 1,
+    textShadowColor: 'rgba(0,191,255,0.4)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4
+  },
+  clueTextHidden: { color: 'rgba(255,255,255,0.18)' },
+
+  gameActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginTop: 10,
+    width: '100%'
+  },
   neonActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -637,11 +667,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderWidth: 1.5,
     borderColor: NEON_PURPLE,
-    borderRadius: 20,
+    borderRadius: 18,
     backgroundColor: 'rgba(168,85,247,0.06)',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    marginVertical: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 16,
+    marginVertical: 4,
     shadowColor: NEON_PURPLE,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
@@ -651,13 +681,13 @@ const styles = StyleSheet.create({
   neonActionText: {
     color: NEON_PURPLE,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 12,
+    fontSize: 11,
     letterSpacing: 0.5,
   },
 
   inputSection: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 10,
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
@@ -666,9 +696,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: 1,
-    height: 1,
+    width: 200,
+    height: 40,
     opacity: 0.01,
+    zIndex: -1,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
