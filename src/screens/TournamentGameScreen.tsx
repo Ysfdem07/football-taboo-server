@@ -18,7 +18,7 @@ const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
-const SECS_PER_Q  = 40; // 40 saniyeye yukseltildi
+const SECS_PER_Q  = 40; // 40 saniye per soru
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
@@ -38,7 +38,7 @@ function normalizeText(t: string) {
     .replace(/[îïìí]/g, 'i')
     .replace(/[ûüùú]/g, 'u')
     .replace(/[ôöòó]/g, 'o')
-    .replace(/[^a-z0-9]/g, '').trim(); // Boşlukları da tamamen normalizeText içinde temizliyoruz
+    .replace(/[^a-z0-9]/g, '').trim();
 }
 
 export default function TournamentGameScreen() {
@@ -55,7 +55,7 @@ export default function TournamentGameScreen() {
   const [totalScore, setTotalScore]   = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [feedback, setFeedback]       = useState<'correct' | 'wrong' | null>(null);
-  const [feedbackText, setFeedbackText] = useState(''); // Ekranda belirecek metin
+  const [feedbackText, setFeedbackText] = useState('');
   const [finished, setFinished]       = useState(false);
   const [scoreResult, setScoreResult] = useState<{ rank: number; totalPlayers: number; completedPerfectly: boolean } | null>(null);
   const [player, setPlayer]           = useState<{ id: string; username: string; avatar: string } | null>(null);
@@ -65,16 +65,42 @@ export default function TournamentGameScreen() {
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
 
+  const ensureFocus = () => {
+    if (!feedback && !finished) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }
+  };
+
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
 
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    // Force initial focus
+    ensureFocus();
+    const t1 = setTimeout(ensureFocus, 100);
+    const t2 = setTimeout(ensureFocus, 300);
+
     return () => {
       showSub.remove();
       hideSub.remove();
+      clearTimeout(t1);
+      clearTimeout(t2);
     };
   }, []);
+
+  // Guarantee focus re-engagement when question changes
+  useEffect(() => {
+    if (!finished && !feedback) {
+      ensureFocus();
+      const t1 = setTimeout(ensureFocus, 50);
+      const t2 = setTimeout(ensureFocus, 200);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [qIndex, feedback, finished]);
 
   // Listen for score result
   useEffect(() => {
@@ -129,19 +155,12 @@ export default function TournamentGameScreen() {
     flashScreen(false, `SÜRE DOLDU! ⏱️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
   };
 
-  const ensureFocus = () => {
-    if (!feedback && !finished) {
-      inputRef.current?.focus();
-    }
-  };
-
   const handleGuess = () => {
     if (!guess.trim() || feedback) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
     const isCorrect = normalizeText(guess) === normalizeText(currentCard.word);
     if (isCorrect) {
-      // Score: max(10, 100 - (hintsShown-1)*10 - revealedLetters*10)
       const earned = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
       setTotalScore(prev => prev + earned);
       setCorrectCount(prev => prev + 1);
@@ -150,6 +169,7 @@ export default function TournamentGameScreen() {
       flashScreen(false, `YANLIŞ! ❌\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
     }
     setGuess('');
+    ensureFocus();
   };
 
   const handleSkip = () => {
@@ -163,14 +183,14 @@ export default function TournamentGameScreen() {
     if (hintsShown < currentCard.forbidden.length) {
       setHintsShown(prev => prev + 1);
     }
-    setTimeout(() => inputRef.current?.focus(), 80);
+    ensureFocus();
+    setTimeout(ensureFocus, 50);
   };
 
   const handleShowLetter = () => {
     const wordClean = currentCard.word.replace(/\s+/g, '');
     if (revealedIndices.length >= wordClean.length) return;
 
-    // Pick a random unrevealed index
     const unrevealed: number[] = [];
     for (let i = 0; i < currentCard.word.length; i++) {
       if (currentCard.word[i] !== ' ' && !revealedIndices.includes(i)) {
@@ -181,7 +201,8 @@ export default function TournamentGameScreen() {
       const randIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
       setRevealedIndices(prev => [...prev, randIdx]);
     }
-    setTimeout(() => inputRef.current?.focus(), 80);
+    ensureFocus();
+    setTimeout(ensureFocus, 50);
   };
 
   const nextQuestion = () => {
@@ -194,24 +215,20 @@ export default function TournamentGameScreen() {
       setRevealedIndices([]);
       setTimeLeft(SECS_PER_Q);
       setGuess('');
-      setTimeout(() => inputRef.current?.focus(), 150);
+      ensureFocus();
+      setTimeout(ensureFocus, 100);
     }
   };
 
-  // Render the word block helper (Kelimelerin alt satıra bölünmesini engellemek için)
+  // Render the word block helper
   const renderWordPlaceholder = () => {
-    // Kelimeleri boşluklara göre bölüyoruz
     const words = currentCard.word.split(' ');
-    
-    // Kullanıcının yazdığı harfleri (boşluksuz) bir diziye çeviriyoruz
     const guessChars = guess.split('');
     let globalCharIndex = 0;
-    let typedIndex = 0; // Yazılan tahminlerin sırasını takip etmek için
+    let typedIndex = 0;
 
-    // Kelimedeki toplam karakter sayısını bulalım (boşluksuz en uzun kelime)
     const longestWordLength = Math.max(...words.map(w => w.length));
 
-    // Harf sayısına göre dinamik kutu boyutları
     let boxWidth = 32;
     let boxHeight = 40;
     let fontSize = 18;
@@ -235,41 +252,38 @@ export default function TournamentGameScreen() {
         {words.map((word, wordIdx) => {
           const charBoxes = word.split('').map((char, charIdx) => {
             const index = globalCharIndex;
-            globalCharIndex++; // global index takibi
+            globalCharIndex++;
             const isRevealed = revealedIndices.includes(index);
             
             let displayChar = '';
             let isPrediction = false;
 
-            // Eğer kullanıcı bu karakter sırasına kadar tahmin yazmışsa
             if (typedIndex < guessChars.length) {
               displayChar = guessChars[typedIndex].toUpperCase();
-              // Eğer harf zaten açık ise ve kullanıcının yazdığı harfle uyuşuyorsa veya uyuşmuyorsa bile üstüne yazsın
-              // Kendi yazdıklarını yeşil neon renkte gösterelim
               isPrediction = true;
               typedIndex++;
             } else if (isRevealed) {
-              // Kullanıcı henüz bu sıraya kadar yazmadıysa ancak harf açılmışsa
               displayChar = char.toUpperCase();
             }
 
             return (
-              <View 
+              <TouchableOpacity
                 key={charIdx} 
+                activeOpacity={1}
+                onPress={ensureFocus}
                 style={[
                   styles.charBox, 
                   { width: boxWidth, height: boxHeight, borderRadius: boxWidth * 0.22 },
-                  isPrediction && { borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.08)' } // Kullanıcının yazdıkları yeşil neon parlasın
+                  isPrediction && { borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.08)' }
                 ]}
               >
                 <Text style={[styles.charText, { fontSize }, isPrediction && { color: NEON_GREEN }]}>
                   {displayChar}
                 </Text>
-              </View>
+              </TouchableOpacity>
             );
           });
 
-          // Her kelimeden sonra boşluk için globalIndex'i arttırıyoruz (son kelime hariç)
           if (wordIdx < words.length - 1) {
             globalCharIndex++;
           }
@@ -286,17 +300,16 @@ export default function TournamentGameScreen() {
 
   const finishGame = () => {
     setFinished(true);
-    // Submit score
     const socket = getSocket();
     if (socket && player) {
-        socket.emit('submit_tournament_score', {
-          playerId: player.id,
-          username: player.username,
-          avatar: player.avatar,
-          score: totalScore,
-          correctCount,
-          category: categoryId,
-        });
+      socket.emit('submit_tournament_score', {
+        playerId: player.id,
+        username: player.username,
+        avatar: player.avatar,
+        score: totalScore,
+        correctCount,
+        category: categoryId,
+      });
     }
   };
 
@@ -353,125 +366,129 @@ export default function TournamentGameScreen() {
       <View style={styles.overlay} />
       <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView 
-          style={{ flex: 1, justifyContent: 'space-between' }} 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
-        >
-          <View style={{ flex: 1, justifyContent: 'space-between' }}>
-            <ScrollView 
-              style={{ flex: 1 }} 
-              contentContainerStyle={{ paddingBottom: 20 }}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Top Bar */}
-              <View style={styles.topBar}>
-                <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
-                <View style={styles.timerWrap}>
-                  <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
-                  <View style={styles.timerBarBg}>
-                    <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
+        <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1 }}>
+          <KeyboardAvoidingView 
+            style={{ flex: 1, justifyContent: 'space-between' }} 
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+          >
+            <View style={{ flex: 1, justifyContent: 'space-between' }}>
+              <ScrollView 
+                style={{ flex: 1 }} 
+                contentContainerStyle={{ paddingBottom: 20 }}
+                keyboardShouldPersistTaps="always"
+                showsVerticalScrollIndicator={false}
+              >
+                {/* Top Bar */}
+                <View style={styles.topBar}>
+                  <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
+                  <View style={styles.timerWrap}>
+                    <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
+                    <View style={styles.timerBarBg}>
+                      <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
+                    </View>
                   </View>
-                </View>
-                <Text style={styles.scoreText}>{totalScore} puan</Text>
-              </View>
-
-              {/* Progress dots */}
-              <View style={styles.progressDots}>
-                {cards.map((_, i) => (
-                  <View key={i} style={[
-                    styles.dot,
-                    i < qIndex && styles.dotDone,
-                    i === qIndex && styles.dotCurrent,
-                  ]} />
-                ))}
-              </View>
-
-              {/* Clues */}
-              <TouchableOpacity activeOpacity={0.95} onPress={ensureFocus} style={styles.cluesCard}>
-                {/* Potential Score Badge */}
-                <View style={styles.potentialScoreContainer}>
-                  <Ionicons name="star" size={16} color={NEON_GOLD} />
-                  <Text style={styles.potentialScoreText}>
-                    Kazanılacak Puan: {Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10)}
-                  </Text>
+                  <Text style={styles.scoreText}>{totalScore} puan</Text>
                 </View>
 
-                {currentCard.forbidden.map((clue, i) => (
-                  <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
-                    <Ionicons
-                      name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
-                      size={14}
-                      color={i < hintsShown ? NEON_BLUE : '#444'}
-                    />
-                    <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
-                      {i < hintsShown ? clue : '? ? ? ? ?'}
+                {/* Progress dots */}
+                <View style={styles.progressDots}>
+                  {cards.map((_, i) => (
+                    <View key={i} style={[
+                      styles.dot,
+                      i < qIndex && styles.dotDone,
+                      i === qIndex && styles.dotCurrent,
+                    ]} />
+                  ))}
+                </View>
+
+                {/* Clues */}
+                <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={styles.cluesCard}>
+                  {/* Potential Score Badge */}
+                  <View style={styles.potentialScoreContainer}>
+                    <Ionicons name="star" size={16} color={NEON_GOLD} />
+                    <Text style={styles.potentialScoreText}>
+                      Kazanılacak Puan: {Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10)}
                     </Text>
                   </View>
-                ))}
 
-                {/* Yan Yana Aksiyon Butonları */}
-                <View style={styles.gameActionsRow}>
-                  <TouchableOpacity 
-                    style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
-                    onPress={handleShowHint} 
-                    disabled={hintsShown >= currentCard.forbidden.length}
-                    activeOpacity={0.8}
-                  >
-                    <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
-                    <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
+                  {currentCard.forbidden.map((clue, i) => (
+                    <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
+                      <Ionicons
+                        name={i < hintsShown ? 'eye-outline' : 'lock-closed-outline'}
+                        size={14}
+                        color={i < hintsShown ? NEON_BLUE : '#444'}
+                      />
+                      <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
+                        {i < hintsShown ? clue : '? ? ? ? ?'}
+                      </Text>
+                    </View>
+                  ))}
+
+                  {/* Yan Yana Aksiyon Butonları */}
+                  <View style={styles.gameActionsRow}>
+                    <TouchableOpacity 
+                      style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
+                      onPress={handleShowHint} 
+                      disabled={hintsShown >= currentCard.forbidden.length}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
+                      <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={[styles.neonActionButton, { flex: 1, borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginVertical: 0 }]} 
+                      onPress={handleShowLetter}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
+                      <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Word Letter Placeholders */}
+                <TouchableOpacity activeOpacity={1} onPress={ensureFocus}>
+                  {renderWordPlaceholder()}
+                </TouchableOpacity>
+              </ScrollView>
+
+              {/* Input Section - KeyboardAvoidingView will push the action buttons above keyboard */}
+              <View style={styles.inputSection}>
+                {/* Invisible TextInput that keeps focus and captures keyboard events */}
+                <TextInput
+                  ref={inputRef}
+                  style={styles.invisibleInput}
+                  value={guess}
+                  onChangeText={(text) => {
+                    const cleanText = text.replace(/\s+/g, '');
+                    setGuess(cleanText);
+                  }}
+                  onSubmitEditing={handleGuess}
+                  autoCorrect={false}
+                  autoCapitalize="characters"
+                  returnKeyType="send"
+                  editable={!feedback}
+                  maxLength={currentCard.word.replace(/\s+/g, '').length}
+                  autoFocus={true}
+                  blurOnSubmit={false}
+                  showSoftInputOnFocus={true}
+                  caretHidden={true}
+                />
+
+                <View style={styles.actionRow}>
+                  <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
+                    <Text style={styles.skipBtnText}>PAS GEÇ</Text>
                   </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={[styles.neonActionButton, { flex: 1, borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginVertical: 0 }]} 
-                    onPress={handleShowLetter}
-                    activeOpacity={0.8}
-                  >
-                    <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
-                    <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
+                  <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
+                    <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
                   </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-
-              {/* Word Letter Placeholders */}
-              <TouchableOpacity activeOpacity={1} onPress={ensureFocus}>
-                {renderWordPlaceholder()}
-              </TouchableOpacity>
-            </ScrollView>
-
-            {/* Input Section - KeyboardAvoidingView will push the action buttons above keyboard */}
-            <View style={styles.inputSection}>
-              {/* Invisible TextInput that keeps focus and captures keyboard events */}
-              <TextInput
-                ref={inputRef}
-                style={styles.invisibleInput}
-                value={guess}
-                onChangeText={(text) => {
-                  // Sadece harfleri alıp boşluksuz tutuyoruz
-                  const cleanText = text.replace(/\s+/g, '');
-                  setGuess(cleanText);
-                }}
-                onSubmitEditing={handleGuess}
-                autoCorrect={false}
-                autoCapitalize="characters"
-                returnKeyType="send"
-                editable={!feedback}
-                maxLength={currentCard.word.replace(/\s+/g, '').length}
-                autoFocus={true}
-              />
-
-              <View style={styles.actionRow}>
-                <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback}>
-                  <Text style={styles.skipBtnText}>PAS GEÇ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback}>
-                  <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
-                </TouchableOpacity>
               </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </TouchableOpacity>
       </SafeAreaView>
 
       {/* Feedback Overlay */}
@@ -645,14 +662,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
+    position: 'relative',
   },
   invisibleInput: {
     position: 'absolute',
-    left: -999,
+    left: 0,
     top: 0,
-    width: 40,
-    height: 40,
-    opacity: 0.01,
+    width: '100%',
+    height: '100%',
+    opacity: 0.001,
+    zIndex: -1,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
