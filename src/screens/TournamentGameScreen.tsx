@@ -68,55 +68,60 @@ export default function TournamentGameScreen() {
   const flashAnim  = useRef(new Animated.Value(0)).current;
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
+  const isKeyboardOpenRef = useRef(false);
 
-  // Smart, flicker-free focus re-engagement logic
+  // Smooth, flicker-free focus maintainer
   const ensureFocus = useCallback(() => {
     if (finished) return;
-
-    if (!keyboardVisible) {
-      // Keyboard was dismissed (e.g. Android back button), so blur then focus to force-reopen
-      requestAnimationFrame(() => {
-        inputRef.current?.blur();
-        setTimeout(() => {
-          inputRef.current?.focus();
-        }, 30);
-      });
-    } else {
-      // Keyboard is ALREADY open, simply maintain focus cleanly without blur/refocus flicker!
+    requestAnimationFrame(() => {
       if (!inputRef.current?.isFocused()) {
         inputRef.current?.focus();
       }
+    });
+  }, [finished]);
+
+  // Handler for explicit screen tap when keyboard was closed (e.g. Android back button)
+  const handleManualScreenTap = useCallback(() => {
+    if (finished) return;
+    if (!isKeyboardOpenRef.current) {
+      inputRef.current?.blur();
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 40);
+    } else if (!inputRef.current?.isFocused()) {
+      inputRef.current?.focus();
     }
-  }, [finished, keyboardVisible]);
+  }, [finished]);
 
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
 
-    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      isKeyboardOpenRef.current = true;
+      setKeyboardVisible(true);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      isKeyboardOpenRef.current = false;
+      setKeyboardVisible(false);
+    });
 
-    // Force focus on mount
-    ensureFocus();
-    const t1 = setTimeout(ensureFocus, 100);
-    const t2 = setTimeout(ensureFocus, 300);
+    // Clean focus on mount - NO blur calls!
+    inputRef.current?.focus();
+    const t1 = setTimeout(() => inputRef.current?.focus(), 150);
 
     return () => {
       showSub.remove();
       hideSub.remove();
       clearTimeout(t1);
-      clearTimeout(t2);
     };
-  }, [ensureFocus]);
+  }, []);
 
-  // Keep keyboard focused on question transition
+  // Keep keyboard focused on question transition without blur calls
   useEffect(() => {
     if (!finished) {
-      ensureFocus();
-      const t1 = setTimeout(ensureFocus, 50);
-      const t2 = setTimeout(ensureFocus, 200);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+      inputRef.current?.focus();
     }
-  }, [qIndex, finished, ensureFocus]);
+  }, [qIndex, finished]);
 
   // Listen for score result
   useEffect(() => {
@@ -264,7 +269,7 @@ export default function TournamentGameScreen() {
     }
 
     return (
-      <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={styles.wordsWrapper}>
+      <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={styles.wordsWrapper}>
         {words.map((word, wordIdx) => {
           const charBoxes = word.split('').map((char, charIdx) => {
             const index = globalCharIndex;
@@ -380,7 +385,7 @@ export default function TournamentGameScreen() {
   // ─── Game Screen ──────────────────────────────────────────────────────────
   return (
     <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
-      <TouchableWithoutFeedback onPress={ensureFocus}>
+      <TouchableWithoutFeedback onPress={handleManualScreenTap}>
         <View style={{ flex: 1 }}>
           <View style={styles.overlay} />
           <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
@@ -399,7 +404,7 @@ export default function TournamentGameScreen() {
                   showsVerticalScrollIndicator={false}
                   bounces={false}
                 >
-                  <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1, justifyContent: 'space-between' }}>
+                  <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={{ flex: 1, justifyContent: 'space-between' }}>
                     <View>
                       {/* Top Bar (With Safe Insets Top Padding) */}
                       <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12) }]}>
@@ -429,7 +434,7 @@ export default function TournamentGameScreen() {
                     </View>
 
                     {/* 2. CLUES CARD (COMPACT WITH SCORE BADGE MOVED TO FIRST CLUE ROW) */}
-                    <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={styles.cluesCard}>
+                    <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={styles.cluesCard}>
                       {/* Forbidden Word Clues */}
                       {currentCard.forbidden.map((clue, i) => (
                         <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
