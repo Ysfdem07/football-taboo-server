@@ -381,9 +381,10 @@ export default function TournamentGameScreen() {
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <ScrollView 
               style={{ flex: 1 }} 
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 10 }}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 6 }}
               keyboardShouldPersistTaps="always"
               showsVerticalScrollIndicator={false}
+              bounces={false}
             >
               <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1, justifyContent: 'space-between' }}>
                 <View>
@@ -414,22 +415,8 @@ export default function TournamentGameScreen() {
                   {renderWordPlaceholder()}
                 </View>
 
-                {/* 2. CLUES CARD (COMPACT WITH TOP-RIGHT POTENTIAL SCORE BADGE) */}
+                {/* 2. CLUES CARD (COMPACT WITH SCORE BADGE MOVED TO FIRST CLUE ROW) */}
                 <View style={styles.cluesCard}>
-                  {/* Clues Card Header */}
-                  <View style={styles.cluesCardHeader}>
-                    <View style={styles.cluesHeaderLeft}>
-                      <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
-                      <Text style={styles.cluesHeaderTitle}>YASAKLI KELİME İPUÇLARI</Text>
-                    </View>
-
-                    {/* Compact Right-Aligned Score Counter Badge */}
-                    <View style={styles.compactScoreBadge}>
-                      <Ionicons name="star" size={11} color={NEON_GOLD} />
-                      <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
-                    </View>
-                  </View>
-
                   {/* Forbidden Word Clues */}
                   {currentCard.forbidden.map((clue, i) => (
                     <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
@@ -441,6 +428,14 @@ export default function TournamentGameScreen() {
                       <Text style={[styles.clueText, { fontSize: isTallScreen ? 15 : 13 }, i >= hintsShown && styles.clueTextHidden]}>
                         {i < hintsShown ? clue : '? ? ? ? ?'}
                       </Text>
+
+                      {/* First clue row has the compact score badge on the right! */}
+                      {i === 0 && (
+                        <View style={styles.compactScoreBadge}>
+                          <Ionicons name="star" size={10} color={NEON_GOLD} />
+                          <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
+                        </View>
+                      )}
                     </View>
                   ))}
 
@@ -580,7 +575,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: 6,
     rowGap: 10,
     columnGap: 20, // Distinct 20px gap between separate words!
   },
@@ -603,32 +598,12 @@ const styles = StyleSheet.create({
   // Clues Card (Below Word Placeholders)
   cluesCard: {
     marginHorizontal: 16,
-    marginVertical: 6,
+    marginVertical: 4,
     borderRadius: 14,
     borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
     backgroundColor: 'rgba(0,191,255,0.05)', 
     paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  cluesCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-    paddingBottom: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
-  },
-  cluesHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  cluesHeaderTitle: {
-    color: NEON_BLUE,
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
-    letterSpacing: 0.5,
+    paddingVertical: 8,
   },
   compactScoreBadge: {
     flexDirection: 'row',
@@ -663,7 +638,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
-    marginTop: 8,
+    marginTop: 6,
     width: '100%'
   },
   neonActionButton: {
