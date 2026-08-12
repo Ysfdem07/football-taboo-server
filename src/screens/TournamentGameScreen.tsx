@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
   ImageBackground, SafeAreaView, Animated, Keyboard,
-  KeyboardAvoidingView, Platform, Alert, ScrollView
+  KeyboardAvoidingView, Platform, Alert, ScrollView,
+  useWindowDimensions
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -46,6 +47,7 @@ export default function TournamentGameScreen() {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<Route>();
   const insets     = useSafeAreaInsets();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const { cards, categoryId: catId } = route.params;
   const categoryId = catId || 'football';
 
@@ -221,7 +223,7 @@ export default function TournamentGameScreen() {
     }
   };
 
-  // Render the word block helper (Placed at TOP above Clues Card)
+  // Render the word block helper with dynamic screen scaling & distinct word spacing
   const renderWordPlaceholder = () => {
     if (!currentCard) return null;
     const words = currentCard.word.split(' ');
@@ -230,23 +232,24 @@ export default function TournamentGameScreen() {
     let typedIndex = 0;
 
     const longestWordLength = Math.max(...words.map(w => w.length));
+    const isTallScreen = screenHeight > 750;
 
-    let boxWidth = 30;
-    let boxHeight = 34;
-    let fontSize = 16;
+    let boxWidth = isTallScreen ? 34 : 28;
+    let boxHeight = isTallScreen ? 42 : 34;
+    let fontSize = isTallScreen ? 19 : 16;
 
     if (longestWordLength >= 14) {
-      boxWidth = 18;
-      boxHeight = 24;
-      fontSize = 11;
+      boxWidth = isTallScreen ? 20 : 17;
+      boxHeight = isTallScreen ? 26 : 22;
+      fontSize = isTallScreen ? 12 : 10;
     } else if (longestWordLength >= 11) {
-      boxWidth = 22;
-      boxHeight = 28;
-      fontSize = 12;
+      boxWidth = isTallScreen ? 24 : 20;
+      boxHeight = isTallScreen ? 30 : 26;
+      fontSize = isTallScreen ? 14 : 12;
     } else if (longestWordLength >= 9) {
-      boxWidth = 26;
-      boxHeight = 32;
-      fontSize = 14;
+      boxWidth = isTallScreen ? 28 : 24;
+      boxHeight = isTallScreen ? 36 : 30;
+      fontSize = isTallScreen ? 16 : 14;
     }
 
     return (
@@ -322,6 +325,7 @@ export default function TournamentGameScreen() {
   });
 
   const potentialScore = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
+  const isTallScreen = screenHeight > 750;
 
   // ─── Finished Screen ─────────────────────────────────────────────────────
   if (finished) {
@@ -377,49 +381,51 @@ export default function TournamentGameScreen() {
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <ScrollView 
               style={{ flex: 1 }} 
-              contentContainerStyle={{ paddingBottom: 10 }}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 10 }}
               keyboardShouldPersistTaps="always"
               showsVerticalScrollIndicator={false}
             >
-              <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1 }}>
-                {/* Top Bar */}
-                <View style={styles.topBar}>
-                  <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
-                  <View style={styles.timerWrap}>
-                    <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
-                    <View style={styles.timerBarBg}>
-                      <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
+              <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1, justifyContent: 'space-between' }}>
+                <View>
+                  {/* Top Bar (With Safe Insets Top Padding) */}
+                  <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12) }]}>
+                    <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
+                    <View style={styles.timerWrap}>
+                      <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
+                      <View style={styles.timerBarBg}>
+                        <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
+                      </View>
                     </View>
+                    <Text style={styles.scoreText}>{totalScore} puan</Text>
                   </View>
-                  <Text style={styles.scoreText}>{totalScore} puan</Text>
-                </View>
 
-                {/* Progress dots */}
-                <View style={styles.progressDots}>
-                  {cards.map((_, i) => (
-                    <View key={i} style={[
-                      styles.dot,
-                      i < qIndex && styles.dotDone,
-                      i === qIndex && styles.dotCurrent,
-                    ]} />
-                  ))}
-                </View>
+                  {/* Progress dots */}
+                  <View style={styles.progressDots}>
+                    {cards.map((_, i) => (
+                      <View key={i} style={[
+                        styles.dot,
+                        i < qIndex && styles.dotDone,
+                        i === qIndex && styles.dotCurrent,
+                      ]} />
+                    ))}
+                  </View>
 
-                {/* 1. WORD LETTER PLACEHOLDERS (AT TOP ABOVE CLUES CARD) */}
-                {renderWordPlaceholder()}
+                  {/* 1. WORD LETTER PLACEHOLDERS (DYNAMIC SIZING + CLEAR WORD GAP) */}
+                  {renderWordPlaceholder()}
+                </View>
 
                 {/* 2. CLUES CARD (COMPACT WITH TOP-RIGHT POTENTIAL SCORE BADGE) */}
                 <View style={styles.cluesCard}>
                   {/* Clues Card Header */}
                   <View style={styles.cluesCardHeader}>
                     <View style={styles.cluesHeaderLeft}>
-                      <Ionicons name="eye-outline" size={13} color={NEON_BLUE} />
+                      <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
                       <Text style={styles.cluesHeaderTitle}>YASAKLI KELİME İPUÇLARI</Text>
                     </View>
 
                     {/* Compact Right-Aligned Score Counter Badge */}
                     <View style={styles.compactScoreBadge}>
-                      <Ionicons name="star" size={10} color={NEON_GOLD} />
+                      <Ionicons name="star" size={11} color={NEON_GOLD} />
                       <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
                     </View>
                   </View>
@@ -429,10 +435,10 @@ export default function TournamentGameScreen() {
                     <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
                       <Ionicons
                         name={i < hintsShown ? 'chevron-forward-circle' : 'lock-closed-outline'}
-                        size={11}
+                        size={12}
                         color={i < hintsShown ? NEON_BLUE : '#555'}
                       />
-                      <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
+                      <Text style={[styles.clueText, { fontSize: isTallScreen ? 15 : 13 }, i >= hintsShown && styles.clueTextHidden]}>
                         {i < hintsShown ? clue : '? ? ? ? ?'}
                       </Text>
                     </View>
@@ -446,7 +452,7 @@ export default function TournamentGameScreen() {
                       disabled={hintsShown >= currentCard.forbidden.length}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="add-circle-outline" size={13} color={NEON_PURPLE} />
+                      <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
                       <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
                     </TouchableOpacity>
 
@@ -455,7 +461,7 @@ export default function TournamentGameScreen() {
                       onPress={handleShowLetter}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="help-circle-outline" size={13} color={NEON_GOLD} />
+                      <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
                       <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
                     </TouchableOpacity>
                   </View>
@@ -464,7 +470,7 @@ export default function TournamentGameScreen() {
             </ScrollView>
 
             {/* Input Section (Actions + Permanent TextInput) */}
-            <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 4 : Math.max(insets.bottom, 10) }]}>
+            <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 6 : Math.max(insets.bottom, 10) }]}>
               {/* Permanent TextInput - editable=true always so soft keyboard never drops */}
               <TextInput
                 ref={inputRef}
@@ -553,16 +559,16 @@ const styles = StyleSheet.create({
 
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingTop: Platform.OS === 'android' ? 4 : 8, paddingBottom: 2,
+    paddingHorizontal: 16, paddingBottom: 4,
   },
   qCounter:  { color: '#aaa', fontFamily: 'Poppins_600SemiBold', fontSize: 13, width: 50 },
   timerWrap: { alignItems: 'center', flex: 1 },
-  timerText: { fontFamily: 'Poppins_900Black', fontSize: 24 },
-  timerBarBg:{ width: 85, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 1 },
+  timerText: { fontFamily: 'Poppins_900Black', fontSize: 26 },
+  timerBarBg:{ width: 90, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 1 },
   timerBarFill: { height: 4, borderRadius: 2 },
   scoreText: { color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 13, width: 80, textAlign: 'right' },
 
-  progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 2 },
+  progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 4 },
   dot:          { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#333' },
   dotDone:      { backgroundColor: NEON_GREEN },
   dotCurrent:   { backgroundColor: NEON_BLUE, width: 13 },
@@ -574,57 +580,54 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginVertical: 4,
-    gap: 6,
+    marginVertical: 8,
+    rowGap: 10,
+    columnGap: 20, // Distinct 20px gap between separate words!
   },
   wordRow: {
     flexDirection: 'row',
-    gap: 3
+    gap: 4
   },
   charBox: {
-    width: 28, 
-    height: 32,
     borderWidth: 1.5,
     borderColor: 'rgba(0,191,255,0.5)',
-    borderRadius: 7,
     backgroundColor: 'rgba(0,191,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center'
   },
   charText: {
     color: '#fff',
-    fontSize: 16,
     fontFamily: 'Poppins_700Bold'
   },
 
   // Clues Card (Below Word Placeholders)
   cluesCard: {
     marginHorizontal: 16,
-    marginVertical: 3,
-    borderRadius: 12,
+    marginVertical: 6,
+    borderRadius: 14,
     borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
     backgroundColor: 'rgba(0,191,255,0.05)', 
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   cluesCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 3,
-    paddingBottom: 3,
+    marginBottom: 6,
+    paddingBottom: 4,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.08)',
   },
   cluesHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   cluesHeaderTitle: {
     color: NEON_BLUE,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 10,
+    fontSize: 11,
     letterSpacing: 0.5,
   },
   compactScoreBadge: {
@@ -634,22 +637,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: NEON_GOLD,
     borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    gap: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    gap: 4,
   },
   compactScoreText: {
     color: NEON_GOLD,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 10,
+    fontSize: 11,
   },
 
-  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 1.5, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
+  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 3, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
   clueHidden:     { opacity: 0.35 },
   clueText: { 
     color: '#ffffff', 
     fontFamily: 'Poppins_700Bold', 
-    fontSize: 13, 
     flex: 1,
     textShadowColor: 'rgba(0,191,255,0.4)',
     textShadowOffset: { width: 0, height: 0 },
@@ -661,21 +663,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
-    marginTop: 4,
+    marginTop: 8,
     width: '100%'
   },
   neonActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 5,
+    gap: 6,
     alignSelf: 'center',
     borderWidth: 1.5,
     borderColor: NEON_PURPLE,
     borderRadius: 16,
     backgroundColor: 'rgba(168,85,247,0.06)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     marginVertical: 2,
     shadowColor: NEON_PURPLE,
     shadowOffset: { width: 0, height: 0 },
@@ -686,13 +688,13 @@ const styles = StyleSheet.create({
   neonActionText: {
     color: NEON_PURPLE,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 10,
+    fontSize: 11,
     letterSpacing: 0.5,
   },
 
   inputSection: {
     paddingHorizontal: 16,
-    paddingTop: 6,
+    paddingTop: 8,
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
@@ -709,14 +711,14 @@ const styles = StyleSheet.create({
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
     flex: 1, borderWidth: 1, borderColor: '#555', borderRadius: 10,
-    paddingVertical: 10, alignItems: 'center',
+    paddingVertical: 12, alignItems: 'center',
   },
-  skipBtnText: { color: '#888', fontFamily: 'Poppins_600SemiBold', fontSize: 13 },
+  skipBtnText: { color: '#888', fontFamily: 'Poppins_600SemiBold', fontSize: 14 },
   guessBtn: {
     flex: 2, backgroundColor: NEON_GREEN, borderRadius: 10,
-    paddingVertical: 10, alignItems: 'center',
+    paddingVertical: 12, alignItems: 'center',
   },
-  guessBtnText: { color: '#000814', fontFamily: 'Poppins_700Bold', fontSize: 14 },
+  guessBtnText: { color: '#000814', fontFamily: 'Poppins_700Bold', fontSize: 15 },
 
   // Finished
   finishedContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
