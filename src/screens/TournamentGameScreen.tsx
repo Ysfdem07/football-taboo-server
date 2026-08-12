@@ -67,13 +67,14 @@ export default function TournamentGameScreen() {
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
 
+  // Rock-solid focus re-engagement
   const ensureFocus = useCallback(() => {
-    if (!feedback && !finished) {
+    if (!finished) {
       requestAnimationFrame(() => {
         inputRef.current?.focus();
       });
     }
-  }, [feedback, finished]);
+  }, [finished]);
 
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
@@ -81,6 +82,7 @@ export default function TournamentGameScreen() {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
 
+    // Force focus on mount
     ensureFocus();
     const t1 = setTimeout(ensureFocus, 100);
     const t2 = setTimeout(ensureFocus, 300);
@@ -93,15 +95,17 @@ export default function TournamentGameScreen() {
     };
   }, [ensureFocus]);
 
+  // Keep keyboard focused on question transition
   useEffect(() => {
-    if (!finished && !feedback) {
+    if (!finished) {
       ensureFocus();
       const t1 = setTimeout(ensureFocus, 50);
       const t2 = setTimeout(ensureFocus, 200);
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
-  }, [qIndex, feedback, finished, ensureFocus]);
+  }, [qIndex, finished, ensureFocus]);
 
+  // Listen for score result
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
@@ -155,7 +159,8 @@ export default function TournamentGameScreen() {
   };
 
   const handleGuess = () => {
-    if (!guess.trim() || feedback) return;
+    if (feedback || finished) return;
+    if (!guess.trim()) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
     const isCorrect = normalizeText(guess) === normalizeText(currentCard.word);
@@ -172,7 +177,7 @@ export default function TournamentGameScreen() {
   };
 
   const handleSkip = () => {
-    if (feedback) return;
+    if (feedback || finished) return;
     if (timerRef.current) clearInterval(timerRef.current);
     setGuess('');
     flashScreen(false, `PAS GEÇİLDİ! ➡️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
@@ -183,7 +188,6 @@ export default function TournamentGameScreen() {
       setHintsShown(prev => prev + 1);
     }
     ensureFocus();
-    setTimeout(ensureFocus, 50);
   };
 
   const handleShowLetter = () => {
@@ -201,7 +205,6 @@ export default function TournamentGameScreen() {
       setRevealedIndices(prev => [...prev, randIdx]);
     }
     ensureFocus();
-    setTimeout(ensureFocus, 50);
   };
 
   const nextQuestion = () => {
@@ -215,11 +218,10 @@ export default function TournamentGameScreen() {
       setTimeLeft(SECS_PER_Q);
       setGuess('');
       ensureFocus();
-      setTimeout(ensureFocus, 100);
     }
   };
 
-  // Render the word block helper (Placed at top for immediate focus)
+  // Render the word block helper (Placed at TOP above Clues Card)
   const renderWordPlaceholder = () => {
     if (!currentCard) return null;
     const words = currentCard.word.split(' ');
@@ -230,21 +232,21 @@ export default function TournamentGameScreen() {
     const longestWordLength = Math.max(...words.map(w => w.length));
 
     let boxWidth = 32;
-    let boxHeight = 40;
-    let fontSize = 18;
+    let boxHeight = 36;
+    let fontSize = 17;
 
     if (longestWordLength >= 14) {
-      boxWidth = 20;
-      boxHeight = 28;
-      fontSize = 12;
+      boxWidth = 19;
+      boxHeight = 26;
+      fontSize = 11;
     } else if (longestWordLength >= 11) {
-      boxWidth = 24;
-      boxHeight = 32;
-      fontSize = 14;
+      boxWidth = 23;
+      boxHeight = 30;
+      fontSize = 13;
     } else if (longestWordLength >= 9) {
-      boxWidth = 28;
-      boxHeight = 36;
-      fontSize = 16;
+      boxWidth = 27;
+      boxHeight = 34;
+      fontSize = 15;
     }
 
     return (
@@ -369,13 +371,13 @@ export default function TournamentGameScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView 
           style={{ flex: 1 }} 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
             <ScrollView 
               style={{ flex: 1 }} 
-              contentContainerStyle={{ paddingBottom: 16 }}
+              contentContainerStyle={{ paddingBottom: 10 }}
               keyboardShouldPersistTaps="always"
               showsVerticalScrollIndicator={false}
             >
@@ -403,21 +405,21 @@ export default function TournamentGameScreen() {
                   ))}
                 </View>
 
-                {/* 1. WORD LETTER PLACEHOLDERS (MOVED TO TOP ABOVE CLUES CARD) */}
+                {/* 1. WORD LETTER PLACEHOLDERS (AT TOP ABOVE CLUES CARD) */}
                 {renderWordPlaceholder()}
 
-                {/* 2. CLUES CARD (WITH COMPACT TOP-RIGHT POTENTIAL SCORE BADGE) */}
+                {/* 2. CLUES CARD (COMPACT WITH TOP-RIGHT POTENTIAL SCORE BADGE) */}
                 <View style={styles.cluesCard}>
-                  {/* Clues Card Header with Compact Score Badge on Right */}
+                  {/* Clues Card Header */}
                   <View style={styles.cluesCardHeader}>
                     <View style={styles.cluesHeaderLeft}>
-                      <Ionicons name="eye-outline" size={15} color={NEON_BLUE} />
+                      <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
                       <Text style={styles.cluesHeaderTitle}>YASAKLI KELİME İPUÇLARI</Text>
                     </View>
 
-                    {/* Compact Right-Aligned Score Counter */}
+                    {/* Compact Right-Aligned Score Counter Badge */}
                     <View style={styles.compactScoreBadge}>
-                      <Ionicons name="star" size={12} color={NEON_GOLD} />
+                      <Ionicons name="star" size={11} color={NEON_GOLD} />
                       <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
                     </View>
                   </View>
@@ -427,7 +429,7 @@ export default function TournamentGameScreen() {
                     <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
                       <Ionicons
                         name={i < hintsShown ? 'chevron-forward-circle' : 'lock-closed-outline'}
-                        size={13}
+                        size={12}
                         color={i < hintsShown ? NEON_BLUE : '#555'}
                       />
                       <Text style={[styles.clueText, i >= hintsShown && styles.clueTextHidden]}>
@@ -444,7 +446,7 @@ export default function TournamentGameScreen() {
                       disabled={hintsShown >= currentCard.forbidden.length}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
+                      <Ionicons name="add-circle-outline" size={13} color={NEON_PURPLE} />
                       <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
                     </TouchableOpacity>
 
@@ -453,7 +455,7 @@ export default function TournamentGameScreen() {
                       onPress={handleShowLetter}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
+                      <Ionicons name="help-circle-outline" size={13} color={NEON_GOLD} />
                       <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
                     </TouchableOpacity>
                   </View>
@@ -461,14 +463,15 @@ export default function TournamentGameScreen() {
               </TouchableOpacity>
             </ScrollView>
 
-            {/* Input Section (Actions + Invisible Input) */}
-            <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 8 : Math.max(insets.bottom, 12) }]}>
-              {/* Clean Invisible TextInput */}
+            {/* Input Section (Actions + Permanent TextInput) */}
+            <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 6 : Math.max(insets.bottom, 10) }]}>
+              {/* Permanent TextInput - editable=true always so soft keyboard never drops */}
               <TextInput
                 ref={inputRef}
                 style={styles.invisibleInput}
                 value={guess}
                 onChangeText={(text) => {
+                  if (feedback || finished) return;
                   const cleanText = text.replace(/\s+/g, '');
                   setGuess(cleanText);
                 }}
@@ -476,7 +479,7 @@ export default function TournamentGameScreen() {
                 autoCorrect={false}
                 autoCapitalize="characters"
                 returnKeyType="send"
-                editable={!feedback}
+                editable={true}
                 maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
                 autoFocus={true}
                 blurOnSubmit={false}
@@ -533,8 +536,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 20,
     backgroundColor: 'rgba(0,8,20,0.95)',
-    paddingVertical: 20,
-    paddingHorizontal: 40,
+    paddingVertical: 18,
+    paddingHorizontal: 36,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,
@@ -542,7 +545,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   feedbackText: {
-    fontSize: 26,
+    fontSize: 24,
     fontFamily: 'Poppins_900Black',
     letterSpacing: 2,
     textAlign: 'center',
@@ -550,19 +553,19 @@ const styles = StyleSheet.create({
 
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6,
+    paddingHorizontal: 16, paddingTop: Platform.OS === 'android' ? 6 : 8, paddingBottom: 4,
   },
-  qCounter:  { color: '#aaa', fontFamily: 'Poppins_600SemiBold', fontSize: 14, width: 50 },
+  qCounter:  { color: '#aaa', fontFamily: 'Poppins_600SemiBold', fontSize: 13, width: 50 },
   timerWrap: { alignItems: 'center', flex: 1 },
-  timerText: { fontFamily: 'Poppins_900Black', fontSize: 28 },
-  timerBarBg:{ width: 100, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 2 },
+  timerText: { fontFamily: 'Poppins_900Black', fontSize: 26 },
+  timerBarBg:{ width: 90, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 2 },
   timerBarFill: { height: 4, borderRadius: 2 },
-  scoreText: { color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 14, width: 80, textAlign: 'right' },
+  scoreText: { color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 13, width: 80, textAlign: 'right' },
 
-  progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 4 },
-  dot:          { width: 8, height: 8, borderRadius: 4, backgroundColor: '#333' },
+  progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 2 },
+  dot:          { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#333' },
   dotDone:      { backgroundColor: NEON_GREEN },
-  dotCurrent:   { backgroundColor: NEON_BLUE, width: 14 },
+  dotCurrent:   { backgroundColor: NEON_BLUE, width: 13 },
 
   // Word Letter Placeholders (Top Section)
   wordsWrapper: {
@@ -571,8 +574,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginVertical: 10,
-    gap: 12
+    marginVertical: 6,
+    gap: 8,
   },
   wordRow: {
     flexDirection: 'row',
@@ -580,7 +583,7 @@ const styles = StyleSheet.create({
   },
   charBox: {
     width: 30, 
-    height: 38,
+    height: 36,
     borderWidth: 1.5,
     borderColor: 'rgba(0,191,255,0.5)',
     borderRadius: 8,
@@ -590,36 +593,38 @@ const styles = StyleSheet.create({
   },
   charText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: 'Poppins_700Bold'
   },
 
   // Clues Card (Below Word Placeholders)
   cluesCard: {
     marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 14,
+    marginVertical: 4,
+    borderRadius: 12,
     borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
-    backgroundColor: 'rgba(0,191,255,0.05)', padding: 10,
+    backgroundColor: 'rgba(0,191,255,0.05)', 
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   cluesCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
-    paddingBottom: 6,
+    marginBottom: 4,
+    paddingBottom: 4,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.08)',
   },
   cluesHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
   },
   cluesHeaderTitle: {
     color: NEON_BLUE,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 0.5,
   },
   compactScoreBadge: {
@@ -628,23 +633,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 215, 0, 0.15)',
     borderWidth: 1,
     borderColor: NEON_GOLD,
-    borderRadius: 10,
-    paddingHorizontal: 8,
+    borderRadius: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    gap: 4,
+    gap: 3,
   },
   compactScoreText: {
     color: NEON_GOLD,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
+    fontSize: 10,
   },
 
-  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
+  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
   clueHidden:     { opacity: 0.35 },
   clueText: { 
     color: '#ffffff', 
     fontFamily: 'Poppins_700Bold', 
-    fontSize: 15, 
+    fontSize: 14, 
     flex: 1,
     textShadowColor: 'rgba(0,191,255,0.4)',
     textShadowOffset: { width: 0, height: 0 },
@@ -656,22 +661,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
-    marginTop: 10,
+    marginTop: 6,
     width: '100%'
   },
   neonActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 5,
     alignSelf: 'center',
     borderWidth: 1.5,
     borderColor: NEON_PURPLE,
-    borderRadius: 18,
+    borderRadius: 16,
     backgroundColor: 'rgba(168,85,247,0.06)',
-    paddingVertical: 7,
-    paddingHorizontal: 16,
-    marginVertical: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    marginVertical: 2,
     shadowColor: NEON_PURPLE,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
@@ -681,13 +686,13 @@ const styles = StyleSheet.create({
   neonActionText: {
     color: NEON_PURPLE,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 0.5,
   },
 
   inputSection: {
     paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingTop: 8,
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
@@ -698,20 +703,20 @@ const styles = StyleSheet.create({
     left: 0,
     width: 200,
     height: 40,
-    opacity: 0.01,
+    opacity: 0.001,
     zIndex: -1,
   },
   actionRow:   { flexDirection: 'row', gap: 10 },
   skipBtn: {
     flex: 1, borderWidth: 1, borderColor: '#555', borderRadius: 10,
-    paddingVertical: 12, alignItems: 'center',
+    paddingVertical: 10, alignItems: 'center',
   },
-  skipBtnText: { color: '#888', fontFamily: 'Poppins_600SemiBold', fontSize: 14 },
+  skipBtnText: { color: '#888', fontFamily: 'Poppins_600SemiBold', fontSize: 13 },
   guessBtn: {
     flex: 2, backgroundColor: NEON_GREEN, borderRadius: 10,
-    paddingVertical: 12, alignItems: 'center',
+    paddingVertical: 10, alignItems: 'center',
   },
-  guessBtnText: { color: '#000814', fontFamily: 'Poppins_700Bold', fontSize: 15 },
+  guessBtnText: { color: '#000814', fontFamily: 'Poppins_700Bold', fontSize: 14 },
 
   // Finished
   finishedContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
