@@ -9,12 +9,9 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { getLeagueForKp, LEAGUES } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { LeagueBadge } from '../components/LeagueBadge';
-import { UserAvatar } from '../components/UserAvatar';
 import { Analytics } from '../services/analytics';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
@@ -126,6 +123,14 @@ export default function LeaderboardScreen() {
     ? leaderboard
     : leaderboard.filter(item => getLeagueForKp(item.displayKp ?? item.kp).name === selectedLeague);
 
+  // Active Selected League Info for top-right banner placement
+  const activeLeagueObj = selectedLeague !== 'Tümü' 
+    ? LEAGUES.find(l => l.name === selectedLeague) 
+    : null;
+  const activeLeagueForBadge = activeLeagueObj 
+    ? getLeagueForKp(activeLeagueObj.minKp) 
+    : LEAGUES[LEAGUES.length - 1]; // Champions League badge as default for 'Tümü'
+
   const renderItem = ({ item, index }: { item: LeaderboardItem; index: number }) => {
     const kpToShow = item.displayKp ?? item.kp;
     const league = getLeagueForKp(kpToShow);
@@ -135,7 +140,7 @@ export default function LeaderboardScreen() {
     return (
       <View style={[
         styles.leaderboardItem,
-        { borderColor: isTopThree ? rankColors[index] : `${NEON}30` },
+        { borderColor: isTopThree ? rankColors[index] : `${NEON}25` },
         isTopThree && { backgroundColor: `${rankColors[index]}10` }
       ]}>
         <View style={styles.itemLeft}>
@@ -150,18 +155,15 @@ export default function LeaderboardScreen() {
             )}
           </View>
 
-          <UserAvatar avatar={item.avatar} size={36} />
-
+          {/* Clean User & League Name (No User Avatar to keep list clean) */}
           <View style={styles.playerInfo}>
             <Text style={styles.username}>{item.username}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3, gap: 6 }}>
-              <LeagueBadge league={league} categoryId={activeCategory} size="small" />
-              <Text style={[styles.leagueLabel, { color: league.color }]}>
-                {league.name}
-              </Text>
-            </View>
+            <Text style={[styles.leagueLabel, { color: league.color }]}>
+              {league.name}
+            </Text>
           </View>
         </View>
+
         <View style={styles.itemRight}>
           <Text style={[styles.kpText, { color: NEON }]}>{kpToShow} KP</Text>
           <Text style={styles.wonMatchesText}>{item.matches_won} Galibiyet</Text>
@@ -227,6 +229,30 @@ export default function LeaderboardScreen() {
           ))}
         </ScrollView>
 
+        {/* TOP LEAGUE BANNER CARD WITH TOP-RIGHT LEAGUE EMBLEM */}
+        <View style={[styles.leagueBannerCard, { borderColor: `${NEON}45` }]}>
+          <View style={styles.leagueBannerLeft}>
+            <Text style={[styles.leagueBannerCat, { color: NEON }]}>
+              {currentCat.label} LİGİ
+            </Text>
+            <Text style={styles.leagueBannerTitle}>
+              {selectedLeague === 'Tümü' ? 'Tüm Sıralamalar' : selectedLeague}
+            </Text>
+            <Text style={styles.leagueBannerSub}>
+              {filteredLeaderboard.length} Oyuncu Listeleniyor
+            </Text>
+          </View>
+
+          {/* Top-Right Prominent League Image Badge */}
+          <View style={styles.leagueBannerRight}>
+            <LeagueBadge 
+              league={activeLeagueForBadge} 
+              categoryId={activeCategory} 
+              size="large" 
+            />
+          </View>
+        </View>
+
         {/* LEADERBOARD LIST */}
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -265,7 +291,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 12,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   backButton: {
     width: 40, height: 40, borderRadius: 12,
@@ -284,7 +310,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     gap: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   catTab: {
     flex: 1,
@@ -304,7 +330,7 @@ const styles = StyleSheet.create({
   },
   leagueFilterScroll: {
     maxHeight: 44,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   leagueFilterBtn: {
     flexDirection: 'row',
@@ -319,13 +345,59 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 11,
   },
+
+  // League Header Banner Card with Top-Right Emblem Position
+  leagueBannerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(5, 11, 20, 0.85)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  leagueBannerLeft: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  leagueBannerCat: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    letterSpacing: 1.5,
+  },
+  leagueBannerTitle: {
+    color: '#FFF',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 18,
+    marginTop: 2,
+  },
+  leagueBannerSub: {
+    color: 'rgba(255,255,255,0.5)',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  leagueBannerRight: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 12,
+  },
+
   listContent: { paddingHorizontal: 16, paddingBottom: 20 },
   leaderboardItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -346,9 +418,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   rankNumber: { fontSize: 13, fontFamily: 'Poppins_900Black', width: 34, textAlign: 'center' },
-  playerInfo: { flex: 1, marginLeft: 10 },
+  playerInfo: { flex: 1, marginLeft: 6 },
   username: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 14 },
-  leagueLabel: { fontFamily: 'Poppins_600SemiBold', fontSize: 11 },
+  leagueLabel: { fontFamily: 'Poppins_600SemiBold', fontSize: 11, marginTop: 2 },
   itemRight: { alignItems: 'flex-end' },
   kpText: { fontFamily: 'Poppins_900Black', fontSize: 15 },
   wonMatchesText: { color: 'rgba(255,255,255,0.5)', fontFamily: 'Poppins_400Regular', fontSize: 11, marginTop: 2 },

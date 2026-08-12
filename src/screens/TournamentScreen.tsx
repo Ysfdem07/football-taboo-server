@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { BannerAdComponent, showRewarded } from '../services/ads';
+import { UserAvatar } from '../components/UserAvatar';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Tournament'>;
 
@@ -231,7 +232,7 @@ export default function TournamentScreen() {
                     <Text style={styles.myScoreLabel}>SENİN SKORUN</Text>
                     <View style={styles.myScoreRow}>
                       <Text style={styles.myRankText}>{getRankEmoji(tournamentData.myRank)}</Text>
-                      <View>
+                      <View style={{ flex: 1 }}>
                         <Text style={styles.myScoreValue}>{tournamentData.myBestScore} puan</Text>
                         <Text style={styles.myCorrectText}>{tournamentData.myCorrectCount}/20 doğru</Text>
                       </View>
@@ -270,7 +271,7 @@ export default function TournamentScreen() {
                 item.playerId === player?.id && styles.lbRowMe
               ]}>
                 <Text style={styles.lbRank}>{getRankEmoji(item.rank)}</Text>
-                <Text style={styles.lbAvatar}>{item.avatar}</Text>
+                <UserAvatar avatar={item.avatar} size={36} />
                 <View style={styles.lbInfo}>
                   <Text style={styles.lbUsername}>{item.username}{item.completedPerfectly ? ' 🏆' : ''}</Text>
                   <Text style={styles.lbSub}>{item.correctCount}/20 doğru</Text>
@@ -383,9 +384,8 @@ const styles = StyleSheet.create({
   lbRowMe: {
     borderColor: NEON_GREEN, backgroundColor: 'rgba(0,255,136,0.07)',
   },
-  lbRank:     { fontSize: 18, width: 36, textAlign: 'center' },
-  lbAvatar:   { fontSize: 22 },
-  lbInfo:     { flex: 1 },
+  lbRank:     { fontSize: 18, width: 32, textAlign: 'center' },
+  lbInfo:     { flex: 1, marginLeft: 4 },
   lbUsername: { color: '#fff', fontSize: 14, fontFamily: 'Poppins_600SemiBold' },
   lbSub:      { color: '#888', fontSize: 11, fontFamily: 'Poppins_400Regular' },
   lbScore:    { color: NEON_GOLD, fontSize: 16, fontFamily: 'Poppins_700Bold' },
