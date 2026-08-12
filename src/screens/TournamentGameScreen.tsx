@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
   ImageBackground, SafeAreaView, Animated, Keyboard,
   KeyboardAvoidingView, Platform, Alert, ScrollView,
-  useWindowDimensions
+  useWindowDimensions, TouchableWithoutFeedback
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -69,11 +69,14 @@ export default function TournamentGameScreen() {
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
 
-  // Rock-solid focus re-engagement
+  // Rock-solid focus re-engagement (blur then focus forces Android InputMethodManager to re-open keyboard even after back button)
   const ensureFocus = useCallback(() => {
     if (!finished) {
       requestAnimationFrame(() => {
-        inputRef.current?.focus();
+        inputRef.current?.blur();
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 40);
       });
     }
   }, [finished]);
@@ -369,155 +372,159 @@ export default function TournamentGameScreen() {
   // ─── Game Screen ──────────────────────────────────────────────────────────
   return (
     <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
-      <View style={styles.overlay} />
-      <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
-      
-      <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView 
-          style={{ flex: 1 }} 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-        >
-          <View style={{ flex: 1, justifyContent: 'space-between' }}>
-            <ScrollView 
+      <TouchableWithoutFeedback onPress={ensureFocus}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.overlay} />
+          <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: flashBg }]} pointerEvents="none" />
+          
+          <SafeAreaView style={{ flex: 1 }}>
+            <KeyboardAvoidingView 
               style={{ flex: 1 }} 
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 6 }}
-              keyboardShouldPersistTaps="always"
-              showsVerticalScrollIndicator={false}
-              bounces={false}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
             >
-              <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1, justifyContent: 'space-between' }}>
-                <View>
-                  {/* Top Bar (With Safe Insets Top Padding) */}
-                  <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12) }]}>
-                    <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
-                    <View style={styles.timerWrap}>
-                      <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
-                      <View style={styles.timerBarBg}>
-                        <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
-                      </View>
-                    </View>
-                    <Text style={styles.scoreText}>{totalScore} puan</Text>
-                  </View>
-
-                  {/* Progress dots */}
-                  <View style={styles.progressDots}>
-                    {cards.map((_, i) => (
-                      <View key={i} style={[
-                        styles.dot,
-                        i < qIndex && styles.dotDone,
-                        i === qIndex && styles.dotCurrent,
-                      ]} />
-                    ))}
-                  </View>
-
-                  {/* 1. WORD LETTER PLACEHOLDERS (DYNAMIC SIZING + CLEAR WORD GAP) */}
-                  {renderWordPlaceholder()}
-                </View>
-
-                {/* 2. CLUES CARD (COMPACT WITH SCORE BADGE MOVED TO FIRST CLUE ROW) */}
-                <View style={styles.cluesCard}>
-                  {/* Forbidden Word Clues */}
-                  {currentCard.forbidden.map((clue, i) => (
-                    <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
-                      <Ionicons
-                        name={i < hintsShown ? 'chevron-forward-circle' : 'lock-closed-outline'}
-                        size={12}
-                        color={i < hintsShown ? NEON_BLUE : '#555'}
-                      />
-                      <Text style={[styles.clueText, { fontSize: isTallScreen ? 15 : 13 }, i >= hintsShown && styles.clueTextHidden]}>
-                        {i < hintsShown ? clue : '? ? ? ? ?'}
-                      </Text>
-
-                      {/* First clue row has the compact score badge on the right! */}
-                      {i === 0 && (
-                        <View style={styles.compactScoreBadge}>
-                          <Ionicons name="star" size={10} color={NEON_GOLD} />
-                          <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
+              <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                <ScrollView 
+                  style={{ flex: 1 }} 
+                  contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', paddingBottom: 6 }}
+                  keyboardShouldPersistTaps="always"
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                >
+                  <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={{ flex: 1, justifyContent: 'space-between' }}>
+                    <View>
+                      {/* Top Bar (With Safe Insets Top Padding) */}
+                      <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12) }]}>
+                        <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
+                        <View style={styles.timerWrap}>
+                          <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
+                          <View style={styles.timerBarBg}>
+                            <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
+                          </View>
                         </View>
-                      )}
+                        <Text style={styles.scoreText}>{totalScore} puan</Text>
+                      </View>
+
+                      {/* Progress dots */}
+                      <View style={styles.progressDots}>
+                        {cards.map((_, i) => (
+                          <View key={i} style={[
+                            styles.dot,
+                            i < qIndex && styles.dotDone,
+                            i === qIndex && styles.dotCurrent,
+                          ]} />
+                        ))}
+                      </View>
+
+                      {/* 1. WORD LETTER PLACEHOLDERS (DYNAMIC SIZING + CLEAR WORD GAP) */}
+                      {renderWordPlaceholder()}
                     </View>
-                  ))}
 
-                  {/* Action Buttons inside Clues Card */}
-                  <View style={styles.gameActionsRow}>
-                    <TouchableOpacity 
-                      style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
-                      onPress={handleShowHint} 
-                      disabled={hintsShown >= currentCard.forbidden.length}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
-                      <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
+                    {/* 2. CLUES CARD (COMPACT WITH SCORE BADGE MOVED TO FIRST CLUE ROW) */}
+                    <TouchableOpacity activeOpacity={1} onPress={ensureFocus} style={styles.cluesCard}>
+                      {/* Forbidden Word Clues */}
+                      {currentCard.forbidden.map((clue, i) => (
+                        <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
+                          <Ionicons
+                            name={i < hintsShown ? 'chevron-forward-circle' : 'lock-closed-outline'}
+                            size={12}
+                            color={i < hintsShown ? NEON_BLUE : '#555'}
+                          />
+                          <Text style={[styles.clueText, { fontSize: isTallScreen ? 15 : 13 }, i >= hintsShown && styles.clueTextHidden]}>
+                            {i < hintsShown ? clue : '? ? ? ? ?'}
+                          </Text>
+
+                          {/* First clue row has the compact score badge on the right! */}
+                          {i === 0 && (
+                            <View style={styles.compactScoreBadge}>
+                              <Ionicons name="star" size={10} color={NEON_GOLD} />
+                              <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
+                            </View>
+                          )}
+                        </View>
+                      ))}
+
+                      {/* Action Buttons inside Clues Card */}
+                      <View style={styles.gameActionsRow}>
+                        <TouchableOpacity 
+                          style={[styles.neonActionButton, { flex: 1, marginVertical: 0 }]} 
+                          onPress={handleShowHint} 
+                          disabled={hintsShown >= currentCard.forbidden.length}
+                          activeOpacity={0.8}
+                        >
+                          <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
+                          <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                          style={[styles.neonActionButton, { flex: 1, borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginVertical: 0 }]} 
+                          onPress={handleShowLetter}
+                          activeOpacity={0.8}
+                        >
+                          <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
+                          <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
+                        </TouchableOpacity>
+                      </View>
                     </TouchableOpacity>
+                  </TouchableOpacity>
+                </ScrollView>
 
-                    <TouchableOpacity 
-                      style={[styles.neonActionButton, { flex: 1, borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.06)', marginVertical: 0 }]} 
-                      onPress={handleShowLetter}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
-                      <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
+                {/* Input Section (Actions + Permanent TextInput) */}
+                <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 6 : Math.max(insets.bottom, 10) }]}>
+                  {/* Permanent TextInput - editable=true always so soft keyboard never drops */}
+                  <TextInput
+                    ref={inputRef}
+                    style={styles.invisibleInput}
+                    value={guess}
+                    onChangeText={(text) => {
+                      if (feedback || finished) return;
+                      const cleanText = text.replace(/\s+/g, '');
+                      setGuess(cleanText);
+                    }}
+                    onSubmitEditing={handleGuess}
+                    autoCorrect={false}
+                    autoCapitalize="characters"
+                    returnKeyType="send"
+                    editable={true}
+                    maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
+                    autoFocus={true}
+                    blurOnSubmit={false}
+                    showSoftInputOnFocus={true}
+                    caretHidden={true}
+                    disableFullscreenUI={true}
+                  />
+
+                  <View style={styles.actionRow}>
+                    <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback} activeOpacity={0.8}>
+                      <Text style={styles.skipBtnText}>PAS GEÇ</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback} activeOpacity={0.8}>
+                      <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              </TouchableOpacity>
-            </ScrollView>
+              </View>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
 
-            {/* Input Section (Actions + Permanent TextInput) */}
-            <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 6 : Math.max(insets.bottom, 10) }]}>
-              {/* Permanent TextInput - editable=true always so soft keyboard never drops */}
-              <TextInput
-                ref={inputRef}
-                style={styles.invisibleInput}
-                value={guess}
-                onChangeText={(text) => {
-                  if (feedback || finished) return;
-                  const cleanText = text.replace(/\s+/g, '');
-                  setGuess(cleanText);
-                }}
-                onSubmitEditing={handleGuess}
-                autoCorrect={false}
-                autoCapitalize="characters"
-                returnKeyType="send"
-                editable={true}
-                maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
-                autoFocus={true}
-                blurOnSubmit={false}
-                showSoftInputOnFocus={true}
-                caretHidden={true}
-                disableFullscreenUI={true}
-              />
-
-              <View style={styles.actionRow}>
-                <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback} activeOpacity={0.8}>
-                  <Text style={styles.skipBtnText}>PAS GEÇ</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback} activeOpacity={0.8}>
-                  <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
-                </TouchableOpacity>
+          {/* Feedback Overlay - Centered over clues box in upper content area, away from keyboard */}
+          {!!feedbackText && (
+            <View style={styles.feedbackOverlay} pointerEvents="none">
+              <View style={[
+                styles.feedbackBadge,
+                { borderColor: feedback === 'correct' ? NEON_GREEN : '#ff4444' }
+              ]}>
+                <Text style={[
+                  styles.feedbackText,
+                  { color: feedback === 'correct' ? NEON_GREEN : '#ff4444' }
+                ]}>
+                  {feedbackText}
+                </Text>
               </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-
-      {/* Feedback Overlay */}
-      {!!feedbackText && (
-        <View style={styles.feedbackOverlay} pointerEvents="none">
-          <View style={[
-            styles.feedbackBadge,
-            { borderColor: feedback === 'correct' ? NEON_GREEN : '#ff4444' }
-          ]}>
-            <Text style={[
-              styles.feedbackText,
-              { color: feedback === 'correct' ? NEON_GREEN : '#ff4444' }
-            ]}>
-              {feedbackText}
-            </Text>
-          </View>
+          )}
         </View>
-      )}
+      </TouchableWithoutFeedback>
     </ImageBackground>
   );
 }
@@ -528,17 +535,19 @@ const styles = StyleSheet.create({
 
   feedbackOverlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: Platform.OS === 'ios' ? 140 : 110,
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.55)',
     zIndex: 9999,
   },
   feedbackBadge: {
     borderWidth: 2,
     borderRadius: 20,
     backgroundColor: 'rgba(0,8,20,0.95)',
-    paddingVertical: 18,
-    paddingHorizontal: 36,
+    paddingVertical: 16,
+    paddingHorizontal: 28,
+    maxWidth: '90%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.5,
@@ -546,9 +555,9 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   feedbackText: {
-    fontSize: 24,
+    fontSize: 21,
     fontFamily: 'Poppins_900Black',
-    letterSpacing: 2,
+    letterSpacing: 1,
     textAlign: 'center',
   },
 
