@@ -69,17 +69,25 @@ export default function TournamentGameScreen() {
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
 
-  // Rock-solid focus re-engagement (blur then focus forces Android InputMethodManager to re-open keyboard even after back button)
+  // Smart, flicker-free focus re-engagement logic
   const ensureFocus = useCallback(() => {
-    if (!finished) {
+    if (finished) return;
+
+    if (!keyboardVisible) {
+      // Keyboard was dismissed (e.g. Android back button), so blur then focus to force-reopen
       requestAnimationFrame(() => {
         inputRef.current?.blur();
         setTimeout(() => {
           inputRef.current?.focus();
-        }, 40);
+        }, 30);
       });
+    } else {
+      // Keyboard is ALREADY open, simply maintain focus cleanly without blur/refocus flicker!
+      if (!inputRef.current?.isFocused()) {
+        inputRef.current?.focus();
+      }
     }
-  }, [finished]);
+  }, [finished, keyboardVisible]);
 
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
@@ -507,7 +515,7 @@ export default function TournamentGameScreen() {
             </KeyboardAvoidingView>
           </SafeAreaView>
 
-          {/* Feedback Overlay - Centered over clues box in upper content area, away from keyboard */}
+          {/* Feedback Overlay - Centered over clues box */}
           {!!feedbackText && (
             <View style={styles.feedbackOverlay} pointerEvents="none">
               <View style={[
@@ -536,7 +544,7 @@ const styles = StyleSheet.create({
   feedbackOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-start',
-    paddingTop: Platform.OS === 'ios' ? 140 : 110,
+    paddingTop: Platform.OS === 'ios' ? 190 : 165,
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.55)',
     zIndex: 9999,
