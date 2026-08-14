@@ -247,7 +247,7 @@ export default function TournamentScreen() {
       text: language === 'en'
         ? `🎯 ${t('dailyAttemptsLeft')}: ${remaining}/3\nBest score: ${tournamentData.myBestScore}`
         : `🎯 Kalan Günlük Hak: ${remaining}/3\nEn iyi skorun: ${tournamentData.myBestScore}`, 
-      color: remaining === 1 ? NEON_GOLD : NEON_BLUE, 
+      color: '#FFFFFF', 
       canPlay: true, 
       showAd: false 
     };
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderRadius: 12, padding: 14,
     backgroundColor: 'rgba(0,255,136,0.05)', marginBottom: 16,
   },
-  statusText:  { color: NEON_GREEN, fontSize: 13, fontFamily: 'Poppins_500Medium', textAlign: 'center' },
+  statusText:  { color: NEON_GREEN, fontSize: 15, fontFamily: 'Poppins_500Medium', textAlign: 'center' },
   playBtn: {
     marginTop: 12, backgroundColor: NEON_GREEN, borderRadius: 10,
     paddingVertical: 12, alignItems: 'center',
