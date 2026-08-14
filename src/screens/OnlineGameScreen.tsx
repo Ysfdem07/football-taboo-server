@@ -356,84 +356,111 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
     return (
       <ImageBackground source={bgImageSource} style={styles.bgImage}>
-        <SafeAreaView style={styles.container}>
-          <Text style={styles.gameOverTitle}>OYUN BİTTİ</Text>
-          <Text style={styles.resultText}>{resultText}</Text>
-          
-          <View style={styles.finalScoreContainer}>
-            {players.sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)).map((p, index) => {
-              const kpVal = kpChanges[p.id];
-              const coinVal = coinChanges[p.id];
-              return (
-                <View key={p.id} style={styles.finalScoreRow}>
-                  <Text style={styles.finalScoreLabel} numberOfLines={1}>
-                    {p.id === socket.id ? p.name + " (Sen)" : p.name}
-                  </Text>
+        {/* Heavy dark overlay for contrast */}
+        <View style={styles.gameOverOverlay} />
 
-                  <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
-                    {/* KP badge — only if non-zero */}
-                    {kpVal !== undefined && kpVal !== 0 ? (
-                      <View style={[
-                        styles.kpBadge,
-                        {
-                          backgroundColor: kpVal >= 0 ? 'rgba(46, 204, 113, 0.15)' : 'rgba(231, 76, 60, 0.15)',
-                          borderColor: kpVal >= 0 ? '#2ECC71' : '#E74C3C'
-                        }
-                      ]}>
-                        <Text style={{ color: kpVal >= 0 ? '#2ECC71' : '#E74C3C', fontFamily: 'Poppins_700Bold', fontSize: 12 }}>
-                          {kpVal >= 0 ? `+${kpVal} KP` : `${kpVal} KP`}
-                        </Text>
-                      </View>
-                    ) : null}
+        <SafeAreaView style={styles.gameOverSafeArea}>
+          <View style={styles.gameOverContent}>
 
-                    {/* Coin badge — always shown when present */}
-                    {coinVal !== undefined ? (
-                      <View style={[
-                        styles.kpBadge,
-                        { backgroundColor: 'rgba(255,215,0,0.15)', borderColor: NEON_GOLD }
-                      ]}>
-                        <Text style={{ color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 12 }}>
-                          +{coinVal} 🪙
-                        </Text>
-                      </View>
-                    ) : null}
+            {/* ── Header ── */}
+            <View style={styles.gameOverHeader}>
+              <Text style={styles.gameOverTitle}>OYUN BİTTİ</Text>
+              <Text style={[
+                styles.resultText,
+                {
+                  color: resultText === 'KAZANDIN!' ? NEON_GREEN
+                       : resultText === 'BERABERE!'  ? NEON_GOLD
+                       : '#FF4444',
+                }
+              ]}>{resultText}</Text>
+            </View>
+
+            {/* ── Scores ── */}
+            <View style={styles.finalScoreContainer}>
+              {players.sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)).map((p, index) => {
+                const kpVal = kpChanges[p.id];
+                const coinVal = coinChanges[p.id];
+                const isMe = p.id === socket.id;
+                const isWinner = winnerIds.includes(p.id);
+                return (
+                  <View key={p.id} style={[
+                    styles.finalScoreRow,
+                    isMe && { backgroundColor: 'rgba(0,255,136,0.06)', borderRadius: 10, paddingHorizontal: 8 },
+                  ]}>
+                    {/* Rank icon */}
+                    <Text style={{ fontSize: 18, marginRight: 6 }}>
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                    </Text>
+
+                    <Text style={[styles.finalScoreLabel, isMe && { color: NEON_GREEN }]} numberOfLines={1}>
+                      {isMe ? p.name + ' (Sen)' : p.name}
+                    </Text>
+
+                    {/* Badges */}
+                    <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
+                      {kpVal !== undefined && kpVal !== 0 ? (
+                        <View style={[
+                          styles.kpBadge,
+                          {
+                            backgroundColor: kpVal >= 0 ? 'rgba(46,204,113,0.18)' : 'rgba(231,76,60,0.18)',
+                            borderColor: kpVal >= 0 ? '#2ECC71' : '#E74C3C',
+                          }
+                        ]}>
+                          <Text style={{ color: kpVal >= 0 ? '#2ECC71' : '#E74C3C', fontFamily: 'Poppins_700Bold', fontSize: 11 }}>
+                            {kpVal >= 0 ? `+${kpVal}` : `${kpVal}`} KP
+                          </Text>
+                        </View>
+                      ) : null}
+
+                      {coinVal !== undefined && coinVal > 0 ? (
+                        <View style={[styles.kpBadge, { backgroundColor: 'rgba(255,215,0,0.18)', borderColor: NEON_GOLD }]}>
+                          <Text style={{ color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 11 }}>
+                            +{coinVal} 🪙
+                          </Text>
+                        </View>
+                      ) : null}
+                    </View>
+
+                    <Text style={styles.finalScoreValue}>{scores[p.id] || 0} Puan</Text>
                   </View>
+                );
+              })}
+            </View>
 
-                  <Text style={styles.finalScoreValue}>{scores[p.id] || 0} Puan</Text>
-                </View>
-              );
-            })}
+            {/* ── Action Buttons ── */}
+            <View style={styles.gameOverActions}>
+              {winnerIds.includes(socket.id) && !rewardCollected && (
+                <TouchableOpacity
+                  style={styles.rewardButton}
+                  onPress={() => {
+                    showRewarded(() => {
+                      socket.emit('reward_double_coins', { playerId: player?.id });
+                      setRewardCollected(true);
+                      Alert.alert('Tebrikler!', "Kazancınız 2'ye katlandı (+50 Jeton eklendi).");
+                    });
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="videocam" size={20} color="#000" style={{ marginRight: 8 }} />
+                  <Text style={styles.rewardButtonText}>REKLAM İZLE — JETONu 2x KAT!</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                style={styles.menuButton}
+                onPress={() => {
+                  socket.disconnect();
+                  showInterstitial();
+                  navigation.replace('Home');
+                }}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="home-outline" size={18} color={NEON_GREEN} style={{ marginRight: 8 }} />
+                <Text style={styles.menuButtonText}>ANA MENÜYE DÖN</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
-
-          {winnerIds.includes(socket.id) && !rewardCollected && (
-            <TouchableOpacity 
-              style={[styles.menuButton, { backgroundColor: 'rgba(0,255,136,0.15)', borderColor: NEON_GREEN, marginBottom: 12 }]}
-              onPress={() => {
-                showRewarded(() => {
-                  socket.emit('reward_double_coins', { playerId: player?.id });
-                  setRewardCollected(true);
-                  Alert.alert('Tebrikler!', 'Kazancınız 2\'ye katlandı (+50 Jeton eklendi).');
-                });
-              }}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="videocam" size={18} color={NEON_GREEN} style={{ marginRight: 8 }} />
-              <Text style={[styles.menuButtonText, { color: NEON_GREEN }]}>REKLAM İZLE: X2 JETON (100)</Text>
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity 
-            style={styles.menuButton}
-            onPress={() => {
-              socket.disconnect();
-              showInterstitial();
-              navigation.replace('Home');
-            }}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="home-outline" size={18} color={NEON_GREEN} style={{ marginRight: 8 }} />
-            <Text style={styles.menuButtonText}>ANA MENÜYE DÖN</Text>
-          </TouchableOpacity>
         </SafeAreaView>
       </ImageBackground>
     );
@@ -1093,55 +1120,96 @@ const styles = StyleSheet.create({
     backgroundColor: NEON_PURPLE,
     borderRadius: 3,
   },
+  // ─── Game Over Screen Styles ────────────────────────────────────────────────
+  gameOverOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 4, 10, 0.82)',
+  },
+  gameOverSafeArea: {
+    flex: 1,
+  },
+  gameOverContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 0,
+  },
+  gameOverHeader: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
   gameOverTitle: {
-    fontSize: 48,
+    fontSize: 38,
     fontFamily: 'Poppins_900Black',
     color: Colors.white,
-    marginBottom: 10,
-    marginTop: 40,
+    letterSpacing: 2,
+    textAlign: 'center',
   },
   resultText: {
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: 'Poppins_700Bold',
-    color: Colors.primary,
-    marginBottom: 40,
+    marginTop: 4,
+    textAlign: 'center',
+    letterSpacing: 1,
   },
   finalScoreContainer: {
-    backgroundColor: 'rgba(5, 11, 20, 0.88)',
+    backgroundColor: 'rgba(5, 12, 22, 0.92)',
     borderWidth: 1.5,
-    borderColor: 'rgba(0, 255, 136, 0.25)',
-    padding: 20,
+    borderColor: 'rgba(0, 255, 136, 0.2)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 20,
-    marginBottom: 35,
-    width: '90%',
+    marginBottom: 24,
+    width: '100%',
   },
   finalScoreRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-    gap: 8,
+    borderBottomColor: 'rgba(255, 255, 255, 0.07)',
+    gap: 6,
   },
   finalScoreLabel: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'Poppins_600SemiBold',
     flex: 1,
   },
   kpBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 8,
     borderWidth: 1,
   },
   finalScoreValue: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Poppins_700Bold',
-    minWidth: 80,
+    minWidth: 72,
     textAlign: 'right',
+  },
+  gameOverActions: {
+    width: '100%',
+    gap: 12,
+  },
+  rewardButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: NEON_GREEN,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    width: '100%',
+  },
+  rewardButtonText: {
+    color: '#000',
+    fontSize: 15,
+    fontFamily: 'Poppins_700Bold',
+    letterSpacing: 0.5,
   },
   menuButton: {
     flexDirection: 'row',
@@ -1149,16 +1217,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: NEON_GREEN,
-    backgroundColor: 'rgba(0, 255, 136, 0.12)',
+    backgroundColor: 'rgba(0, 255, 136, 0.1)',
     paddingVertical: 16,
-    paddingHorizontal: 36,
+    paddingHorizontal: 24,
     borderRadius: 25,
+    width: '100%',
   },
   menuButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: NEON_GREEN,
+    fontSize: 15,
     fontFamily: 'Poppins_700Bold',
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   passBtn: {
     flex: 1,
