@@ -407,12 +407,19 @@ io.on('connection', (socket) => {
 
   // ─── Tournament Events ──────────────────────────────────────────────────
   socket.on('get_weekly_tournament', async (data) => {
+    const { playerId, category: cat } = data || {};
+    const category = cat || 'football';
     let wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : wordsDb.football;
     if (!wordSource || wordSource.length === 0) {
       try { wordSource = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')); } catch(e) { wordSource = []; }
     }
-    const result = await db.getWeeklyTournament(playerId, wordSource, category);
-    socket.emit('weekly_tournament_data', result);
+    try {
+      const result = await db.getWeeklyTournament(playerId || 'guest', wordSource, category);
+      socket.emit('weekly_tournament_data', result);
+    } catch (e) {
+      console.error('[Tournament] get_weekly_tournament error:', e);
+      socket.emit('weekly_tournament_data', { error: 'Server error' });
+    }
   });
 
   socket.on('grant_tournament_ad_attempt', async (data) => {
