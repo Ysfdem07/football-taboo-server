@@ -12,6 +12,7 @@ web-build/
 .kotlin/
 *.orig.*
 *.jks
+*.apk
 *.p8
 *.p12
 *.key
