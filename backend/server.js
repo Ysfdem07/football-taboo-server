@@ -630,7 +630,7 @@ io.on('connection', (socket) => {
       const hint = `${w[0]} ${'_ '.repeat(w.length - 2).trim()} ${w[w.length - 1]}`;
       io.to(roomId).emit('joker_used', { jokerType, playerId, message: 'Harfler Açıldı!', hint });
     } else if (jokerType === 'instantHints') {
-      const card = room.currentCard;
+      const card = room.card; // FIX: was room.currentCard (undefined)
       if (card && card.forbidden) {
         // Find hints that haven't been shown yet (up to 2)
         const hintsToReveal = [];
@@ -1087,14 +1087,17 @@ async function startRound(roomId) {
     room.timeLeft--;
 
     // Every 5 seconds (25, 20, 15, 10), we show another hint
-    if (room.timeLeft % 5 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < 5) {
-      const hintWord = card.forbidden[room.hintsShown];
+    // Hints at: t=25 (2nd), t=20 (3rd), t=15 (4th), t=10 (5th)
+    if (room.timeLeft % 5 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < room.card.forbidden.length && room.hintsShown < 5) {
+      const hintWord = room.card.forbidden[room.hintsShown]; // use room.card (always current)
       room.hintsShown++;
       io.to(roomId).emit('hint_revealed', { hint: hintWord, potentialScore: getPotentialScore(room) });
     }
 
-    // After all hints are shown (timeLeft < 10), reveal one letter every 2 seconds, max 3 letters
-    if (room.timeLeft < 10 && room.timeLeft % 2 === 0 && room.revealedIndices.length < 3) {
+    // After ALL hints are shown (hintsShown >= 5 OR no more hints) AND timeLeft < 10,
+    // reveal one letter every 2 seconds, max 3 letters
+    const allHintsShown = room.hintsShown >= Math.min(5, room.card.forbidden.length);
+    if (allHintsShown && room.timeLeft < 10 && room.timeLeft % 2 === 0 && room.revealedIndices.length < 3) {
       const availableIndices = [];
       for (let i = 0; i < card.word.length; i++) {
         if (card.word[i] !== ' ' && !room.revealedIndices.includes(i)) {
@@ -1108,10 +1111,10 @@ async function startRound(roomId) {
         io.to(roomId).emit('word_hint_update', { wordHint: room.wordHintArray.join(''), potentialScore: getPotentialScore(room) });
       }
       
-      // If we just revealed the 3rd letter, or no more letters can be revealed
+      // If we just revealed the 3rd letter, or no more letters can be revealed, give bonus time
       if (!room.finalCountdownStarted && (room.revealedIndices.length === 3 || availableIndices.length <= 1)) {
         room.finalCountdownStarted = true;
-        room.timeLeft = 15; // Provide 15 seconds for the final guesses
+        room.timeLeft = 12; // FIX: was 15, reduced to prevent huge time jumps
       }
     }
 

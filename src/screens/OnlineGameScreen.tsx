@@ -103,10 +103,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     socket.on('game_start', (data: any) => {
       Analytics.logGameStart(roomId, data.isRanked ? 'ranked' : 'friendly', 'giver');
       setGameOver(false);
+      setIsFinal(false);
       setWinnerMessage('');
       setWordHint(data.wordHint);
       setTimeLeft(data.timeLeft);
-      setHints([data.firstHint]);
+      setHints(data.firstHint ? [data.firstHint] : []);
       if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
       setCurrentRound(data.currentRound);
       if (data.maxRounds) setMaxRounds(data.maxRounds);
@@ -116,6 +117,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setGuess('');
       setPassVotesCount(0);
       setHasPassed(false);
+      setBuzzerLocked(false); // FIX: reset buzzer on new round
+      setShowWrongGuess(false); // FIX: reset wrong guess toast
+      setJokerLoading(false); // FIX: unlock jokers
     });
 
     socket.on('time_tick', (data: any) => {
@@ -129,7 +133,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     socket.on('hint_revealed', (data: any) => {
-      setHints(prev => [...prev, data.hint]);
+      // FIX: prevent duplicate hints from stale events between rounds
+      setHints(prev => {
+        if (prev.includes(data.hint)) return prev;
+        return [...prev, data.hint];
+      });
       if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
     });
 
