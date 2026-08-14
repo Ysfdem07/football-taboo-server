@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
   ImageBackground, SafeAreaView, ActivityIndicator, Alert, Platform, StatusBar
@@ -50,98 +50,112 @@ export default function TournamentScreen() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [player, setPlayer] = useState<{ id: string; username: string; avatar: string } | null>(null);
+  const [watchingAd, setWatchingAd] = useState(false);
 
-  const loadPlayer = async () => {
-    try {
-      const raw = await AsyncStorage.getItem('@logged_in_profile');
-      if (raw) setPlayer(JSON.parse(raw));
-    } catch {}
+  // Use refs to avoid stale closures in callbacks
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playerIdRef = useRef<string>('guest');
+  const isLoadingRef = useRef<boolean>(true);
+
+  const clearLoadTimeout = () => {
+    if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
   };
 
-  const fetchTournament = useCallback((overridePlayerId?: string) => {
+  const startLoadTimeout = () => {
+    clearLoadTimeout();
+    isLoadingRef.current = true;
+    timeoutRef.current = setTimeout(() => {
+      if (isLoadingRef.current) {
+        setLoadError(true);
+        setLoading(false);
+        isLoadingRef.current = false;
+      }
+    }, 15000);
+  };
+
+  const emitFetch = useCallback((pid?: string) => {
     const socket = getSocket();
     if (!socket) return;
-    if (!socket.connected) {
-      socket.connect();
-    }
-    const pid = overridePlayerId ?? (player?.id || 'guest');
-    socket.emit('get_weekly_tournament', { playerId: pid, category: categoryId });
+    if (!socket.connected) socket.connect();
+    const playerId = pid ?? playerIdRef.current;
+    socket.emit('get_weekly_tournament', { playerId, category: categoryId });
     socket.emit('get_tournament_leaderboard', { category: categoryId });
-  }, [player, categoryId]);
+  }, [categoryId]);
 
-  // Load player from storage, then immediately fetch tournament with the resolved playerId
-  const loadPlayerAndFetch = useCallback(async () => {
-    setLoading(true);
-    setLoadError(false);
-    try {
-      const raw = await AsyncStorage.getItem('@logged_in_profile');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setPlayer(parsed);
-        // Use parsed directly since state update is async
-        const socket = getSocket();
-        if (socket) {
-          if (!socket.connected) socket.connect();
-          socket.emit('get_weekly_tournament', { playerId: parsed.id || 'guest', category: categoryId });
-          socket.emit('get_tournament_leaderboard', { category: categoryId });
-        }
-      } else {
-        fetchTournament('guest');
-      }
-    } catch {
-      fetchTournament('guest');
-    }
-  }, [categoryId, fetchTournament]);
-
-  useFocusEffect(useCallback(() => {
-    loadPlayerAndFetch();
-  }, [loadPlayerAndFetch]));
-
+  // Register socket listeners ONCE on mount, clean up on unmount
   useEffect(() => {
     const socket = getSocket();
     if (!socket) { setLoadError(true); setLoading(false); return; }
 
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    let timeout = setTimeout(() => {
-      if (loading) { setLoadError(true); setLoading(false); }
-    }, 12000);
+    if (!socket.connected) socket.connect();
 
     const handleConnect = () => {
-      fetchTournament();
+      emitFetch();
     };
 
-    socket.on('connect', handleConnect);
-    socket.on('reconnect', handleConnect);
-
-    socket.on('weekly_tournament_data', (data: TournamentData) => {
-      if (timeout) clearTimeout(timeout);
+    const handleTournamentData = (data: TournamentData) => {
+      clearLoadTimeout();
+      isLoadingRef.current = false;
       if (data && !data.error) {
         setTournamentData(data);
         setLoading(false);
         setLoadError(false);
-      } else if (data && data.error) {
+      } else {
         setLoadError(true);
         setLoading(false);
       }
-    });
+    };
 
-    socket.on('tournament_leaderboard', (data: LeaderboardEntry[]) => {
-      if (data) setLeaderboard(data);
+    const handleLeaderboard = (data: LeaderboardEntry[]) => {
+      if (Array.isArray(data)) setLeaderboard(data);
+    };
+
+    // Remove any stale listeners before registering fresh ones
+    socket.off('connect', handleConnect);
+    socket.off('weekly_tournament_data', handleTournamentData);
+    socket.off('tournament_leaderboard', handleLeaderboard);
+
+    socket.on('connect', handleConnect);
+    socket.on('weekly_tournament_data', handleTournamentData);
+    socket.on('tournament_leaderboard', handleLeaderboard);
+
+    // Initial load: read player then fetch
+    AsyncStorage.getItem('@logged_in_profile').then(raw => {
+      let pid = 'guest';
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          setPlayer(parsed);
+          pid = parsed.id || 'guest';
+        } catch {}
+      }
+      playerIdRef.current = pid;
+      startLoadTimeout();
+      emitFetch(pid);
+    }).catch(() => {
+      startLoadTimeout();
+      emitFetch('guest');
     });
 
     return () => {
-      if (timeout) clearTimeout(timeout);
+      clearLoadTimeout();
       socket.off('connect', handleConnect);
-      socket.off('reconnect', handleConnect);
-      socket.off('weekly_tournament_data');
-      socket.off('tournament_leaderboard');
+      socket.off('weekly_tournament_data', handleTournamentData);
+      socket.off('tournament_leaderboard', handleLeaderboard);
     };
-  }, [fetchTournament]);
+  }, [categoryId]); // Only re-run if category changes, not on every render
 
-  const [watchingAd, setWatchingAd] = useState(false);
+  // On screen focus (returning from game), just re-fetch without re-registering listeners
+  useFocusEffect(useCallback(() => {
+    // Skip first focus (handled by useEffect above)
+    if (!isLoadingRef.current && !loading) {
+      setLoading(true);
+      setLoadError(false);
+      isLoadingRef.current = true;
+      startLoadTimeout();
+      emitFetch();
+    }
+  }, [emitFetch, loading]));
 
   const formatDate = (d: string) => {
     const date = new Date(d);
@@ -260,7 +274,7 @@ export default function TournamentScreen() {
             </Text>
             <TouchableOpacity
               style={[styles.playBtn, { marginTop: 20, paddingHorizontal: 32 }]}
-              onPress={() => { setLoading(true); setLoadError(false); fetchTournament(); }}
+              onPress={() => { setLoading(true); setLoadError(false); isLoadingRef.current = true; startLoadTimeout(); emitFetch(); }}
             >
               <Text style={styles.playBtnText}>{t('retry')}</Text>
             </TouchableOpacity>
