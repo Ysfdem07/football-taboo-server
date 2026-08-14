@@ -12,6 +12,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { BannerAdComponent, showRewarded } from '../services/ads';
 import { UserAvatar } from '../components/UserAvatar';
+import { useLanguage } from '../context/LanguageContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Tournament'>;
 
@@ -42,6 +43,7 @@ interface TournamentData {
 export default function TournamentScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<RootStackParamList, 'Tournament'>>();
+  const { t, language } = useLanguage();
   const categoryId = (route.params as any)?.categoryId || 'football';
   const [tournamentData, setTournamentData] = useState<TournamentData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -71,7 +73,6 @@ export default function TournamentScreen() {
     const socket = getSocket();
     if (!socket) { setLoadError(true); setLoading(false); return; }
 
-    // Timeout: 8 saniye içinde veri gelmezse hata göster
     const timeout = setTimeout(() => {
       if (loading) { setLoadError(true); setLoading(false); }
     }, 8000);
@@ -102,23 +103,27 @@ export default function TournamentScreen() {
 
   const formatDate = (d: string) => {
     const date = new Date(d);
-    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'tr-TR', { day: 'numeric', month: 'short' });
   };
 
   const getTimeRemaining = () => {
     if (!tournamentData?.endDate) return '';
     const diff = new Date(tournamentData.endDate).getTime() - Date.now();
-    if (diff <= 0) return 'Turnuva bitti';
+    if (diff <= 0) return language === 'en' ? 'Tournament ended' : 'Turnuva bitti';
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
-    return `${days} gün ${hours} saat kaldı`;
+    return language === 'en'
+      ? `${days} ${t('daysLeft')} ${hours} ${t('hoursLeft')}`
+      : `${days} gün ${hours} saat kaldı`;
   };
 
   const handlePlay = () => {
     if (!player) {
-      Alert.alert('Giriş Gerekli', 'Turnuvaya katılmak için profil oluşturmalısın.', [
-        { text: 'Tamam', onPress: () => navigation.navigate('Profile') }
-      ]);
+      Alert.alert(
+        language === 'en' ? 'Sign In Required' : 'Giriş Gerekli',
+        language === 'en' ? 'Please create a profile to enter the tournament.' : 'Turnuvaya katılmak için profil oluşturmalısın.',
+        [{ text: t('ok'), onPress: () => navigation.navigate('Profile') }]
+      );
       return;
     }
     if (!tournamentData?.cards?.length) return;
@@ -131,15 +136,16 @@ export default function TournamentScreen() {
     
     showRewarded(
       (reward) => {
-        // This runs if the user actually watched the ad to the end
         const socket = getSocket();
         if (socket) {
           socket.emit('grant_tournament_ad_attempt', { playerId: player.id, category: categoryId });
-          Alert.alert('Tebrikler!', 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎁');
+          Alert.alert(
+            language === 'en' ? 'Congratulations!' : 'Tebrikler!',
+            language === 'en' ? 'Watched ad to the end. +1 Attempt granted! 🎁' : 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎁'
+          );
         }
       },
       () => {
-        // This runs when the ad is closed (either successfully finished or skipped)
         setWatchingAd(false);
       }
     );
@@ -155,12 +161,17 @@ export default function TournamentScreen() {
   const getStatusInfo = () => {
     if (!tournamentData) return null;
     if (tournamentData.error) return { text: tournamentData.error, color: '#ff4444', canPlay: false, showAd: false };
-    if (tournamentData.blockedForWeek) return { text: '🏆 Bu haftayı tamamladın! Gelecek hafta görüşürüz.', color: NEON_GOLD, canPlay: false, showAd: false };
+    if (tournamentData.blockedForWeek) return { 
+      text: language === 'en' ? '🏆 You completed this week! See you next week.' : '🏆 Bu haftayı tamamladın! Gelecek hafta görüşürüz.', 
+      color: NEON_GOLD, canPlay: false, showAd: false 
+    };
     
     const remaining = 3 - tournamentData.attempts;
     if (remaining <= 0) {
       return { 
-        text: '❌ Bugünlük ücretsiz 3 hakkın da bitti. Reklam izleyerek hemen +1 hak kazanabilirsin!', 
+        text: language === 'en' 
+          ? '❌ Your free 3 daily attempts are finished. Watch an ad to get +1 attempt!' 
+          : '❌ Bugünlük ücretsiz 3 hakkın da bitti. Reklam izleyerek hemen +1 hak kazanabilirsin!', 
         color: '#ff4444', 
         canPlay: false, 
         showAd: true 
@@ -168,7 +179,9 @@ export default function TournamentScreen() {
     }
     
     return { 
-      text: `🎯 Kalan Günlük Hak: ${remaining}/3\nEn iyi skorun: ${tournamentData.myBestScore}`, 
+      text: language === 'en'
+        ? `🎯 ${t('dailyAttemptsLeft')}: ${remaining}/3\nBest score: ${tournamentData.myBestScore}`
+        : `🎯 Kalan Günlük Hak: ${remaining}/3\nEn iyi skorun: ${tournamentData.myBestScore}`, 
       color: remaining === 1 ? NEON_GOLD : NEON_BLUE, 
       canPlay: true, 
       showAd: false 
@@ -177,7 +190,6 @@ export default function TournamentScreen() {
 
   const insets = useSafeAreaInsets();
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
-
   const status = getStatusInfo();
 
   return (
@@ -189,26 +201,26 @@ export default function TournamentScreen() {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Ionicons name="arrow-back-outline" size={20} color={NEON_GREEN} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>🏆 HAFTALIK TURNUVA</Text>
+          <Text style={styles.headerTitle}>{t('weeklyTournamentTitle')}</Text>
           <View style={{ width: 36 }} />
         </View>
 
         {loading ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color={NEON_GREEN} />
-            <Text style={styles.loadingText}>Turnuva yükleniyor...</Text>
+            <Text style={styles.loadingText}>{t('loading')}</Text>
           </View>
         ) : loadError ? (
           <View style={styles.centered}>
             <Text style={{ fontSize: 40, marginBottom: 12 }}>⚠️</Text>
             <Text style={[styles.loadingText, { color: '#ff4444', textAlign: 'center' }]}>
-              Sunucuya bağlanılamadı.{'\n'}İnternet bağlantını kontrol et.
+              {language === 'en' ? 'Could not connect to server.\nCheck your internet connection.' : 'Sunucuya bağlanılamadı.\nİnternet bağlantını kontrol et.'}
             </Text>
             <TouchableOpacity
               style={[styles.playBtn, { marginTop: 20, paddingHorizontal: 32 }]}
               onPress={() => { setLoading(true); setLoadError(false); fetchTournament(); }}
             >
-              <Text style={styles.playBtnText}>Tekrar Dene</Text>
+              <Text style={styles.playBtnText}>{t('retry')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -219,7 +231,7 @@ export default function TournamentScreen() {
               <View>
                 {/* Week Info Card */}
                 <View style={styles.weekCard}>
-                  <Text style={styles.weekLabel}>BU HAFTA</Text>
+                  <Text style={styles.weekLabel}>{t('thisWeek')}</Text>
                   <Text style={styles.weekRange}>
                     {tournamentData ? `${formatDate(tournamentData.startDate)} – ${formatDate(tournamentData.endDate)}` : '—'}
                   </Text>
@@ -229,12 +241,12 @@ export default function TournamentScreen() {
                 {/* My Score Card */}
                 {player && tournamentData && tournamentData.attempts > 0 && (
                   <View style={styles.myScoreCard}>
-                    <Text style={styles.myScoreLabel}>SENİN SKORUN</Text>
+                    <Text style={styles.myScoreLabel}>{t('yourScore')}</Text>
                     <View style={styles.myScoreRow}>
                       <Text style={styles.myRankText}>{getRankEmoji(tournamentData.myRank)}</Text>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.myScoreValue}>{tournamentData.myBestScore} puan</Text>
-                        <Text style={styles.myCorrectText}>{tournamentData.myCorrectCount}/20 doğru</Text>
+                        <Text style={styles.myScoreValue}>{tournamentData.myBestScore} {t('points').toLowerCase()}</Text>
+                        <Text style={styles.myCorrectText}>{tournamentData.myCorrectCount}/20 {t('correctAnswers')}</Text>
                       </View>
                     </View>
                   </View>
@@ -246,7 +258,7 @@ export default function TournamentScreen() {
                     <Text style={[styles.statusText, { color: status.color }]}>{status.text}</Text>
                     {status.canPlay && (
                       <TouchableOpacity style={styles.playBtn} onPress={handlePlay} activeOpacity={0.85}>
-                        <Text style={styles.playBtnText}>TURNUVAYA BAŞLA ▶</Text>
+                        <Text style={styles.playBtnText}>{t('startTournament')}</Text>
                       </TouchableOpacity>
                     )}
                     {status.showAd && (
@@ -255,14 +267,14 @@ export default function TournamentScreen() {
                         onPress={handleWatchAd} 
                         activeOpacity={0.85}
                       >
-                        <Text style={[styles.playBtnText, { color: '#000' }]}>📺 REKLAM İZLE (+1 HAK)</Text>
+                        <Text style={[styles.playBtnText, { color: '#000' }]}>{t('watchAdForRight')}</Text>
                       </TouchableOpacity>
                     )}
                   </View>
                 )}
 
                 {/* Leaderboard Title */}
-                <Text style={styles.sectionTitle}>HAFTALIK SIRALAMA</Text>
+                <Text style={styles.sectionTitle}>{t('weeklyLeaderboard')}</Text>
               </View>
             )}
             renderItem={({ item }) => (
@@ -274,14 +286,14 @@ export default function TournamentScreen() {
                 <UserAvatar avatar={item.avatar} size={36} />
                 <View style={styles.lbInfo}>
                   <Text style={styles.lbUsername}>{item.username}{item.completedPerfectly ? ' 🏆' : ''}</Text>
-                  <Text style={styles.lbSub}>{item.correctCount}/20 doğru</Text>
+                  <Text style={styles.lbSub}>{item.correctCount}/20 {t('correctAnswers')}</Text>
                 </View>
                 <Text style={styles.lbScore}>{item.score}</Text>
               </View>
             )}
             ListEmptyComponent={() => (
               <View style={styles.emptyBoard}>
-                <Text style={styles.emptyText}>Henüz kimse oynamadı. İlk sen ol! 🎯</Text>
+                <Text style={styles.emptyText}>{t('noOnePlayedYet')}</Text>
               </View>
             )}
             ListFooterComponent={<View style={{ height: 20 }} />}
@@ -294,8 +306,8 @@ export default function TournamentScreen() {
       {watchingAd && (
         <View style={styles.adOverlay}>
           <ActivityIndicator size="large" color={NEON_GOLD} />
-          <Text style={styles.adText}>📺 Reklam Yükleniyor ve İzleniyor...</Text>
-          <Text style={styles.adSub}>Lütfen kapatmayın, 4 saniye içinde +1 hak verilecektir.</Text>
+          <Text style={styles.adText}>📺 {language === 'en' ? 'Loading & Watching Ad...' : 'Reklam Yükleniyor ve İzleniyor...'}</Text>
+          <Text style={styles.adSub}>{language === 'en' ? 'Please do not close, +1 attempt will be rewarded.' : 'Lütfen kapatmayın, 4 saniye içinde +1 hak verilecektir.'}</Text>
         </View>
       )}
     </ImageBackground>

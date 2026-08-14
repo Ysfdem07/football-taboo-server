@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
+import { useLanguage } from '../context/LanguageContext';
 
 type Nav  = NativeStackNavigationProp<RootStackParamList, 'TournamentGame'>;
 type Route = RouteProp<RootStackParamList, 'TournamentGame'>;
@@ -47,6 +48,7 @@ export default function TournamentGameScreen() {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<Route>();
   const insets     = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const { cards, categoryId: catId } = route.params;
   const categoryId = catId || 'football';
@@ -173,7 +175,7 @@ export default function TournamentGameScreen() {
   };
 
   const handleTimeout = () => {
-    flashScreen(false, `SÜRE DOLDU! ⏱️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
+    flashScreen(false, `${t('timeOutFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
   };
 
   const handleGuess = () => {
@@ -186,9 +188,9 @@ export default function TournamentGameScreen() {
       const earned = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
       setTotalScore(prev => prev + earned);
       setCorrectCount(prev => prev + 1);
-      flashScreen(true, 'DOĞRU! 🎉');
+      flashScreen(true, t('correctFeedback'));
     } else {
-      flashScreen(false, `YANLIŞ! ❌\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
+      flashScreen(false, `${t('wrongFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
     }
     setGuess('');
     ensureFocus();
@@ -198,7 +200,7 @@ export default function TournamentGameScreen() {
     if (feedback || finished) return;
     if (timerRef.current) clearInterval(timerRef.current);
     setGuess('');
-    flashScreen(false, `PAS GEÇİLDİ! ➡️\nDoğru Cevap: ${currentCard.word.toUpperCase()}`);
+    flashScreen(false, `${t('passedFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
   };
 
   const handleShowHint = () => {
@@ -349,33 +351,35 @@ export default function TournamentGameScreen() {
       <ImageBackground source={(THEMES as any)[categoryId] || THEMES.football} style={styles.bg}>
         <View style={styles.overlay} />
         <SafeAreaView style={styles.finishedContainer}>
-          <Text style={styles.finishedTitle}>TURNUVA BİTTİ</Text>
+          <Text style={styles.finishedTitle}>{t('tournamentFinishedTitle')}</Text>
           <Text style={styles.finishedScore}>{totalScore}</Text>
-          <Text style={styles.finishedScoreLabel}>PUAN</Text>
-          <Text style={styles.finishedSub}>{correctCount} / {cards.length} doğru</Text>
+          <Text style={styles.finishedScoreLabel}>{t('points')}</Text>
+          <Text style={styles.finishedSub}>{correctCount} / {cards.length} {t('correctAnswers')}</Text>
 
           {scoreResult && (
             <View style={styles.rankCard}>
-              <Text style={styles.rankLabel}>BU HAFTAKİ SIRAMAN</Text>
+              <Text style={styles.rankLabel}>{t('yourWeeklyRank')}</Text>
               <Text style={styles.rankValue}>#{scoreResult.rank}</Text>
-              <Text style={styles.rankSub}>{scoreResult.totalPlayers} katılımcı arasında</Text>
+              <Text style={styles.rankSub}>{scoreResult.totalPlayers} {t('outOfPlayers')}</Text>
               {scoreResult.completedPerfectly && (
-                <Text style={styles.perfectText}>🏆 Mükemmel! Bu haftaki turnuvayı tamamladın!</Text>
+                <Text style={styles.perfectText}>{t('perfectCompleted')}</Text>
               )}
             </View>
           )}
 
           {!player && (
             <View style={styles.guestWarning}>
-              <Text style={styles.guestWarningText}>⚠️ Misafir olarak oynadın — skoru kaydetmek için giriş yapmalısın.</Text>
+              <Text style={styles.guestWarningText}>
+                ⚠️ {language === 'en' ? 'Played as guest — sign in to save your score.' : 'Misafir olarak oynadın — skoru kaydetmek için giriş yapmalısın.'}
+              </Text>
             </View>
           )}
 
           <TouchableOpacity style={styles.backToTournamentBtn} onPress={() => navigation.navigate('Tournament', { categoryId })}>
-            <Text style={styles.backToTournamentText}>SIRALAMAYI GÖR</Text>
+            <Text style={styles.backToTournamentText}>{t('viewLeaderboard')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.homeBtn} onPress={() => navigation.navigate('Home')}>
-            <Text style={styles.homeBtnText}>Ana Menü</Text>
+            <Text style={styles.homeBtnText}>{t('homeMenu')}</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </ImageBackground>
@@ -415,7 +419,7 @@ export default function TournamentGameScreen() {
                             <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
                           </View>
                         </View>
-                        <Text style={styles.scoreText}>{totalScore} puan</Text>
+                        <Text style={styles.scoreText}>{totalScore} {t('points').toLowerCase()}</Text>
                       </View>
 
                       {/* Progress dots */}
@@ -451,7 +455,7 @@ export default function TournamentGameScreen() {
                           {i === 0 && (
                             <View style={styles.compactScoreBadge}>
                               <Ionicons name="star" size={10} color={NEON_GOLD} />
-                              <Text style={styles.compactScoreText}>{potentialScore} Puan</Text>
+                              <Text style={styles.compactScoreText}>{potentialScore} {t('points')}</Text>
                             </View>
                           )}
                         </View>
@@ -466,7 +470,7 @@ export default function TournamentGameScreen() {
                           activeOpacity={0.8}
                         >
                           <Ionicons name="add-circle-outline" size={14} color={NEON_PURPLE} />
-                          <Text style={styles.neonActionText} numberOfLines={1}>İpucu Göster (-10)</Text>
+                          <Text style={styles.neonActionText} numberOfLines={1}>{t('showHint')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity 
@@ -475,7 +479,7 @@ export default function TournamentGameScreen() {
                           activeOpacity={0.8}
                         >
                           <Ionicons name="help-circle-outline" size={14} color={NEON_GOLD} />
-                          <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>Harf Al (-10)</Text>
+                          <Text style={[styles.neonActionText, { color: NEON_GOLD }]} numberOfLines={1}>{t('getLetter')}</Text>
                         </TouchableOpacity>
                       </View>
                     </TouchableOpacity>
@@ -509,10 +513,10 @@ export default function TournamentGameScreen() {
 
                   <View style={styles.actionRow}>
                     <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback} activeOpacity={0.8}>
-                      <Text style={styles.skipBtnText}>PAS GEÇ</Text>
+                      <Text style={styles.skipBtnText}>{t('pass')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback} activeOpacity={0.8}>
-                      <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
+                      <Text style={styles.guessBtnText}>{t('send')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>

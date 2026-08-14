@@ -8,59 +8,62 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
+import { useLanguage } from '../context/LanguageContext';
 
 type CategoryMenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CategoryMenu'>;
 type CategoryMenuScreenRouteProp = RouteProp<RootStackParamList, 'CategoryMenu'>;
-
-const THEMES = {
-  football: { 
-    color: '#39ff14', 
-    bg: require('../../assets/images/football_bg.jpg'), 
-    title: 'FUTBOL',
-    classicIcon: 'flash-outline',
-    duelIcon: 'game-controller-outline',
-    tournamentIcon: 'trophy-outline'
-  },
-  cinema: { 
-    color: '#b026ff', 
-    bg: require('../../assets/images/cinema_bg.jpg'), 
-    title: 'SİNEMA',
-    classicIcon: 'film-outline', 
-    duelIcon: 'videocam-outline', 
-    tournamentIcon: 'star-outline'
-  },
-  music: { 
-    color: '#ff1493', 
-    bg: require('../../assets/images/music_bg.jpg'), 
-    title: 'MÜZİK',
-    classicIcon: 'musical-notes-outline', 
-    duelIcon: 'headset-outline', 
-    tournamentIcon: 'radio-outline'
-  }
-};
-
-function getWeekRange(): string {
-  const now = new Date();
-  const day = now.getDay(); // 0=Sun, 1=Mon...
-  const diffToMon = (day === 0 ? -6 : 1 - day);
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + diffToMon);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  const MONTHS = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-  const fmt = (d: Date) => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
-  return `${fmt(monday)} – ${fmt(sunday)}`;
-}
 
 export default function CategoryMenuScreen() {
   const navigation = useNavigation<CategoryMenuScreenNavigationProp>();
   const route = useRoute<CategoryMenuScreenRouteProp>();
   const insets = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   const { categoryId } = route.params;
   const [loading, setLoading] = useState(false);
 
-  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+  const THEMES = {
+    football: { 
+      color: '#39ff14', 
+      bg: require('../../assets/images/football_bg.jpg'), 
+      title: t('football').toUpperCase(),
+      classicIcon: 'flash-outline',
+      duelIcon: 'game-controller-outline',
+      tournamentIcon: 'trophy-outline'
+    },
+    cinema: { 
+      color: '#b026ff', 
+      bg: require('../../assets/images/cinema_bg.jpg'), 
+      title: t('cinema').toUpperCase(),
+      classicIcon: 'film-outline', 
+      duelIcon: 'videocam-outline', 
+      tournamentIcon: 'star-outline'
+    },
+    music: { 
+      color: '#ff1493', 
+      bg: require('../../assets/images/music_bg.jpg'), 
+      title: t('music').toUpperCase(),
+      classicIcon: 'musical-notes-outline', 
+      duelIcon: 'headset-outline', 
+      tournamentIcon: 'radio-outline'
+    }
+  };
 
+  const getWeekRange = (): string => {
+    const now = new Date();
+    const day = now.getDay();
+    const diffToMon = (day === 0 ? -6 : 1 - day);
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMon);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const MONTHS_TR = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+    const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = language === 'en' ? MONTHS_EN : MONTHS_TR;
+    const fmt = (d: Date) => `${d.getDate()} ${months[d.getMonth()]}`;
+    return `${fmt(monday)} – ${fmt(sunday)}`;
+  };
+
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
   const theme = THEMES[categoryId as keyof typeof THEMES] || THEMES.football;
   const NEON_COLOR = theme.color;
 
@@ -81,7 +84,7 @@ export default function CategoryMenuScreen() {
         {loading && (
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', zIndex: 100 }]}>
             <ActivityIndicator size="large" color={NEON_COLOR} />
-            <Text style={[styles.loadingText, { color: NEON_COLOR }]}>BAĞLANIYOR...</Text>
+            <Text style={[styles.loadingText, { color: NEON_COLOR }]}>{t('loading').toUpperCase()}</Text>
           </View>
         )}
 
@@ -134,7 +137,7 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  HAFTALIK
+                  {language === 'en' ? 'WEEKLY' : 'HAFTALIK'}
                 </Text>
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
@@ -142,7 +145,7 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  TURNUVA
+                  {language === 'en' ? 'TOURNAMENT' : 'TURNUVA'}
                 </Text>
                 
                 <View style={styles.tournamentSubRowShort}>
@@ -175,7 +178,7 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  ONLİNE
+                  ONLINE
                 </Text>
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
@@ -183,12 +186,12 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  DÜELLO
+                  {language === 'en' ? 'DUEL' : 'DÜELLO'}
                 </Text>
 
                 <View style={styles.tournamentSubRowShort}>
                   <Ionicons name="people-outline" size={11} color="rgba(255,255,255,0.7)" />
-                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>1v1 & Lobi Maçı</Text>
+                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>{language === 'en' ? '1v1 & Lobby Match' : '1v1 & Lobi Maçı'}</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -209,13 +212,12 @@ export default function CategoryMenuScreen() {
               <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}40` }]} />
               <View style={styles.leaderboardContent}>
                 <Ionicons name="trophy" size={28} color={NEON_COLOR} />
-                <Text style={[styles.leaderboardBtnText, { color: '#FFFFFF' }]} allowFontScaling={false}>LİG SIRALAMASI</Text>
+                <Text style={[styles.leaderboardBtnText, { color: '#FFFFFF' }]} allowFontScaling={false}>{t('leagueLeaderboards')}</Text>
                 <Ionicons name="chevron-forward" size={18} color={`${NEON_COLOR}80`} />
               </View>
             </View>
           </TouchableOpacity>
 
-          {/* Pitch Battle (Beta mode - disabled for initial release) */}
         </ScrollView>
 
         <BottomNavBar activeTab="none" navigation={navigation} />

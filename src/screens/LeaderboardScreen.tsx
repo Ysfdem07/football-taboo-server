@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { LeagueBadge } from '../components/LeagueBadge';
 import { Analytics } from '../services/analytics';
+import { useLanguage } from '../context/LanguageContext';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
 
@@ -27,25 +28,25 @@ interface LeaderboardItem {
   matches_played: number;
 }
 
-const CATEGORIES = [
-  { id: 'football', label: 'FUTBOL',  icon: 'football',       color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
-  { id: 'cinema',   label: 'SİNEMA',  icon: 'videocam',        color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg')   },
-  { id: 'music',    label: 'MÜZİK',   icon: 'musical-notes',   color: '#ff1493', bg: require('../../assets/images/music_bg.jpg')    },
-];
-
 export default function LeaderboardScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProp<RootStackParamList, 'Leaderboard'>>();
   const insets = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   const initialCategory = (route.params as any)?.categoryId || 'football';
 
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedLeague, setSelectedLeague] = useState('Tümü');
+  const [selectedLeague, setSelectedLeague] = useState(language === 'en' ? 'All' : 'Tümü');
+
+  const CATEGORIES = [
+    { id: 'football', label: t('football').toUpperCase(), icon: 'football', color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
+    { id: 'cinema', label: t('cinema').toUpperCase(), icon: 'videocam', color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg') },
+    { id: 'music', label: t('music').toUpperCase(), icon: 'musical-notes', color: '#ff1493', bg: require('../../assets/images/music_bg.jpg') },
+  ];
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 12;
-
   const currentCat = CATEGORIES.find(c => c.id === activeCategory) || CATEGORIES[0];
   const NEON = currentCat.color;
 
@@ -115,21 +116,20 @@ export default function LeaderboardScreen() {
 
   const handleCategoryChange = (catId: string) => {
     setActiveCategory(catId);
-    setSelectedLeague('Tümü');
+    setSelectedLeague(language === 'en' ? 'All' : 'Tümü');
     fetchLeaderboard(catId);
   };
 
-  const filteredLeaderboard = selectedLeague === 'Tümü'
+  const filteredLeaderboard = (selectedLeague === 'Tümü' || selectedLeague === 'All')
     ? leaderboard
     : leaderboard.filter(item => getLeagueForKp(item.displayKp ?? item.kp).name === selectedLeague);
 
-  // Active Selected League Info for top-right banner placement
-  const activeLeagueObj = selectedLeague !== 'Tümü' 
+  const activeLeagueObj = (selectedLeague !== 'Tümü' && selectedLeague !== 'All')
     ? LEAGUES.find(l => l.name === selectedLeague) 
     : null;
   const activeLeagueForBadge = activeLeagueObj 
     ? getLeagueForKp(activeLeagueObj.minKp) 
-    : LEAGUES[LEAGUES.length - 1]; // Champions League badge as default for 'Tümü'
+    : LEAGUES[LEAGUES.length - 1];
 
   const renderItem = ({ item, index }: { item: LeaderboardItem; index: number }) => {
     const kpToShow = item.displayKp ?? item.kp;
@@ -155,7 +155,6 @@ export default function LeaderboardScreen() {
             )}
           </View>
 
-          {/* Clean User & League Name (No User Avatar to keep list clean) */}
           <View style={styles.playerInfo}>
             <Text style={styles.username}>{item.username}</Text>
             <Text style={[styles.leagueLabel, { color: league.color }]}>
@@ -166,7 +165,7 @@ export default function LeaderboardScreen() {
 
         <View style={styles.itemRight}>
           <Text style={[styles.kpText, { color: NEON }]}>{kpToShow} KP</Text>
-          <Text style={styles.wonMatchesText}>{item.matches_won} Galibiyet</Text>
+          <Text style={styles.wonMatchesText}>{item.matches_won} {t('wins')}</Text>
         </View>
       </View>
     );
@@ -183,7 +182,7 @@ export default function LeaderboardScreen() {
             <Ionicons name="chevron-back" size={26} color="#FFF" />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: NEON, textShadowColor: NEON }]}>
-            LİG SIRALAMALARI
+            {t('leagueLeaderboards')}
           </Text>
           <View style={{ width: 40 }} />
         </View>
@@ -219,7 +218,7 @@ export default function LeaderboardScreen() {
                 { borderColor: selectedLeague === lg.name ? lg.color : 'rgba(255,255,255,0.15)' },
                 selectedLeague === lg.name && { backgroundColor: `${lg.color}25` }
               ]}
-              onPress={() => setSelectedLeague(selectedLeague === lg.name ? 'Tümü' : lg.name)}
+              onPress={() => setSelectedLeague(selectedLeague === lg.name ? (language === 'en' ? 'All' : 'Tümü') : lg.name)}
             >
               <Ionicons name={lg.vectorIcon as any} size={15} color={lg.color} style={{ marginRight: 6 }} />
               <Text style={[styles.leagueFilterText, { color: selectedLeague === lg.name ? lg.color : 'rgba(255,255,255,0.7)' }]}>
@@ -233,17 +232,16 @@ export default function LeaderboardScreen() {
         <View style={[styles.leagueBannerCard, { borderColor: `${NEON}45` }]}>
           <View style={styles.leagueBannerLeft}>
             <Text style={[styles.leagueBannerCat, { color: NEON }]}>
-              {currentCat.label} LİGİ
+              {currentCat.label} {language === 'en' ? 'LEAGUE' : 'LİGİ'}
             </Text>
             <Text style={styles.leagueBannerTitle}>
-              {selectedLeague === 'Tümü' ? 'Tüm Sıralamalar' : selectedLeague}
+              {(selectedLeague === 'Tümü' || selectedLeague === 'All') ? t('allRanks') : selectedLeague}
             </Text>
             <Text style={styles.leagueBannerSub}>
-              {filteredLeaderboard.length} Oyuncu Listeleniyor
+              {filteredLeaderboard.length} {t('playersListed')}
             </Text>
           </View>
 
-          {/* Top-Right Prominent League Image Badge */}
           <View style={styles.leagueBannerRight}>
             <LeagueBadge 
               league={activeLeagueForBadge} 
@@ -257,13 +255,13 @@ export default function LeaderboardScreen() {
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={NEON} />
-            <Text style={[styles.loadingText, { color: NEON }]}>Yükleniyor...</Text>
+            <Text style={[styles.loadingText, { color: NEON }]}>{t('loading')}</Text>
           </View>
         ) : filteredLeaderboard.length === 0 ? (
           <View style={styles.loadingContainer}>
             <Ionicons name="trophy-outline" size={60} color={`${NEON}50`} />
-            <Text style={[styles.emptyText, { color: `${NEON}80` }]}>Henüz sıralama yok</Text>
-            <Text style={styles.emptySubText}>Bu kategoride düello oyna ve ilk sıraya gir!</Text>
+            <Text style={[styles.emptyText, { color: `${NEON}80` }]}>{t('noLeaderboardYet')}</Text>
+            <Text style={styles.emptySubText}>{t('playDuelToRank')}</Text>
           </View>
         ) : (
           <FlatList
@@ -345,8 +343,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 11,
   },
-
-  // League Header Banner Card with Top-Right Emblem Position
   leagueBannerCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -390,7 +386,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 12,
   },
-
   listContent: { paddingHorizontal: 16, paddingBottom: 20 },
   leaderboardItem: {
     flexDirection: 'row',

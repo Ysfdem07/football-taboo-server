@@ -13,17 +13,24 @@ import { BottomNavBar } from '../components/BottomNavBar';
 import { LeagueBadge } from '../components/LeagueBadge';
 import { UserAvatar, AVATAR_OPTIONS, getAvatarOption } from '../components/UserAvatar';
 import { Analytics } from '../services/analytics';
+import { useLanguage } from '../context/LanguageContext';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Profile'>;
 };
 
 export default function ProfileScreen({ navigation }: Props) {
+  const { t, language } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authStep, setAuthStep] = useState<'login' | 'register' | 'forgot_request' | 'forgot_verify'>('login');
   const [loading, setLoading] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   
+  const CATEGORY_META = [
+    { id: 'football', label: t('football'),  icon: '⚽', color: '#39ff14' },
+    { id: 'cinema',   label: t('cinema'),  icon: '🎬', color: '#b026ff' },
+    { id: 'music',    label: t('music'),   icon: '🎵', color: '#ff1493' },
+  ];
   // Auth Form State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -281,11 +288,6 @@ export default function ProfileScreen({ navigation }: Props) {
   const league = getLeagueForKp(kp);
   const nextLeague = getLeagueForKp(kp + 1000);
 
-  const CATEGORY_META = [
-    { id: 'football', label: 'Futbol',  icon: '⚽', color: '#39ff14' },
-    { id: 'cinema',   label: 'Sinema',  icon: '🎬', color: '#b026ff' },
-    { id: 'music',    label: 'Müzik',   icon: '🎵', color: '#ff1493' },
-  ];
   const getCategoryKp = (catId: string) => {
     return (player as any)?.categoryKp?.[catId] ?? 0;
   };
@@ -305,7 +307,7 @@ export default function ProfileScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Oyuncu Profili</Text>
+          <Text style={styles.headerTitle}>{t('playerProfile')}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -322,7 +324,7 @@ export default function ProfileScreen({ navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="pencil-sharp" size={13} color="#00FF88" style={{ marginRight: 6 }} />
-                <Text style={styles.changeAvatarText}>AVATAR DEĞİŞTİR</Text>
+                <Text style={styles.changeAvatarText}>{t('changeAvatar')}</Text>
               </TouchableOpacity>
               
               <Text style={[styles.username, { marginTop: 8 }]}>{player.username}</Text>
@@ -349,12 +351,12 @@ export default function ProfileScreen({ navigation }: Props) {
                   />
                 </View>
                 <Text style={styles.progressText}>
-                  Sonraki Kupa için: {1000 - (player.kp % 1000)} KP gerekli
+                  {t('nextLeagueRequires')} {1000 - (player.kp % 1000)} {t('kpRequired')}
                 </Text>
               </View>
 
               {/* Category League Badges */}
-              <Text style={styles.sectionHeader}>Kategori Ligleri</Text>
+              <Text style={styles.sectionHeader}>{t('categoryLeagues')}</Text>
               <View style={styles.categoryLeaguesGrid}>
                 {CATEGORY_META.map(cat => {
                   const catKp = getCategoryKp(cat.id);
@@ -373,30 +375,30 @@ export default function ProfileScreen({ navigation }: Props) {
               </View>
 
               {/* Statistics Grid */}
-              <Text style={styles.sectionHeader}>Kariyer İstatistikleri</Text>
+              <Text style={styles.sectionHeader}>{t('careerStats')}</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statsRow}>
                   <View style={styles.statBox}>
                     <Text style={styles.statVal}>{player.matches_played}</Text>
-                    <Text style={styles.statLbl}>Maç</Text>
+                    <Text style={styles.statLbl}>{t('matches')}</Text>
                   </View>
                   <View style={styles.statBox}>
                     <Text style={styles.statVal}>{player.matches_won}</Text>
-                    <Text style={styles.statLbl}>Galibiyet</Text>
+                    <Text style={styles.statLbl}>{t('wins')}</Text>
                   </View>
                 </View>
                 
                 <View style={styles.centeredStatsRow}>
                   <View style={styles.statBoxCent}>
                     <Text style={styles.statVal}>{winRate}%</Text>
-                    <Text style={styles.statLbl}>Kazanma Oranı</Text>
+                    <Text style={styles.statLbl}>{t('winRate')}</Text>
                   </View>
                 </View>
               </View>
 
               <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                 <Ionicons name="log-out-outline" size={20} color={Colors.white} style={{ marginRight: 8 }} />
-                <Text style={styles.logoutButtonText}>Oturumu Kapat</Text>
+                <Text style={styles.logoutButtonText}>{t('logout')}</Text>
               </TouchableOpacity>
             </View>
             ) : authStep === 'forgot_request' ? (
