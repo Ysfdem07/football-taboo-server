@@ -51,6 +51,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [passVotesCount, setPassVotesCount] = useState<number>(0);
   const [hasPassed, setHasPassed] = useState<boolean>(false);
   const [kpChanges, setKpChanges] = useState<Record<string, number>>({});
+  const [coinChanges, setCoinChanges] = useState<Record<string, number>>({});
   const [serverPotentialScore, setServerPotentialScore] = useState<number | null>(null);
   const [lastPenalty, setLastPenalty] = useState<number>(10);
   
@@ -225,6 +226,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.scores) setScores(data.scores);
       if (data.players) setPlayers(data.players);
       if (data.kpChanges) setKpChanges(data.kpChanges);
+      if (data.coinChanges) setCoinChanges(data.coinChanges);
     });
 
     socket.on('player_disconnected', (data: any) => {
@@ -361,25 +363,41 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           <View style={styles.finalScoreContainer}>
             {players.sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)).map((p, index) => {
               const kpVal = kpChanges[p.id];
+              const coinVal = coinChanges[p.id];
               return (
                 <View key={p.id} style={styles.finalScoreRow}>
                   <Text style={styles.finalScoreLabel} numberOfLines={1}>
                     {p.id === socket.id ? p.name + " (Sen)" : p.name}
                   </Text>
 
-                  {kpVal !== undefined ? (
-                    <View style={[
-                      styles.kpBadge, 
-                      { 
-                        backgroundColor: kpVal >= 0 ? 'rgba(46, 204, 113, 0.15)' : 'rgba(231, 76, 60, 0.15)', 
-                        borderColor: kpVal >= 0 ? '#2ECC71' : '#E74C3C' 
-                      }
-                    ]}>
-                      <Text style={{ color: kpVal >= 0 ? '#2ECC71' : '#E74C3C', fontFamily: 'Poppins_700Bold', fontSize: 12 }}>
-                        {kpVal >= 0 ? `+${kpVal} KP` : `${kpVal} KP`}
-                      </Text>
-                    </View>
-                  ) : null}
+                  <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                    {/* KP badge — only if non-zero */}
+                    {kpVal !== undefined && kpVal !== 0 ? (
+                      <View style={[
+                        styles.kpBadge,
+                        {
+                          backgroundColor: kpVal >= 0 ? 'rgba(46, 204, 113, 0.15)' : 'rgba(231, 76, 60, 0.15)',
+                          borderColor: kpVal >= 0 ? '#2ECC71' : '#E74C3C'
+                        }
+                      ]}>
+                        <Text style={{ color: kpVal >= 0 ? '#2ECC71' : '#E74C3C', fontFamily: 'Poppins_700Bold', fontSize: 12 }}>
+                          {kpVal >= 0 ? `+${kpVal} KP` : `${kpVal} KP`}
+                        </Text>
+                      </View>
+                    ) : null}
+
+                    {/* Coin badge — always shown when present */}
+                    {coinVal !== undefined ? (
+                      <View style={[
+                        styles.kpBadge,
+                        { backgroundColor: 'rgba(255,215,0,0.15)', borderColor: NEON_GOLD }
+                      ]}>
+                        <Text style={{ color: NEON_GOLD, fontFamily: 'Poppins_700Bold', fontSize: 12 }}>
+                          +{coinVal} 🪙
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
 
                   <Text style={styles.finalScoreValue}>{scores[p.id] || 0} Puan</Text>
                 </View>

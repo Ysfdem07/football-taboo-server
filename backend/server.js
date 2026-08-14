@@ -992,45 +992,59 @@ async function startRound(roomId) {
   room.currentRound++;
   if (room.currentRound > room.maxRounds) {
     const kpChanges = {};
+    const coinChanges = {};
     const roomCat = room.category || 'football';
+
     if (room.isRanked1v1 && room.players.length === 2) {
+      // Ranked 1v1: KP + coins (via updatePlayerStats isWin=true gives +50 coins)
       const p1 = room.players[0];
       const p2 = room.players[1];
       const s1 = room.scores[p1.id] || 0;
       const s2 = room.scores[p2.id] || 0;
-      
       if (s1 > s2) {
         if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 50, true, 0, 0, roomCat);
         if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, -25, false, 0, 0, roomCat);
-        kpChanges[p1.id] = 50;
-        kpChanges[p2.id] = -25;
+        kpChanges[p1.id] = 50;  coinChanges[p1.id] = 50;
+        kpChanges[p2.id] = -25; coinChanges[p2.id] = 0;
       } else if (s2 > s1) {
         if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, -25, false, 0, 0, roomCat);
         if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 50, true, 0, 0, roomCat);
-        kpChanges[p1.id] = -25;
-        kpChanges[p2.id] = 50;
+        kpChanges[p1.id] = -25; coinChanges[p1.id] = 0;
+        kpChanges[p2.id] = 50;  coinChanges[p2.id] = 50;
       } else {
         if (p1.dbPlayerId) await db.updatePlayerStats(p1.dbPlayerId, 10, false, 0, 0, roomCat);
         if (p2.dbPlayerId) await db.updatePlayerStats(p2.dbPlayerId, 10, false, 0, 0, roomCat);
-        kpChanges[p1.id] = 10;
-        kpChanges[p2.id] = 10;
+        kpChanges[p1.id] = 10; coinChanges[p1.id] = 0;
+        kpChanges[p2.id] = 10; coinChanges[p2.id] = 0;
       }
     } else if (room.isGroupRanked && room.players.length >= 3) {
+      // Group Ranked: KP rewards
       const sorted = [...room.players].sort((a, b) => (room.scores[b.id] || 0) - (room.scores[a.id] || 0));
-      // 1st place
       if (sorted[0].dbPlayerId) await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true, 0, 0, roomCat);
-      kpChanges[sorted[0].id] = 125;
-      // 2nd place
+      kpChanges[sorted[0].id] = 125; coinChanges[sorted[0].id] = 50;
       if (sorted[1].dbPlayerId) await db.updatePlayerStats(sorted[1].dbPlayerId, 50, false, 0, 0, roomCat);
-      kpChanges[sorted[1].id] = 50;
-      // Others
+      kpChanges[sorted[1].id] = 50; coinChanges[sorted[1].id] = 0;
       for (let i = 2; i < sorted.length; i++) {
-        if (sorted[i].dbPlayerId) await db.updatePlayerStats(sorted[i].dbPlayerId, -25, false);
-        kpChanges[sorted[i].id] = -25;
+        if (sorted[i].dbPlayerId) await db.updatePlayerStats(sorted[i].dbPlayerId, -25, false, 0, 0, roomCat);
+        kpChanges[sorted[i].id] = -25; coinChanges[sorted[i].id] = 0;
       }
+    } else {
+      // Friendly / Private match: coin reward only, no KP change
+      let highScore = -Infinity;
+      room.players.forEach(p => { if ((room.scores[p.id] || 0) > highScore) highScore = room.scores[p.id] || 0; });
+      const isTie = room.players.filter(p => (room.scores[p.id] || 0) === highScore).length > 1;
+      for (const p of room.players) {
+        if (!p.dbPlayerId) continue;
+        const isWinner = !isTie && (room.scores[p.id] || 0) === highScore;
+        const coinsEarned = isWinner ? 25 : 5;
+        await db.updatePlayerCoins(p.dbPlayerId, coinsEarned);
+        coinChanges[p.id] = coinsEarned;
+        kpChanges[p.id] = 0;
+      }
+      console.log(`[FriendlyGame] Room ${roomId} ended. Coins:`, coinChanges);
     }
 
-    io.to(roomId).emit('game_over', { scores: room.scores, kpChanges });
+    io.to(roomId).emit('game_over', { scores: room.scores, kpChanges, coinChanges });
     delete activeRooms[roomId];
     return;
   }
