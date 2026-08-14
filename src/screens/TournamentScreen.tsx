@@ -58,20 +58,44 @@ export default function TournamentScreen() {
     } catch {}
   };
 
-  const fetchTournament = useCallback(() => {
+  const fetchTournament = useCallback((overridePlayerId?: string) => {
     const socket = getSocket();
     if (!socket) return;
     if (!socket.connected) {
       socket.connect();
     }
-    socket.emit('get_weekly_tournament', { playerId: player?.id || 'guest', category: categoryId });
+    const pid = overridePlayerId ?? (player?.id || 'guest');
+    socket.emit('get_weekly_tournament', { playerId: pid, category: categoryId });
     socket.emit('get_tournament_leaderboard', { category: categoryId });
   }, [player, categoryId]);
 
+  // Load player from storage, then immediately fetch tournament with the resolved playerId
+  const loadPlayerAndFetch = useCallback(async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const raw = await AsyncStorage.getItem('@logged_in_profile');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setPlayer(parsed);
+        // Use parsed directly since state update is async
+        const socket = getSocket();
+        if (socket) {
+          if (!socket.connected) socket.connect();
+          socket.emit('get_weekly_tournament', { playerId: parsed.id || 'guest', category: categoryId });
+          socket.emit('get_tournament_leaderboard', { category: categoryId });
+        }
+      } else {
+        fetchTournament('guest');
+      }
+    } catch {
+      fetchTournament('guest');
+    }
+  }, [categoryId, fetchTournament]);
+
   useFocusEffect(useCallback(() => {
-    loadPlayer();
-    fetchTournament();
-  }, [fetchTournament]));
+    loadPlayerAndFetch();
+  }, [loadPlayerAndFetch]));
 
   useEffect(() => {
     const socket = getSocket();
@@ -107,8 +131,6 @@ export default function TournamentScreen() {
     socket.on('tournament_leaderboard', (data: LeaderboardEntry[]) => {
       if (data) setLeaderboard(data);
     });
-
-    fetchTournament();
 
     return () => {
       if (timeout) clearTimeout(timeout);
