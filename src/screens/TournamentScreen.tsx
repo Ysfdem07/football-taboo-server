@@ -100,7 +100,16 @@ export default function TournamentScreen() {
         setTournamentData(data);
         setLoading(false);
         setLoadError(false);
+      } else if (data && data.error && data.error.includes('hazırlan')) {
+        // Soft error: tournament is being prepared (race condition on first deploy)
+        // Auto-retry after 3 seconds
+        console.log('[Tournament] Soft error, auto-retrying in 3s:', data.error);
+        setTimeout(() => {
+          isLoadingRef.current = true;
+          emitFetch();
+        }, 3000);
       } else {
+        // Hard error: network/server issue
         setLoadError(true);
         setLoading(false);
       }

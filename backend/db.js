@@ -293,8 +293,32 @@ module.exports = {
   getWeeklyTournament: async (playerId, wordList, category = 'football') => {
     await connectDB();
     const weekId = getWeekId(category);
-    const tournament = await WeeklyTournament.findOne({ weekId });
-    if (!tournament) return { error: 'Turnuva henüz başlamadı' };
+    let tournament = await WeeklyTournament.findOne({ weekId });
+    
+    // Auto-create tournament if it doesn't exist (handles race condition where
+    // initTournament may have run before loadWords completed)
+    if (!tournament) {
+      console.log(`[Tournament] No tournament found for ${weekId}, auto-creating...`);
+      if (!wordList || wordList.length === 0) {
+        console.error(`[Tournament] Cannot auto-create: wordList is empty for ${category}`);
+        return { error: 'Turnuva hazırlanıyor, lütfen birazdan tekrar deneyin.' };
+      }
+      const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+      const cards = shuffled.slice(0, 20);
+      const { startDate, endDate } = getWeekBounds();
+      try {
+        tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
+        await tournament.save();
+        console.log(`[Tournament] Auto-created tournament for ${weekId} with ${cards.length} cards`);
+      } catch (saveErr) {
+        // Might be duplicate key if another request created it concurrently
+        tournament = await WeeklyTournament.findOne({ weekId });
+        if (!tournament) {
+          console.error(`[Tournament] Failed to create or find tournament for ${weekId}:`, saveErr);
+          return { error: 'Turnuva oluşturulamadı, lütfen tekrar deneyin.' };
+        }
+      }
+    }
 
     const today = getTodayString();
     const myEntry = tournament.scores.find(s => s.playerId === playerId);

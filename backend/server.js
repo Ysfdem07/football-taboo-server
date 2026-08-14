@@ -341,7 +341,7 @@ const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
 let wordsDb = { football: [], cinema: [], music: [] };
 
 async function loadWords() {
-  for (const category of Object.keys(CSV_URLS)) {
+  const promises = Object.keys(CSV_URLS).map(category => new Promise(async (resolve) => {
     try {
       const response = await fetch(CSV_URLS[category]);
       const csvText = await response.text();
@@ -365,38 +365,49 @@ async function loadWords() {
             wordsDb[category] = newWords;
             console.log(`Loaded ${wordsDb[category].length} words from Cloud Database for ${category}.`);
           }
+          resolve(wordsDb[category].length);
+        },
+        error: (err) => {
+          console.error(`Papa.parse error for ${category}:`, err);
+          resolve(0);
         }
       });
     } catch (e) {
       console.error(`Cloud fetch failed for ${category}, falling back to local words.json if football`, e);
       if (category === 'football') {
-         wordsDb.football = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8'));
+         try { wordsDb.football = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')); } catch(fe) {}
       }
+      resolve(wordsDb[category]?.length || 0);
     }
-  }
+  }));
+  await Promise.all(promises);
+  console.log(`[Words] Load complete: football=${wordsDb.football.length}, cinema=${wordsDb.cinema.length}, music=${wordsDb.music.length}`);
+  return wordsDb;
 }
 
 // Load initially and refresh every 1 hour
-loadWords();
+loadWords().then(() => {
+  // initTournament AFTER words are loaded
+  initTournament();
+});
 setInterval(loadWords, 3600000);
 
 // ─── Tournament Init ─────────────────────────────────────────────────────────
 async function initTournament() {
-  setTimeout(async () => {
-    try {
-      for (const category of Object.keys(wordsDb)) {
-        const wordSource = wordsDb[category].length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
-        if (wordSource.length > 0) {
-           await db.ensureWeeklyTournament(wordSource, category);
-           console.log(`[Tournament] Weekly tournament ensured for ${category}.`);
-        }
+  try {
+    for (const category of Object.keys(wordsDb)) {
+      const wordSource = wordsDb[category].length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+      if (wordSource.length > 0) {
+         await db.ensureWeeklyTournament(wordSource, category);
+         console.log(`[Tournament] Weekly tournament ensured for ${category}.`);
+      } else {
+        console.warn(`[Tournament] No words available for ${category}, skipping ensureWeeklyTournament.`);
       }
-    } catch (e) {
-      console.error('[Tournament] Async Init error:', e);
     }
-  }, 5000);
+  } catch (e) {
+    console.error('[Tournament] Init error:', e);
+  }
 }
-initTournament();
 
 // Check every hour: if it's Sunday night, give rewards
 setInterval(async () => {
@@ -432,12 +443,19 @@ io.on('connection', (socket) => {
     if (!wordSource || wordSource.length === 0) {
       try { wordSource = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')); } catch(e) { wordSource = []; }
     }
+    console.log(`[Tournament] get_weekly_tournament: playerId=${playerId}, category=${category}, wordSource=${wordSource.length}`);
     try {
       const result = await db.getWeeklyTournament(playerId || 'guest', wordSource, category);
-      socket.emit('weekly_tournament_data', result);
+      if (result && result.error) {
+        // Soft error (tournament not ready) - send it to client so it can show a friendlier message
+        console.warn(`[Tournament] Soft error for ${playerId}: ${result.error}`);
+        socket.emit('weekly_tournament_data', result);
+      } else {
+        socket.emit('weekly_tournament_data', result);
+      }
     } catch (e) {
       console.error('[Tournament] get_weekly_tournament error:', e);
-      socket.emit('weekly_tournament_data', { error: 'Server error' });
+      socket.emit('weekly_tournament_data', { error: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
