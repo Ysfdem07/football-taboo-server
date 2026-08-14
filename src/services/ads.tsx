@@ -31,9 +31,9 @@ if (isFirebaseAvailable) {
 }
 
 // AD UNIT IDs
-const BANNER_ID = __DEV__ ? (TestIds ? TestIds.BANNER : '') : 'ca-app-pub-2870765498397878/4112026008';
-const INTERSTITIAL_ID = __DEV__ ? (TestIds ? TestIds.INTERSTITIAL : '') : 'ca-app-pub-2870765498397878/3325557941';
-const REWARDED_ID = __DEV__ ? (TestIds ? TestIds.REWARDED : '') : 'ca-app-pub-2870765498397878/8083060602';
+const BANNER_ID = __DEV__ ? (TestIds ? TestIds.BANNER : '') : 'ca-app-pub-3816139413382983/4862946418';
+const INTERSTITIAL_ID = __DEV__ ? (TestIds ? TestIds.INTERSTITIAL : '') : 'ca-app-pub-3816139413382983/5106634788';
+const REWARDED_ID = __DEV__ ? (TestIds ? TestIds.REWARDED : '') : 'ca-app-pub-3816139413382983/7273487336';
 
 // Keep track of ad instances
 let interstitialAdInstance: any = null;
