@@ -217,7 +217,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   };
 
   const sendPass = () => {
-    if (gameOver || hasPassed || guessingPlayerId) return;
+    if (gameOver || hasPassed) return; // Allow pass even during guess turn
     setHasPassed(true);
     socket.emit('pass_round', { roomId });
   };
@@ -512,6 +512,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
           <View style={styles.inputArea}>
             {!guessingPlayerId ? (
+              // Normal turn: show buzzer + pass
               <View style={{ flexDirection: 'row', gap: 10, width: '100%', paddingHorizontal: 16 }}>
                 <TouchableOpacity 
                   style={[styles.buzzerButton, { flex: 1 }, buzzerLocked && styles.buzzerButtonLocked]} 
@@ -536,35 +537,58 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 </TouchableOpacity>
               </View>
             ) : guessingPlayerId === socket.id ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingHorizontal: 16 }}>
-                {/* Invisible input */}
-                <TextInput
-                  ref={inputRef}
-                  style={styles.invisibleInput}
-                  value={guess}
-                  onChangeText={(text) => {
-                    const cleanText = text.replace(/\s+/g, '');
-                    setGuess(cleanText);
-                  }}
-                  onSubmitEditing={sendGuess}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  autoFocus
-                  maxLength={wordHint.replace(/\s+/g, '').length}
-                />
-                
-                <View style={{ flex: 1, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+              // My guess turn: show input + send + pass
+              <View style={{ flexDirection: 'column', gap: 8, width: '100%', paddingHorizontal: 16 }}>
+                <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                  {/* Invisible input */}
+                  <TextInput
+                    ref={inputRef}
+                    style={styles.invisibleInput}
+                    value={guess}
+                    onChangeText={(text) => {
+                      const cleanText = text.replace(/\s+/g, '');
+                      setGuess(cleanText);
+                    }}
+                    onSubmitEditing={sendGuess}
+                    autoCapitalize="characters"
+                    autoCorrect={false}
+                    autoFocus
+                    maxLength={wordHint.replace(/\s+/g, '').length}
+                  />
                   <View style={styles.inlineTimerWrap}>
                     <Text style={styles.guessTimerText}>{guessTimeLeft}s</Text>
                   </View>
-                  <TouchableOpacity style={styles.guessBtn} onPress={sendGuess} activeOpacity={0.85}>
+                  <TouchableOpacity style={[styles.guessBtn, { flex: 1 }]} onPress={sendGuess} activeOpacity={0.85}>
                     <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
                   </TouchableOpacity>
                 </View>
+                <TouchableOpacity 
+                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]} 
+                  onPress={sendPass}
+                  disabled={hasPassed}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.passBtnText}>
+                    {hasPassed ? `✓ PAS (${passVotesCount}/${players.length || 2})` : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
+                  </Text>
+                </TouchableOpacity>
               </View>
             ) : (
-              <View style={styles.waitingContainer}>
-                <Text style={styles.waitingText}>⏳ {guessingPlayerName} tahmin ediyor... ({guessTimeLeft})</Text>
+              // Opponent's guess turn: show waiting + pass
+              <View style={{ flexDirection: 'column', gap: 8, width: '100%', paddingHorizontal: 16 }}>
+                <View style={styles.waitingContainer}>
+                  <Text style={styles.waitingText}>⏳ {guessingPlayerName} tahmin ediyor... ({guessTimeLeft})</Text>
+                </View>
+                <TouchableOpacity 
+                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]} 
+                  onPress={sendPass}
+                  disabled={hasPassed}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.passBtnText}>
+                    {hasPassed ? `✓ PAS (${passVotesCount}/${players.length || 2})` : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>

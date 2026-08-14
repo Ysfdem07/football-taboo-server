@@ -708,27 +708,37 @@ io.on('connection', (socket) => {
   socket.on('pass_round', (data) => {
     const { roomId } = data;
     const room = activeRooms[roomId];
-    if (!room || !room.roundActive) return; // Allow pass even if timer is paused
+    if (!room || !room.roundActive) {
+      console.log(`[PassRound] Rejected - room exists: ${!!room}, roundActive: ${room?.roundActive}`);
+      return;
+    }
 
     if (!room.passVotes) {
       room.passVotes = new Set();
     }
+
+    // Add this socket's vote
     room.passVotes.add(socket.id);
 
-    // Count votes specifically from active room players
+    // Count votes by checking which room players have voted
+    // room.players[i].id === socket.id always (set at join time)
     const activePlayers = room.players || [];
+    const totalPlayers = activePlayers.length;
     const validVotesCount = activePlayers.filter(p => room.passVotes.has(p.id)).length;
-    const requiredVotes = Math.max(1, activePlayers.length);
 
-    console.log(`[PassRound] Room ${roomId}: ${validVotesCount}/${requiredVotes} votes (by socket ${socket.id})`);
+    // Fallback: if player list seems wrong, use passVotes.size directly
+    const effectiveVotes = validVotesCount > 0 ? validVotesCount : room.passVotes.size;
+    const requiredVotes = Math.max(1, totalPlayers || room.passVotes.size);
+
+    console.log(`[PassRound] Room ${roomId}: socket=${socket.id}, passVotes=[${[...room.passVotes].join(',')}], players=[${activePlayers.map(p=>p.id).join(',')}], validVotes=${validVotesCount}, effectiveVotes=${effectiveVotes}, required=${requiredVotes}`);
 
     io.to(roomId).emit('pass_update', {
-      votesCount: validVotesCount,
+      votesCount: effectiveVotes,
       totalPlayers: requiredVotes,
       voterId: socket.id
     });
 
-    if (validVotesCount >= requiredVotes) {
+    if (effectiveVotes >= requiredVotes) {
       room.roundActive = false;
       room.isPaused = false;
       room.guessingPlayerId = null;
