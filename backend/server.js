@@ -251,6 +251,25 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+app.get('/version', (req, res) => {
+  res.json({ version: '2026-08-14-v3-tournament-fix', wordsLoaded: { football: wordsDb.football.length, cinema: wordsDb.cinema.length, music: wordsDb.music.length } });
+});
+
+app.get('/debug-tournament', async (req, res) => {
+  try {
+    const category = req.query.category || 'football';
+    const playerId = req.query.playerId || 'guest';
+    let wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : wordsDb.football;
+    if (!wordSource || wordSource.length === 0) {
+      try { wordSource = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')); } catch(e) { wordSource = []; }
+    }
+    const result = await db.getWeeklyTournament(playerId, wordSource, category);
+    res.json({ category, playerId, wordSourceLength: wordSource.length, result });
+  } catch (e) {
+    res.json({ error: e.message, stack: e.stack });
+  }
+});
+
 app.get('/debug-db', async (req, res) => {
   try {
     const mongoose = require('mongoose');
