@@ -15,6 +15,7 @@ import CategoryMenuScreen from '../screens/CategoryMenuScreen';
 import TournamentGameScreen from '../screens/TournamentGameScreen';
 import CardAlbumScreen from '../screens/CardAlbumScreen';
 import PitchBattleScreen from '../screens/PitchBattleScreen';
+import MarketScreen from '../screens/MarketScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -33,6 +34,7 @@ export type RootStackParamList = {
   TournamentGame: { cards: { word: string; forbidden: string[] }[]; categoryId?: string };
   CardAlbum: { categoryId?: string };
   PitchBattle: undefined;
+  Market: undefined;
 };
 
 import RoomLobbyScreen from '../screens/RoomLobbyScreen';
@@ -57,6 +59,7 @@ export default function AppNavigator() {
       >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="CategoryMenu" component={CategoryMenuScreen} />
+        <Stack.Screen name="Market" component={MarketScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Game" component={GameScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />

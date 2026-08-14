@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -8,7 +8,8 @@ import { getSocket } from '../services/socket';
 import { Analytics } from '../services/analytics';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showInterstitial } from '../services/ads';
+import { showInterstitial, showRewarded } from '../services/ads';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
@@ -52,9 +53,34 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [kpChanges, setKpChanges] = useState<Record<string, number>>({});
   const [serverPotentialScore, setServerPotentialScore] = useState<number | null>(null);
   const [lastPenalty, setLastPenalty] = useState<number>(10);
+  
+  const [player, setPlayer] = useState<any>(null);
+  const [jokerLoading, setJokerLoading] = useState(false);
+  const [rewardCollected, setRewardCollected] = useState(false);
 
   const inputRef = React.useRef<TextInput>(null);
   const transitionAnim = React.useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@logged_in_profile');
+        if (stored) setPlayer(JSON.parse(stored));
+      } catch(e) {}
+    };
+    loadProfile();
+  }, []);
+
+  const useJoker = (jokerType: string) => {
+    if (!player || !player.id) return;
+    const count = player.jokers?.[jokerType] || 0;
+    if (count <= 0) {
+      Alert.alert('Joker Yok', 'Marketten joker satın alabilirsin!');
+      return;
+    }
+    setJokerLoading(true);
+    socket.emit('use_joker', { roomId, playerId: player.id, jokerType });
+  };
 
   // Smooth fade-in for round transition screens
   useEffect(() => {
@@ -123,6 +149,24 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
     socket.on('guess_turn_ended', () => {
       setGuessingPlayerId(null);
+    });
+
+    socket.on('joker_used_success', async (data: any) => {
+      setJokerLoading(false);
+      if (data.player) {
+        setPlayer(data.player);
+        await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
+      }
+    });
+
+    socket.on('joker_used', (data: any) => {
+      if (data.message) Alert.alert('Joker Kullanıldı!', data.message);
+      if (data.hint) setWordHint(data.hint);
+    });
+
+    socket.on('joker_error', (data: any) => {
+      setJokerLoading(false);
+      Alert.alert('Joker Hatası', data.message || 'Joker kullanılamadı.');
     });
 
     socket.on('wrong_guess', (data?: any) => {
@@ -334,6 +378,23 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               );
             })}
           </View>
+
+          {winnerIds.includes(socket.id) && !rewardCollected && (
+            <TouchableOpacity 
+              style={[styles.menuButton, { backgroundColor: 'rgba(0,255,136,0.15)', borderColor: NEON_GREEN, marginBottom: 12 }]}
+              onPress={() => {
+                showRewarded(() => {
+                  socket.emit('reward_double_coins', { playerId: player?.id });
+                  setRewardCollected(true);
+                  Alert.alert('Tebrikler!', 'Kazancınız 2\'ye katlandı (+50 Jeton eklendi).');
+                });
+              }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="videocam" size={18} color={NEON_GREEN} style={{ marginRight: 8 }} />
+              <Text style={[styles.menuButtonText, { color: NEON_GREEN }]}>REKLAM İZLE: X2 JETON (100)</Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity 
             style={styles.menuButton}
@@ -554,6 +615,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     autoCorrect={false}
                     autoFocus
                     maxLength={wordHint.replace(/\s+/g, '').length}
+                    underlineColorAndroid="transparent"
                   />
                   <View style={styles.inlineTimerWrap}>
                     <Text style={styles.guessTimerText}>{guessTimeLeft}s</Text>
@@ -562,6 +624,23 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
                   </TouchableOpacity>
                 </View>
+                
+                {/* Jokers */}
+                <View style={styles.jokersContainer}>
+                  <TouchableOpacity style={styles.jokerBtn} onPress={() => useJoker('revealLetters')} disabled={jokerLoading}>
+                    <Ionicons name="text" size={20} color={NEON_PURPLE} />
+                    <View style={styles.jokerBadge}><Text style={styles.jokerBadgeText}>{player?.jokers?.revealLetters || 0}</Text></View>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.jokerBtn} onPress={() => useJoker('extraTime')} disabled={jokerLoading}>
+                    <Ionicons name="time" size={20} color="#00BFFF" />
+                    <View style={styles.jokerBadge}><Text style={styles.jokerBadgeText}>{player?.jokers?.extraTime || 0}</Text></View>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.jokerBtn} onPress={() => useJoker('instantHints')} disabled={jokerLoading}>
+                    <Ionicons name="flash" size={20} color={NEON_GREEN} />
+                    <View style={styles.jokerBadge}><Text style={styles.jokerBadgeText}>{player?.jokers?.instantHints || 0}</Text></View>
+                  </TouchableOpacity>
+                </View>
+
                 <TouchableOpacity 
                   style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]} 
                   onPress={sendPass}
@@ -789,12 +868,45 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   guessBtnText: {
     color: NEON_GREEN,
     fontFamily: 'Poppins_700Bold',
     fontSize: 15,
     letterSpacing: 1,
+  },
+  jokersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    marginVertical: 4,
+  },
+  jokerBtn: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  jokerBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#ff4444',
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  jokerBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontFamily: 'Poppins_700Bold',
   },
   buzzerButton: {
     flex: 1,

@@ -585,9 +585,70 @@ io.on('connection', (socket) => {
 
   // Global Leaderboard Fetch
   socket.on('get_leaderboard', async (data) => {
-    const category = data?.category || null;
+    const { category } = data;
     const leaderboard = await db.getLeaderboard(category);
-    socket.emit('leaderboard_data', { leaderboard, category });
+    socket.emit('leaderboard_data', { leaderboard });
+  });
+
+  socket.on('buy_joker', async (data) => {
+    const { playerId, jokerType } = data;
+    if (!playerId || !jokerType) return socket.emit('joker_error', { message: 'Eksik bilgi!' });
+    const result = await db.buyJoker(playerId, jokerType, 50);
+    if (result.error) {
+      socket.emit('joker_error', { message: result.error });
+    } else {
+      socket.emit('joker_bought', { player: result.player, jokerType });
+    }
+  });
+
+  socket.on('reward_double_coins', async (data) => {
+    const { playerId } = data;
+    if (!playerId) return;
+    const result = await db.updatePlayerCoins(playerId, 50);
+    if (result) {
+      socket.emit('coins_updated', { player: result });
+    }
+  });
+
+  socket.on('use_joker', async (data) => {
+    const { roomId, playerId, jokerType } = data;
+    const room = activeRooms[roomId];
+    if (!room) return socket.emit('joker_error', { message: 'Oda bulunamadı!' });
+    
+    // Validate if player actually has the joker
+    const result = await db.useJoker(playerId, jokerType);
+    if (result.error) {
+      return socket.emit('joker_error', { message: result.error });
+    }
+
+    // Apply joker effect
+    if (jokerType === 'extraTime') {
+      room.timers.guessTimerEnd += 5000;
+      io.to(roomId).emit('joker_used', { jokerType, playerId, message: '+5 Saniye Eklendi!' });
+    } else if (jokerType === 'revealLetters') {
+      const w = room.currentWord;
+      const hint = `${w[0]} ${'_ '.repeat(w.length - 2).trim()} ${w[w.length - 1]}`;
+      io.to(roomId).emit('joker_used', { jokerType, playerId, message: 'Harfler Açıldı!', hint });
+    } else if (jokerType === 'instantHints') {
+      const card = room.currentCard;
+      if (card && card.forbidden) {
+        // Find hints that haven't been shown yet (up to 2)
+        const hintsToReveal = [];
+        for (let i = 0; i < 2; i++) {
+          if (room.hintsShown < card.forbidden.length) {
+            hintsToReveal.push(card.forbidden[room.hintsShown]);
+            room.hintsShown++;
+          }
+        }
+        hintsToReveal.forEach(hint => {
+          io.to(roomId).emit('hint_revealed', { hint, potentialScore: getPotentialScore(room) });
+        });
+        io.to(roomId).emit('joker_used', { jokerType, playerId, message: '2 İpucu Açıldı!' });
+      }
+    }
+    
+    // Update player data on client side so joker count drops
+    socket.emit('joker_used_success', { player: result.player, jokerType });
   });
 
   socket.on('join_queue', (data) => {

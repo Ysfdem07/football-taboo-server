@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../context/LanguageContext';
 
 interface BottomNavBarProps {
-  activeTab: 'home' | 'howToPlay' | 'leaderboard' | 'profile' | 'none';
+  activeTab: 'home' | 'howToPlay' | 'leaderboard' | 'profile' | 'market' | 'none';
   navigation: any;
 }
 
@@ -41,34 +41,6 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
 
       <TouchableOpacity 
         style={styles.tabItem} 
-        onPress={() => activeTab !== 'howToPlay' && navigation.navigate('HowToPlay')}
-      >
-        <Ionicons 
-          name={activeTab === 'howToPlay' ? "help-circle" : "help-circle-outline"} 
-          size={22} 
-          color={activeTab === 'howToPlay' ? "#00FFFF" : "#888"} 
-        />
-        <Text style={[styles.tabText, { color: activeTab === 'howToPlay' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          {language === 'en' ? 'Rules' : 'Nasıl Oynanır?'}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.tabItem} 
-        onPress={() => activeTab !== 'leaderboard' && navigation.navigate('Leaderboard', {})}
-      >
-        <Ionicons 
-          name={activeTab === 'leaderboard' ? "trophy" : "trophy-outline"} 
-          size={22} 
-          color={activeTab === 'leaderboard' ? "#00FFFF" : "#888"} 
-        />
-        <Text style={[styles.tabText, { color: activeTab === 'leaderboard' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          {t('navLeaderboard')}
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={styles.tabItem} 
         onPress={() => activeTab !== 'profile' && navigation.navigate('Profile')}
       >
         <Ionicons 
@@ -78,6 +50,48 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
         />
         <Text style={[styles.tabText, { color: activeTab === 'profile' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
           {t('navProfile')}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.tabItem} 
+        onPress={() => activeTab !== 'market' && navigation.navigate('Market')}
+      >
+        <Ionicons 
+          name={activeTab === 'market' ? "cart" : "cart-outline"} 
+          size={22} 
+          color={activeTab === 'market' ? "#00FFFF" : "#888"} 
+        />
+        <Text style={[styles.tabText, { color: activeTab === 'market' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
+          Market
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.tabItem} 
+        onPress={() => activeTab !== 'leaderboard' && navigation.navigate('Leaderboard')}
+      >
+        <Ionicons 
+          name={activeTab === 'leaderboard' ? "trophy" : "trophy-outline"} 
+          size={22} 
+          color={activeTab === 'leaderboard' ? "#00FFFF" : "#888"} 
+        />
+        <Text style={[styles.tabText, { color: activeTab === 'leaderboard' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
+          {language === 'en' ? 'Ranking' : 'Sıralama'}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.tabItem} 
+        onPress={() => activeTab !== 'howToPlay' && navigation.navigate('HowToPlay')}
+      >
+        <Ionicons 
+          name={activeTab === 'howToPlay' ? "help-circle" : "help-circle-outline"} 
+          size={22} 
+          color={activeTab === 'howToPlay' ? "#00FFFF" : "#888"} 
+        />
+        <Text style={[styles.tabText, { color: activeTab === 'howToPlay' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
+          {language === 'en' ? 'Rules' : 'Nasıl Oynanır?'}
         </Text>
       </TouchableOpacity>
     </View>

@@ -41,10 +41,21 @@ const playerSchema = new mongoose.Schema({
     cinema:   { type: Number, default: 0 },
     music:    { type: Number, default: 0 }
   },
+  categoryWins: {
+    football: { type: Number, default: 0 },
+    cinema:   { type: Number, default: 0 },
+    music:    { type: Number, default: 0 }
+  },
   matches_played: { type: Number, default: 0 },
   matches_won: { type: Number, default: 0 },
   correct_guesses: { type: Number, default: 0 },
   taboos: { type: Number, default: 0 },
+  coins: { type: Number, default: 100 },
+  jokers: {
+    revealLetters: { type: Number, default: 0 },
+    extraTime: { type: Number, default: 0 },
+    instantHints: { type: Number, default: 0 }
+  },
   resetCode: { type: String, default: null },
   resetExpires: { type: Date, default: null }
 }, {
@@ -130,25 +141,25 @@ module.exports = {
 
   registerPlayer: async (username, password, avatar, email, marketingConsent) => {
     await connectDB();
-    const existing = await Player.findOne({ username: new RegExp(`^${username}$`, 'i') });
-    if (existing) return { error: 'Bu kullanıcı adı zaten alınmış!' };
-
-    if (!email || !email.trim()) return { error: 'E-posta adresi gereklidir!' };
-    const existingEmail = await Player.findOne({ email: new RegExp(`^${email.trim()}$`, 'i') });
-    if (existingEmail) return { error: 'Bu e-posta adresi zaten kullanımda!' };
+    const existing = await Player.findOne({
+      $or: [{ username: new RegExp(`^${username.trim()}$`, 'i') }, { email: new RegExp(`^${email.trim()}$`, 'i') }]
+    });
+    if (existing) return { error: 'Kullanıcı adı veya e-posta zaten kullanımda!' };
 
     const newPlayer = {
-      id: 'player_' + Math.random().toString(36).substr(2, 9),
+      id: `player_${Math.random().toString(36).substr(2, 9)}`,
       username: username.trim(),
       password: password,
-      avatar: avatar || '⚽',
       email: email.trim(),
-      marketingConsent: !!marketingConsent,
+      marketingConsent: marketingConsent,
+      avatar: avatar || '⚽',
       kp: 0,
       matches_played: 0,
       matches_won: 0,
       correct_guesses: 0,
-      taboos: 0
+      taboos: 0,
+      coins: 100,
+      jokers: { revealLetters: 0, extraTime: 0, instantHints: 0 }
     };
     const player = new Player(newPlayer);
     await player.save();
@@ -193,7 +204,13 @@ module.exports = {
     player.markModified('categoryKp');
 
     player.matches_played += 1;
-    if (isWin) player.matches_won += 1;
+    if (isWin) {
+      player.matches_won += 1;
+      if (!player.categoryWins) player.categoryWins = { football: 0, cinema: 0, music: 0 };
+      player.categoryWins[cat] = (player.categoryWins[cat] || 0) + 1;
+      player.markModified('categoryWins');
+      player.coins = (player.coins || 0) + 50;
+    }
     player.correct_guesses += correctGuesses;
     player.taboos += taboos;
 
@@ -201,23 +218,66 @@ module.exports = {
     return player.toObject();
   },
 
+  updatePlayerCoins: async (playerId, amount) => {
+    await connectDB();
+    const player = await Player.findOne({ id: playerId });
+    if (!player) return null;
+    player.coins = Math.max(0, (player.coins || 0) + amount);
+    await player.save();
+    return player.toObject();
+  },
+
+  buyJoker: async (playerId, jokerType, price = 50) => {
+    await connectDB();
+    const player = await Player.findOne({ id: playerId });
+    if (!player) return { error: 'Oyuncu bulunamadı' };
+    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0 };
+    if ((player.coins || 0) < price) return { error: 'Yetersiz jeton!' };
+
+    player.coins -= price;
+    if (player.jokers[jokerType] !== undefined) {
+      player.jokers[jokerType] += 1;
+    } else {
+      return { error: 'Geçersiz joker türü' };
+    }
+    
+    player.markModified('jokers');
+    await player.save();
+    return { success: true, player: player.toObject() };
+  },
+
+  useJoker: async (playerId, jokerType) => {
+    await connectDB();
+    const player = await Player.findOne({ id: playerId });
+    if (!player) return { error: 'Oyuncu bulunamadı' };
+    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0 };
+    if (player.jokers[jokerType] > 0) {
+      player.jokers[jokerType] -= 1;
+      player.markModified('jokers');
+      await player.save();
+      return { success: true, player: player.toObject() };
+    }
+    return { error: 'Bu jokerden elinizde yok!' };
+  },
+
   getLeaderboard: async (category = null) => {
     await connectDB();
     if (category && ['football', 'cinema', 'music'].includes(category)) {
       const sortField = `categoryKp.${category}`;
       const players = await Player.find({})
-        .select(`id username avatar kp categoryKp matches_won matches_played -_id`)
+        .select(`id username avatar kp categoryKp categoryWins matches_won matches_played -_id`)
         .sort({ [sortField]: -1 })
         .limit(50);
       return players.map(p => {
         const obj = p.toObject();
         obj.displayKp = (obj.categoryKp && obj.categoryKp[category]) || 0;
+        obj.matches_won = (obj.categoryWins && obj.categoryWins[category]) || 0;
         return obj;
       });
     }
     // Global leaderboard (fallback)
     const players = await Player.find({})
-      .select('id username avatar kp categoryKp matches_won matches_played -_id')
+      .select('id username avatar kp categoryKp categoryWins matches_won matches_played -_id')
       .sort({ kp: -1 })
       .limit(50);
     return players.map(p => {
