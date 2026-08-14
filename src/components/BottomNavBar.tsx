@@ -63,7 +63,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
           color={activeTab === 'market' ? "#00FFFF" : "#888"} 
         />
         <Text style={[styles.tabText, { color: activeTab === 'market' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          Market
+          {t('navMarket')}
         </Text>
       </TouchableOpacity>
 

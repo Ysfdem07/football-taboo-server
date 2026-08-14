@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { getSocket, initSocketWithUrl, fetchTunnelUrl } from '../services/socket';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const THEMES = {
   football: require('../../assets/images/home_bg.jpg')
@@ -16,6 +17,7 @@ const NEON_PURPLE = '#A855F7';
 
 export default function MarketScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
   
   const [player, setPlayer] = useState<any>(null);
@@ -51,19 +53,19 @@ export default function MarketScreen({ navigation }: any) {
         setLoading(false);
         setPlayer(data.player);
         await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
-        Alert.alert('Başarılı!', 'Joker satın alındı.');
+        Alert.alert(t('success'), t('jokerBought'));
       });
       
       s.on('joker_error', (data: { message: string }) => {
         setLoading(false);
-        Alert.alert('Hata', data.message);
+        Alert.alert(t('error'), data.message);
       });
     }
   };
 
   const buyJoker = async (jokerType: string) => {
-    if (!player) return Alert.alert('Hata', 'Giriş yapmanız gerekiyor!');
-    if ((player.coins || 0) < 50) return Alert.alert('Yetersiz Bakiye', 'Daha fazla jeton kazanmalısın!');
+    if (!player) return Alert.alert(t('error'), t('loginRequired'));
+    if ((player.coins || 0) < 50) return Alert.alert(t('insufficientFunds'), t('needMoreCoins'));
     
     setLoading(true);
     let s = getSocket();
@@ -76,7 +78,7 @@ export default function MarketScreen({ navigation }: any) {
       s.emit('buy_joker', { playerId: player.id, jokerType });
     } else {
       setLoading(false);
-      Alert.alert('Hata', 'Sunucuya bağlanılamadı.');
+      Alert.alert(t('error'), t('serverError'));
     }
   };
 
@@ -85,7 +87,7 @@ export default function MarketScreen({ navigation }: any) {
       <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
         <View style={[styles.header, { paddingTop: topPadding }]}>
-          <Text style={styles.headerTitle}>🏪 MARKET</Text>
+          <Text style={styles.headerTitle}>🏪 {t('marketTitle')}</Text>
           <View style={styles.coinBadge}>
             <Ionicons name="cash" size={20} color={NEON_GOLD} />
             <Text style={styles.coinText}>{player?.coins || 0}</Text>
@@ -93,15 +95,15 @@ export default function MarketScreen({ navigation }: any) {
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.subtitle}>Düello maçlarında kullanabileceğin jokerler satın al!</Text>
+          <Text style={styles.subtitle}>{t('marketSubtitle')}</Text>
           
           <View style={styles.jokerCard}>
             <View style={styles.jokerInfo}>
               <Ionicons name="text" size={32} color={NEON_PURPLE} />
               <View style={styles.jokerTexts}>
-                <Text style={styles.jokerName}>Harf Aç</Text>
-                <Text style={styles.jokerDesc}>Kelimenin ilk ve son harfini gösterir.</Text>
-                <Text style={styles.jokerCount}>Sahipsin: {player?.jokers?.revealLetters || 0}</Text>
+                <Text style={styles.jokerName}>{t('revealLetters')}</Text>
+                <Text style={styles.jokerDesc}>{t('revealLettersDesc')}</Text>
+                <Text style={styles.jokerCount}>{t('owned')} {player?.jokers?.revealLetters || 0}</Text>
               </View>
             </View>
             <TouchableOpacity 
@@ -109,7 +111,7 @@ export default function MarketScreen({ navigation }: any) {
               onPress={() => buyJoker('revealLetters')}
               disabled={loading}
             >
-              <Text style={styles.buyBtnText}>50 Jeton</Text>
+              <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
 
@@ -117,9 +119,9 @@ export default function MarketScreen({ navigation }: any) {
             <View style={styles.jokerInfo}>
               <Ionicons name="time" size={32} color="#00BFFF" />
               <View style={styles.jokerTexts}>
-                <Text style={styles.jokerName}>+5 Saniye</Text>
-                <Text style={styles.jokerDesc}>Sürene ekstra 5 saniye ekler.</Text>
-                <Text style={styles.jokerCount}>Sahipsin: {player?.jokers?.extraTime || 0}</Text>
+                <Text style={styles.jokerName}>{t('extraTime')}</Text>
+                <Text style={styles.jokerDesc}>{t('extraTimeDesc')}</Text>
+                <Text style={styles.jokerCount}>{t('owned')} {player?.jokers?.extraTime || 0}</Text>
               </View>
             </View>
             <TouchableOpacity 
@@ -127,7 +129,7 @@ export default function MarketScreen({ navigation }: any) {
               onPress={() => buyJoker('extraTime')}
               disabled={loading}
             >
-              <Text style={styles.buyBtnText}>50 Jeton</Text>
+              <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
 
@@ -135,9 +137,9 @@ export default function MarketScreen({ navigation }: any) {
             <View style={styles.jokerInfo}>
               <Ionicons name="flash" size={32} color={NEON_GREEN} />
               <View style={styles.jokerTexts}>
-                <Text style={styles.jokerName}>Hızlı İpucu</Text>
-                <Text style={styles.jokerDesc}>Beklemeden ve puan kaybetmeden ilk 2 yasaklı kelimeyi açar.</Text>
-                <Text style={styles.jokerCount}>Sahipsin: {player?.jokers?.instantHints || 0}</Text>
+                <Text style={styles.jokerName}>{t('instantHints')}</Text>
+                <Text style={styles.jokerDesc}>{t('instantHintsDesc')}</Text>
+                <Text style={styles.jokerCount}>{t('owned')} {player?.jokers?.instantHints || 0}</Text>
               </View>
             </View>
             <TouchableOpacity 
@@ -145,7 +147,7 @@ export default function MarketScreen({ navigation }: any) {
               onPress={() => buyJoker('instantHints')}
               disabled={loading}
             >
-              <Text style={styles.buyBtnText}>50 Jeton</Text>
+              <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
         </View>

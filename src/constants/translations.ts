@@ -107,6 +107,25 @@ export const translations = {
     navTournament: 'Turnuva',
     navLeaderboard: 'Sıralama',
     navProfile: 'Profil',
+    navMarket: 'Market',
+
+    // Market Screen
+    marketTitle: 'MARKET',
+    marketSubtitle: 'Düello maçlarında kullanabileceğin jokerler satın al!',
+    revealLetters: 'Harf Aç (İlk ve Son)',
+    revealLettersDesc: 'Anlatıcıyken kelimenin ilk ve son harfini açar.',
+    extraTime: 'Ekstra +5 Saniye',
+    extraTimeDesc: 'Süreye anında +5 saniye ekler.',
+    instantHints: 'Hızlı İpucu (2 Kelime)',
+    instantHintsDesc: 'Anında 2 yasaklı kelimeyi ipucu olarak açar.',
+    buy: 'Satın Al',
+    owned: 'Sahipsin:',
+    success: 'Başarılı!',
+    jokerBought: 'Joker satın alındı.',
+    insufficientFunds: 'Yetersiz Bakiye',
+    needMoreCoins: 'Daha fazla jeton kazanmalısın!',
+    loginRequired: 'Giriş yapmanız gerekiyor!',
+    serverError: 'Sunucuya bağlanılamadı.',
   },
 
   en: {
@@ -215,5 +234,24 @@ export const translations = {
     navTournament: 'Tournament',
     navLeaderboard: 'Leaderboard',
     navProfile: 'Profile',
+    navMarket: 'Store',
+
+    // Market Screen
+    marketTitle: 'STORE',
+    marketSubtitle: 'Buy jokers to use in your duel matches!',
+    revealLetters: 'Reveal Letters (First & Last)',
+    revealLettersDesc: 'Reveals the first and last letter when guessing.',
+    extraTime: 'Extra +5 Seconds',
+    extraTimeDesc: 'Instantly adds +5 seconds to your time.',
+    instantHints: 'Quick Hint (2 Words)',
+    instantHintsDesc: 'Instantly reveals 2 forbidden words as hints.',
+    buy: 'Buy',
+    owned: 'Owned:',
+    success: 'Success!',
+    jokerBought: 'Joker purchased.',
+    insufficientFunds: 'Insufficient Funds',
+    needMoreCoins: 'You need to earn more coins!',
+    loginRequired: 'You need to log in!',
+    serverError: 'Could not connect to server.',
   }
 };
