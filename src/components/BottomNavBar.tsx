@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BottomNavBarProps {
   activeTab: 'home' | 'howToPlay' | 'leaderboard' | 'profile' | 'none';
@@ -10,6 +11,7 @@ interface BottomNavBarProps {
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigation }) => {
   const insets = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   
   // Platform-specific dynamic safe area spacing
   const isIOS = Platform.OS === 'ios';
@@ -33,7 +35,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
           color={activeTab === 'home' ? "#00FFFF" : "#888"} 
         />
         <Text style={[styles.tabText, { color: activeTab === 'home' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          Ana Sayfa
+          {t('navHome')}
         </Text>
       </TouchableOpacity>
 
@@ -47,7 +49,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
           color={activeTab === 'howToPlay' ? "#00FFFF" : "#888"} 
         />
         <Text style={[styles.tabText, { color: activeTab === 'howToPlay' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          Nasıl Oynanır?
+          {language === 'en' ? 'Rules' : 'Nasıl Oynanır?'}
         </Text>
       </TouchableOpacity>
 
@@ -61,7 +63,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
           color={activeTab === 'leaderboard' ? "#00FFFF" : "#888"} 
         />
         <Text style={[styles.tabText, { color: activeTab === 'leaderboard' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          Sıralama
+          {t('navLeaderboard')}
         </Text>
       </TouchableOpacity>
 
@@ -75,7 +77,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
           color={activeTab === 'profile' ? "#00FFFF" : "#888"} 
         />
         <Text style={[styles.tabText, { color: activeTab === 'profile' ? "#00FFFF" : "#888" }]} allowFontScaling={false}>
-          Profil
+          {t('navProfile')}
         </Text>
       </TouchableOpacity>
     </View>

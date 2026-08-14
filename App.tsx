@@ -13,6 +13,8 @@ import {
   Poppins_900Black,
 } from '@expo-google-fonts/poppins';
 
+import { LanguageProvider } from './src/context/LanguageContext';
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -37,8 +39,10 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" translucent backgroundColor="transparent" />
-      <AppNavigator />
+      <LanguageProvider>
+        <StatusBar style="light" translucent backgroundColor="transparent" />
+        <AppNavigator />
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }

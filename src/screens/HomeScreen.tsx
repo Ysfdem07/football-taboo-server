@@ -4,46 +4,46 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useLanguage } from '../context/LanguageContext';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-
-const CATEGORIES = [
-  { 
-    id: 'football', 
-    title: 'FUTBOL', 
-    subtitle: 'Efsane Futbolcular, Teknik Direktörler, Futbol Takımları ve Terimleri',
-    color: '#39ff14', 
-    icon: 'football'
-  },
-  { 
-    id: 'cinema', 
-    title: 'SİNEMA', 
-    subtitle: 'Ödüllü Film ve Diziler, Ünlü Oyuncu ve Yönetmenler, Film ve Dizi Karakterleri',
-    color: '#b026ff', 
-    icon: 'videocam'
-  },
-  { 
-    id: 'music', 
-    title: 'MÜZİK', 
-    subtitle: 'Ünlü Sanatçılar, Müzik Grupları ve Şarkı İsimleri',
-    color: '#ff1493', 
-    icon: 'musical-notes'
-  }
-];
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const insets = useSafeAreaInsets();
+  const { language, setLanguage, t } = useLanguage();
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Balanced top padding for Android header title
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 12) : 14;
+
+  const CATEGORIES = [
+    { 
+      id: 'football', 
+      title: t('football').toUpperCase(), 
+      subtitle: language === 'en' ? 'Legendary Footballers, Managers, Teams and Terms' : 'Efsane Futbolcular, Teknik Direktörler, Futbol Takımları ve Terimleri',
+      color: '#39ff14', 
+      icon: 'football'
+    },
+    { 
+      id: 'cinema', 
+      title: t('cinema').toUpperCase(), 
+      subtitle: language === 'en' ? 'Award Winning Movies & Shows, Directors and Characters' : 'Ödüllü Film ve Diziler, Ünlü Oyuncu ve Yönetmenler, Film ve Dizi Karakterleri',
+      color: '#b026ff', 
+      icon: 'videocam'
+    },
+    { 
+      id: 'music', 
+      title: t('music').toUpperCase(), 
+      subtitle: language === 'en' ? 'Famous Artists, Bands and Iconic Song Titles' : 'Ünlü Sanatçılar, Müzik Grupları ve Şarkı İsimleri',
+      color: '#ff1493', 
+      icon: 'musical-notes'
+    }
+  ];
 
   useFocusEffect(
     useCallback(() => {
@@ -65,6 +65,11 @@ export default function HomeScreen() {
     }, [])
   );
 
+  const toggleLanguage = () => {
+    const nextLang = language === 'tr' ? 'en' : 'tr';
+    setLanguage(nextLang);
+  };
+
   return (
     <ImageBackground source={require('../../assets/images/home_bg.jpg')} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
@@ -74,15 +79,27 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('About')}>
             <Ionicons name="information-outline" size={22} color="#FFF" />
           </TouchableOpacity>
+
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICO</Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
+
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            {/* Language Switcher Button (TR 🇹🇷 / EN 🇬🇧) */}
+            <TouchableOpacity 
+              style={[styles.langToggleBtn, { borderColor: language === 'tr' ? '#FFD700' : '#00BFFF' }]} 
+              onPress={toggleLanguage}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.langFlag}>{language === 'tr' ? '🇹🇷' : '🇬🇧'}</Text>
+              <Text style={styles.langText}>{language === 'tr' ? 'TR' : 'EN'}</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={[styles.iconButton, { borderColor: '#00FFFF' }]} onPress={() => navigation.navigate('Profile')}>
               <Ionicons name="person" size={20} color="#00FFFF" />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* CATEGORIES LIST SCROLLVIEW - Centered vertically for balanced top/bottom gaps */}
+        {/* CATEGORIES LIST SCROLLVIEW */}
         <ScrollView 
           style={{ flex: 1 }} 
           contentContainerStyle={styles.categoriesContainer} 
@@ -125,7 +142,7 @@ export default function HomeScreen() {
                   <Text style={styles.cardSubtitle} allowFontScaling={false}>{cat.subtitle}</Text>
                 </View>
                 <View style={[styles.modlarBtn, { borderColor: cat.color, backgroundColor: `${cat.color}30` }]}>
-                  <Text style={[styles.modlarText, { color: '#FFF' }]} allowFontScaling={false}>OYNA ▶</Text>
+                  <Text style={[styles.modlarText, { color: '#FFF' }]} allowFontScaling={false}>{t('playNow')}</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -155,7 +172,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     marginBottom: 8,
   },
   iconButton: {
@@ -167,6 +184,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+  },
+  langToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    backgroundColor: 'rgba(5,11,20,0.85)',
+  },
+  langFlag: {
+    fontSize: 14,
+  },
+  langText: {
+    color: '#FFF',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    letterSpacing: 0.5,
   },
   topBarTitle: {
     color: '#FFFFFF',
@@ -218,7 +254,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontFamily: 'Poppins_900Black',
-    fontSize: 28,
+    fontSize: 26,
     textShadowRadius: 10,
   },
   cardSubtitle: {
@@ -231,13 +267,13 @@ const styles = StyleSheet.create({
   modlarBtn: {
     borderWidth: 1,
     borderRadius: 14,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: 'rgba(255,255,255,0.08)',
-    marginLeft: 8,
+    marginLeft: 6,
   },
   modlarText: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 10,
+    fontSize: 9,
   }
 });
