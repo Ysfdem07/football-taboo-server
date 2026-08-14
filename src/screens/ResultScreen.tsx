@@ -85,7 +85,7 @@ export default function ResultScreen({ route, navigation }: Props) {
             onPress={() => navigation.navigate('Home')}
             activeOpacity={0.8}
           >
-            <Ionicons name="home" size={20} color="#000" style={{ marginRight: 8 }} />
+            <Ionicons name="home-outline" size={20} color={NEON_GREEN} style={{ marginRight: 8 }} />
             <Text style={styles.actionButtonText}>ANA MENÜYE DÖN</Text>
           </TouchableOpacity>
           
@@ -198,23 +198,25 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flexDirection: 'row',
-    backgroundColor: NEON_GREEN,
-    paddingVertical: 18,
+    borderWidth: 1.5,
+    borderColor: NEON_GREEN,
+    backgroundColor: 'rgba(0, 255, 136, 0.12)',
+    paddingVertical: 16,
     paddingHorizontal: 30,
-    borderRadius: 16,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     shadowColor: NEON_GREEN,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
   },
   actionButtonText: {
-    color: '#000000',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'Poppins_700Bold',
     letterSpacing: 1,
   },
 });

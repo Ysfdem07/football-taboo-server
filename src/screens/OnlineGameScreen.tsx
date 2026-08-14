@@ -309,14 +309,26 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           <View style={styles.finalScoreContainer}>
             {players.sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)).map((p, index) => {
               const kpVal = kpChanges[p.id];
-              const kpTextStr = kpVal !== undefined ? (kpVal >= 0 ? ` (+${kpVal} KP)` : ` (${kpVal} KP)`) : '';
-              const kpColorStr = kpVal !== undefined ? (kpVal >= 0 ? '#2ECC71' : '#E74C3C') : '#aaa';
               return (
                 <View key={p.id} style={styles.finalScoreRow}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                    <Text style={styles.finalScoreLabel} numberOfLines={1}>{p.id === socket.id ? p.name + " (Sen)" : p.name}</Text>
-                    {kpTextStr ? <Text style={{ color: kpColorStr, fontFamily: 'Poppins_700Bold', marginLeft: 8, fontSize: 13 }}>{kpTextStr}</Text> : null}
-                  </View>
+                  <Text style={styles.finalScoreLabel} numberOfLines={1}>
+                    {p.id === socket.id ? p.name + " (Sen)" : p.name}
+                  </Text>
+
+                  {kpVal !== undefined ? (
+                    <View style={[
+                      styles.kpBadge, 
+                      { 
+                        backgroundColor: kpVal >= 0 ? 'rgba(46, 204, 113, 0.15)' : 'rgba(231, 76, 60, 0.15)', 
+                        borderColor: kpVal >= 0 ? '#2ECC71' : '#E74C3C' 
+                      }
+                    ]}>
+                      <Text style={{ color: kpVal >= 0 ? '#2ECC71' : '#E74C3C', fontFamily: 'Poppins_700Bold', fontSize: 12 }}>
+                        {kpVal >= 0 ? `+${kpVal} KP` : `${kpVal} KP`}
+                      </Text>
+                    </View>
+                  ) : null}
+
                   <Text style={styles.finalScoreValue}>{scores[p.id] || 0} Puan</Text>
                 </View>
               );
@@ -330,7 +342,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               showInterstitial();
               navigation.replace('Home');
             }}
+            activeOpacity={0.8}
           >
+            <Ionicons name="home-outline" size={18} color={NEON_GREEN} style={{ marginRight: 8 }} />
             <Text style={styles.menuButtonText}>ANA MENÜYE DÖN</Text>
           </TouchableOpacity>
         </SafeAreaView>
@@ -744,8 +758,10 @@ const styles = StyleSheet.create({
   },
   guessBtn: {
     flex: 1,
-    backgroundColor: NEON_GREEN,
-    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: NEON_GREEN,
+    backgroundColor: 'rgba(0, 255, 136, 0.12)',
+    borderRadius: 24,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
@@ -753,12 +769,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
-    elevation: 5,
+    elevation: 4,
   },
   guessBtnText: {
-    color: '#000814',
+    color: NEON_GREEN,
     fontFamily: 'Poppins_700Bold',
     fontSize: 15,
+    letterSpacing: 1,
   },
   buzzerButton: {
     flex: 1,
@@ -876,41 +893,66 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   finalScoreContainer: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(5, 11, 20, 0.88)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 255, 136, 0.25)',
     padding: 20,
-    borderRadius: 15,
-    marginBottom: 40,
-    width: '80%',
+    borderRadius: 20,
+    marginBottom: 35,
+    width: '90%',
   },
   finalScoreRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#555',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 8,
   },
   finalScoreLabel: {
-    color: Colors.white,
-    fontSize: 22,
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Poppins_600SemiBold',
+    flex: 1,
+  },
+  kpBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
   },
   finalScoreValue: {
-    color: Colors.warning,
-    fontSize: 24,
-    fontFamily: 'Poppins_700Bold',
-  },
-  menuButton: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 18,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-  },
-  menuButtonText: {
-    color: Colors.white,
+    color: '#FFFFFF',
     fontSize: 18,
     fontFamily: 'Poppins_700Bold',
+    minWidth: 80,
+    textAlign: 'right',
+  },
+  menuButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: NEON_GREEN,
+    backgroundColor: 'rgba(0, 255, 136, 0.12)',
+    paddingVertical: 16,
+    paddingHorizontal: 36,
+    borderRadius: 25,
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  menuButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    letterSpacing: 1,
   },
   passBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.35)',
     borderRadius: 25,
@@ -921,13 +963,13 @@ const styles = StyleSheet.create({
   },
   passBtnDisabled: {
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    opacity: 0.6,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    opacity: 0.5,
   },
   passBtnText: {
     color: '#ffffff',
     fontFamily: 'Poppins_700Bold',
-    fontSize: 15,
+    fontSize: 14,
     letterSpacing: 0.5,
   },
 });
