@@ -19,7 +19,7 @@ export default function HomeScreen() {
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 12) : 14;
+  const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
   const CATEGORIES = [
     { 
@@ -27,8 +27,8 @@ export default function HomeScreen() {
       title: t('football').toUpperCase(), 
       subtitle: language === 'en' ? 'Legendary Footballers, Managers, Teams and Terms' : 'Efsane Futbolcular, Teknik Direktörler, Futbol Takımları ve Terimleri',
       color: '#39ff14', 
-      btnColors: ['#32e010', '#25b00b'] as [string, string],
-      image: require('../../assets/icons/football_3d_icon.jpg'),
+      btnColors: ['#32e010', '#1fa30a'] as [string, string],
+      image: require('../../assets/icons/football_3d_icon.png'),
       patternIcon: 'football-outline'
     },
     { 
@@ -37,7 +37,7 @@ export default function HomeScreen() {
       subtitle: language === 'en' ? 'Award Winning Movies & Shows, Directors and Characters' : 'Ödüllü Film ve Diziler, Ünlü Oyuncu ve Yönetmenler, Film ve Dizi Karakterleri',
       color: '#b026ff', 
       btnColors: ['#a826ff', '#7c15c5'] as [string, string],
-      image: require('../../assets/icons/cinema_3d_icon.jpg'),
+      image: require('../../assets/icons/cinema_3d_icon.png'),
       patternIcon: 'film-outline'
     },
     { 
@@ -45,8 +45,8 @@ export default function HomeScreen() {
       title: t('music').toUpperCase(), 
       subtitle: language === 'en' ? 'Famous Artists, Bands and Iconic Song Titles' : 'Ünlü Sanatçılar, Müzik Grupları ve Şarkı İsimleri',
       color: '#ff1493', 
-      btnColors: ['#ff1493', '#d00c74'] as [string, string],
-      image: require('../../assets/icons/music_3d_icon.jpg'),
+      btnColors: ['#ff1493', '#c8096f'] as [string, string],
+      image: require('../../assets/icons/music_3d_icon.png'),
       patternIcon: 'musical-notes-outline'
     }
   ];
@@ -80,14 +80,11 @@ export default function HomeScreen() {
     <ImageBackground source={require('../../assets/images/home_bg.jpg')} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
         
-        {/* TOP BAR */}
+        {/* TOP BAR ICONS ROW */}
         <View style={[styles.topBar, { paddingTop: topPadding }]}>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('About')}>
             <Ionicons name="information-outline" size={22} color="#FFF" />
           </TouchableOpacity>
-
-          {/* 3D STYLED WORDICO TITLE */}
-          <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICO</Text>
 
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             {/* Language Switcher Button (TR 🇹🇷 / EN 🇬🇧) */}
@@ -101,9 +98,14 @@ export default function HomeScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.iconButton, { borderColor: '#00FFFF' }]} onPress={() => navigation.navigate('Profile')}>
-              <Ionicons name="person" size={20} color="#00FFFF" />
+              <Ionicons name="person-outline" size={20} color="#00FFFF" />
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* 3D WORDICO HEADER TITLE - Shifted down matching mockup */}
+        <View style={styles.headerTitleRow}>
+          <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICO</Text>
         </View>
 
         {/* CATEGORIES LIST SCROLLVIEW */}
@@ -136,9 +138,9 @@ export default function HomeScreen() {
               />
 
               <View style={styles.cardTop}>
-                {/* 3D Large Category Emblem */}
-                <View style={[styles.iconContainerClean, { borderColor: `${cat.color}60` }]}>
-                  <Image source={cat.image} style={styles.catImageLarge} resizeMode="cover" />
+                {/* 3D Large Category Emblem (Transparent PNG, No Black Box Frame) */}
+                <View style={styles.iconContainerClean}>
+                  <Image source={cat.image} style={styles.catImageLarge} resizeMode="contain" />
                 </View>
 
                 {/* Text Section */}
@@ -169,9 +171,9 @@ export default function HomeScreen() {
                     style={styles.pillButtonGradient}
                   >
                     <Text style={styles.pillButtonText} allowFontScaling={false}>
-                      {t('playNow').replace('▶', '').trim()}
+                      {language === 'en' ? 'PLAY' : 'OYNA'}
                     </Text>
-                    <Ionicons name="play" size={12} color="#FFF" style={{ marginLeft: 3 }} />
+                    <Ionicons name="play" size={11} color="#FFF" style={{ marginLeft: 3 }} />
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -202,8 +204,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    paddingHorizontal: 20,
+    marginBottom: 4,
+  },
+  headerTitleRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
   },
   iconButton: {
     width: 42,
@@ -237,19 +244,19 @@ const styles = StyleSheet.create({
   topBarTitle: {
     color: '#FFFFFF',
     fontFamily: 'Poppins_900Black',
-    fontSize: 34,
+    fontSize: 38,
     letterSpacing: 3,
-    textShadowColor: 'rgba(0, 255, 255, 0.75)',
+    textShadowColor: 'rgba(0, 255, 255, 0.85)',
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 16,
+    textShadowRadius: 18,
   },
   categoriesContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 24,
-    gap: 20,
+    paddingTop: 8,
+    paddingBottom: 20,
+    gap: 18,
   },
   categoryCard: {
     borderRadius: 28,
@@ -270,29 +277,25 @@ const styles = StyleSheet.create({
   cardTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 16,
     zIndex: 1,
   },
   iconContainerClean: {
-    width: 86,
-    height: 86,
+    width: 82,
+    height: 82,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 22,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    backgroundColor: '#000',
+    backgroundColor: 'transparent',
   },
   catImageLarge: {
-    width: 86,
-    height: 86,
-    borderRadius: 22,
+    width: 82,
+    height: 82,
   },
   textContainer: {
     flex: 1,
-    marginLeft: 14,
-    marginRight: 8,
+    marginLeft: 10,
+    marginRight: 6,
   },
   cardTitle: {
     fontFamily: 'Poppins_900Black',
@@ -302,14 +305,14 @@ const styles = StyleSheet.create({
     textShadowRadius: 6,
   },
   cardSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.72)',
     fontFamily: 'Poppins_400Regular',
     fontSize: 11,
-    marginTop: 4,
-    lineHeight: 15,
+    marginTop: 3,
+    lineHeight: 14,
   },
   pillButtonWrapper: {
-    borderRadius: 24,
+    borderRadius: 22,
     overflow: 'hidden',
     elevation: 6,
     shadowColor: '#000',
@@ -321,14 +324,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: 24,
+    paddingHorizontal: 15,
+    paddingVertical: 9,
+    borderRadius: 22,
   },
   pillButtonText: {
     color: '#FFFFFF',
     fontFamily: 'Poppins_900Black',
-    fontSize: 14,
-    letterSpacing: 1,
+    fontSize: 13,
+    letterSpacing: 0.8,
   }
 });
