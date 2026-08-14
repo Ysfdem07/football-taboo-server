@@ -906,6 +906,16 @@ io.on('connection', (socket) => {
   });
 });
 
+function getPotentialScore(room) {
+  if (!room) return 10;
+  const hintsPenalty = Math.max(0, (room.hintsShown || 1) - 1);
+  const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
+  if (room.isRanked1v1 || room.isGroupRanked) {
+    return Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
+  }
+  return Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
+}
+
 async function startRound(roomId) {
   const room = activeRooms[roomId];
   if (!room) return;
@@ -985,15 +995,6 @@ async function startRound(roomId) {
   }
   const rotatedCard = { ...card, forbidden: shuffledForbidden };
 
-function getPotentialScore(room) {
-  if (!room) return 10;
-  const hintsPenalty = Math.max(0, (room.hintsShown || 1) - 1);
-  const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
-  if (room.isRanked1v1 || room.isGroupRanked) {
-    return Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
-  }
-  return Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
-}
 
   room.usedWords.push(card.word);
   room.card = rotatedCard;
