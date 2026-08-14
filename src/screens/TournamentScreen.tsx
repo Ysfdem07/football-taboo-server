@@ -157,14 +157,14 @@ export default function TournamentScreen() {
   // On screen focus (returning from game), just re-fetch without re-registering listeners
   useFocusEffect(useCallback(() => {
     // Skip first focus (handled by useEffect above)
-    if (!isLoadingRef.current && !loading) {
+    if (!isLoadingRef.current) {
       setLoading(true);
       setLoadError(false);
       isLoadingRef.current = true;
       startLoadTimeout();
       emitFetch();
     }
-  }, [emitFetch, loading]));
+  }, [emitFetch]));
 
   const formatDate = (d: string) => {
     const date = new Date(d);
