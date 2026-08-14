@@ -27,21 +27,27 @@ export default function HomeScreen() {
       title: t('football').toUpperCase(), 
       subtitle: language === 'en' ? 'Legendary Footballers, Managers, Teams and Terms' : 'Efsane Futbolcular, Teknik Direktörler, Futbol Takımları ve Terimleri',
       color: '#39ff14', 
-      icon: 'football'
+      btnColors: ['#32e010', '#25b00b'] as [string, string],
+      image: require('../../assets/icons/football_3d_icon.jpg'),
+      patternIcon: 'football-outline'
     },
     { 
       id: 'cinema', 
       title: t('cinema').toUpperCase(), 
       subtitle: language === 'en' ? 'Award Winning Movies & Shows, Directors and Characters' : 'Ödüllü Film ve Diziler, Ünlü Oyuncu ve Yönetmenler, Film ve Dizi Karakterleri',
       color: '#b026ff', 
-      icon: 'videocam'
+      btnColors: ['#a826ff', '#7c15c5'] as [string, string],
+      image: require('../../assets/icons/cinema_3d_icon.jpg'),
+      patternIcon: 'film-outline'
     },
     { 
       id: 'music', 
       title: t('music').toUpperCase(), 
       subtitle: language === 'en' ? 'Famous Artists, Bands and Iconic Song Titles' : 'Ünlü Sanatçılar, Müzik Grupları ve Şarkı İsimleri',
       color: '#ff1493', 
-      icon: 'musical-notes'
+      btnColors: ['#ff1493', '#d00c74'] as [string, string],
+      image: require('../../assets/icons/music_3d_icon.jpg'),
+      patternIcon: 'musical-notes-outline'
     }
   ];
 
@@ -80,6 +86,7 @@ export default function HomeScreen() {
             <Ionicons name="information-outline" size={22} color="#FFF" />
           </TouchableOpacity>
 
+          {/* 3D STYLED WORDICO TITLE */}
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICO</Text>
 
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
@@ -108,28 +115,33 @@ export default function HomeScreen() {
           {CATEGORIES.map((cat) => (
             <TouchableOpacity 
               key={cat.id} 
-              style={[styles.categoryCard, { borderColor: cat.color, shadowColor: cat.color, backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}
+              style={[styles.categoryCard, { borderColor: cat.color, shadowColor: cat.color }]}
               onPress={() => navigation.navigate('CategoryMenu', { categoryId: cat.id })}
-              activeOpacity={0.85}
+              activeOpacity={0.88}
             >
+              {/* Card Background Gradient */}
               <LinearGradient
-                colors={[`${cat.color}35`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
+                colors={[`${cat.color}25`, 'rgba(5,11,20,0.85)', 'rgba(5,11,20,0.98)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={StyleSheet.absoluteFillObject}
               />
+
+              {/* Subdued Background Pattern Icon */}
+              <Ionicons 
+                name={cat.patternIcon as any} 
+                size={140} 
+                color={`${cat.color}08`} 
+                style={styles.bgPatternIcon} 
+              />
+
               <View style={styles.cardTop}>
-                <View style={styles.iconContainerClean}>
-                  {cat.id === 'football' ? (
-                    <Image source={require('../../assets/icons/football_logo.jpg')} style={styles.catImageLarge} />
-                  ) : cat.id === 'cinema' ? (
-                    <Image source={require('../../assets/icons/cinema_logo.jpg')} style={styles.catImageLarge} />
-                  ) : cat.id === 'music' ? (
-                    <Image source={require('../../assets/icons/music_logo.jpg')} style={styles.catImageLarge} />
-                  ) : (
-                    <Ionicons name={cat.icon as any} size={52} color={cat.color} />
-                  )}
+                {/* 3D Large Category Emblem */}
+                <View style={[styles.iconContainerClean, { borderColor: `${cat.color}60` }]}>
+                  <Image source={cat.image} style={styles.catImageLarge} resizeMode="cover" />
                 </View>
+
+                {/* Text Section */}
                 <View style={styles.textContainer}>
                   <Text 
                     style={[styles.cardTitle, { color: cat.color }]} 
@@ -139,11 +151,29 @@ export default function HomeScreen() {
                   >
                     {cat.title}
                   </Text>
-                  <Text style={styles.cardSubtitle} allowFontScaling={false}>{cat.subtitle}</Text>
+                  <Text style={styles.cardSubtitle} allowFontScaling={false} numberOfLines={3}>
+                    {cat.subtitle}
+                  </Text>
                 </View>
-                <View style={[styles.modlarBtn, { borderColor: cat.color, backgroundColor: `${cat.color}30` }]}>
-                  <Text style={[styles.modlarText, { color: '#FFF' }]} allowFontScaling={false}>{t('playNow')}</Text>
-                </View>
+
+                {/* Glossy Pill-Shaped Action Button */}
+                <TouchableOpacity 
+                  style={styles.pillButtonWrapper}
+                  onPress={() => navigation.navigate('CategoryMenu', { categoryId: cat.id })}
+                  activeOpacity={0.8}
+                >
+                  <LinearGradient
+                    colors={cat.btnColors}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.pillButtonGradient}
+                  >
+                    <Text style={styles.pillButtonText} allowFontScaling={false}>
+                      {t('playNow').replace('▶', '').trim()}
+                    </Text>
+                    <Ionicons name="play" size={12} color="#FFF" style={{ marginLeft: 3 }} />
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             </TouchableOpacity>
           ))}
@@ -173,26 +203,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   langToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 18,
+    borderWidth: 1.5,
     backgroundColor: 'rgba(5,11,20,0.85)',
   },
   langFlag: {
@@ -207,73 +237,98 @@ const styles = StyleSheet.create({
   topBarTitle: {
     color: '#FFFFFF',
     fontFamily: 'Poppins_900Black',
-    fontSize: 26,
-    letterSpacing: 2,
-    textShadowColor: 'rgba(255,255,255,0.8)',
-    textShadowRadius: 10,
+    fontSize: 34,
+    letterSpacing: 3,
+    textShadowColor: 'rgba(0, 255, 255, 0.75)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
   },
   categoriesContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 10,
     paddingBottom: 24,
-    gap: 22,
+    gap: 20,
   },
   categoryCard: {
-    borderRadius: 24,
-    borderWidth: 1.5,
+    borderRadius: 28,
+    borderWidth: 2,
     overflow: 'hidden',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 15,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.85,
+    shadowRadius: 18,
+    elevation: 12,
+    backgroundColor: 'rgba(5, 11, 20, 0.9)',
+  },
+  bgPatternIcon: {
+    position: 'absolute',
+    right: -20,
+    bottom: -30,
+    zIndex: 0,
   },
   cardTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+    zIndex: 1,
   },
   iconContainerClean: {
-    width: 68,
-    height: 68,
+    width: 86,
+    height: 86,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 22,
     overflow: 'hidden',
+    borderWidth: 1.5,
+    backgroundColor: '#000',
   },
   catImageLarge: {
-    width: 68,
-    height: 68,
-    borderRadius: 20,
+    width: 86,
+    height: 86,
+    borderRadius: 22,
   },
   textContainer: {
     flex: 1,
     marginLeft: 14,
+    marginRight: 8,
   },
   cardTitle: {
     fontFamily: 'Poppins_900Black',
-    fontSize: 26,
-    textShadowRadius: 10,
+    fontSize: 24,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowRadius: 6,
   },
   cardSubtitle: {
-    color: 'rgba(255,255,255,0.6)',
+    color: 'rgba(255,255,255,0.7)',
     fontFamily: 'Poppins_400Regular',
     fontSize: 11,
     marginTop: 4,
-    lineHeight: 14,
+    lineHeight: 15,
   },
-  modlarBtn: {
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    marginLeft: 6,
+  pillButtonWrapper: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
   },
-  modlarText: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 9,
+  pillButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 11,
+    borderRadius: 24,
+  },
+  pillButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 14,
+    letterSpacing: 1,
   }
 });

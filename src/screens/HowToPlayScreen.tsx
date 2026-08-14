@@ -7,6 +7,7 @@ import { BottomNavBar } from '../components/BottomNavBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Analytics } from '../services/analytics';
+import { useLanguage } from '../context/LanguageContext';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'HowToPlay'>;
@@ -14,11 +15,14 @@ type Props = {
 
 export default function HowToPlayScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+  const isEn = language === 'en';
 
   useEffect(() => {
     Analytics.logScreenView('HowToPlay');
   }, []);
+
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
@@ -26,139 +30,160 @@ export default function HowToPlayScreen({ navigation }: Props) {
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Nasıl Oynanır?</Text>
+          <Text style={styles.headerTitle}>{isEn ? 'How to Play?' : 'Nasıl Oynanır?'}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
-          {/* Çevrimiçi Mod (İlk Sırada) */}
+          {/* Online Mode */}
           <View style={[styles.modeCard, { borderColor: '#8E44AD' }]}>
             <View style={styles.cardHeader}>
               <Ionicons name="globe" size={28} color="#8E44AD" />
-              <Text style={[styles.cardTitle, { color: '#8E44AD' }]}>Düello (Online)</Text>
+              <Text style={[styles.cardTitle, { color: '#8E44AD' }]}>
+                {isEn ? 'Duel (Online)' : 'Düello (Online)'}
+              </Text>
             </View>
-            <Text style={styles.cardSubtitle}>Uzaktaki arkadaşlarınızla lobi kurarak internet üzerinden eş zamanlı yarışabileceğiniz moddur.</Text>
+            <Text style={styles.cardSubtitle}>
+              {isEn
+                ? 'Create a lobby with remote friends to compete simultaneously over the internet.'
+                : 'Uzaktaki arkadaşlarınızla lobi kurarak internet üzerinden eş zamanlı yarışabileceğiniz moddur.'}
+            </Text>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>1</Text></View>
-              <Text style={styles.stepText}>Bir oyuncu oda kurarak kodu paylaşır, diğerleri katılır. Odayı kuran dahil **tüm oyuncular** aynı anda yarışan birer tahmincidir.</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'One player creates a room and shares the room code. All players (including room creator) compete simultaneously.'
+                  : 'Bir oyuncu oda kurarak kodu paylaşır, diğerleri katılır. Odayı kuran dahil tüm oyuncular aynı anda yarışan birer tahmincidir.'}
+              </Text>
             </View>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>2</Text></View>
-              <Text style={styles.stepText}>Sistem, seçilen kategorideki hedef kelimeyi tarif eden ipuçlarını **5'er saniye aralıklarla** otomatik olarak sırayla ekranda gösterir.</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'The system automatically reveals clues describing the target word every 5 seconds.'
+                  : 'Sistem, seçilen kategorideki hedef kelimeyi tarif eden ipuçlarını 5\'er saniye aralıklarla otomatik olarak sırayla ekranda gösterir.'}
+              </Text>
             </View>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>3</Text></View>
-              <Text style={styles.stepText}>**Değişken Puanlama:** İpucu harfleri açılmadan önce doğru bilirseniz **en yüksek puanı** alırsınız. Sistem harf yardımı verdikçe kazanılacak puan azalır.</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'Variable Scoring: Guessing correctly before clues unlock awards the highest points.'
+                  : 'Değişken Puanlama: İpucu harfleri açılmadan önce doğru bilirseniz en yüksek puanı alırsınız.'}
+              </Text>
             </View>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>4</Text></View>
-              <Text style={styles.stepText}>**Hatalı Tahmin Cezası:** Rastgele yazmak cezalandırılır; yaptığınız her yanlış tahmin için hanenize **eksi puan** yazılır. En yüksek puanı toplayan kazanır!</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'Penalty for Wrong Guesses: Incorrect guesses deduct points. Highest total score wins!'
+                  : 'Hatalı Tahmin Cezası: Rastgele yazmak cezalandırılır; yaptığınız her yanlış tahmin için hanenize eksi puan yazılır.'}
+              </Text>
             </View>
           </View>
 
-          {/* Haftalık Turnuva Modu */}
+          {/* Weekly Tournament Mode */}
           <View style={[styles.modeCard, { borderColor: '#FFD700' }]}>
             <View style={styles.cardHeader}>
               <Ionicons name="trophy" size={28} color="#FFD700" />
-              <Text style={[styles.cardTitle, { color: '#FFD700' }]}>Haftalık Turnuva Modu</Text>
+              <Text style={[styles.cardTitle, { color: '#FFD700' }]}>
+                {isEn ? 'Weekly Tournament Mode' : 'Haftalık Turnuva Modu'}
+              </Text>
             </View>
-            <Text style={styles.cardSubtitle}>Pazartesi – Pazar günleri arasında her kategoride (Futbol, Sinema, Müzik) düzenlenen haftalık liderlik yarışmasıdır.</Text>
+            <Text style={styles.cardSubtitle}>
+              {isEn
+                ? 'Weekly leaderboard competition held from Monday to Sunday across all categories.'
+                : 'Pazartesi – Pazar günleri arasında her kategoride (Futbol, Sinema, Müzik) düzenlenen haftalık liderlik yarışmasıdır.'}
+            </Text>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>1</Text></View>
-              <Text style={styles.stepText}>**Kategori Seçimi:** İstediğiniz kategoride (Futbol, Sinema, Müzik) Haftalık Turnuva moduna girin ve yarışmayı başlatın.</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'Select Category: Enter the Weekly Tournament in Football, Cinema, or Music to start.'
+                  : 'Kategori Seçimi: İstediğiniz kategoride (Futbol, Sinema, Müzik) Haftalık Turnuva moduna girin.'}
+              </Text>
             </View>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>2</Text></View>
-              <Text style={styles.stepText}>**Süreyle Yarış:** Belirlenen süre içerisinde sıralı kelimeler ekrana gelir. İpuçlarını ve harf yardımlarını kullanarak doğru tahminde bulunun.</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'Race Against Time: Sequential words appear within a timer limit. Use clues and letter helps wisely.'
+                  : 'Süreyle Yarış: Belirlenen süre içerisinde sıralı kelimeler ekrana gelir. İpuçlarını kullanarak doğru tahminde bulunun.'}
+              </Text>
             </View>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>3</Text></View>
-              <Text style={styles.stepText}>**Seri Doğru & Erken Tahmin Bonusu:** Kelimeyi ne kadar az ipucu açarak doğru tahmin ederseniz tur sonu kazandığınız puan o kadar yüksek olur.</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'Early Guess Bonus: Guessing with fewer clues unlocked maximizes your round score.'
+                  : 'Seri Doğru & Erken Tahmin Bonusu: Kelimeyi ne kadar az ipucu açarak doğru tahmin ederseniz puanınız o kadar yüksek olur.'}
+              </Text>
             </View>
 
             <View style={styles.step}>
               <View style={[styles.stepNumber, { backgroundColor: '#FFD700' }]}><Text style={[styles.stepNumberText, { color: '#000' }]}>4</Text></View>
-              <Text style={styles.stepText}>**Haftalık Sıralama & Kupa Ödülleri:** Hafta sonunda her kategoride ilk 3'e giren oyuncular Liderlik Tablosu'nda özel Şampiyonluk Kupa ve Rozetlerini kazanır!</Text>
+              <Text style={styles.stepText}>
+                {isEn
+                  ? 'Trophies & Badges: Top 3 players in each category earn exclusive Championship Trophies and Badges!'
+                  : 'Haftalık Sıralama & Kupa Ödülleri: Hafta sonunda her kategoride ilk 3\'e giren oyuncular Şampiyonluk Kupa ve Rozetlerini kazanır!'}
+              </Text>
             </View>
           </View>
 
-          {/* Puanlama Sistemi */}
+          {/* Scoring System */}
           <View style={[styles.modeCard, { borderColor: '#E67E22' }]}>
             <View style={styles.cardHeader}>
               <Ionicons name="calculator" size={26} color="#E67E22" />
-              <Text style={[styles.cardTitle, { color: '#F5B041' }]}>Puanlama ve KP Mekanizmaları</Text>
+              <Text style={[styles.cardTitle, { color: '#F5B041' }]}>
+                {isEn ? 'Scoring & KP Mechanics' : 'Puanlama ve KP Mekanizmaları'}
+              </Text>
             </View>
-            <Text style={styles.cardSubtitle}>Farklı modlarda aldığınız skorlar ve Dereceli Lig KP (Kariyer Puanı) kazanımları aşağıdaki gibidir:</Text>
+            <Text style={styles.cardSubtitle}>
+              {isEn
+                ? 'Scores and Career Points (KP) earned in different game modes are summarized below:'
+                : 'Farklı modlarda aldığınız skorlar ve Dereceli Lig KP (Kariyer Puanı) kazanımları aşağıdaki gibidir:'}
+            </Text>
 
-            <Text style={styles.subSectionTitle}>Haftalık Turnuva Modu</Text>
+            <Text style={styles.subSectionTitle}>{isEn ? 'Weekly Tournament Mode' : 'Haftalık Turnuva Modu'}</Text>
             <View style={styles.bulletRow}>
               <Ionicons name="add-circle" size={16} color={Colors.success} style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Hızlı Doğru Tahmin:** +100 Yüksek Skor Puanı</Text>
+              <Text style={styles.bulletText}>{isEn ? 'Fast Correct Guess: +100 High Score Points' : 'Hızlı Doğru Tahmin: +100 Yüksek Skor Puanı'}</Text>
             </View>
             <View style={styles.bulletRow}>
               <Ionicons name="sparkles" size={16} color="#FFD700" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Açılan İpucu / Harf İndirimi:** İpucu açıldıkça turun potansiyel puanı kademeli azalır.</Text>
+              <Text style={styles.bulletText}>{isEn ? 'Clue / Letter Penalty: Points decrease as more clues unlock.' : 'Açılan İpucu İndirimi: İpucu açıldıkça turun puanı kademeli azalır.'}</Text>
             </View>
 
-            <Text style={[styles.subSectionTitle, { marginTop: 15 }]}>Düello (Online) Modu</Text>
+            <Text style={[styles.subSectionTitle, { marginTop: 15 }]}>{isEn ? 'Duel (Online) Mode' : 'Düello (Online) Modu'}</Text>
             <View style={styles.bulletRow}>
               <Ionicons name="flash" size={16} color="#FFD700" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**1. İpucunda Doğru Tahmin:** +100 Skor Puanı</Text>
+              <Text style={styles.bulletText}>{isEn ? 'Correct on 1st Clue: +100 Score Points' : '1. İpucunda Doğru Tahmin: +100 Skor Puanı'}</Text>
             </View>
             <View style={styles.bulletRow}>
               <Ionicons name="flash" size={16} color="#F39C12" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**2. İpucunda Doğru Tahmin:** +80 Skor Puanı</Text>
-            </View>
-            <View style={styles.bulletRow}>
-              <Ionicons name="flash" size={16} color="#E67E22" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**3. İpucunda Doğru Tahmin:** +60 Skor Puanı</Text>
-            </View>
-            <View style={styles.bulletRow}>
-              <Ionicons name="flash" size={16} color="#D35400" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**4. İpucunda Doğru Tahmin:** +40 Skor Puanı</Text>
-            </View>
-            <View style={styles.bulletRow}>
-              <Ionicons name="flash" size={16} color="#C0392B" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**5. İpucunda Doğru Tahmin:** +20 Skor Puanı</Text>
+              <Text style={styles.bulletText}>{isEn ? 'Correct on 2nd Clue: +80 Score Points' : '2. İpucunda Doğru Tahmin: +80 Skor Puanı'}</Text>
             </View>
             <View style={styles.bulletRow}>
               <Ionicons name="alert-circle" size={16} color={Colors.danger} style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Her Yanlış Tahmin:** -10 Skor Puanı (Cezası)</Text>
+              <Text style={styles.bulletText}>{isEn ? 'Each Incorrect Guess: -10 Penalty Points' : 'Her Yanlış Tahmin: -10 Skor Puanı (Cezası)'}</Text>
             </View>
 
-            <Text style={[styles.subSectionTitle, { marginTop: 15 }]}>Dereceli Maç Lig Puanı (KP) Dağılımı</Text>
+            <Text style={[styles.subSectionTitle, { marginTop: 15 }]}>{isEn ? 'Ranked League Points (KP) Distribution' : 'Dereceli Maç Lig Puanı (KP) Dağılımı'}</Text>
             <View style={styles.bulletRow}>
               <Ionicons name="trophy" size={16} color="#FFD700" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**1v1 Galibiyet / Mağlubiyet:** +50 KP / -25 KP</Text>
+              <Text style={styles.bulletText}>{isEn ? '1v1 Win / Loss: +50 KP / -25 KP' : '1v1 Galibiyet / Mağlubiyet: +50 KP / -25 KP'}</Text>
             </View>
             <View style={styles.bulletRow}>
               <Ionicons name="git-commit" size={16} color="#aaa" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**1v1 Beraberlik:** Her iki oyuncuya +10 KP</Text>
+              <Text style={styles.bulletText}>{isEn ? '1v1 Draw: +10 KP for both players' : '1v1 Beraberlik: Her iki oyuncuya +10 KP'}</Text>
             </View>
-            <View style={styles.bulletRow}>
-              <Ionicons name="ribbon" size={16} color="#3498DB" style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Grup Modu (3+ Oyuncu) Sıralaması:**</Text>
-            </View>
-            <Text style={[styles.bulletText, { marginLeft: 24, fontSize: 13, color: '#aaa', marginTop: 2 }]}>
-              • 1. Sıra (Şampiyon): +125 KP{"\n"}
-              • 2. Sıra: +50 KP{"\n"}
-              • Diğer Sıralar (Kaybedenler): -25 KP
-            </Text>
-            <View style={[styles.bulletRow, { marginTop: 8 }]}>
-              <Ionicons name="heart-dislike" size={16} color={Colors.danger} style={{ marginRight: 8 }} />
-              <Text style={styles.bulletText}>**Hükmen Çekilme (Rage Quit):**</Text>
-            </View>
-            <Text style={[styles.bulletText, { marginLeft: 24, fontSize: 13, color: '#aaa', marginTop: 2 }]}>
-              • Oyundan Ayrılan: -35 KP Ceza Puanı{"\n"}
-              • Oyunda Kalan: +50 KP Galibiyet Puanı
-            </Text>
           </View>
           
         </ScrollView>

@@ -7,6 +7,7 @@ import { BottomNavBar } from '../components/BottomNavBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Analytics } from '../services/analytics';
+import { useLanguage } from '../context/LanguageContext';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'About'>;
@@ -14,7 +15,9 @@ type Props = {
 
 export default function AboutScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
+  const { t, language } = useLanguage();
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
+  const isEn = language === 'en';
 
   useEffect(() => {
     Analytics.logScreenView('About');
@@ -71,61 +74,62 @@ The App complies with COPPA and GDPR regulations. Registration is restricted for
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Hakkımızda / Bilgi</Text>
+          <Text style={styles.headerTitle}>{isEn ? 'About / Info' : 'Hakkımızda / Bilgi'}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.infoCard}>
             <Text style={styles.appName}>Wordico</Text>
-            <Text style={styles.appVersion}>Versiyon 1.0.0</Text>
+            <Text style={styles.appVersion}>{isEn ? 'Version 1.0.0' : 'Versiyon 1.0.0'}</Text>
             <Text style={styles.appDescription}>
-              Wordico; Futbol, Sinema, Müzik, Tarih ve popüler kültür gibi birçok farklı kategoride binlerce güncel kelimeye sahip, eğlenceli ve dinamik bir kelime tahmin oyunudur.
+              {isEn
+                ? 'Wordico is a fun and dynamic word guessing game featuring thousands of up-to-date words across Football, Cinema, Music, and popular culture categories.'
+                : 'Wordico; Futbol, Sinema, Müzik, Tarih ve popüler kültür gibi birçok farklı kategoride binlerce güncel kelimeye sahip, eğlenceli ve dinamik bir kelime tahmin oyunudur.'}
             </Text>
           </View>
 
-          <Text style={styles.sectionHeader}>Yasal Metinler & Bilgilendirme</Text>
+          <Text style={styles.sectionHeader}>{isEn ? 'Legal Documents & Info' : 'Yasal Metinler & Bilgilendirme'}</Text>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => openDocument('Gizlilik Politikası', privacyText)}>
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            onPress={() => openDocument(isEn ? 'Privacy Policy' : 'Gizlilik Politikası', isEn ? englishPrivacyText : privacyText)}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="shield-checkmark" size={22} color={Colors.primary} />
-              <Text style={styles.menuText}>Gizlilik Politikası</Text>
+              <Text style={styles.menuText}>{isEn ? 'Privacy Policy' : 'Gizlilik Politikası'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => openDocument('Kullanım Koşulları', termsText)}>
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            onPress={() => openDocument(isEn ? 'Terms of Service' : 'Kullanım Koşulları', isEn ? englishTermsText : termsText)}
+          >
             <View style={styles.menuLeft}>
               <Ionicons name="document-text" size={22} color={Colors.primary} />
-              <Text style={styles.menuText}>Kullanım Koşulları</Text>
+              <Text style={styles.menuText}>{isEn ? 'Terms of Service' : 'Kullanım Koşulları'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => openDocument('Privacy Policy (English)', englishPrivacyText)}>
-            <View style={styles.menuLeft}>
-              <Ionicons name="earth" size={22} color={Colors.warning} />
-              <Text style={styles.menuText}>Privacy Policy (EN)</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={() => openDocument('Terms of Service (English)', englishTermsText)}>
-            <View style={styles.menuLeft}>
-              <Ionicons name="globe" size={22} color={Colors.warning} />
-              <Text style={styles.menuText}>Terms of Service (EN)</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
-          </TouchableOpacity>
-
+          {/* App Permissions Section (Translated) */}
           <View style={styles.permissionCard}>
-            <Text style={styles.permissionHeader}>Uygulama İzinleri (Permissions)</Text>
+            <Text style={styles.permissionHeader}>{isEn ? 'App Permissions' : 'Uygulama İzinleri (Permissions)'}</Text>
             <View style={styles.permissionRow}>
               <Ionicons name="wifi" size={18} color={Colors.success} />
-              <Text style={styles.permissionText}>İnternet Erişimi: Kelimelerin eşleşmesi ve online lobiler için kullanılır.</Text>
+              <Text style={styles.permissionText}>
+                {isEn 
+                  ? 'Internet Access: Required for online duels, tournaments, and word syncing.' 
+                  : 'İnternet Erişimi: Kelimelerin eşleşmesi ve online lobiler için kullanılır.'}
+              </Text>
             </View>
             <View style={styles.permissionRow}>
               <Ionicons name="save" size={18} color={Colors.success} />
-              <Text style={styles.permissionText}>Yerel Depolama: İndirilen kelimeleri ve oyun skorlarını kaydeder.</Text>
+              <Text style={styles.permissionText}>
+                {isEn 
+                  ? 'Local Storage: Stores offline game preferences, profile session, and cached word lists.' 
+                  : 'Yerel Depolama: İndirilen kelimeleri ve oyun skorlarını kaydeder.'}
+              </Text>
             </View>
           </View>
         </ScrollView>
