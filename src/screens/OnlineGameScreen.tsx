@@ -579,12 +579,62 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             </View>
           </ScrollView>
 
-          <View style={styles.inputArea}>
+          <View style={[styles.inputArea, { paddingBottom: Math.max(20, insets.bottom + 16) }]}>
+
+            {/* ─── Always-visible Jokers Bar ─────────────────────────────── */}
+            <View style={styles.jokersBar}>
+              {/* Harf Aç — active any time */}
+              <TouchableOpacity
+                style={[styles.jokerBtnWide, jokerLoading && { opacity: 0.45 }]}
+                onPress={() => useJoker('revealLetters')}
+                disabled={jokerLoading}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="text" size={18} color={NEON_PURPLE} />
+                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]}>Harf Aç</Text>
+                <View style={styles.jokerBadge}>
+                  <Text style={styles.jokerBadgeText}>{player?.jokers?.revealLetters || 0}</Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* +5 Sn — only active during OWN guess turn */}
+              <TouchableOpacity
+                style={[
+                  styles.jokerBtnWide,
+                  (jokerLoading || guessingPlayerId !== socket.id) && { opacity: 0.35 },
+                ]}
+                onPress={() => useJoker('extraTime')}
+                disabled={jokerLoading || guessingPlayerId !== socket.id}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="time" size={18} color="#00BFFF" />
+                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]}>+5 Sn</Text>
+                <View style={styles.jokerBadge}>
+                  <Text style={styles.jokerBadgeText}>{player?.jokers?.extraTime || 0}</Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* İpucu — active any time */}
+              <TouchableOpacity
+                style={[styles.jokerBtnWide, jokerLoading && { opacity: 0.45 }]}
+                onPress={() => useJoker('instantHints')}
+                disabled={jokerLoading}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="flash" size={18} color={NEON_GREEN} />
+                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]}>İpucu</Text>
+                <View style={styles.jokerBadge}>
+                  <Text style={styles.jokerBadgeText}>{player?.jokers?.instantHints || 0}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* ─── Action Buttons ─────────────────────────────────────────── */}
             {!guessingPlayerId ? (
-              // Normal turn: show buzzer + pass
-              <View style={{ flexDirection: 'row', gap: 10, width: '100%', paddingHorizontal: 16 }}>
-                <TouchableOpacity 
-                  style={[styles.buzzerButton, { flex: 1 }, buzzerLocked && styles.buzzerButtonLocked]} 
+              // Normal turn: buzzer + pass
+              <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.buzzerButton, { flex: 1 }, buzzerLocked && styles.buzzerButtonLocked]}
                   onPress={requestGuessTurn}
                   disabled={buzzerLocked}
                   activeOpacity={0.85}
@@ -594,22 +644,23 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled]} 
+                <TouchableOpacity
+                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled]}
                   onPress={sendPass}
                   disabled={hasPassed}
                   activeOpacity={0.85}
                 >
                   <Text style={styles.passBtnText}>
-                    {hasPassed ? `✓ PAS (${passVotesCount}/${players.length || 2})` : `⏭ PAS (${passVotesCount}/${players.length || 2})`}
+                    {hasPassed
+                      ? `✓ PAS (${passVotesCount}/${players.length || 2})`
+                      : `⏭ PAS (${passVotesCount}/${players.length || 2})`}
                   </Text>
                 </TouchableOpacity>
               </View>
             ) : guessingPlayerId === socket.id ? (
-              // My guess turn: show input + send + pass
-              <View style={{ flexDirection: 'column', gap: 8, width: '100%', paddingHorizontal: 16 }}>
+              // My guess turn: input + send + pass
+              <View style={{ flexDirection: 'column', gap: 8, width: '100%' }}>
                 <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-                  {/* Invisible input */}
                   <TextInput
                     ref={inputRef}
                     style={styles.invisibleInput}
@@ -632,48 +683,38 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
                   </TouchableOpacity>
                 </View>
-                
-                {/* Jokers */}
-                <View style={styles.jokersContainer}>
-                  <TouchableOpacity style={styles.jokerBtn} onPress={() => useJoker('revealLetters')} disabled={jokerLoading}>
-                    <Ionicons name="text" size={20} color={NEON_PURPLE} />
-                    <View style={styles.jokerBadge}><Text style={styles.jokerBadgeText}>{player?.jokers?.revealLetters || 0}</Text></View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.jokerBtn} onPress={() => useJoker('extraTime')} disabled={jokerLoading}>
-                    <Ionicons name="time" size={20} color="#00BFFF" />
-                    <View style={styles.jokerBadge}><Text style={styles.jokerBadgeText}>{player?.jokers?.extraTime || 0}</Text></View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.jokerBtn} onPress={() => useJoker('instantHints')} disabled={jokerLoading}>
-                    <Ionicons name="flash" size={20} color={NEON_GREEN} />
-                    <View style={styles.jokerBadge}><Text style={styles.jokerBadgeText}>{player?.jokers?.instantHints || 0}</Text></View>
-                  </TouchableOpacity>
-                </View>
 
-                <TouchableOpacity 
-                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]} 
+                <TouchableOpacity
+                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]}
                   onPress={sendPass}
                   disabled={hasPassed}
                   activeOpacity={0.85}
                 >
                   <Text style={styles.passBtnText}>
-                    {hasPassed ? `✓ PAS (${passVotesCount}/${players.length || 2})` : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
+                    {hasPassed
+                      ? `✓ PAS (${passVotesCount}/${players.length || 2})`
+                      : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
                   </Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              // Opponent's guess turn: show waiting + pass
-              <View style={{ flexDirection: 'column', gap: 8, width: '100%', paddingHorizontal: 16 }}>
+              // Opponent's guess turn: waiting label + pass
+              <View style={{ flexDirection: 'column', gap: 8, width: '100%' }}>
                 <View style={styles.waitingContainer}>
-                  <Text style={styles.waitingText}>⏳ {guessingPlayerName} tahmin ediyor... ({guessTimeLeft})</Text>
+                  <Text style={styles.waitingText}>
+                    ⏳ {guessingPlayerName} tahmin ediyor... ({guessTimeLeft})
+                  </Text>
                 </View>
-                <TouchableOpacity 
-                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]} 
+                <TouchableOpacity
+                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]}
                   onPress={sendPass}
                   disabled={hasPassed}
                   activeOpacity={0.85}
                 >
                   <Text style={styles.passBtnText}>
-                    {hasPassed ? `✓ PAS (${passVotesCount}/${players.length || 2})` : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
+                    {hasPassed
+                      ? `✓ PAS (${passVotesCount}/${players.length || 2})`
+                      : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -836,13 +877,35 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   inputArea: {
-    flexDirection: 'row',
-    paddingBottom: 16,
-    paddingTop: 12,
+    flexDirection: 'column',
+    paddingTop: 10,
     paddingHorizontal: 16,
+    gap: 8,
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  jokersBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    paddingVertical: 4,
+  },
+  jokerBtnWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+  },
+  jokerBtnLabel: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 12,
+    letterSpacing: 0.3,
   },
   invisibleInput: {
     position: 'absolute',
