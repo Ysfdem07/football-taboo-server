@@ -407,9 +407,10 @@ io.on('connection', (socket) => {
 
   // ─── Tournament Events ──────────────────────────────────────────────────
   socket.on('get_weekly_tournament', async (data) => {
-    const playerId = data?.playerId || 'guest';
-    const category = data?.category || 'football';
-    const wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : (category === 'football' ? JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')) : []);
+    let wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : wordsDb.football;
+    if (!wordSource || wordSource.length === 0) {
+      try { wordSource = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')); } catch(e) { wordSource = []; }
+    }
     const result = await db.getWeeklyTournament(playerId, wordSource, category);
     socket.emit('weekly_tournament_data', result);
   });

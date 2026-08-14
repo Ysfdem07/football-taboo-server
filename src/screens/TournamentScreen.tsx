@@ -61,43 +61,63 @@ export default function TournamentScreen() {
   const fetchTournament = useCallback(() => {
     const socket = getSocket();
     if (!socket) return;
+    if (!socket.connected) {
+      socket.connect();
+    }
     socket.emit('get_weekly_tournament', { playerId: player?.id || 'guest', category: categoryId });
     socket.emit('get_tournament_leaderboard', { category: categoryId });
   }, [player, categoryId]);
 
   useFocusEffect(useCallback(() => {
     loadPlayer();
-  }, []));
+    fetchTournament();
+  }, [fetchTournament]));
 
   useEffect(() => {
     const socket = getSocket();
     if (!socket) { setLoadError(true); setLoading(false); return; }
 
-    const timeout = setTimeout(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    let timeout = setTimeout(() => {
       if (loading) { setLoadError(true); setLoading(false); }
-    }, 8000);
+    }, 12000);
+
+    const handleConnect = () => {
+      fetchTournament();
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('reconnect', handleConnect);
 
     socket.on('weekly_tournament_data', (data: TournamentData) => {
-      clearTimeout(timeout);
-      setTournamentData(data);
-      setLoading(false);
-      setLoadError(false);
+      if (timeout) clearTimeout(timeout);
+      if (data && !data.error) {
+        setTournamentData(data);
+        setLoading(false);
+        setLoadError(false);
+      } else if (data && data.error) {
+        setLoadError(true);
+        setLoading(false);
+      }
     });
+
     socket.on('tournament_leaderboard', (data: LeaderboardEntry[]) => {
-      setLeaderboard(data);
+      if (data) setLeaderboard(data);
     });
 
     fetchTournament();
+
     return () => {
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
+      socket.off('connect', handleConnect);
+      socket.off('reconnect', handleConnect);
       socket.off('weekly_tournament_data');
       socket.off('tournament_leaderboard');
     };
   }, [fetchTournament]);
-
-  useEffect(() => {
-    if (player !== null) fetchTournament();
-  }, [player, fetchTournament]);
 
   const [watchingAd, setWatchingAd] = useState(false);
 
