@@ -34,7 +34,7 @@ export default function HomeScreen() {
     { 
       id: 'cinema', 
       title: t('cinema').toUpperCase(), 
-      subtitle: language === 'en' ? 'Award Winning Movies & Shows, Directors and Characters' : 'Ödüllü Film ve Diziler, Ünlü Oyuncu ve Yönetmenler, Film ve Dizi Karakterleri',
+      subtitle: language === 'en' ? 'Award Winning Movies & Shows, Actors, Directors and Characters' : 'Ödüllü Film ve Diziler, Oyuncu, Yönetmen ve Dizi Karakterleri',
       color: '#b026ff', 
       btnColors: ['#a826ff', '#7c15c5'] as [string, string],
       image: require('../../assets/icons/cinema_3d_icon.png'),
