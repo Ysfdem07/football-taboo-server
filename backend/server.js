@@ -610,6 +610,20 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Debug: client can call this to get real-time coin balance from DB
+  socket.on('check_my_coins', async (data) => {
+    const { playerId } = data;
+    if (!playerId) { socket.emit('my_coins_result', { error: 'no playerId' }); return; }
+    try {
+      await db.connectDB ? db.connectDB() : null;
+      const player = await require('mongoose').model('Player').findOne({ id: playerId });
+      if (!player) { socket.emit('my_coins_result', { error: 'player not found', playerId }); return; }
+      socket.emit('my_coins_result', { coins: player.coins, playerId, username: player.username });
+    } catch (e) {
+      socket.emit('my_coins_result', { error: e.message });
+    }
+  });
+
   socket.on('use_joker', async (data) => {
     const { roomId, playerId, jokerType } = data;
     const room = activeRooms[roomId];
@@ -993,13 +1007,15 @@ async function startRound(roomId) {
   if (room.currentRound > room.maxRounds) {
     const kpChanges = {};
     const coinChanges = {};
+    const playerUpdates = {};  // socketId → updatedPlayerObj (included in game_over)
     const roomCat = room.category || 'football';
 
-    // Helper: emit updated profile to a specific player socket
-    const sendProfileUpdate = (socketId, updatedPlayer) => {
+    // Helper: emit updated profile to a specific player socket AND record in playerUpdates
+    const applyReward = (socketId, updatedPlayer) => {
       if (!updatedPlayer) return;
+      playerUpdates[socketId] = updatedPlayer;          // goes inside game_over
       const playerSocket = io.sockets.sockets.get(socketId);
-      if (playerSocket) playerSocket.emit('coins_updated', { player: updatedPlayer });
+      if (playerSocket) playerSocket.emit('coins_updated', { player: updatedPlayer }); // early notification
     };
 
     if (room.isRanked1v1 && room.players.length === 2) {
@@ -1008,29 +1024,29 @@ async function startRound(roomId) {
       const p2 = room.players[1];
       const s1 = room.scores[p1.id] || 0;
       const s2 = room.scores[p2.id] || 0;
-      console.log(`[Ranked1v1] Room ${roomId} ended. s1=${s1} s2=${s2} | p1.dbId=${p1.dbPlayerId} p2.dbId=${p2.dbPlayerId}`);
+      console.log(`[Ranked1v1] Room ${roomId} ended. s1=${s1} s2=${s2} | p1=${p1.name}(${p1.dbPlayerId}) p2=${p2.name}(${p2.dbPlayerId})`);
       if (s1 > s2) {
         const [r1, r2] = await Promise.all([
-          p1.dbPlayerId ? db.updatePlayerStats(p1.dbPlayerId, 50, true, 0, 0, roomCat)  : null,
-          p2.dbPlayerId ? db.updatePlayerStats(p2.dbPlayerId, -25, false, 0, 0, roomCat) : null,
+          p1.dbPlayerId ? db.updatePlayerStats(p1.dbPlayerId, 50, true, 0, 0, roomCat)  : Promise.resolve(null),
+          p2.dbPlayerId ? db.updatePlayerStats(p2.dbPlayerId, -25, false, 0, 0, roomCat) : Promise.resolve(null),
         ]);
-        sendProfileUpdate(p1.id, r1); sendProfileUpdate(p2.id, r2);
+        applyReward(p1.id, r1); applyReward(p2.id, r2);
         kpChanges[p1.id] = 50;  coinChanges[p1.id] = 50;
         kpChanges[p2.id] = -25; coinChanges[p2.id] = 0;
       } else if (s2 > s1) {
         const [r1, r2] = await Promise.all([
-          p1.dbPlayerId ? db.updatePlayerStats(p1.dbPlayerId, -25, false, 0, 0, roomCat) : null,
-          p2.dbPlayerId ? db.updatePlayerStats(p2.dbPlayerId, 50, true, 0, 0, roomCat)   : null,
+          p1.dbPlayerId ? db.updatePlayerStats(p1.dbPlayerId, -25, false, 0, 0, roomCat) : Promise.resolve(null),
+          p2.dbPlayerId ? db.updatePlayerStats(p2.dbPlayerId, 50, true, 0, 0, roomCat)   : Promise.resolve(null),
         ]);
-        sendProfileUpdate(p1.id, r1); sendProfileUpdate(p2.id, r2);
+        applyReward(p1.id, r1); applyReward(p2.id, r2);
         kpChanges[p1.id] = -25; coinChanges[p1.id] = 0;
         kpChanges[p2.id] = 50;  coinChanges[p2.id] = 50;
       } else {
         const [r1, r2] = await Promise.all([
-          p1.dbPlayerId ? db.updatePlayerStats(p1.dbPlayerId, 10, false, 0, 0, roomCat) : null,
-          p2.dbPlayerId ? db.updatePlayerStats(p2.dbPlayerId, 10, false, 0, 0, roomCat) : null,
+          p1.dbPlayerId ? db.updatePlayerStats(p1.dbPlayerId, 10, false, 0, 0, roomCat) : Promise.resolve(null),
+          p2.dbPlayerId ? db.updatePlayerStats(p2.dbPlayerId, 10, false, 0, 0, roomCat) : Promise.resolve(null),
         ]);
-        sendProfileUpdate(p1.id, r1); sendProfileUpdate(p2.id, r2);
+        applyReward(p1.id, r1); applyReward(p2.id, r2);
         kpChanges[p1.id] = 10; coinChanges[p1.id] = 0;
         kpChanges[p2.id] = 10; coinChanges[p2.id] = 0;
       }
@@ -1038,15 +1054,15 @@ async function startRound(roomId) {
     } else if (room.isGroupRanked && room.players.length >= 3) {
       // ── Group Ranked: KP rewards ─────────────────────────────────────────
       const sorted = [...room.players].sort((a, b) => (room.scores[b.id] || 0) - (room.scores[a.id] || 0));
-      const r0 = sorted[0].dbPlayerId ? await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true, 0, 0, roomCat) : null;
+      const r0 = sorted[0].dbPlayerId ? await db.updatePlayerStats(sorted[0].dbPlayerId, 125, true, 0, 0, roomCat)  : null;
       const r1 = sorted[1].dbPlayerId ? await db.updatePlayerStats(sorted[1].dbPlayerId, 50, false, 0, 0, roomCat)  : null;
-      sendProfileUpdate(sorted[0].id, r0);
-      sendProfileUpdate(sorted[1].id, r1);
+      applyReward(sorted[0].id, r0);
+      applyReward(sorted[1].id, r1);
       kpChanges[sorted[0].id] = 125; coinChanges[sorted[0].id] = 50;
       kpChanges[sorted[1].id] = 50;  coinChanges[sorted[1].id] = 0;
       for (let i = 2; i < sorted.length; i++) {
         const ri = sorted[i].dbPlayerId ? await db.updatePlayerStats(sorted[i].dbPlayerId, -25, false, 0, 0, roomCat) : null;
-        sendProfileUpdate(sorted[i].id, ri);
+        applyReward(sorted[i].id, ri);
         kpChanges[sorted[i].id] = -25; coinChanges[sorted[i].id] = 0;
       }
 
@@ -1057,22 +1073,28 @@ async function startRound(roomId) {
       const isTie = room.players.filter(p => (room.scores[p.id] || 0) === highScore).length > 1;
       console.log(`[FriendlyGame] Room ${roomId} ending. players=${room.players.length} highScore=${highScore} isTie=${isTie}`);
       for (const p of room.players) {
-        console.log(`  → player ${p.name} dbPlayerId=${p.dbPlayerId} score=${room.scores[p.id] || 0}`);
+        const score = room.scores[p.id] || 0;
+        console.log(`  → player "${p.name}" dbPlayerId=${p.dbPlayerId} score=${score}`);
         if (!p.dbPlayerId) {
-          console.log(`    SKIP: no dbPlayerId`);
+          console.log(`    SKIP: no dbPlayerId (not logged in)`);
           continue;
         }
-        const isWinner = !isTie && (room.scores[p.id] || 0) === highScore;
+        const isWinner = !isTie && score === highScore;
         const coinsEarned = isWinner ? 25 : 5;
         const updatedPlayer = await db.updatePlayerCoins(p.dbPlayerId, coinsEarned);
-        console.log(`    COINS: +${coinsEarned} → newBalance=${updatedPlayer?.coins} (winner=${isWinner})`);
-        sendProfileUpdate(p.id, updatedPlayer);
+        if (updatedPlayer) {
+          console.log(`    OK: +${coinsEarned} coins → newBalance=${updatedPlayer.coins} (winner=${isWinner})`);
+          applyReward(p.id, updatedPlayer);
+        } else {
+          console.log(`    ERROR: Player not found in DB for dbPlayerId=${p.dbPlayerId}`);
+        }
         coinChanges[p.id] = coinsEarned;
         kpChanges[p.id] = 0;
       }
     }
 
-    io.to(roomId).emit('game_over', { scores: room.scores, kpChanges, coinChanges });
+    // playerUpdates is embedded in game_over so client always gets updated profile
+    io.to(roomId).emit('game_over', { scores: room.scores, kpChanges, coinChanges, playerUpdates });
     delete activeRooms[roomId];
     return;
   }

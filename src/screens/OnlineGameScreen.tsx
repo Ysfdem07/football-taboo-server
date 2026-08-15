@@ -228,7 +228,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       }
     });
 
-    socket.on('game_over', (data: any) => {
+    socket.on('game_over', async (data: any) => {
       Analytics.logEvent('online_game_over', { 
         roomId, 
         scores: data.scores, 
@@ -241,6 +241,17 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.players) setPlayers(data.players);
       if (data.kpChanges) setKpChanges(data.kpChanges);
       if (data.coinChanges) setCoinChanges(data.coinChanges);
+
+      // Primary reliable path: server embeds updated profile directly in game_over
+      const myUpdate = data.playerUpdates?.[socket.id];
+      if (myUpdate) {
+        setPlayer(myUpdate);
+        try {
+          const stored = await AsyncStorage.getItem('@logged_in_profile');
+          const cached = stored ? JSON.parse(stored) : {};
+          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
+        } catch (e) {}
+      }
     });
 
     socket.on('player_disconnected', (data: any) => {
