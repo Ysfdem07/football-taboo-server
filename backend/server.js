@@ -788,15 +788,16 @@ io.on('connection', (socket) => {
   });
 
   socket.on('request_guess_turn', (data) => {
-    const { roomId } = data;
+    const { roomId, playerId } = data;
+    const id = playerId || socket.id;
     const room = activeRooms[roomId];
     if (!room || !room.roundActive || room.isPaused || room.guessingPlayerId) return; // someone is already guessing or round ended
 
-    room.guessingPlayerId = socket.id;
+    room.guessingPlayerId = id;
     room.isPaused = true;
     let guessTimeLeft = 15; // Increased to 15 seconds as requested!
 
-    io.to(roomId).emit('guess_turn_started', { playerId: socket.id, time: guessTimeLeft });
+    io.to(roomId).emit('guess_turn_started', { playerId: id, time: guessTimeLeft });
 
     room.guessTimer = setInterval(() => {
       guessTimeLeft--;
@@ -808,8 +809,8 @@ io.on('connection', (socket) => {
         
         // Timeout penalty
         const penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
-        room.scores[socket.id] -= penalty;
-        io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'timeout', playerId: socket.id });
+        room.scores[id] = (room.scores[id] || 0) - penalty;
+        io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'timeout', playerId: id });
         io.to(roomId).emit('guess_turn_ended');
       } else {
         io.to(roomId).emit('guess_time_tick', { time: guessTimeLeft });
@@ -818,7 +819,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('pass_round', (data) => {
-    const { roomId } = data;
+    const { roomId, playerId } = data;
+    const id = playerId || socket.id;
     const room = activeRooms[roomId];
     if (!room || !room.roundActive) {
       console.log(`[PassRound] Rejected - room exists: ${!!room}, roundActive: ${room?.roundActive}`);
@@ -830,7 +832,7 @@ io.on('connection', (socket) => {
     }
 
     // Add this socket's vote
-    room.passVotes.add(socket.id);
+    room.passVotes.add(id);
 
     // Count votes by checking which room players have voted
     // room.players[i].id === socket.id always (set at join time)
@@ -847,7 +849,7 @@ io.on('connection', (socket) => {
     io.to(roomId).emit('pass_update', {
       votesCount: effectiveVotes,
       totalPlayers: requiredVotes,
-      voterId: socket.id
+      voterId: id
     });
 
     if (effectiveVotes >= requiredVotes) {
@@ -872,11 +874,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('guess_word', (data) => {
-    const { roomId, guess } = data;
+    const { roomId, guess, playerId } = data;
+    const id = playerId || socket.id;
     const room = activeRooms[roomId];
     if (!room || !room.roundActive) return;
     
-    if (room.guessingPlayerId !== socket.id) return;
+    if (room.guessingPlayerId !== id) return;
 
     if (room.guessTimer) {
       clearInterval(room.guessTimer);
@@ -891,12 +894,12 @@ io.on('connection', (socket) => {
       clearInterval(room.timer);
       
       const pointsEarned = getPotentialScore(room);
-      room.scores[socket.id] = (room.scores[socket.id] || 0) + pointsEarned;
+      room.scores[id] = (room.scores[id] || 0) + pointsEarned;
       
-      const winnerPlayer = room.players.find(p => p.id === socket.id);
+      const winnerPlayer = room.players.find(p => p.id === id);
       
       io.to(roomId).emit('round_ended', {
-        winnerId: socket.id,
+        winnerId: id,
         winnerName: winnerPlayer ? winnerPlayer.name : 'Oyuncu',
         word: room.card.word,
         reason: 'correct_guess',
@@ -910,11 +913,11 @@ io.on('connection', (socket) => {
     } else {
       // Incorrect guess
       const penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
-      room.scores[socket.id] = Math.max(0, (room.scores[socket.id] || 0) - penalty);
+      room.scores[id] = Math.max(0, (room.scores[id] || 0) - penalty);
       room.guessingPlayerId = null;
       room.isPaused = false;
 
-      io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: 'incorrect', playerId: socket.id });
+      io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: 'incorrect', playerId: id });
       io.to(roomId).emit('guess_turn_ended');
     }
   });

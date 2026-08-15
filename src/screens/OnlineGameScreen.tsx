@@ -37,6 +37,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [timeLeft, setTimeLeft] = useState<number>(30);
   const [hints, setHints] = useState<string[]>([]);
   const [guess, setGuess] = useState('');
+  const [myOriginalId] = useState(socket.id); // Captures the socket ID on mount, robust against reconnects
+
   const [gameOver, setGameOver] = useState(false);
   const [winnerMessage, setWinnerMessage] = useState('');
   const [currentRound, setCurrentRound] = useState(1);
@@ -292,19 +294,19 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
   const sendGuess = () => {
     if (!guess.trim() || gameOver) return;
-    socket.emit('guess_word', { roomId, guess });
+    socket.emit('guess_word', { roomId, guess, playerId: myOriginalId });
     setGuess('');
   };
 
   const requestGuessTurn = () => {
     if (gameOver || guessingPlayerId) return;
-    socket.emit('request_guess_turn', { roomId });
+    socket.emit('request_guess_turn', { roomId, playerId: myOriginalId });
   };
 
   const sendPass = () => {
     if (gameOver || hasPassed) return; // Allow pass even during guess turn
     setHasPassed(true);
-    socket.emit('pass_round', { roomId });
+    socket.emit('pass_round', { roomId, playerId: myOriginalId });
   };
 
   if (gameOver) {

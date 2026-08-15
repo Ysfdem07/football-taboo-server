@@ -144,7 +144,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       s.emit('join_queue', { 
         name: playerName.trim() || 'Oyuncu',
-        dbPlayerId: profile?.id || null,
+        dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
       });
       s.on('match_found', (data: any) => {
@@ -178,7 +178,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
         name: playerName.trim() || 'Oyuncu', 
         maxRounds: isRanked ? 10 : maxRounds,
         isRanked,
-        dbPlayerId: profile?.id || null,
+        dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
       });
       s.on('room_created', (data: any) => {
@@ -201,7 +201,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       s.emit('join_room', { 
         roomCode: roomCodeInput.trim(), 
         name: playerName.trim() || 'Oyuncu',
-        dbPlayerId: profile?.id || null
+        dbPlayerId: profile?.id || profile?._id || null
       });
       
       s.on('room_joined', (data: any) => {
