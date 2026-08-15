@@ -99,10 +99,10 @@ export default function CategoryMenuScreen() {
               {theme.title}
             </Text>
           </View>
-          {categoryId === 'football' ? (
+          {categoryId.startsWith('football') ? (
             <TouchableOpacity 
               style={[styles.backBtn, { borderColor: `${NEON_COLOR}80` }]} 
-              onPress={() => navigation.navigate('CardAlbum', { categoryId: 'football' } as any)}
+              onPress={() => navigation.navigate('CardAlbum', { categoryId } as any)}
             >
               <Ionicons name="albums-outline" size={20} color={NEON_COLOR} />
             </TouchableOpacity>

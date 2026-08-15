@@ -23,7 +23,7 @@ export default function HomeScreen() {
 
   const CATEGORIES = [
     { 
-      id: 'football', 
+      id: language === 'en' ? 'football_en' : 'football', 
       title: t('football').toUpperCase(), 
       subtitle: language === 'en' ? 'Legendary Footballers, Managers, Teams and Terms' : 'Efsane Futbolcular, Teknik Direktörler, Futbol Takımları ve Terimleri',
       color: '#39ff14', 

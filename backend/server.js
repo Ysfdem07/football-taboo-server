@@ -354,11 +354,12 @@ const io = require('socket.io')(server, {
 const Papa = require('papaparse');
 const CSV_URLS = {
   football: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=0",
+  football_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=2110439967",
   cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=927039923",
   music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227"
 };
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
-let wordsDb = { football: [], cinema: [], music: [] };
+let wordsDb = { football: [], football_en: [], cinema: [], music: [] };
 
 async function loadWords() {
   const promises = Object.keys(CSV_URLS).map(category => new Promise(async (resolve) => {
@@ -373,12 +374,25 @@ async function loadWords() {
           const rows = results.data;
           for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
-            if (!row[0] || row[0].trim() === '') continue;
-            const word = row[0].trim();
-            const forbidden = [];
-            for (let col = 1; col <= 5; col++) {
-               if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+            let word = '';
+            let forbidden = [];
+
+            if (category === 'football_en') {
+              // Format: EntityID, Answer, Clue_1, Clue_2, Clue_3, Clue_4, Clue_5, Difficulty
+              if (!row[1] || row[1].trim() === '') continue;
+              word = row[1].trim();
+              for (let col = 2; col <= 6; col++) {
+                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+              }
+            } else {
+              // Standard format: Word, Forbidden1, Forbidden2, Forbidden3, Forbidden4, Forbidden5
+              if (!row[0] || row[0].trim() === '') continue;
+              word = row[0].trim();
+              for (let col = 1; col <= 5; col++) {
+                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+              }
             }
+            
             newWords.push({ word, forbidden });
           }
           if (newWords.length > 0) {
@@ -401,7 +415,7 @@ async function loadWords() {
     }
   }));
   await Promise.all(promises);
-  console.log(`[Words] Load complete: football=${wordsDb.football.length}, cinema=${wordsDb.cinema.length}, music=${wordsDb.music.length}`);
+  console.log(`[Words] Load complete: football=${wordsDb.football.length}, football_en=${wordsDb.football_en.length}, cinema=${wordsDb.cinema.length}, music=${wordsDb.music.length}`);
   return wordsDb;
 }
 
@@ -649,35 +663,50 @@ io.on('connection', (socket) => {
     const room = activeRooms[roomId];
     if (!room) return socket.emit('joker_error', { message: 'Oda bulunamadı!' });
     
+    // PRE-VALIDATION for game logic
+    if (jokerType === 'extraTime') {
+      if (!room.isPaused || room.guessingPlayerId !== playerId) {
+        return socket.emit('joker_error', { message: 'Ek süre jokeri sadece tahmin sırası sizdeyken kullanılabilir!' });
+      }
+    }
+    
     // Validate if player actually has the joker
     const result = await db.useJoker(playerId, jokerType);
     if (result.error) {
       return socket.emit('joker_error', { message: result.error });
     }
 
-    // Apply joker effect
+    // Apply joker effect PRIVATELY (socket.emit instead of io.to(roomId).emit)
     if (jokerType === 'extraTime') {
-      room.timers.guessTimerEnd += 5000;
-      io.to(roomId).emit('joker_used', { jokerType, playerId, message: '+5 Saniye Eklendi!' });
+      room.guessTimeLeft += 5;
+      socket.emit('joker_used', { jokerType, playerId }); // no message = no popup
     } else if (jokerType === 'revealLetters') {
-      const w = room.currentWord;
-      const hint = `${w[0]} ${'_ '.repeat(w.length - 2).trim()} ${w[w.length - 1]}`;
-      io.to(roomId).emit('joker_used', { jokerType, playerId, message: 'Harfler Açıldı!', hint });
+      const w = room.card.word;
+      let privateHint = "";
+      if (w.length > 2) {
+        let arr = room.wordHintArray.slice();
+        arr[0] = w[0];
+        arr[w.length - 1] = w[w.length - 1];
+        privateHint = arr.join('');
+      } else {
+        privateHint = w;
+      }
+      socket.emit('joker_used', { jokerType, playerId, hint: privateHint }); // no message = no popup
     } else if (jokerType === 'instantHints') {
-      const card = room.card; // FIX: was room.currentCard (undefined)
+      const card = room.card;
       if (card && card.forbidden) {
-        // Find hints that haven't been shown yet (up to 2)
+        // Find up to 2 hints that haven't been shown yet
         const hintsToReveal = [];
         for (let i = 0; i < 2; i++) {
-          if (room.hintsShown < card.forbidden.length) {
-            hintsToReveal.push(card.forbidden[room.hintsShown]);
-            room.hintsShown++;
+          const targetIndex = room.hintsShown + i;
+          if (targetIndex < card.forbidden.length) {
+            hintsToReveal.push(card.forbidden[targetIndex]);
           }
         }
         hintsToReveal.forEach(hint => {
-          io.to(roomId).emit('hint_revealed', { hint, potentialScore: getPotentialScore(room) });
+          socket.emit('hint_revealed', { hint, potentialScore: getPotentialScore(room) });
         });
-        io.to(roomId).emit('joker_used', { jokerType, playerId, message: '2 İpucu Açıldı!' });
+        socket.emit('joker_used', { jokerType, playerId }); // no message = no popup
       }
     }
     
@@ -815,13 +844,13 @@ io.on('connection', (socket) => {
 
     room.guessingPlayerId = id;
     room.isPaused = true;
-    let guessTimeLeft = 15; // Increased to 15 seconds as requested!
+    room.guessTimeLeft = 15; // Increased to 15 seconds as requested!
 
-    io.to(roomId).emit('guess_turn_started', { playerId: id, time: guessTimeLeft });
+    io.to(roomId).emit('guess_turn_started', { playerId: id, time: room.guessTimeLeft });
 
     room.guessTimer = setInterval(() => {
-      guessTimeLeft--;
-      if (guessTimeLeft <= 0) {
+      room.guessTimeLeft--;
+      if (room.guessTimeLeft <= 0) {
         clearInterval(room.guessTimer);
         room.guessTimer = null;
         room.guessingPlayerId = null;
@@ -833,7 +862,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'timeout', playerId: id });
         io.to(roomId).emit('guess_turn_ended');
       } else {
-        io.to(roomId).emit('guess_time_tick', { time: guessTimeLeft });
+        io.to(roomId).emit('guess_time_tick', { time: room.guessTimeLeft });
       }
     }, 1000);
   });
