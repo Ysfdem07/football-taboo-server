@@ -242,16 +242,18 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.kpChanges) setKpChanges(data.kpChanges);
       if (data.coinChanges) setCoinChanges(data.coinChanges);
 
-      // Primary reliable path: server embeds updated profile directly in game_over
-      const myUpdate = data.playerUpdates?.[socket.id];
-      if (myUpdate) {
-        setPlayer(myUpdate);
-        try {
-          const stored = await AsyncStorage.getItem('@logged_in_profile');
-          const cached = stored ? JSON.parse(stored) : {};
-          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
-        } catch (e) {}
-      }
+      // Primary reliable path: server embeds updated profile directly in game_over, keyed by dbPlayerId
+      try {
+        const stored = await AsyncStorage.getItem('@logged_in_profile');
+        if (stored) {
+          const cached = JSON.parse(stored);
+          const myUpdate = data.playerUpdates?.[cached.id];
+          if (myUpdate) {
+            setPlayer(myUpdate);
+            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
+          }
+        }
+      } catch (e) {}
     });
 
     socket.on('player_disconnected', (data: any) => {
