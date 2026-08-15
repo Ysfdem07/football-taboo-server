@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, ImageBackground, TextInput, Alert, Image, useWindowDimensions } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
 import { getSocket, fetchTunnelUrl, initSocketWithUrl, SOCKET_URL } from '../services/socket';
@@ -33,6 +34,22 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [showRankedOptions, setShowRankedOptions] = useState(false);
   const [showFriendlyOptions, setShowFriendlyOptions] = useState(false);
   const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadProfileOnFocus = async () => {
+        try {
+          const stored = await AsyncStorage.getItem('@logged_in_profile');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            setProfile(parsed);
+            setPlayerName(parsed.username);
+          }
+        } catch (e) {}
+      };
+      loadProfileOnFocus();
+    }, [])
+  );
 
   useEffect(() => {
     Analytics.logScreenView('OnlineLobby');
