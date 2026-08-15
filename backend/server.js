@@ -1016,7 +1016,8 @@ async function startRound(roomId) {
     // Helper: emit updated profile to a specific player socket AND record in playerUpdates
     const applyReward = (socketId, updatedPlayer) => {
       if (!updatedPlayer) return;
-      playerUpdates[updatedPlayer.id] = updatedPlayer;          // key by dbPlayerId
+      const key = updatedPlayer.id || updatedPlayer._id;
+      playerUpdates[key] = updatedPlayer;          // key by dbPlayerId
       const playerSocket = io.sockets.sockets.get(socketId);
       if (playerSocket) playerSocket.emit('coins_updated', { player: updatedPlayer }); // early notification
     };

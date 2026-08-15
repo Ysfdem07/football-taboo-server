@@ -128,6 +128,14 @@ function getTodayString() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+const findPlayerById = async (playerId) => {
+  if (mongoose.isValidObjectId(playerId)) {
+    const p = await Player.findById(playerId);
+    if (p) return p;
+  }
+  return await Player.findOne({ id: playerId });
+};
+
 module.exports = {
   connectDB,
   saveLog: async (type, message) => {
@@ -192,7 +200,7 @@ module.exports = {
 
   updatePlayerStats: async (playerId, kpChange, isWin, correctGuesses = 0, taboos = 0, category = 'football') => {
     await connectDB();
-    const player = await Player.findOne({ id: playerId });
+    const player = await findPlayerById(playerId);
     if (!player) return null;
 
     player.kp = Math.max(0, player.kp + kpChange);
@@ -220,7 +228,7 @@ module.exports = {
 
   updatePlayerCoins: async (playerId, amount) => {
     await connectDB();
-    const player = await Player.findOne({ id: playerId });
+    const player = await findPlayerById(playerId);
     if (!player) return null;
     player.coins = Math.max(0, (player.coins || 0) + amount);
     await player.save();
@@ -229,7 +237,7 @@ module.exports = {
 
   buyJoker: async (playerId, jokerType, price = 50) => {
     await connectDB();
-    const player = await Player.findOne({ id: playerId });
+    const player = await findPlayerById(playerId);
     if (!player) return { error: 'Oyuncu bulunamadı' };
     if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0 };
     if ((player.coins || 0) < price) return { error: 'Yetersiz jeton!' };
@@ -248,7 +256,7 @@ module.exports = {
 
   useJoker: async (playerId, jokerType) => {
     await connectDB();
-    const player = await Player.findOne({ id: playerId });
+    const player = await findPlayerById(playerId);
     if (!player) return { error: 'Oyuncu bulunamadı' };
     if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0 };
     if (player.jokers[jokerType] > 0) {
