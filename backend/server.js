@@ -167,6 +167,26 @@ function normalizeText(text) {
 
 const app = express();
 
+const memLogs = [];
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = function(...args) {
+  originalLog.apply(console, args);
+  memLogs.push({ time: new Date().toISOString(), type: 'log', message: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ') });
+  if (memLogs.length > 500) memLogs.shift();
+};
+console.error = function(...args) {
+  originalError.apply(console, args);
+  memLogs.push({ time: new Date().toISOString(), type: 'error', message: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ') });
+  if (memLogs.length > 500) memLogs.shift();
+};
+
+app.get('/api/logs', (req, res) => {
+  res.json(memLogs);
+});
+
+
 // Load privacy policy HTML string directly into memory
 const getPrivacyHtmlContent = () => {
   const p1 = path.resolve(__dirname, 'backend', 'public', 'gizlilik.html');

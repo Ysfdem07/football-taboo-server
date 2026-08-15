@@ -199,9 +199,14 @@ module.exports = {
   },
 
   updatePlayerStats: async (playerId, kpChange, isWin, correctGuesses = 0, taboos = 0, category = 'football') => {
+    console.log(`[db] updatePlayerStats called for playerId: ${playerId}, isWin: ${isWin}`);
     await connectDB();
     const player = await findPlayerById(playerId);
-    if (!player) return null;
+    if (!player) {
+      console.log(`[db] updatePlayerStats FAILED: Player not found for id ${playerId}`);
+      return null;
+    }
+    console.log(`[db] updatePlayerStats FOUND player: ${player.id || player._id} (name: ${player.name}), current coins: ${player.coins}`);
 
     player.kp = Math.max(0, player.kp + kpChange);
 
@@ -218,11 +223,13 @@ module.exports = {
       player.categoryWins[cat] = (player.categoryWins[cat] || 0) + 1;
       player.markModified('categoryWins');
       player.coins = (player.coins || 0) + 50;
+      console.log(`[db] updatePlayerStats ADDED 50 coins to player ${player.id || player._id}. New balance: ${player.coins}`);
     }
     player.correct_guesses += correctGuesses;
     player.taboos += taboos;
 
     await player.save();
+    console.log(`[db] updatePlayerStats SAVED player ${player.id || player._id}.`);
     return player.toObject();
   },
 

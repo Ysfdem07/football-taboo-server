@@ -249,7 +249,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         const stored = await AsyncStorage.getItem('@logged_in_profile');
         if (stored) {
           const cached = JSON.parse(stored);
-          const myUpdate = data.playerUpdates?.[cached.id];
+          const cachedId = cached.id || cached._id;
+          const myUpdate = data.playerUpdates?.[cachedId];
           if (myUpdate) {
             setPlayer(myUpdate);
             await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
