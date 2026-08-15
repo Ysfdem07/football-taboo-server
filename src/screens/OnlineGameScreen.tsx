@@ -178,6 +178,20 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       Alert.alert('Joker Hatası', data.message || 'Joker kullanılamadı.');
     });
 
+    // Server sends updated profile after coin/KP rewards
+    socket.on('coins_updated', async (data: any) => {
+      if (data.player) {
+        setPlayer(data.player);
+        try {
+          // Preserve password from cached profile
+          const stored = await AsyncStorage.getItem('@logged_in_profile');
+          const cached = stored ? JSON.parse(stored) : {};
+          const merged = { ...data.player, password: cached.password };
+          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(merged));
+        } catch (e) {}
+      }
+    });
+
     socket.on('wrong_guess', (data?: any) => {
       setShowWrongGuess(true);
       if (data && data.penalty !== undefined) setLastPenalty(data.penalty);
@@ -251,6 +265,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       socket.off('guess_turn_started');
       socket.off('guess_time_tick');
       socket.off('guess_turn_ended');
+      socket.off('joker_used_success');
+      socket.off('joker_used');
+      socket.off('joker_error');
+      socket.off('coins_updated');
       socket.off('wrong_guess');
       socket.off('round_ended');
       socket.off('game_over');
@@ -426,6 +444,14 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 );
               })}
             </View>
+
+            {/* ── My updated balance ── */}
+            {player?.coins !== undefined && (
+              <View style={styles.balanceChip}>
+                <Text style={styles.balanceChipLabel}>Güncel Jeton Bakiyeniz</Text>
+                <Text style={styles.balanceChipValue}>{player.coins} 🪙</Text>
+              </View>
+            )}
 
             {/* ── Action Buttons ── */}
             <View style={styles.gameOverActions}>
@@ -1190,6 +1216,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     minWidth: 72,
     textAlign: 'right',
+  },
+  balanceChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 215, 0, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    width: '100%',
+    marginBottom: 8,
+  },
+  balanceChipLabel: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 13,
+    fontFamily: 'Poppins_600SemiBold',
+  },
+  balanceChipValue: {
+    color: NEON_GOLD,
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold',
   },
   gameOverActions: {
     width: '100%',
