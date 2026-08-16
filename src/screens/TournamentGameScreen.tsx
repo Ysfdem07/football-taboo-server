@@ -183,6 +183,13 @@ export default function TournamentGameScreen() {
     if (!guess.trim()) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
+    const wordClean = currentCard.word.replace(/\s+/g, '');
+    if (revealedIndices.length >= wordClean.length) {
+      setGuess('');
+      flashScreen(false, `${t('timeOutFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
+      return;
+    }
+
     const isCorrect = normalizeText(guess) === normalizeText(currentCard.word);
     if (isCorrect) {
       const earned = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
@@ -223,6 +230,13 @@ export default function TournamentGameScreen() {
     if (unrevealed.length > 0) {
       const randIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
       setRevealedIndices(prev => [...prev, randIdx]);
+      
+      // Kelimenin tamamı açıldıysa anında pas say (0 puan)
+      if (unrevealed.length === 1) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setGuess('');
+        flashScreen(false, `${t('timeOutFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
+      }
     }
     ensureFocus();
   };
