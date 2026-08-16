@@ -357,10 +357,11 @@ const CSV_URLS = {
   football_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=2110439967",
   cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=927039923",
   cinema_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=1200646404",
-  music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227"
+  music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227",
+  music_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=1685819327"
 };
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
-let wordsDb = { football: [], football_en: [], cinema: [], cinema_en: [], music: [] };
+let wordsDb = { football: [], football_en: [], cinema: [], cinema_en: [], music: [], music_en: [] };
 
 async function loadWords() {
   const promises = Object.keys(CSV_URLS).map(category => new Promise(async (resolve) => {
@@ -378,20 +379,11 @@ async function loadWords() {
             let word = '';
             let forbidden = [];
 
-            if (category === 'football_en' || category === 'cinema_en') {
-              // Format: EntityID, Answer, Clue_1, Clue_2, Clue_3, Clue_4, Clue_5, Difficulty
-              if (!row[1] || row[1].trim() === '') continue;
-              word = row[1].trim();
-              for (let col = 2; col <= 6; col++) {
-                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
-              }
-            } else {
-              // Standard format: Word, Forbidden1, Forbidden2, Forbidden3, Forbidden4, Forbidden5
-              if (!row[0] || row[0].trim() === '') continue;
-              word = row[0].trim();
-              for (let col = 1; col <= 5; col++) {
-                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
-              }
+            // Standard format: Word, Forbidden1, Forbidden2, Forbidden3, Forbidden4, Forbidden5
+            if (!row[0] || row[0].trim() === '') continue;
+            word = row[0].trim();
+            for (let col = 1; col <= 5; col++) {
+              if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
             }
             
             newWords.push({ word, forbidden });
@@ -416,7 +408,7 @@ async function loadWords() {
     }
   }));
   await Promise.all(promises);
-  console.log(`[Words] Load complete: football=${wordsDb.football.length}, football_en=${wordsDb.football_en.length}, cinema=${wordsDb.cinema.length}, music=${wordsDb.music.length}`);
+  console.log(`[Words] Load complete: football=${wordsDb.football.length}, football_en=${wordsDb.football_en.length}, cinema=${wordsDb.cinema.length}, music=${wordsDb.music.length}, music_en=${wordsDb.music_en.length}`);
   return wordsDb;
 }
 
@@ -437,7 +429,8 @@ app.get('/api/refresh-words', async (req, res) => {
       football_en: wordsDb.football_en.length,
       cinema: wordsDb.cinema.length,
       cinema_en: wordsDb.cinema_en.length,
-      music: wordsDb.music.length
+      music: wordsDb.music.length,
+      music_en: wordsDb.music_en.length
     }});
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
