@@ -425,7 +425,24 @@ loadWords().then(() => {
   // initTournament AFTER words are loaded
   initTournament();
 });
-setInterval(loadWords, 3600000);
+// Refresh every 10 minutes (600,000 ms)
+setInterval(loadWords, 600000);
+
+// API endpoint to manually trigger a word refresh without restarting the server
+app.get('/api/refresh-words', async (req, res) => {
+  try {
+    await loadWords();
+    res.json({ success: true, message: 'Kelimeler Google Sheetten başarıyla güncellendi.', stats: {
+      football: wordsDb.football.length,
+      football_en: wordsDb.football_en.length,
+      cinema: wordsDb.cinema.length,
+      cinema_en: wordsDb.cinema_en.length,
+      music: wordsDb.music.length
+    }});
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ─── Tournament Init ─────────────────────────────────────────────────────────
 async function initTournament() {
