@@ -64,7 +64,8 @@ export default function CategoryMenuScreen() {
   };
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
-  const theme = THEMES[categoryId as keyof typeof THEMES] || THEMES.football;
+  const baseCategory = categoryId.replace('_en', '');
+  const theme = THEMES[baseCategory as keyof typeof THEMES] || THEMES.football;
   const NEON_COLOR = theme.color;
 
   const checkWordsAndNavigate = async (destination: 'Game' | 'OnlineLobby' | 'Tournament') => {

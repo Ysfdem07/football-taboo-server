@@ -32,7 +32,7 @@ export default function HomeScreen() {
       patternIcon: 'football-outline'
     },
     { 
-      id: 'cinema', 
+      id: language === 'en' ? 'cinema_en' : 'cinema', 
       title: t('cinema').toUpperCase(), 
       subtitle: language === 'en' ? 'Award Winning Movies & Shows, Actors, Directors and Characters' : 'Ödüllü Film ve Diziler, Oyuncu, Yönetmen ve Dizi Karakterleri',
       color: '#b026ff', 

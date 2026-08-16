@@ -42,7 +42,7 @@ export default function LeaderboardScreen() {
 
   const CATEGORIES = [
     { id: language === 'en' ? 'football_en' : 'football', label: t('football').toUpperCase(), icon: 'football', color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
-    { id: 'cinema', label: t('cinema').toUpperCase(), icon: 'videocam', color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg') },
+    { id: language === 'en' ? 'cinema_en' : 'cinema', label: t('cinema').toUpperCase(), icon: 'videocam', color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg') },
     { id: 'music', label: t('music').toUpperCase(), icon: 'musical-notes', color: '#ff1493', bg: require('../../assets/images/music_bg.jpg') },
   ];
 

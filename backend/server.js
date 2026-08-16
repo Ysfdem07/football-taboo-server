@@ -356,10 +356,11 @@ const CSV_URLS = {
   football: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=0",
   football_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=2110439967",
   cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=927039923",
+  cinema_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=1200646404",
   music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227"
 };
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
-let wordsDb = { football: [], football_en: [], cinema: [], music: [] };
+let wordsDb = { football: [], football_en: [], cinema: [], cinema_en: [], music: [] };
 
 async function loadWords() {
   const promises = Object.keys(CSV_URLS).map(category => new Promise(async (resolve) => {
@@ -377,7 +378,7 @@ async function loadWords() {
             let word = '';
             let forbidden = [];
 
-            if (category === 'football_en') {
+            if (category === 'football_en' || category === 'cinema_en') {
               // Format: EntityID, Answer, Clue_1, Clue_2, Clue_3, Clue_4, Clue_5, Difficulty
               if (!row[1] || row[1].trim() === '') continue;
               word = row[1].trim();
