@@ -379,11 +379,20 @@ async function loadWords() {
             let word = '';
             let forbidden = [];
 
-            // Standard format: Word, Forbidden1, Forbidden2, Forbidden3, Forbidden4, Forbidden5
-            if (!row[0] || row[0].trim() === '') continue;
-            word = row[0].trim();
-            for (let col = 1; col <= 5; col++) {
-              if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+            if (category === 'cinema_en') {
+              // Format: EntityID, Answer, Clue_1, Clue_2, Clue_3, Clue_4, Clue_5, Difficulty
+              if (!row[1] || row[1].trim() === '') continue;
+              word = row[1].trim();
+              for (let col = 2; col <= 6; col++) {
+                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+              }
+            } else {
+              // Standard format: Word, Forbidden1, Forbidden2, Forbidden3, Forbidden4, Forbidden5
+              if (!row[0] || row[0].trim() === '') continue;
+              word = row[0].trim();
+              for (let col = 1; col <= 5; col++) {
+                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
+              }
             }
             
             newWords.push({ word, forbidden });
