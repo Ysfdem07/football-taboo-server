@@ -327,22 +327,23 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   leagueFilterScroll: {
-    maxHeight: 44,
+    maxHeight: 54,
     marginBottom: 10,
   },
   leagueFilterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1.5,
     backgroundColor: 'rgba(5, 11, 20, 0.75)',
   },
   leagueFilterText: {
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 11,
-    includeFontPadding: false,
+    lineHeight: 16,
+    marginTop: 2, // Helps center the Poppins font visually
   },
   leagueBannerCard: {
     flexDirection: 'row',
