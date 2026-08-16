@@ -744,11 +744,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: NEON_GREEN,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 4,
   },
   guessBtnText: { color: NEON_GREEN, fontFamily: 'Poppins_700Bold', fontSize: 15, letterSpacing: 1 },
 
