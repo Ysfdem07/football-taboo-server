@@ -289,39 +289,45 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                   <Ionicons name="chevron-up" size={20} color="#A855F7" style={{ marginLeft: 'auto' }} />
                 </TouchableOpacity>
 
-                {/* 3-card sub grid */}
-                <View style={styles.subGrid}>
-                  <TouchableOpacity
-                    style={[styles.subCard, { borderColor: '#00BFFF', shadowColor: '#00BFFF', width: subCardW, height: subCardW * 1.15 }]}
-                    onPress={findMatch}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient colors={['rgba(0,191,255,0.4)', 'rgba(5,11,20,0.92)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
-                    <Ionicons name="flash-sharp" size={subIconSize * 1.35} color="#00BFFF" style={{ marginBottom: 6, textShadowColor: '#00BFFF', textShadowRadius: 12 }} />
-                    <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>1v1 HIZLI</Text>
-                    <Text style={[styles.subCardSub, { color: '#fff' }]}>EŞLEŞME</Text>
+                {/* Premium Vertical List */}
+                <View style={styles.actionList}>
+                  <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
+                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                    <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                    <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
+                      <Ionicons name="flash" size={22} color="#00BFFF" />
+                    </View>
+                    <View style={styles.actionTextContainer}>
+                      <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>1v1 Hızlı Eşleşme</Text>
+                      <Text style={styles.actionSub}>Rastgele bir rakiple anında oyna</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.subCard, { borderColor: '#00FF88', shadowColor: '#00FF88', width: subCardW, height: subCardW * 1.15 }]}
-                    onPress={() => createRoom(true)}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient colors={['rgba(0,255,136,0.4)', 'rgba(5,11,20,0.92)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
-                    <Ionicons name="add-circle-sharp" size={subIconSize * 1.35} color="#00FF88" style={{ marginBottom: 6, textShadowColor: '#00FF88', textShadowRadius: 12 }} />
-                    <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODA KUR</Text>
-                    <Text style={[styles.subCardSub, { color: '#fff' }]}>DERECELİ</Text>
+                  <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => createRoom(true)} activeOpacity={0.8}>
+                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                    <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                    <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)' }]}>
+                      <Ionicons name="add" size={26} color="#00FF88" />
+                    </View>
+                    <View style={styles.actionTextContainer}>
+                      <Text style={[styles.actionTitle, { color: '#00FF88' }]}>Oda Kur (Dereceli)</Text>
+                      <Text style={styles.actionSub}>Arkadaşınla oyna, puan kazan</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.subCard, { borderColor: '#A855F7', shadowColor: '#A855F7', width: subCardW, height: subCardW * 1.15 }]}
-                    onPress={() => setShowJoinInput(true)}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient colors={['rgba(168,85,247,0.4)', 'rgba(5,11,20,0.92)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
-                    <Ionicons name="enter-sharp" size={subIconSize * 1.35} color="#A855F7" style={{ marginBottom: 6, textShadowColor: '#A855F7', textShadowRadius: 12 }} />
-                    <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODAYA</Text>
-                    <Text style={[styles.subCardSub, { color: '#fff' }]}>KATIL</Text>
+                  <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.3)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.8}>
+                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                    <LinearGradient colors={['rgba(168,85,247,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                    <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
+                      <Ionicons name="enter" size={22} color="#A855F7" />
+                    </View>
+                    <View style={styles.actionTextContainer}>
+                      <Text style={[styles.actionTitle, { color: '#A855F7' }]}>Odaya Katıl</Text>
+                      <Text style={styles.actionSub}>Davet kodunu girerek odaya katıl</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
                 </View>
               </>
@@ -342,39 +348,45 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                 </TouchableOpacity>
 
                 {!showFriendlyRoomSettings ? (
-                  /* 3-card sub grid */
-                  <View style={styles.subGrid}>
-                    <TouchableOpacity
-                      style={[styles.subCard, { borderColor: '#00BFFF', shadowColor: '#00BFFF', width: subCardW, height: subCardW * 1.15 }]}
-                      onPress={findMatch}
-                      activeOpacity={0.8}
-                    >
-                      <LinearGradient colors={['rgba(0,191,255,0.4)', 'rgba(5,11,20,0.92)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
-                      <Ionicons name="flash-sharp" size={subIconSize * 1.35} color="#00BFFF" style={{ marginBottom: 6, textShadowColor: '#00BFFF', textShadowRadius: 12 }} />
-                      <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>1v1 HIZLI</Text>
-                      <Text style={[styles.subCardSub, { color: '#fff' }]}>EŞLEŞME</Text>
+                  /* Premium Vertical List */
+                  <View style={styles.actionList}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
+                        <Ionicons name="flash" size={22} color="#00BFFF" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>1v1 Hızlı Eşleşme</Text>
+                        <Text style={styles.actionSub}>Rastgele rakip (Puansız)</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                      style={[styles.subCard, { borderColor: '#00FF88', shadowColor: '#00FF88', width: subCardW, height: subCardW * 1.15 }]}
-                      onPress={() => setShowFriendlyRoomSettings(true)}
-                      activeOpacity={0.8}
-                    >
-                      <LinearGradient colors={['rgba(0,255,136,0.4)', 'rgba(5,11,20,0.92)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
-                      <Ionicons name="add-circle-sharp" size={subIconSize * 1.35} color="#00FF88" style={{ marginBottom: 6, textShadowColor: '#00FF88', textShadowRadius: 12 }} />
-                      <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODA KUR</Text>
-                      <Text style={[styles.subCardSub, { color: '#fff' }]}>DOSTLUK</Text>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => setShowFriendlyRoomSettings(true)} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)' }]}>
+                        <Ionicons name="add" size={26} color="#00FF88" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#00FF88' }]}>Oda Kur (Dostluk)</Text>
+                        <Text style={styles.actionSub}>Sıralamayı etkilemeyen oda kur</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                      style={[styles.subCard, { borderColor: '#A855F7', shadowColor: '#A855F7', width: subCardW, height: subCardW * 1.15 }]}
-                      onPress={() => setShowJoinInput(true)}
-                      activeOpacity={0.8}
-                    >
-                      <LinearGradient colors={['rgba(168,85,247,0.4)', 'rgba(5,11,20,0.92)']} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFillObject} />
-                      <Ionicons name="enter-sharp" size={subIconSize * 1.35} color="#A855F7" style={{ marginBottom: 6, textShadowColor: '#A855F7', textShadowRadius: 12 }} />
-                      <Text style={[styles.subCardLabel, { textShadowRadius: 8 }]}>ODAYA</Text>
-                      <Text style={[styles.subCardSub, { color: '#fff' }]}>KATIL</Text>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.3)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(168,85,247,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
+                        <Ionicons name="enter" size={22} color="#A855F7" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#A855F7' }]}>Odaya Katıl</Text>
+                        <Text style={styles.actionSub}>Davet koduyla giriş yap</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -621,35 +633,45 @@ const styles = StyleSheet.create({
     fontSize: 15,
     letterSpacing: 0.5,
   },
-  // ── 3-CARD SUB GRID ──
-  subGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  // ── PREMIUM VERTICAL ACTION LIST ──
+  actionList: {
     width: '100%',
+    gap: 12,
     marginBottom: 10,
   },
-  subCard: {
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+  premiumCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1.5,
+    borderRadius: 18,
+    padding: 14,
+    paddingRight: 20,
+    overflow: 'hidden',
+  },
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-    gap: 6,
+    marginRight: 16,
   },
-  subCardGlow: { ...StyleSheet.absoluteFillObject },
-  subCardLabel: {
-    color: '#FFFFFF',
+  actionTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  actionTitle: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
-    letterSpacing: 0.8,
+    fontSize: 16,
+    letterSpacing: 0.5,
+    marginBottom: 0,
   },
-  subCardSub: {
-    color: 'rgba(255,255,255,0.4)',
+  actionSub: {
+    color: 'rgba(255,255,255,0.5)',
     fontFamily: 'Poppins_400Regular',
-    fontSize: 9,
-    letterSpacing: 0.8,
-    marginTop: -3,
+    fontSize: 12,
   },
   backButton: {
     marginTop: 16,
