@@ -173,7 +173,7 @@ export default function LeaderboardScreen() {
 
   return (
     <ImageBackground source={currentCat.bg} style={styles.bgImage}>
-      <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.65)' }]} />
+      <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.88)' }]} />
       <SafeAreaView style={styles.container}>
 
         {/* HEADER */}
