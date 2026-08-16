@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
   leagueFilterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1.5,
     backgroundColor: 'rgba(5, 11, 20, 0.75)',
@@ -342,6 +342,7 @@ const styles = StyleSheet.create({
   leagueFilterText: {
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 11,
+    includeFontPadding: false,
   },
   leagueBannerCard: {
     flexDirection: 'row',

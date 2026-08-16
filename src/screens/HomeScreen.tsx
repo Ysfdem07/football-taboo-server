@@ -41,7 +41,7 @@ export default function HomeScreen() {
       patternIcon: 'film-outline'
     },
     { 
-      id: 'music', 
+      id: language === 'en' ? 'music_en' : 'music',
       title: t('music').toUpperCase(), 
       subtitle: language === 'en' ? 'Famous Artists, Bands and Iconic Song Titles' : 'Ünlü Sanatçılar, Müzik Grupları ve Şarkı İsimleri',
       color: '#ff1493', 

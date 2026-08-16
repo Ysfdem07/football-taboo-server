@@ -1,0 +1,2017 @@
+EntityID,Answer,Clue_1,Clue_2,Clue_3,Clue_4,Clue_5,Difficulty
+E00001,Lamine Yamal,FC Barcelona,Spain,Born in 2007,Right Winger,Pedri,Easy
+E00002,Kylian Mbappé,Real Madrid,France / Cameroon,Born in 1998,Striker,Jude Bellingham,Rookie
+E00003,Erling Haaland,Manchester City,Norway,Born in 2000,Striker,Rodri,Rookie
+E00004,Jude Bellingham,Real Madrid,England / Ireland,Born in 2003,Attacking Midfielder,Kylian Mbappé,Easy
+E00005,Vinicius Junior,Real Madrid,Brazil / Spain,Born in 2000,Left Winger,Kylian Mbappé,Easy
+E00006,Bukayo Saka,Arsenal FC,England / Nigeria,Born in 2001,Right Winger,Declan Rice,Easy
+E00007,Florian Wirtz,Liverpool FC,Germany,Born in 2003,Attacking Midfielder,Alexander Isak,Easy
+E00008,Jamal Musiala,Bayern Munich,Germany / England,Born in 2003,Attacking Midfielder,Michael Olise,Easy
+E00009,Pedri,FC Barcelona,Spain,Born in 2002,Central Midfielder,Lamine Yamal,Easy
+E00010,Federico Valverde,Real Madrid,Uruguay / Spain,Born in 1998,Central Midfielder,Kylian Mbappé,Easy
+E00011,Alexander Isak,Liverpool FC,Sweden / Eritrea,Born in 1999,Striker,Florian Wirtz,Easy
+E00012,Declan Rice,Arsenal FC,England / Ireland,Born in 1999,Central Midfielder,Bukayo Saka,Easy
+E00013,Cole Palmer,Chelsea FC,England / St. Kitts & Nevis,Born in 2002,Attacking Midfielder,Moisés Caicedo,Easy
+E00014,Rodri,Manchester City,Spain,Born in 1996,Defensive Midfielder,Erling Haaland,Easy
+E00015,Phil Foden,Manchester City,England,Born in 2000,Right Winger,Erling Haaland,Easy
+E00016,Alexis Mac Allister,Liverpool FC,Argentina / Italy,Born in 1998,Central Midfielder,Florian Wirtz,Easy
+E00017,Michael Olise,Bayern Munich,France / England,Born in 2001,Right Winger,Jamal Musiala,Easy
+E00018,Julián Alvarez,Atlético de Madrid,Argentina / Italy,Born in 2000,Striker,Pablo Barrios,Easy
+E00019,Lautaro Martínez,Inter Milan,Argentina,Born in 1997,Striker,Alessandro Bastoni,Easy
+E00020,Ousmane Dembélé,Paris Saint-Germain,France,Born in 1997,Right Winger,Khvicha Kvaratskhelia,Easy
+E00021,Raphinha,FC Barcelona,Brazil / Italy,Born in 1996,Left Winger,Lamine Yamal,Easy
+E00022,Rodrygo,Real Madrid,Brazil / Spain,Born in 2001,Right Winger,Kylian Mbappé,Easy
+E00023,Khvicha Kvaratskhelia,Paris Saint-Germain,Georgia,Born in 2001,Left Winger,Ousmane Dembélé,Easy
+E00024,Moisés Caicedo,Chelsea FC,Ecuador,Born in 2001,Defensive Midfielder,Cole Palmer,Easy
+E00025,Désiré Doué,Paris Saint-Germain,France / Cote d'Ivoire,Born in 2005,Right Winger,Ousmane Dembélé,Easy
+E00026,Martin Ødegaard,Arsenal FC,Norway,Born in 1998,Attacking Midfielder,Bukayo Saka,Easy
+E00027,Alessandro Bastoni,Inter Milan,Italy,Born in 1999,Center Back,Lautaro Martínez,Easy
+E00028,Achraf Hakimi,Paris Saint-Germain,Morocco / Spain,Born in 1998,Right Back,Ousmane Dembélé,Easy
+E00029,Dominik Szoboszlai,Liverpool FC,Hungary,Born in 2000,Attacking Midfielder,Florian Wirtz,Easy
+E00030,Vitinha,Paris Saint-Germain,Portugal,Born in 2000,Central Midfielder,Ousmane Dembélé,Easy
+E00031,William Saliba,Arsenal FC,France / Cameroon,Born in 2001,Center Back,Bukayo Saka,Easy
+E00032,Bruno Guimarães,Newcastle United,Brazil / Spain,Born in 1997,Defensive Midfielder,Anthony Gordon,Easy
+E00033,João Neves,Paris Saint-Germain,Portugal,Born in 2004,Central Midfielder,Ousmane Dembélé,Easy
+E00034,Pau Cubarsí,FC Barcelona,Spain,Born in 2007,Center Back,Lamine Yamal,Easy
+E00035,Harry Kane,Bayern Munich,England / Ireland,Born in 1993,Striker,Jamal Musiala,Easy
+E00036,Nicolò Barella,Inter Milan,Italy,Born in 1997,Central Midfielder,Lautaro Martínez,Easy
+E00037,Marcus Thuram,Inter Milan,France / Guadeloupe,Born in 1997,Striker,Lautaro Martínez,Easy
+E00038,Viktor Gyökeres,Arsenal FC,Sweden / Hungary,Born in 1998,Striker,Bukayo Saka,Easy
+E00039,Trent Alexander-Arnold,Real Madrid,England,Born in 1998,Right Back,Kylian Mbappé,Easy
+E00040,Aurélien Tchouaméni,Real Madrid,France / Cameroon,Born in 2000,Defensive Midfielder,Kylian Mbappé,Easy
+E00041,Gabriel Magalhães,Arsenal FC,Brazil,Born in 1997,Center Back,Bukayo Saka,Easy
+E00042,Josko Gvardiol,Manchester City,Croatia,Born in 2002,Center Back,Erling Haaland,Easy
+E00043,Ryan Gravenberch,Liverpool FC,Netherlands / Suriname,Born in 2002,Defensive Midfielder,Florian Wirtz,Easy
+E00044,Omar Marmoush,Manchester City,Egypt / Canada,Born in 1999,Striker,Erling Haaland,Easy
+E00045,Hugo Ekitiké,Liverpool FC,France / Cameroon,Born in 2002,Striker,Florian Wirtz,Easy
+E00046,Enzo Fernández,Chelsea FC,Argentina,Born in 2001,Central Midfielder,Cole Palmer,Easy
+E00047,Rafael Leão,AC Milan,Portugal / Angola,Born in 1999,Left Winger,Christian Pulisic,Easy
+E00048,Victor Osimhen,Galatasaray,Nigeria,Born in 1998,Striker,Leroy Sané,Easy
+E00049,Cody Gakpo,Liverpool FC,Netherlands / Togo,Born in 1999,Left Winger,Florian Wirtz,Easy
+E00050,Luis Díaz,Bayern Munich,Colombia,Born in 1997,Left Winger,Jamal Musiala,Easy
+E00051,Xavi Simons,Tottenham Hotspur,Netherlands / Suriname,Born in 2003,Attacking Midfielder,Cristian Romero,Easy
+E00052,Nuno Mendes,Paris Saint-Germain,Portugal,Born in 2002,Left Back,Ousmane Dembélé,Easy
+E00053,Benjamin Sesko,Manchester United,Slovenia,Born in 2003,Striker,Matheus Cunha,Easy
+E00054,Bradley Barcola,Paris Saint-Germain,France / Togo,Born in 2002,Left Winger,Ousmane Dembélé,Easy
+E00055,Nico Williams,Athletic Bilbao,Spain / Ghana,Born in 2002,Left Winger,Oihan Sancet,Easy
+E00056,Rúben Dias,Manchester City,Portugal,Born in 1997,Center Back,Erling Haaland,Easy
+E00057,Kai Havertz,Arsenal FC,Germany,Born in 1999,Striker,Bukayo Saka,Easy
+E00058,Jules Koundé,FC Barcelona,France / Benin,Born in 1998,Right Back,Lamine Yamal,Easy
+E00059,Anthony Gordon,Newcastle United,England,Born in 2001,Left Winger,Bruno Guimarães,Easy
+E00060,Willian Pacho,Paris Saint-Germain,Ecuador,Born in 2001,Center Back,Ousmane Dembélé,Easy
+E00061,Dani Olmo,FC Barcelona,Spain,Born in 1998,Attacking Midfielder,Lamine Yamal,Easy
+E00062,Ibrahima Konaté,Liverpool FC,France / Mali,Born in 1999,Center Back,Florian Wirtz,Easy
+E00063,Sandro Tonali,Newcastle United,Italy,Born in 2000,Central Midfielder,Bruno Guimarães,Easy
+E00064,Ademola Lookman,Atalanta BC,Nigeria / England,Born in 1997,İkinci Forvet,Éderson,Easy
+E00065,Martín Zubimendi,Arsenal FC,Spain,Born in 1999,Defensive Midfielder,Bukayo Saka,Easy
+E00066,Tijjani Reijnders,Manchester City,Netherlands,Born in 1998,Central Midfielder,Erling Haaland,Easy
+E00067,Matheus Cunha,Manchester United,Brazil,Born in 1999,İkinci Forvet,Benjamin Sesko,Easy
+E00068,Oihan Sancet,Athletic Bilbao,Spain,Born in 2000,Attacking Midfielder,Nico Williams,Easy
+E00069,Alejandro Balde,FC Barcelona,Spain,Born in 2003,Left Back,Lamine Yamal,Easy
+E00070,Eduardo Camavinga,Real Madrid,France / DR Congo,Born in 2002,Central Midfielder,Kylian Mbappé,Easy
+E00071,Gavi,FC Barcelona,Spain,Born in 2004,Central Midfielder,Lamine Yamal,Easy
+E00072,Dean Huijsen,Real Madrid,Spain / Netherlands,Born in 2005,Center Back,Kylian Mbappé,Easy
+E00073,Estêvão,Chelsea FC,Brazil,Born in 2007,Right Winger,Cole Palmer,Easy
+E00074,Murillo,Nottingham Forest,Brazil,Born in 2002,Center Back,Morgan Gibbs-White,Easy
+E00075,Bryan Mbeumo,Manchester United,Cameroon / France,Born in 1999,Right Winger,Benjamin Sesko,Easy
+E00076,Jurriën Timber,Arsenal FC,Netherlands / Curacao,Born in 2001,Right Back,Bukayo Saka,Easy
+E00077,Eberechi Eze,Arsenal FC,England / Nigeria,Born in 1998,Attacking Midfielder,Bukayo Saka,Easy
+E00078,Morgan Rogers,Aston Villa,England,Born in 2002,Attacking Midfielder,Amadou Onana,Easy
+E00079,Levi Colwill,Chelsea FC,England,Born in 2003,Center Back,Cole Palmer,Easy
+E00080,Gabriel Martinelli,Arsenal FC,Brazil / Italy,Born in 2001,Left Winger,Bukayo Saka,Easy
+E00081,Aleksandar Pavlovic,Bayern Munich,Germany / Serbia,Born in 2004,Defensive Midfielder,Jamal Musiala,Easy
+E00082,Pablo Barrios,Atlético de Madrid,Spain,Born in 2003,Central Midfielder,Julián Alvarez,Easy
+E00083,Leny Yoro,Manchester United,France / Cote d'Ivoire,Born in 2005,Center Back,Benjamin Sesko,Easy
+E00084,Warren Zaïre-Emery,Paris Saint-Germain,France / Martinique,Born in 2006,Central Midfielder,Ousmane Dembélé,Easy
+E00085,Ethan Nwaneri,Arsenal FC,England / Nigeria,Born in 2007,Attacking Midfielder,Bukayo Saka,Easy
+E00086,Mohamed Salah,Liverpool FC,Egypt,Born in 1992,Right Winger,Florian Wirtz,Rookie
+E00087,Federico Dimarco,Inter Milan,Italy,Born in 1997,Left Back,Lautaro Martínez,Easy
+E00088,Marcus Rashford,FC Barcelona,England / St. Kitts & Nevis,Born in 1997,Left Winger,Lamine Yamal,Easy
+E00089,Bruno Fernandes,Manchester United,Portugal,Born in 1994,Attacking Midfielder,Benjamin Sesko,Easy
+E00090,Dayot Upamecano,Bayern Munich,France / Guinea-Bissau,Born in 1998,Center Back,Jamal Musiala,Easy
+E00091,Scott McTominay,SSC Napoli,Scotland / England,Born in 1996,Central Midfielder,Alessandro Buongiorno,Easy
+E00092,Christian Pulisic,AC Milan,United States / Croatia,Born in 1998,Right Winger,Rafael Leão,Easy
+E00093,Alessandro Buongiorno,SSC Napoli,Italy,Born in 1999,Center Back,Scott McTominay,Easy
+E00094,Cristian Romero,Tottenham Hotspur,Argentina,Born in 1998,Center Back,Xavi Simons,Easy
+E00095,Moise Kean,ACF Fiorentina,Italy / Cote d'Ivoire,Born in 2000,Striker,Pietro Comuzzo,Easy
+E00096,Loïs Openda,Juventus FC,Belgium / Morocco,Born in 2000,Striker,Bremer,Easy
+E00097,Alphonso Davies,Bayern Munich,Canada / Liberia,Born in 2000,Left Back,Jamal Musiala,Easy
+E00098,Morgan Gibbs-White,Nottingham Forest,England / Jamaica,Born in 2000,Attacking Midfielder,Murillo,Easy
+E00099,Dejan Kulusevski,Tottenham Hotspur,Sweden / North Macedonia,Born in 2000,Attacking Midfielder,Xavi Simons,Easy
+E00100,Morten Hjulmand,Sporting CP,Denmark,Born in 1999,Defensive Midfielder,Geovany Quenda,Easy
+E00101,Jeremie Frimpong,Liverpool FC,Netherlands / Ghana,Born in 2000,Right Back,Florian Wirtz,Easy
+E00102,Amadou Onana,Aston Villa,Belgium / Senegal,Born in 2001,Defensive Midfielder,Morgan Rogers,Easy
+E00103,Jérémy Doku,Manchester City,Belgium / Ghana,Born in 2002,Left Winger,Erling Haaland,Easy
+E00104,Pedro Neto,Chelsea FC,Portugal,Born in 2000,Right Winger,Cole Palmer,Easy
+E00105,Bremer,Juventus FC,Brazil,Born in 1997,Center Back,Loïs Openda,Easy
+E00106,Micky van de Ven,Tottenham Hotspur,Netherlands,Born in 2001,Center Back,Xavi Simons,Easy
+E00107,Éderson,Atalanta BC,Brazil,Born in 1999,Central Midfielder,Ademola Lookman,Easy
+E00108,João Pedro,Chelsea FC,Brazil,Born in 2001,Striker,Cole Palmer,Easy
+E00109,Fermín López,FC Barcelona,Spain,Born in 2003,Attacking Midfielder,Lamine Yamal,Easy
+E00110,Jamie Gittens,Chelsea FC,England / Barbados,Born in 2004,Left Winger,Cole Palmer,Easy
+E00111,Piero Hincapié,Arsenal FC,Ecuador,Born in 2002,Center Back,Bukayo Saka,Easy
+E00112,Jarrad Branthwaite,Everton FC,England,Born in 2002,Center Back,Jack Grealish,Easy
+E00113,Savinho,Manchester City,Brazil,Born in 2004,Right Winger,Erling Haaland,Easy
+E00114,Nicolas Jackson,Bayern Munich,Senegal / The Gambia,Born in 2001,Striker,Jamal Musiala,Easy
+E00115,Kobbie Mainoo,Manchester United,England / Ghana,Born in 2005,Central Midfielder,Benjamin Sesko,Easy
+E00116,Kenan Yıldız,Juventus FC,Türkiye / Germany,Born in 2005,Left Winger,Loïs Openda,Easy
+E00117,Samu Aghehowa,FC Porto,Spain / Nigeria,Born in 2004,Striker,Diogo Costa,Easy
+E00118,Joshua Kimmich,Bayern Munich,Germany,Born in 1995,Defensive Midfielder,Jamal Musiala,Easy
+E00119,Serhou Guirassy,Borussia Dortmund,Guinea / France,Born in 1996,Striker,Karim Adeyemi,Easy
+E00120,Frenkie de Jong,FC Barcelona,Netherlands,Born in 1997,Central Midfielder,Lamine Yamal,Easy
+E00121,Ben White,Arsenal FC,England,Born in 1997,Right Back,Bukayo Saka,Medium
+E00122,Marc Guéhi,Crystal Palace,England / Cote d'Ivoire,Born in 2000,Center Back,Adam Wharton,Medium
+E00123,Curtis Jones,Liverpool FC,England,Born in 2001,Central Midfielder,Florian Wirtz,Medium
+E00124,Manuel Ugarte,Manchester United,Uruguay,Born in 2001,Defensive Midfielder,Benjamin Sesko,Medium
+E00125,Angelo Stiller,VfB Stuttgart,Germany,Born in 2001,Defensive Midfielder,Bilal El Khannouss,Medium
+E00126,Karim Adeyemi,Borussia Dortmund,Germany / Nigeria,Born in 2002,Right Winger,Serhou Guirassy,Medium
+E00127,Jonathan David,Juventus FC,Canada / United States,Born in 2000,Striker,Loïs Openda,Medium
+E00128,Amad Diallo,Manchester United,Cote d'Ivoire / Italy,Born in 2002,Right Winger,Benjamin Sesko,Medium
+E00129,Mohammed Kudus,Tottenham Hotspur,Ghana,Born in 2000,Right Winger,Xavi Simons,Medium
+E00130,Darwin Núñez,Al-Hilal SFC,Uruguay,Born in 1999,Striker,Rúben Neves,Medium
+E00131,Gonçalo Inácio,Sporting CP,Portugal,Born in 2001,Center Back,Morten Hjulmand,Medium
+E00132,Mateo Retegui,Al-Qadsiah FC,Italy / Argentina,Born in 1999,Striker,Otávio,Medium
+E00133,Rayan Cherki,Manchester City,France / Algeria,Born in 2003,Right Winger,Erling Haaland,Medium
+E00134,Alejandro Garnacho,Chelsea FC,Argentina / Spain,Born in 2004,Left Winger,Cole Palmer,Medium
+E00135,Milos Kerkez,Liverpool FC,Hungary / Serbia,Born in 2003,Left Back,Florian Wirtz,Medium
+E00136,Adam Wharton,Crystal Palace,England,Born in 2004,Defensive Midfielder,Marc Guéhi,Medium
+E00137,Maghnes Akliouche,AS Monaco,France / Algeria,Born in 2002,Right Winger,Denis Zakaria,Medium
+E00138,Arda Güler,Real Madrid,Turkey,Born in 2005,Attacking Midfielder,Kylian Mbappé,Medium
+E00139,Ousmane Diomande,Sporting CP,Cote d'Ivoire,Born in 2003,Center Back,Morten Hjulmand,Medium
+E00140,Geovany Quenda,Sporting CP,Portugal / Guinea-Bissau,Born in 2007,Right Winger,Morten Hjulmand,Medium
+E00141,James Maddison,Tottenham Hotspur,England,Born in 1996,Attacking Midfielder,Xavi Simons,Medium
+E00142,Sven Botman,Newcastle United,Netherlands,Born in 2000,Center Back,Bruno Guimarães,Medium
+E00143,Anthony Elanga,Newcastle United,Sweden / Cameroon,Born in 2002,Right Winger,Bruno Guimarães,Medium
+E00144,Ilya Zabarnyi,Paris Saint-Germain,Ukraine,Born in 2002,Center Back,Ousmane Dembélé,Medium
+E00145,Myles Lewis-Skelly,Arsenal FC,England / Barbados,Born in 2006,Left Back,Bukayo Saka,Medium
+E00146,Gregor Kobel,Borussia Dortmund,Switzerland,Born in 1997,Goalkeeper,Serhou Guirassy,Medium
+E00147,Dominic Solanke,Tottenham Hotspur,England / Nigeria,Born in 1997,Striker,Xavi Simons,Medium
+E00148,David Raya,Arsenal FC,Spain,Born in 1995,Goalkeeper,Bukayo Saka,Medium
+E00149,Diogo Jota,---,Portugal,Born in 1996,Left Winger,Emiliano Sala,Medium
+E00150,Fabián Ruiz,Paris Saint-Germain,Spain,Born in 1996,Central Midfielder,Ousmane Dembélé,Medium
+E00151,Robin Le Normand,Atlético de Madrid,Spain / France,Born in 1996,Center Back,Julián Alvarez,Medium
+E00152,Ollie Watkins,Aston Villa,England,Born in 1995,Striker,Morgan Rogers,Medium
+E00153,Brahim Díaz,Real Madrid,Morocco / Spain,Born in 1999,Right Winger,Kylian Mbappé,Medium
+E00154,Jarrod Bowen,West Ham United,England,Born in 1996,Right Winger,Lucas Paquetá,Medium
+E00155,Gianluigi Donnarumma,Manchester City,Italy,Born in 1999,Goalkeeper,Erling Haaland,Medium
+E00156,Nico Schlotterbeck,Borussia Dortmund,Germany,Born in 1999,Center Back,Serhou Guirassy,Medium
+E00157,Diogo Costa,FC Porto,Portugal / Switzerland,Born in 1999,Goalkeeper,Samu Aghehowa,Medium
+E00158,Boubacar Kamara,Aston Villa,France / Senegal,Born in 1999,Defensive Midfielder,Morgan Rogers,Medium
+E00159,Ferran Torres,FC Barcelona,Spain,Born in 2000,Striker,Lamine Yamal,Medium
+E00160,Exequiel Palacios,Bayer 04 Leverkusen,Argentina,Born in 1998,Central Midfielder,Edmond Tapsoba,Medium
+E00161,Khéphren Thuram,Juventus FC,France / Guadeloupe,Born in 2001,Central Midfielder,Loïs Openda,Medium
+E00162,Nico González,Manchester City,Spain,Born in 2002,Central Midfielder,Erling Haaland,Medium
+E00163,Brennan Johnson,Tottenham Hotspur,Wales / England,Born in 2001,Left Winger,Xavi Simons,Medium
+E00164,Lisandro Martínez,Manchester United,Argentina,Born in 1998,Center Back,Benjamin Sesko,Medium
+E00165,Conor Gallagher,Atlético de Madrid,England,Born in 2000,Central Midfielder,Julián Alvarez,Medium
+E00166,Min-jae Kim,Bayern Munich,"Korea, South",Born in 1996,Center Back,Jamal Musiala,Medium
+E00167,Tino Livramento,Newcastle United,England / Scotland,Born in 2002,Right Back,Bruno Guimarães,Medium
+E00168,Noni Madueke,Arsenal FC,England / Nigeria,Born in 2002,Right Winger,Bukayo Saka,Medium
+E00169,Kaoru Mitoma,Brighton & Hove Albion,Japan,Born in 1997,Left Winger,Carlos Baleba,Medium
+E00170,Dani Vivian,Athletic Bilbao,Spain,Born in 1999,Center Back,Nico Williams,Medium
+E00171,Mason Greenwood,Olympique Marseille,England,Born in 2001,Right Winger,Igor Paixão,Medium
+E00172,Gonçalo Ramos,Paris Saint-Germain,Portugal,Born in 2001,Striker,Ousmane Dembélé,Medium
+E00173,Destiny Udogie,Tottenham Hotspur,Italy / Nigeria,Born in 2002,Left Back,Xavi Simons,Medium
+E00174,Liam Delap,Chelsea FC,England / Ireland,Born in 2003,Striker,Cole Palmer,Medium
+E00175,Castello Lukeba,RB Leipzig,France / Angola,Born in 2002,Center Back,Johan Bakayoko,Medium
+E00176,Antoine Semenyo,AFC Bournemouth,Ghana / England,Born in 2000,Right Winger,Justin Kluivert,Medium
+E00177,Manu Koné,AS Roma,France / Cote d'Ivoire,Born in 2001,Central Midfielder,Artem Dovbyk,Medium
+E00178,Roméo Lavia,Chelsea FC,Belgium,Born in 2004,Defensive Midfielder,Cole Palmer,Medium
+E00179,Rico Lewis,Manchester City,England,Born in 2004,Right Back,Erling Haaland,Medium
+E00180,Victor Boniface,SV Werder Bremen,Nigeria,Born in 2000,Striker,Romano Schmid,Medium
+E00181,João Gomes,Wolverhampton Wanderers,Brazil,Born in 2001,Central Midfielder,Jørgen Strand Larsen,Medium
+E00182,Raúl Asencio,Real Madrid,Spain,Born in 2003,Center Back,Kylian Mbappé,Medium
+E00183,Hugo Larsson,Eintracht Frankfurt,Sweden,Born in 2004,Central Midfielder,Jonathan Burkardt,Medium
+E00184,Carlos Baleba,Brighton & Hove Albion,Cameroon,Born in 2004,Defensive Midfielder,Kaoru Mitoma,Medium
+E00185,Bernardo Silva,Manchester City,Portugal,Born in 1994,Attacking Midfielder,Erling Haaland,Medium
+E00186,Youri Tielemans,Aston Villa,Belgium / DR Congo,Born in 1997,Central Midfielder,Morgan Rogers,Medium
+E00187,Matthijs de Ligt,Manchester United,Netherlands,Born in 1999,Center Back,Benjamin Sesko,Medium
+E00188,Pedro Porro,Tottenham Hotspur,Spain,Born in 1999,Right Back,Xavi Simons,Medium
+E00189,Rodrigo Mora,FC Porto,Portugal,Born in 2007,Attacking Midfielder,Samu Aghehowa,Medium
+E00190,Marquinhos,Paris Saint-Germain,Brazil / Portugal,Born in 1994,Center Back,Ousmane Dembélé,Medium
+E00191,Mikel Merino,Arsenal FC,Spain,Born in 1996,Central Midfielder,Bukayo Saka,Medium
+E00192,Christopher Nkunku,AC Milan,France / DR Congo,Born in 1997,Striker,Rafael Leão,Medium
+E00193,Antonee Robinson,Fulham FC,United States / England,Born in 1997,Left Back,Emile Smith Rowe,Medium
+E00194,Marc Cucurella,Chelsea FC,Spain,Born in 1998,Left Back,Cole Palmer,Medium
+E00195,Denzel Dumfries,Inter Milan,Netherlands / Aruba,Born in 1996,Right Back,Lautaro Martínez,Medium
+E00196,Vangelis Pavlidis,SL Benfica,Greece,Born in 1998,Striker,Tomás Araújo,Medium
+E00197,Justin Kluivert,AFC Bournemouth,Netherlands / Suriname,Born in 1999,Attacking Midfielder,Antoine Semenyo,Medium
+E00198,Joelinton,Newcastle United,Brazil,Born in 1996,Central Midfielder,Bruno Guimarães,Medium
+E00199,Jonathan Burkardt,Eintracht Frankfurt,Germany,Born in 2000,Striker,Hugo Larsson,Medium
+E00200,Dušan Vlahović,Juventus FC,Serbia,Born in 2000,Striker,Loïs Openda,Medium
+E00201,Teun Koopmeiners,Juventus FC,Netherlands,Born in 1998,Attacking Midfielder,Loïs Openda,Medium
+E00202,Dan Ndoye,Nottingham Forest,Switzerland / Senegal,Born in 2000,Right Winger,Murillo,Medium
+E00203,Davide Frattesi,Inter Milan,Italy,Born in 1999,Central Midfielder,Lautaro Martínez,Medium
+E00204,Harvey Barnes,Newcastle United,England / Scotland,Born in 1997,Left Winger,Bruno Guimarães,Medium
+E00205,Francisco Trincão,Sporting CP,Portugal,Born in 1999,Right Winger,Morten Hjulmand,Medium
+E00206,Ezri Konsa,Aston Villa,England / DR Congo,Born in 1997,Center Back,Morgan Rogers,Medium
+E00207,Nikola Milenković,Nottingham Forest,Serbia,Born in 1997,Center Back,Murillo,Medium
+E00208,Charles De Ketelaere,Atalanta BC,Belgium,Born in 2001,Attacking Midfielder,Ademola Lookman,Medium
+E00209,Andrea Cambiaso,Juventus FC,Italy,Born in 2000,Left Midfield,Loïs Openda,Medium
+E00210,Ronald Araujo,FC Barcelona,Uruguay / Spain,Born in 1999,Center Back,Lamine Yamal,Medium
+E00211,Yann Bisseck,Inter Milan,Germany / Cameroon,Born in 2000,Center Back,Lautaro Martínez,Medium
+E00212,Riccardo Calafiori,Arsenal FC,Italy,Born in 2002,Left Back,Bukayo Saka,Medium
+E00213,Edmond Tapsoba,Bayer 04 Leverkusen,Burkina Faso,Born in 1999,Center Back,Exequiel Palacios,Medium
+E00214,Enzo Millot,Al-Ahli SFC,France / Martinique,Born in 2002,Attacking Midfielder,Ivan Toney,Medium
+E00215,Giorgio Scalvini,Atalanta BC,Italy,Born in 2003,Center Back,Ademola Lookman,Medium
+E00216,Matheus Nunes,Manchester City,Portugal / Brazil,Born in 1998,Central Midfielder,Erling Haaland,Medium
+E00217,Antony,Real Betis Balompié,Brazil,Born in 2000,Right Winger,Cucho Hernández,Medium
+E00218,Rasmus Højlund,SSC Napoli,Denmark,Born in 2003,Striker,Scott McTominay,Medium
+E00219,Rayan Aït-Nouri,Manchester City,Algeria / France,Born in 2001,Left Back,Erling Haaland,Medium
+E00220,Malo Gusto,Chelsea FC,France / Martinique,Born in 2003,Right Back,Cole Palmer,Medium
+E00221,Evanilson,AFC Bournemouth,Brazil,Born in 1999,Striker,Antoine Semenyo,Medium
+E00222,Jhon Durán,Fenerbahce,Colombia,Born in 2003,Striker,Edson Álvarez,Medium
+E00223,Igor Paixão,Olympique Marseille,Brazil,Born in 2000,Left Winger,Mason Greenwood,Medium
+E00224,Mathys Tel,Tottenham Hotspur,France / Guadeloupe,Born in 2005,Striker,Xavi Simons,Medium
+E00225,Álvaro Carreras,Real Madrid,Spain,Born in 2003,Left Back,Kylian Mbappé,Medium
+E00226,Giuliano Simeone,Atlético de Madrid,Argentina / Italy,Born in 2002,Right Winger,Julián Alvarez,Medium
+E00227,Andrey Santos,Chelsea FC,Brazil,Born in 2004,Central Midfielder,Cole Palmer,Medium
+E00228,Abdukodir Khusanov,Manchester City,Uzbekistan,Born in 2004,Center Back,Erling Haaland,Medium
+E00229,Nico Paz,Como 1907,Argentina / Spain,Born in 2004,Attacking Midfielder,Assane Diao,Medium
+E00230,Archie Gray,Tottenham Hotspur,England / Scotland,Born in 2006,Defensive Midfielder,Xavi Simons,Medium
+E00231,Santiago Castro,Bologna FC 1909,Argentina / Italy,Born in 2004,Striker,Lewis Ferguson,Medium
+E00232,Lucas Bergvall,Tottenham Hotspur,Sweden,Born in 2006,Central Midfielder,Xavi Simons,Medium
+E00233,Leroy Sané,Galatasaray,Germany / France,Born in 1996,Right Winger,Victor Osimhen,Medium
+E00234,Guglielmo Vicario,Tottenham Hotspur,Italy,Born in 1996,Goalkeeper,Xavi Simons,Medium
+E00235,Yoane Wissa,Newcastle United,DR Congo / France,Born in 1996,Striker,Bruno Guimarães,Medium
+E00236,Gabriel Jesus,Arsenal FC,Brazil,Born in 1997,Striker,Bukayo Saka,Medium
+E00237,Pau Torres,Aston Villa,Spain,Born in 1997,Center Back,Morgan Rogers,Medium
+E00238,Mattéo Guendouzi,SS Lazio,France / Morocco,Born in 1999,Central Midfielder,Nicolò Rovella,Medium
+E00239,Malik Tillman,Bayer 04 Leverkusen,United States / Germany,Born in 2002,Attacking Midfielder,Exequiel Palacios,Medium
+E00240,Josip Stanisic,Bayern Munich,Croatia / Germany,Born in 2000,Right Back,Jamal Musiala,Medium
+E00241,Jacob Ramsey,Newcastle United,England,Born in 2001,Central Midfielder,Bruno Guimarães,Medium
+E00242,Tomás Araújo,SL Benfica,Portugal,Born in 2002,Center Back,Vangelis Pavlidis,Medium
+E00243,Georginio Rutter,Brighton & Hove Albion,France / Martinique,Born in 2002,Striker,Kaoru Mitoma,Medium
+E00244,Elliot Anderson,Nottingham Forest,England / Scotland,Born in 2002,Central Midfielder,Murillo,Medium
+E00245,Pape Matar Sarr,Tottenham Hotspur,Senegal,Born in 2002,Central Midfielder,Xavi Simons,Medium
+E00246,Ardon Jashari,AC Milan,Switzerland / North Macedonia,Born in 2002,Defensive Midfielder,Rafael Leão,Medium
+E00247,Jan Paul van Hecke,Brighton & Hove Albion,Netherlands,Born in 2000,Center Back,Kaoru Mitoma,Medium
+E00248,Georgiy Sudakov,SL Benfica,Ukraine,Born in 2002,Attacking Midfielder,Vangelis Pavlidis,Medium
+E00249,Lewis Hall,Newcastle United,England,Born in 2004,Left Back,Bruno Guimarães,Medium
+E00250,António Silva,SL Benfica,Portugal,Born in 2003,Center Back,Vangelis Pavlidis,Medium
+E00251,Mohamed Amoura,VfL Wolfsburg,Algeria,Born in 2000,Striker,Jesper Lindstrøm,Medium
+E00252,Alan Varela,FC Porto,Argentina,Born in 2001,Defensive Midfielder,Samu Aghehowa,Medium
+E00253,Jorrel Hato,Chelsea FC,Netherlands / Curacao,Born in 2006,Left Back,Cole Palmer,Medium
+E00254,Endrick,Real Madrid,Brazil,Born in 2006,Striker,Kylian Mbappé,Medium
+E00255,Yankuba Minteh,Brighton & Hove Albion,The Gambia,Born in 2004,Right Winger,Kaoru Mitoma,Medium
+E00256,Assane Diao,Como 1907,Senegal / Spain,Born in 2005,Left Winger,Nico Paz,Medium
+E00257,Hakan Çalhanoğlu,Inter Milan,Türkiye / Germany,Born in 1994,Defensive Midfielder,Lautaro Martínez,Medium
+E00258,Jesús Rodríguez,Como 1907,Spain,Born in 2005,Left Winger,Nico Paz,Medium
+E00259,Alejandro Grimaldo,Bayer 04 Leverkusen,Spain,Born in 1995,Left Back,Exequiel Palacios,Medium
+E00260,Jonathan Tah,Bayern Munich,Germany / Cote d'Ivoire,Born in 1996,Center Back,Jamal Musiala,Medium
+E00261,João Palhinha,Tottenham Hotspur,Portugal,Born in 1995,Defensive Midfielder,Xavi Simons,Medium
+E00262,Manuel Locatelli,Juventus FC,Italy,Born in 1998,Defensive Midfielder,Loïs Openda,Medium
+E00263,Kingsley Coman,Al-Nassr FC,France / Guadeloupe,Born in 1996,Left Winger,Mohamed Simakan,Medium
+E00264,Artem Dovbyk,AS Roma,Ukraine,Born in 1997,Striker,Manu Koné,Medium
+E00265,Pervis Estupiñán,AC Milan,Ecuador / Spain,Born in 1998,Left Back,Rafael Leão,Medium
+E00266,Denis Zakaria,AS Monaco,Switzerland / DR Congo,Born in 1996,Defensive Midfielder,Maghnes Akliouche,Medium
+E00267,Emile Smith Rowe,Fulham FC,England,Born in 2000,Attacking Midfielder,Antonee Robinson,Medium
+E00268,Rodrigo Bentancur,Tottenham Hotspur,Uruguay,Born in 1997,Defensive Midfielder,Xavi Simons,Medium
+E00269,Diogo Dalot,Manchester United,Portugal,Born in 1999,Right Back,Benjamin Sesko,Medium
+E00270,Evan Ndicka,AS Roma,Cote d'Ivoire / France,Born in 1999,Center Back,Manu Koné,Medium
+E00271,Moussa Diaby,Al-Ittihad Club,France / Mali,Born in 1999,Right Winger,Roger Fernandes,Medium
+E00272,Éder Militão,Real Madrid,Brazil / Spain,Born in 1998,Center Back,Kylian Mbappé,Medium
+E00273,Dávid Hancko,Atlético de Madrid,Slovakia,Born in 1997,Center Back,Julián Alvarez,Medium
+E00274,Takefusa Kubo,Real Sociedad,Japan,Born in 2001,Right Winger,Mikel Oyarzabal,Medium
+E00275,Amine Gouiri,Olympique Marseille,Algeria / France,Born in 2000,Striker,Mason Greenwood,Medium
+E00276,Jean-Philippe Mateta,Crystal Palace,France / DR Congo,Born in 1997,Striker,Marc Guéhi,Medium
+E00277,Quinten Timber,Feyenoord Rotterdam,Netherlands / Curacao,Born in 2001,Central Midfielder,Anel Ahmedhodzic,Medium
+E00278,Pedro Gonçalves,Sporting CP,Portugal,Born in 1998,Left Winger,Morten Hjulmand,Medium
+E00279,Jørgen Strand Larsen,Wolverhampton Wanderers,Norway,Born in 2000,Striker,João Gomes,Medium
+E00280,Joshua Zirkzee,Manchester United,Netherlands / Nigeria,Born in 2001,Striker,Benjamin Sesko,Medium
+E00281,Lucas Chevalier,Paris Saint-Germain,France,Born in 2001,Goalkeeper,Ousmane Dembélé,Medium
+E00282,Samuele Ricci,AC Milan,Italy,Born in 2001,Defensive Midfielder,Rafael Leão,Medium
+E00283,David Neres,SSC Napoli,Brazil,Born in 1997,Right Winger,Scott McTominay,Medium
+E00284,Reece James,Chelsea FC,England,Born in 1999,Right Back,Cole Palmer,Medium
+E00285,Kevin Schade,Brentford FC,Germany / Nigeria,Born in 2001,Left Winger,Nathan Collins,Medium
+E00286,Douglas Luiz,Nottingham Forest,Brazil,Born in 1998,Central Midfielder,Murillo,Medium
+E00287,Orkun Kökçü,Besiktas JK,Türkiye / Netherlands,Born in 2000,Central Midfielder,Wilfred Ndidi,Medium
+E00288,Nick Woltemade,Newcastle United,Germany,Born in 2002,İkinci Forvet,Bruno Guimarães,Medium
+E00289,Randal Kolo Muani,Tottenham Hotspur,France / DR Congo,Born in 1998,Striker,Xavi Simons,Medium
+E00290,Giorgi Mamardashvili,Liverpool FC,Georgia,Born in 2000,Goalkeeper,Florian Wirtz,Medium
+E00291,Isak Hien,Atalanta BC,Sweden / Ghana,Born in 1999,Center Back,Ademola Lookman,Medium
+E00292,Nicolò Rovella,SS Lazio,Italy,Born in 2001,Defensive Midfielder,Mattéo Guendouzi,Medium
+E00293,Santiago Gimenez,AC Milan,Mexico / Italy,Born in 2001,Striker,Rafael Leão,Medium
+E00294,Bart Verbruggen,Brighton & Hove Albion,Netherlands,Born in 2002,Goalkeeper,Kaoru Mitoma,Medium
+E00295,Johan Bakayoko,RB Leipzig,Belgium / Cote d'Ivoire,Born in 2003,Right Winger,Castello Lukeba,Medium
+E00296,Harvey Elliott,Aston Villa,England,Born in 2003,Attacking Midfielder,Morgan Rogers,Medium
+E00297,Mika Biereth,AS Monaco,Denmark / England,Born in 2003,Striker,Maghnes Akliouche,Medium
+E00298,Yéremy Pino,Crystal Palace,Spain,Born in 2002,Right Winger,Marc Guéhi,Medium
+E00299,Youssouf Fofana,AC Milan,France / Mali,Born in 1999,Defensive Midfielder,Rafael Leão,Medium
+E00300,Mario Gila,SS Lazio,Spain,Born in 2000,Center Back,Mattéo Guendouzi,Medium
+E00301,Conor Bradley,Liverpool FC,Northern Ireland,Born in 2003,Right Back,Florian Wirtz,Medium
+E00302,Marc Casadó,FC Barcelona,Spain,Born in 2003,Defensive Midfielder,Lamine Yamal,Medium
+E00303,Cristhian Mosquera,Arsenal FC,Spain / Colombia,Born in 2004,Center Back,Bukayo Saka,Medium
+E00304,Matías Soulé,AS Roma,Argentina / Italy,Born in 2003,Right Winger,Manu Koné,Medium
+E00305,Malick Fofana,Olympique Lyon,Belgium / Guinea,Born in 2005,Left Winger,Orel Mangala,Medium
+E00306,Tom Bischof,Bayern Munich,Germany,Born in 2005,Central Midfielder,Jamal Musiala,Medium
+E00307,Mikel Jauregizar,Athletic Bilbao,Spain,Born in 2003,Central Midfielder,Nico Williams,Medium
+E00308,Jack Grealish,Everton FC,England / Ireland,Born in 1995,Left Winger,Jarrad Branthwaite,Medium
+E00309,Unai Simón,Athletic Bilbao,Spain,Born in 1997,Goalkeeper,Nico Williams,Medium
+E00310,Alex Iwobi,Fulham FC,Nigeria / England,Born in 1996,Left Winger,Antonee Robinson,Medium
+E00311,Mason Mount,Manchester United,England,Born in 1999,Attacking Midfielder,Benjamin Sesko,Medium
+E00312,Manuel Akanji,Inter Milan,Switzerland / Nigeria,Born in 1995,Center Back,Lautaro Martínez,Medium
+E00313,Leon Bailey,AS Roma,Jamaica,Born in 1997,Right Winger,Manu Koné,Medium
+E00314,Jadon Sancho,Aston Villa,England / Jamaica,Born in 2000,Left Winger,Morgan Rogers,Medium
+E00315,Vitaliy Mykolenko,Everton FC,Ukraine,Born in 1999,Left Back,Jarrad Branthwaite,Medium
+E00316,Felix Nmecha,Borussia Dortmund,Germany / England,Born in 2000,Central Midfielder,Serhou Guirassy,Medium
+E00317,Jakub Kiwior,FC Porto,Poland,Born in 2000,Center Back,Samu Aghehowa,Medium
+E00318,Lewis Ferguson,Bologna FC 1909,Scotland,Born in 1999,Central Midfielder,Santiago Castro,Medium
+E00319,Sam Beukema,SSC Napoli,Netherlands,Born in 1998,Center Back,Scott McTominay,Medium
+E00320,Bafodé Diakité,AFC Bournemouth,France / Guinea,Born in 2001,Center Back,Antoine Semenyo,Medium
+E00321,Nathan Collins,Brentford FC,Ireland,Born in 2001,Center Back,Kevin Schade,Medium
+E00322,Kenneth Taylor,Ajax Amsterdam,Netherlands,Born in 2002,Central Midfielder,Josip Sutalo,Medium
+E00323,Lucas Paquetá,West Ham United,Brazil / Portugal,Born in 1997,Attacking Midfielder,Jarrod Bowen,Medium
+E00324,Ian Maatsen,Aston Villa,Netherlands / Suriname,Born in 2002,Left Back,Morgan Rogers,Medium
+E00325,Francisco Conceição,Juventus FC,Portugal,Born in 2002,Right Winger,Loïs Openda,Medium
+E00326,Anatoliy Trubin,SL Benfica,Ukraine,Born in 2001,Goalkeeper,Vangelis Pavlidis,Medium
+E00327,Mikkel Damsgaard,Brentford FC,Denmark,Born in 2000,Attacking Midfielder,Kevin Schade,Medium
+E00328,Toti,Wolverhampton Wanderers,Portugal / Guinea-Bissau,Born in 1999,Center Back,João Gomes,Medium
+E00329,Pierre Kalulu,Juventus FC,France / DR Congo,Born in 2000,Center Back,Loïs Openda,Medium
+E00330,Bilal El Khannouss,VfB Stuttgart,Morocco / Belgium,Born in 2004,Attacking Midfielder,Angelo Stiller,Medium
+E00331,Simon Adingra,Sunderland AFC,Cote d'Ivoire,Born in 2002,Left Winger,Brian Brobbey,Medium
+E00332,André,Wolverhampton Wanderers,Brazil,Born in 2001,Defensive Midfielder,João Gomes,Medium
+E00333,Danilo,Botafogo de Futebol e Regatas,Brazil,Born in 2001,Defensive Midfielder,Jefferson Savarino,Medium
+E00334,Eliesse Ben Seghir,Bayer 04 Leverkusen,Morocco / France,Born in 2005,Left Winger,Exequiel Palacios,Medium
+E00335,Dango Ouattara,Brentford FC,Burkina Faso,Born in 2002,Left Winger,Kevin Schade,Medium
+E00336,Joel Ordóñez,Club Brugge KV,Ecuador,Born in 2004,Center Back,Christos Tzolis,Medium
+E00337,Antonio Nusa,RB Leipzig,Norway / Nigeria,Born in 2005,Left Winger,Castello Lukeba,Medium
+E00338,Vitor Reis,Girona FC,Brazil,Born in 2006,Center Back,Bryan Gil,Medium
+E00339,Joachim Andersen,Fulham FC,Denmark,Born in 1996,Center Back,Antonee Robinson,Medium
+E00340,Patrik Schick,Bayer 04 Leverkusen,Czech Republic,Born in 1996,Striker,Exequiel Palacios,Medium
+E00341,Frank Anguissa,SSC Napoli,Cameroon,Born in 1995,Central Midfielder,Scott McTominay,Medium
+E00342,Ismael Saibari,PSV Eindhoven,Morocco / Belgium,Born in 2001,Central Midfielder,Joey Veerman,Medium
+E00343,Carlos Augusto,Inter Milan,Brazil / Italy,Born in 1999,Left Back,Lautaro Martínez,Medium
+E00344,Mike Maignan,AC Milan,France / French Guiana,Born in 1995,Goalkeeper,Rafael Leão,Medium
+E00345,Adrien Rabiot,AC Milan,France,Born in 1995,Central Midfielder,Rafael Leão,Medium
+E00346,John Stones,Manchester City,England,Born in 1994,Center Back,Erling Haaland,Medium
+E00347,Julian Brandt,Borussia Dortmund,Germany,Born in 1996,Attacking Midfielder,Serhou Guirassy,Medium
+E00348,Stanislav Lobotka,SSC Napoli,Slovakia,Born in 1994,Defensive Midfielder,Scott McTominay,Medium
+E00349,Nathan Aké,Manchester City,Netherlands / Cote d'Ivoire,Born in 1995,Center Back,Erling Haaland,Medium
+E00350,Konrad Laimer,Bayern Munich,Austria,Born in 1997,Right Back,Jamal Musiala,Medium
+E00351,Rúben Neves,Al-Hilal SFC,Portugal,Born in 1997,Defensive Midfielder,Darwin Núñez,Medium
+E00352,André Onana,Trabzonspor,Cameroon,Born in 1996,Goalkeeper,Ernest Muci,Medium
+E00353,Kevin Danso,Tottenham Hotspur,Austria,Born in 1998,Center Back,Xavi Simons,Medium
+E00354,Alexander Sørloth,Atlético de Madrid,Norway,Born in 1995,Striker,Julián Alvarez,Medium
+E00355,Ivan Toney,Al-Ahli SFC,England / Jamaica,Born in 1996,Striker,Enzo Millot,Medium
+E00356,Mile Svilar,AS Roma,Serbia / Belgium,Born in 1999,Goalkeeper,Manu Koné,Medium
+E00357,Noa Lang,SSC Napoli,Netherlands / Suriname,Born in 1999,Left Winger,Scott McTominay,Medium
+E00358,Noussair Mazraoui,Manchester United,Morocco / Netherlands,Born in 1997,Right Back,Benjamin Sesko,Medium
+E00359,Gerson,Zenit St. Petersburg,Brazil,Born in 1997,Central Midfielder,Luiz Henrique,Medium
+E00360,Trevoh Chalobah,Chelsea FC,England / Sierra Leone,Born in 1999,Center Back,Cole Palmer,Medium
+E00361,Mikel Oyarzabal,Real Sociedad,Spain,Born in 1997,Striker,Takefusa Kubo,Medium
+E00362,Lucas Hernández,Paris Saint-Germain,France / Spain,Born in 1996,Left Back,Ousmane Dembélé,Medium
+E00363,Marcos Llorente,Atlético de Madrid,Spain,Born in 1995,Right Back,Julián Alvarez,Medium
+E00364,Donyell Malen,Aston Villa,Netherlands / Suriname,Born in 1999,Right Winger,Morgan Rogers,Medium
+E00365,Sander Berge,Fulham FC,Norway,Born in 1998,Defensive Midfielder,Antonee Robinson,Medium
+E00366,Callum Hudson-Odoi,Nottingham Forest,England / Ghana,Born in 2000,Left Winger,Murillo,Medium
+E00367,Benjamin Pavard,Olympique Marseille,France,Born in 1996,Center Back,Mason Greenwood,Medium
+E00368,Hiroki Ito,Bayern Munich,Japan,Born in 1999,Center Back,Jamal Musiala,Medium
+E00369,Ritsu Doan,Eintracht Frankfurt,Japan,Born in 1998,Right Winger,Hugo Larsson,Medium
+E00370,Riccardo Orsolini,Bologna FC 1909,Italy,Born in 1997,Right Winger,Santiago Castro,Medium
+E00371,Ferdi Kadıoğlu,Brighton & Hove Albion,Türkiye / Netherlands,Born in 1999,Left Back,Kaoru Mitoma,Medium
+E00372,Edson Álvarez,Fenerbahce,Mexico,Born in 1997,Defensive Midfielder,Jhon Durán,Medium
+E00373,Giacomo Raspadori,Atlético de Madrid,Italy,Born in 2000,İkinci Forvet,Julián Alvarez,Medium
+E00374,Joey Veerman,PSV Eindhoven,Netherlands,Born in 1998,Central Midfielder,Ismael Saibari,Medium
+E00375,Ismaïla Sarr,Crystal Palace,Senegal,Born in 1998,Right Winger,Marc Guéhi,Medium
+E00376,Yves Bissouma,Tottenham Hotspur,Mali / Cote d'Ivoire,Born in 1996,Defensive Midfielder,Xavi Simons,Medium
+E00377,Mats Wieffer,Brighton & Hove Albion,Netherlands,Born in 1999,Defensive Midfielder,Kaoru Mitoma,Medium
+E00378,Matty Cash,Aston Villa,Poland / England,Born in 1997,Right Back,Morgan Rogers,Medium
+E00379,Maxence Lacroix,Crystal Palace,France / Guadeloupe,Born in 2000,Center Back,Marc Guéhi,Medium
+E00380,Marco Carnesecchi,Atalanta BC,Italy,Born in 2000,Goalkeeper,Ademola Lookman,Medium
+E00381,Calvin Bassey,Fulham FC,Nigeria / England,Born in 1999,Center Back,Antonee Robinson,Medium
+E00382,Facundo Medina,Olympique Marseille,Argentina,Born in 1999,Center Back,Mason Greenwood,Medium
+E00383,Wesley Fofana,Chelsea FC,France / Cote d'Ivoire,Born in 2000,Center Back,Cole Palmer,Medium
+E00384,Christos Tzolis,Club Brugge KV,Greece,Born in 2002,Left Winger,Joel Ordóñez,Medium
+E00385,Daniel Muñoz,Crystal Palace,Colombia,Born in 1996,Right Back,Marc Guéhi,Medium
+E00386,Edon Zhegrova,Juventus FC,Kosovo / Albania,Born in 1999,Right Winger,Loïs Openda,Medium
+E00387,Evann Guessand,Aston Villa,Cote d'Ivoire / France,Born in 2001,Striker,Morgan Rogers,Medium
+E00388,Eduard Spertsyan,FC Krasnodar,Armenia / Russia,Born in 2000,Attacking Midfielder,Jhon Córdoba,Medium
+E00389,Taty Castellanos,SS Lazio,Argentina,Born in 1998,Striker,Mattéo Guendouzi,Medium
+E00390,Maximilian Kilman,West Ham United,England / Ukraine,Born in 1997,Center Back,Jarrod Bowen,Medium
+E00391,Nuno Tavares,SS Lazio,Portugal / Cape Verde,Born in 2000,Left Back,Mattéo Guendouzi,Medium
+E00392,Dilane Bakwa,Nottingham Forest,France / DR Congo,Born in 2002,Right Winger,Murillo,Medium
+E00393,Cheick Doucouré,Crystal Palace,Mali,Born in 2000,Defensive Midfielder,Marc Guéhi,Medium
+E00394,Kang-in Lee,Paris Saint-Germain,"Korea, South",Born in 2001,Right Winger,Ousmane Dembélé,Medium
+E00395,Emmanuel Emegha,RC Strasbourg Alsace,Netherlands / Nigeria,Born in 2003,Striker,Julio Enciso,Medium
+E00396,Joan García,FC Barcelona,Spain,Born in 2001,Goalkeeper,Lamine Yamal,Medium
+E00397,Radu Drăgușin,Tottenham Hotspur,Romania,Born in 2002,Center Back,Xavi Simons,Medium
+E00398,Jean-Clair Todibo,West Ham United,France / French Guiana,Born in 1999,Center Back,Jarrod Bowen,Medium
+E00399,Thiago Almada,Atlético de Madrid,Argentina,Born in 2001,Left Winger,Julián Alvarez,Medium
+E00400,Maximilian Beier,Borussia Dortmund,Germany,Born in 2002,Striker,Serhou Guirassy,Medium
+E00401,Dwight McNeil,Everton FC,England / Jamaica,Born in 1999,Left Winger,Jarrad Branthwaite,Medium
+E00402,Johnny Cardoso,Atlético de Madrid,United States / Italy,Born in 2001,Central Midfielder,Julián Alvarez,Medium
+E00403,Luis Henrique,Inter Milan,Brazil,Born in 2001,Right Midfield,Lautaro Martínez,Medium
+E00404,Brajan Gruda,Brighton & Hove Albion,Germany / Albania,Born in 2004,Right Winger,Kaoru Mitoma,Medium
+E00405,Odilon Kossounou,Atalanta BC,Cote d'Ivoire,Born in 2001,Center Back,Ademola Lookman,Medium
+E00406,Evan Ferguson,AS Roma,Ireland / England,Born in 2004,Striker,Manu Koné,Medium
+E00407,Wilfried Singo,Galatasaray,Cote d'Ivoire,Born in 2000,Right Back,Victor Osimhen,Medium
+E00408,Oscar Bobb,Manchester City,Norway / The Gambia,Born in 2003,Right Winger,Erling Haaland,Medium
+E00409,Luiz Henrique,Zenit St. Petersburg,Brazil,Born in 2001,Right Winger,Gerson,Medium
+E00410,Renato Veiga,Villarreal CF,Portugal / Cape Verde,Born in 2003,Center Back,Alberto Moleiro,Medium
+E00411,Loïc Badé,Bayer 04 Leverkusen,France / Cote d'Ivoire,Born in 2000,Center Back,Exequiel Palacios,Medium
+E00412,Tyrick Mitchell,Crystal Palace,England / Jamaica,Born in 1999,Left Back,Marc Guéhi,Medium
+E00413,Alberto Moleiro,Villarreal CF,Spain / Cuba,Born in 2003,Left Winger,Renato Veiga,Medium
+E00414,Pietro Comuzzo,ACF Fiorentina,Italy,Born in 2005,Center Back,Moise Kean,Medium
+E00415,Javi Guerra,Valencia CF,Spain,Born in 2003,Central Midfielder,Lucas Beltrán,Medium
+E00416,Patrick Dorgu,Manchester United,Denmark / Nigeria,Born in 2004,Left Back,Benjamin Sesko,Medium
+E00417,Pio Esposito,Inter Milan,Italy,Born in 2005,Striker,Lautaro Martínez,Medium
+E00418,Lucas Beraldo,Paris Saint-Germain,Brazil,Born in 2003,Center Back,Ousmane Dembélé,Medium
+E00419,Gianluca Scamacca,Atalanta BC,Italy,Born in 1999,Striker,Ademola Lookman,Medium
+E00420,Ibrahim Sangaré,Nottingham Forest,Cote d'Ivoire,Born in 1997,Defensive Midfielder,Murillo,Medium
+E00421,Kerem Aktürkoğlu,Fenerbahce,Turkey,Born in 1998,Left Winger,Jhon Durán,Medium
+E00422,Raoul Bellanova,Atalanta BC,Italy,Born in 2000,Right Midfield,Ademola Lookman,Medium
+E00423,Arthur Theate,Eintracht Frankfurt,Belgium,Born in 2000,Center Back,Hugo Larsson,Medium
+E00424,Josip Sutalo,Ajax Amsterdam,Croatia,Born in 2000,Center Back,Kenneth Taylor,Medium
+E00425,Dodô,ACF Fiorentina,Brazil,Born in 1998,Right Back,Moise Kean,Medium
+E00426,Youssef En-Nesyri,Fenerbahce,Morocco,Born in 1997,Striker,Jhon Durán,Medium
+E00427,Aaron Wan-Bissaka,West Ham United,DR Congo / England,Born in 1997,Right Back,Jarrod Bowen,Medium
+E00428,Galeno,Al-Ahli SFC,Brazil / Portugal,Born in 1997,Left Winger,Enzo Millot,Medium
+E00429,Paul Nebel,1.FSV Mainz 05,Germany / Ireland,Born in 2002,Attacking Midfielder,Nadiem Amiri,Medium
+E00430,Federico Gatti,Juventus FC,Italy,Born in 1998,Center Back,Loïs Openda,Medium
+E00431,Conrad Harder,RB Leipzig,Denmark,Born in 2005,Striker,Castello Lukeba,Medium
+E00432,Jack Hinshelwood,Brighton & Hove Albion,England,Born in 2005,Defensive Midfielder,Kaoru Mitoma,Medium
+E00433,Virgil van Dijk,Liverpool FC,Netherlands / Suriname,Born in 1991,Center Back,Florian Wirtz,Medium
+E00434,Keane Lewis-Potter,Brentford FC,England,Born in 2001,Left Winger,Kevin Schade,Medium
+E00435,Mohamed Simakan,Al-Nassr FC,France / Guinea,Born in 2000,Center Back,Kingsley Coman,Medium
+E00436,Leandro Trossard,Arsenal FC,Belgium,Born in 1994,Left Winger,Bukayo Saka,Medium
+E00437,Leon Goretzka,Bayern Munich,Germany,Born in 1995,Central Midfielder,Jamal Musiala,Medium
+E00438,Serge Gnabry,Bayern Munich,Germany / Cote d'Ivoire,Born in 1995,Left Winger,Jamal Musiala,Medium
+E00439,Ola Aina,Nottingham Forest,Nigeria / England,Born in 1996,Right Back,Murillo,Medium
+E00440,Joe Willock,Newcastle United,England / Montserrat,Born in 1999,Central Midfielder,Bruno Guimarães,Medium
+E00441,Jerdy Schouten,PSV Eindhoven,Netherlands,Born in 1997,Defensive Midfielder,Ismael Saibari,Medium
+E00442,Malcom,Al-Hilal SFC,Brazil / Russia,Born in 1997,Attacking Midfielder,Darwin Núñez,Medium
+E00443,Weston McKennie,Juventus FC,United States,Born in 1998,Central Midfielder,Loïs Openda,Medium
+E00444,Ermedin Demirovic,VfB Stuttgart,Bosnia-Herzegovina,Born in 1998,Striker,Angelo Stiller,Medium
+E00445,Brais Méndez,Real Sociedad,Spain,Born in 1997,Attacking Midfielder,Takefusa Kubo,Medium
+E00446,Axel Disasi,Chelsea FC,France / DR Congo,Born in 1998,Center Back,Cole Palmer,Medium
+E00447,Florentino,Burnley FC,Portugal / Angola,Born in 1999,Defensive Midfielder,Maxime Estève,Medium
+E00448,Jhon Lucumí,Bologna FC 1909,Colombia,Born in 1998,Center Back,Santiago Castro,Medium
+E00449,Benoît Badiashile,Chelsea FC,France / DR Congo,Born in 2001,Center Back,Cole Palmer,Medium
+E00450,Marcos Senesi,AFC Bournemouth,Argentina / Italy,Born in 1997,Center Back,Antoine Semenyo,Medium
+E00451,Brian Brobbey,Sunderland AFC,Netherlands / Ghana,Born in 2002,Striker,Simon Adingra,Medium
+E00452,Crysencio Summerville,West Ham United,Netherlands / Suriname,Born in 2001,Left Winger,Jarrod Bowen,Medium
+E00453,Yuri Alberto,Sport Club Corinthians Paulista,Brazil,Born in 2001,Striker,Rodrigo Garro,Medium
+E00454,Koni De Winter,AC Milan,Belgium,Born in 2002,Center Back,Rafael Leão,Medium
+E00455,Taylor Harwood-Bellis,Southampton FC,England,Born in 2002,Center Back,Finn Azaz,Medium
+E00456,Pepê,FC Porto,Brazil / Italy,Born in 1997,Right Winger,Samu Aghehowa,Medium
+E00457,Fábio Vieira,Hamburger SV,Portugal,Born in 2000,Attacking Midfielder,Luka Vuskovic,Medium
+E00458,Sepp van den Berg,Brentford FC,Netherlands,Born in 2001,Center Back,Kevin Schade,Medium
+E00459,Gabriel Sara,Galatasaray,Brazil,Born in 1999,Central Midfielder,Victor Osimhen,Medium
+E00460,James Trafford,Manchester City,England,Born in 2002,Goalkeeper,Erling Haaland,Medium
+E00461,Chrislain Matsima,FC Augsburg,France / Congo,Born in 2002,Center Back,Alexis Claude-Maurice,Medium
+E00462,Lorenzo Lucca,SSC Napoli,Italy,Born in 2000,Striker,Scott McTominay,Medium
+E00463,Martin Baturina,Como 1907,Croatia,Born in 2003,Attacking Midfielder,Nico Paz,Medium
+E00464,Arnaud Kalimuendo,Nottingham Forest,France / DR Congo,Born in 2002,Striker,Murillo,Medium
+E00465,Aitor Paredes,Athletic Bilbao,Spain,Born in 2000,Center Back,Nico Williams,Medium
+E00466,Beto,Everton FC,Guinea-Bissau / Portugal,Born in 1998,Striker,Jarrad Branthwaite,Medium
+E00467,Leif Davis,Ipswich Town,England,Born in 1999,Left Back,Jacob Greaves,Medium
+E00468,Iliman Ndiaye,Everton FC,Senegal / France,Born in 2000,Right Winger,Jarrad Branthwaite,Medium
+E00469,Wilfried Gnonto,Leeds United,Italy / Cote d'Ivoire,Born in 2003,Right Winger,Sean Longstaff,Medium
+E00470,Nathaniel Brown,Eintracht Frankfurt,Germany / United States,Born in 2003,Left Back,Hugo Larsson,Medium
+E00471,Samuel Lino,CR Flamengo,Brazil,Born in 1999,Left Winger,Pedro,Medium
+E00472,Elye Wahi,Eintracht Frankfurt,France / Cote d'Ivoire,Born in 2003,Striker,Hugo Larsson,Medium
+E00473,Julio Enciso,RC Strasbourg Alsace,Paraguay,Born in 2004,Attacking Midfielder,Emmanuel Emegha,Medium
+E00474,Yasin Ayari,Brighton & Hove Albion,Sweden / Tunisia,Born in 2003,Central Midfielder,Kaoru Mitoma,Medium
+E00475,Jobe Bellingham,Borussia Dortmund,England / Ireland,Born in 2005,Central Midfielder,Serhou Guirassy,Medium
+E00476,Georges Mikautadze,Villarreal CF,Georgia / France,Born in 2000,Striker,Renato Veiga,Medium
+E00477,Omari Hutchinson,Nottingham Forest,England / Jamaica,Born in 2003,Attacking Midfielder,Murillo,Medium
+E00478,Roger Fernandes,Al-Ittihad Club,Portugal / Guinea-Bissau,Born in 2005,Right Winger,Moussa Diaby,Medium
+E00479,Lamine Camara,AS Monaco,Senegal,Born in 2004,Central Midfielder,Maghnes Akliouche,Medium
+E00480,Arthur Vermeeren,Olympique Marseille,Belgium,Born in 2005,Defensive Midfielder,Mason Greenwood,Medium
+E00481,Tyler Dibling,Everton FC,England,Born in 2006,Right Winger,Jarrad Branthwaite,Medium
+E00482,Romelu Lukaku,SSC Napoli,Belgium / DR Congo,Born in 1993,Striker,Scott McTominay,Medium
+E00483,Barış Alper Yılmaz,Galatasaray,Turkey,Born in 2000,Left Winger,Victor Osimhen,Medium
+E00484,Alisson,Liverpool FC,Brazil,Born in 1992,Goalkeeper,Florian Wirtz,Medium
+E00485,Emiliano Martínez,Aston Villa,Argentina / Spain,Born in 1992,Goalkeeper,Morgan Rogers,Medium
+E00486,Thibaut Courtois,Real Madrid,Belgium,Born in 1992,Goalkeeper,Kylian Mbappé,Medium
+E00487,Jan Oblak,Atlético de Madrid,Slovenia,Born in 1993,Goalkeeper,Julián Alvarez,Medium
+E00488,Pierre-Emile Højbjerg,Olympique Marseille,Denmark / France,Born in 1995,Defensive Midfielder,Mason Greenwood,Medium
+E00489,Fredrik Aursnes,SL Benfica,Norway,Born in 1995,Central Midfielder,Vangelis Pavlidis,Medium
+E00490,Thilo Kehrer,AS Monaco,Germany / Burundi,Born in 1996,Center Back,Maghnes Akliouche,Medium
+E00491,Nadiem Amiri,1.FSV Mainz 05,Germany,Born in 1996,Central Midfielder,Paul Nebel,Medium
+E00492,Oleksandr Zinchenko,Nottingham Forest,Ukraine,Born in 1996,Left Back,Murillo,Medium
+E00493,Rodrigo De Paul,Inter Miami CF,Argentina / Italy,Sarandí,Central Midfielder,Lionel Messi,Medium
+E00494,Joe Gomez,Liverpool FC,England / The Gambia,Born in 1997,Center Back,Florian Wirtz,Medium
+E00495,Tosin Adarabioyo,Chelsea FC,England / Nigeria,Born in 1997,Center Back,Cole Palmer,Medium
+E00496,Dean Henderson,Crystal Palace,England,Born in 1997,Goalkeeper,Marc Guéhi,Medium
+E00497,Aleix García,Bayer 04 Leverkusen,Spain,Born in 1997,Central Midfielder,Exequiel Palacios,Medium
+E00498,Aleksandr Golovin,AS Monaco,Russia,Born in 1996,Attacking Midfielder,Maghnes Akliouche,Medium
+E00499,Vitaly Janelt,Brentford FC,Germany / Bosnia-Herzegovina,Born in 1998,Defensive Midfielder,Kevin Schade,Medium
+E00500,José María Giménez,Atlético de Madrid,Uruguay / Spain,Born in 1995,Center Back,Julián Alvarez,Medium
+E00501,Deniz Undav,VfB Stuttgart,Germany / Türkiye,Born in 1996,Striker,Angelo Stiller,Medium
+E00502,Caoimhín Kelleher,Brentford FC,Ireland,Born in 1998,Goalkeeper,Kevin Schade,Medium
+E00503,Davinson Sánchez,Galatasaray,Colombia,Born in 1996,Center Back,Victor Osimhen,Medium
+E00504,Sean Longstaff,Leeds United,England,Born in 1997,Central Midfielder,Wilfried Gnonto,Medium
+E00505,Angeliño,AS Roma,Spain,Born in 1997,Left Back,Manu Koné,Medium
+E00506,Maximilian Mittelstädt,VfB Stuttgart,Germany,Born in 1997,Left Back,Angelo Stiller,Medium
+E00507,Mattia Zaccagni,SS Lazio,Italy,Born in 1995,Left Winger,Mattéo Guendouzi,Medium
+E00508,David Raum,RB Leipzig,Germany,Born in 1998,Left Back,Castello Lukeba,Medium
+E00509,Matvey Safonov,Paris Saint-Germain,Russia,Born in 1999,Goalkeeper,Ousmane Dembélé,Medium
+E00510,Olivier Boscagli,Brighton & Hove Albion,France,Born in 1997,Center Back,Kaoru Mitoma,Medium
+E00512,Óscar Mingueza,Celta de Vigo,Spain,Born in 1999,Right Back,Javi Rodríguez,Medium
+E00513,Marco Asensio,Fenerbahce,Spain / Netherlands,Born in 1996,Attacking Midfielder,Jhon Durán,Medium
+E00514,Fikayo Tomori,AC Milan,England / Canada,Born in 1997,Center Back,Rafael Leão,Medium
+E00515,Dodi Lukébakio,SL Benfica,Belgium / DR Congo,Born in 1997,Right Winger,Vangelis Pavlidis,Medium
+E00516,Mathías Olivera,SSC Napoli,Uruguay / Spain,Born in 1997,Left Back,Scott McTominay,Medium
+E00517,Richarlison,Tottenham Hotspur,Brazil,Born in 1997,Striker,Xavi Simons,Medium
+E00518,Igor Julio,West Ham United,Brazil,Born in 1998,Center Back,Jarrod Bowen,Medium
+E00519,Hamed Traoré,Olympique Marseille,Cote d'Ivoire,Born in 2000,Left Winger,Mason Greenwood,Medium
+E00520,Angel Gomes,Olympique Marseille,England / Portugal,Born in 2000,Attacking Midfielder,Mason Greenwood,Medium
+E00521,Ethan Ampadu,Leeds United,Wales / England,Born in 2000,Center Back,Wilfried Gnonto,Medium
+E00522,Sergio Gómez,Real Sociedad,Spain,Born in 2000,Left Back,Takefusa Kubo,Medium
+E00523,Julian Ryerson,Borussia Dortmund,Norway / United States,Born in 1997,Right Back,Serhou Guirassy,Medium
+E00524,Robert Sánchez,Chelsea FC,Spain / England,Born in 1997,Goalkeeper,Cole Palmer,Medium
+E00525,Lutsharel Geertruida,Sunderland AFC,Netherlands / Curacao,Born in 2000,Right Back,Simon Adingra,Medium
+E00526,Billy Gilmour,SSC Napoli,Scotland,Born in 2001,Defensive Midfielder,Scott McTominay,Medium
+E00527,Nahuel Molina,Atlético de Madrid,Argentina,Born in 1998,Right Back,Julián Alvarez,Medium
+E00528,Zion Suzuki,Parma Calcio 1913,Japan,Born in 2002,Goalkeeper,Adrián Bernabé,Medium
+E00529,Pedro,CR Flamengo,Brazil,Born in 1997,Striker,Samuel Lino,Medium
+E00530,João Félix,Al-Nassr FC,Portugal,Born in 1999,İkinci Forvet,Kingsley Coman,Medium
+E00531,Gustav Isaksen,SS Lazio,Denmark,Born in 2001,Right Winger,Mattéo Guendouzi,Medium
+E00532,Djordje Petrovic,AFC Bournemouth,Serbia,Born in 1999,Goalkeeper,Antoine Semenyo,Medium
+E00533,Marcin Bulka,NEOM SC,Poland,Born in 1999,Goalkeeper,Nathan Zézé,Medium
+E00534,Kiernan Dewsbury-Hall,Everton FC,England / Ireland,Born in 1998,Central Midfielder,Jarrad Branthwaite,Medium
+E00535,Djed Spence,Tottenham Hotspur,England / Jamaica,Born in 2000,Left Back,Xavi Simons,Medium
+E00536,Neco Williams,Nottingham Forest,Wales,Born in 2001,Left Back,Murillo,Medium
+E00537,Morten Frendrup,Genoa CFC,Denmark,Born in 2001,Central Midfielder,Johan Vásquez,Medium
+E00538,Yunus Musah,Atalanta BC,United States / England,Born in 2002,Central Midfielder,Ademola Lookman,Medium
+E00539,Fábio Silva,Borussia Dortmund,Portugal,Born in 2002,Striker,Serhou Guirassy,Medium
+E00540,Mateo Kovacic,Manchester City,Croatia,Born in 1994,Central Midfielder,Erling Haaland,Medium
+E00541,Jamie Leweling,VfB Stuttgart,Germany / Ghana,Born in 2001,Right Winger,Angelo Stiller,Medium
+E00542,Miguel Gutiérrez,SSC Napoli,Spain,Born in 2001,Left Back,Scott McTominay,Medium
+E00543,Enzo Boyomo,CA Osasuna,Cameroon / France,Toulouse,Center Back,Aimar Oroz,Medium
+E00544,Leonardo Balerdi,Olympique Marseille,Argentina / Italy,Born in 1999,Center Back,Mason Greenwood,Medium
+E00545,James McAtee,Nottingham Forest,England,Born in 2002,Attacking Midfielder,Murillo,Medium
+E00546,Yan Couto,Borussia Dortmund,Brazil / Portugal,Born in 2002,Right Back,Serhou Guirassy,Medium
+E00547,Jarell Quansah,Bayer 04 Leverkusen,England / Scotland,Born in 2003,Center Back,Exequiel Palacios,Medium
+E00548,Kaishu Sano,1.FSV Mainz 05,Japan,Born in 2000,Defensive Midfielder,Paul Nebel,Medium
+E00549,Dário Essugo,Chelsea FC,Portugal / Angola,Born in 2005,Defensive Midfielder,Cole Palmer,Medium
+E00550,Emmanuel Agbadou,Wolverhampton Wanderers,Cote d'Ivoire,Born in 1997,Center Back,João Gomes,Medium
+E00551,Raphael Onyedika,Club Brugge KV,Nigeria,Born in 2001,Defensive Midfielder,Joel Ordóñez,Medium
+E00552,Alexsandro,LOSC Lille,Brazil,Born in 1999,Center Back,Hákon Arnar Haraldsson,Medium
+E00553,Vanderson,AS Monaco,Brazil,Born in 2001,Right Back,Maghnes Akliouche,Medium
+E00554,Rodrigo Muniz,Fulham FC,Brazil,Born in 2001,Striker,Antonee Robinson,Medium
+E00555,Wilson Odobert,Tottenham Hotspur,France / Martinique,Born in 2004,Left Winger,Xavi Simons,Medium
+E00556,Ange-Yoan Bonny,Inter Milan,France / Cote d'Ivoire,Born in 2003,Striker,Lautaro Martínez,Medium
+E00557,Thierno Barry,Everton FC,France / Guinea,Born in 2002,Striker,Jarrad Branthwaite,Medium
+E00558,Mamadou Sarr,RC Strasbourg Alsace,France / Senegal,Born in 2005,Center Back,Emmanuel Emegha,Medium
+E00559,Guillaume Restes,FC Toulouse,France / Cote d'Ivoire,Born in 2005,Goalkeeper,Charlie Cresswell,Medium
+E00561,Habib Diarra,Sunderland AFC,Senegal / France,Born in 2004,Central Midfielder,Simon Adingra,Medium
+E00562,Kevin De Bruyne,SSC Napoli,Belgium,Born in 1991,Attacking Midfielder,Scott McTominay,Rookie
+E00563,Maxime Estève,Burnley FC,France,Born in 2002,Center Back,Florentino,Medium
+E00564,Alex Scott,AFC Bournemouth,England / Guernsey,Born in 2003,Central Midfielder,Antoine Semenyo,Medium
+E00565,Antonio Rüdiger,Real Madrid,Germany / Sierra Leone,Born in 1993,Center Back,Kylian Mbappé,Medium
+E00566,Wesley,AS Roma,Brazil,Born in 2003,Right Back,Manu Koné,Medium
+E00567,Facundo Buonanotte,Chelsea FC,Argentina / Italy,Born in 2004,Attacking Midfielder,Cole Palmer,Medium
+E00568,Stefanos Tzimas,Brighton & Hove Albion,Greece,Born in 2006,Striker,Kaoru Mitoma,Medium
+E00569,Lewis Miley,Newcastle United,England,Born in 2006,Central Midfielder,Bruno Guimarães,Medium
+E00570,El Hadji Malick Diouf,West Ham United,Senegal,Born in 2004,Left Back,Jarrod Bowen,Medium
+E00571,Jordan Pickford,Everton FC,England,Born in 1994,Goalkeeper,Jarrad Branthwaite,Medium
+E00572,Antoine Griezmann,Atlético de Madrid,France,Born in 1991,İkinci Forvet,Julián Alvarez,Medium
+E00573,Waldemar Anton,Borussia Dortmund,Germany,Born in 1996,Center Back,Serhou Guirassy,Medium
+E00574,Andrew Robertson,Liverpool FC,Scotland,Born in 1994,Left Back,Florian Wirtz,Medium
+E00575,Andreas Pereira,Sociedade Esportiva Palmeiras,Brazil / Belgium,Born in 1996,Attacking Midfielder,Facundo Torres,Medium
+E00576,Álex Remiro,Real Sociedad,Spain,Born in 1995,Goalkeeper,Takefusa Kubo,Medium
+E00577,Alex Meret,SSC Napoli,Italy,Born in 1997,Goalkeeper,Scott McTominay,Medium
+E00578,Gedson Fernandes,Spartak Moscow,Portugal / Sao Tome and Principe,Born in 1999,Central Midfielder,Manfred Ugalde,Medium
+E00579,Konstantinos Tsimikas,AS Roma,Greece,Born in 1996,Left Back,Manu Koné,Medium
+E00580,Eddie Nketiah,Crystal Palace,England / Ghana,Born in 1999,Striker,Marc Guéhi,Medium
+E00581,Fran García,Real Madrid,Spain,Born in 1999,Left Back,Kylian Mbappé,Medium
+E00582,Lionel Messi,Inter Miami CF,Argentina / Spain,Rosario,Right Winger,Rodrigo De Paul,Rookie
+E00583,Tomáš Souček,West Ham United,Czech Republic,Born in 1995,Defensive Midfielder,Jarrod Bowen,Medium
+E00584,Ludovic Blas,Stade Rennais FC,France / Martinique,Born in 1997,Right Winger,Quentin Merlin,Medium
+E00585,Orel Mangala,Olympique Lyon,Belgium / DR Congo,Born in 1998,Defensive Midfielder,Malick Fofana,Medium
+E00586,Daniel James,Leeds United,Wales / England,Born in 1997,Right Winger,Wilfried Gnonto,Medium
+E00587,Kristoffer Ajer,Brentford FC,Norway,Born in 1998,Center Back,Kevin Schade,Medium
+E00588,Robin Koch,Eintracht Frankfurt,Germany,Born in 1996,Center Back,Hugo Larsson,Medium
+E00589,Tyler Adams,AFC Bournemouth,United States,Born in 1999,Defensive Midfielder,Antoine Semenyo,Medium
+E00590,Michele Di Gregorio,Juventus FC,Italy,Born in 1997,Goalkeeper,Loïs Openda,Medium
+E00591,Albert Gudmundsson,ACF Fiorentina,Iceland,Born in 1997,İkinci Forvet,Moise Kean,Medium
+E00592,Anel Ahmedhodzic,Feyenoord Rotterdam,Bosnia-Herzegovina / Sweden,Born in 1999,Center Back,Quinten Timber,Medium
+E00593,Emmanuel Latte Lath,Atlanta United FC,Cote d'Ivoire / Italy,Cote d'Ivoire,Striker,Miguel Almirón,Medium
+E00594,Nayef Aguerd,Olympique Marseille,Morocco,Born in 1996,Center Back,Mason Greenwood,Medium
+E00595,Joël Piroe,Leeds United,Netherlands / Suriname,Born in 1999,Striker,Wilfried Gnonto,Medium
+E00596,Jaka Bijol,Leeds United,Slovenia,Born in 1999,Center Back,Wilfried Gnonto,Medium
+E00597,Carlos Soler,Real Sociedad,Spain,Born in 1997,Central Midfielder,Takefusa Kubo,Medium
+E00598,Marcus Tavernier,AFC Bournemouth,England,Born in 1999,Left Midfield,Antoine Semenyo,Medium
+E00599,Andriy Lunin,Real Madrid,Ukraine,Born in 1999,Goalkeeper,Kylian Mbappé,Medium
+E00600,Nicolas Seiwald,RB Leipzig,Austria,Born in 2001,Central Midfielder,Castello Lukeba,Medium
+E00601,Pascal Struijk,Leeds United,Netherlands / Belgium,Born in 1999,Center Back,Wilfried Gnonto,Medium
+E00602,Nicolò Fagioli,ACF Fiorentina,Italy,Born in 2001,Central Midfielder,Moise Kean,Medium
+E00603,Cucho Hernández,Real Betis Balompié,Colombia / Spain,Born in 1999,Striker,Antony,Medium
+E00604,Oumar Solet,Udinese Calcio,France / Cote d'Ivoire,Born in 2000,Center Back,Nicolò Zaniolo,Medium
+E00605,Eric García,FC Barcelona,Spain,Born in 2001,Center Back,Lamine Yamal,Medium
+E00606,Sacha Boey,Bayern Munich,France,Born in 2000,Right Back,Jamal Musiala,Medium
+E00607,Jean-Ricner Bellegarde,Wolverhampton Wanderers,Haiti / France,Born in 1998,Central Midfielder,João Gomes,Medium
+E00608,Logan Costa,Villarreal CF,Cape Verde / France,Born in 2001,Center Back,Renato Veiga,Medium
+E00609,Nicolás Domínguez,Nottingham Forest,Argentina / Italy,Born in 1998,Central Midfielder,Murillo,Medium
+E00610,Wendel,Zenit St. Petersburg,Brazil,Born in 1997,Central Midfielder,Gerson,Medium
+E00611,Folarin Balogun,AS Monaco,United States / England,Born in 2001,Striker,Maghnes Akliouche,Medium
+E00612,Eduardo Quaresma,Sporting CP,Portugal,Born in 2002,Center Back,Morten Hjulmand,Medium
+E00613,James Garner,Everton FC,England,Born in 2001,Defensive Midfielder,Jarrad Branthwaite,Medium
+E00614,Aleksandar Mitrović,Al-Rayyan SC,Serbia,Born in 1994,Striker,Róger Guedes,Medium
+E00615,Jesper Lindstrøm,VfL Wolfsburg,Denmark,Born in 2000,Right Winger,Mohamed Amoura,Medium
+E00616,Malick Thiaw,Newcastle United,Germany / Finland,Born in 2001,Center Back,Bruno Guimarães,Medium
+E00617,Noah Atubolu,SC Freiburg,Germany / Nigeria,Born in 2002,Goalkeeper,Philipp Lienhart,Medium
+E00618,Amine Adli,AFC Bournemouth,Morocco / France,Born in 2000,Left Winger,Antoine Semenyo,Medium
+E00619,Adam Hlozek,TSG 1899 Hoffenheim,Czech Republic,Born in 2002,İkinci Forvet,Albian Hajdari,Medium
+E00620,Strahinja Pavlović,AC Milan,Serbia,Born in 2001,Center Back,Rafael Leão,Medium
+E00621,Rodrigo Zalazar,SC Braga,Uruguay / Spain,Born in 1999,Central Midfielder,Simon Banza,Medium
+E00622,Sebastian Nanasi,RC Strasbourg Alsace,Sweden / Hungary,Born in 2002,Left Midfield,Emmanuel Emegha,Medium
+E00623,Filip Jørgensen,Chelsea FC,Denmark / Sweden,Born in 2002,Goalkeeper,Cole Palmer,Medium
+E00624,Beñat Prados,Athletic Bilbao,Spain,Born in 2001,Central Midfielder,Nico Williams,Medium
+E00625,Lucas Beltrán,Valencia CF,Argentina / Italy,Born in 2001,Attacking Midfielder,Javi Guerra,Medium
+E00626,Enzo Le Fée,Sunderland AFC,France,Born in 2000,Central Midfielder,Simon Adingra,Medium
+E00627,Antoni Milambo,Brentford FC,Netherlands / DR Congo,Born in 2005,Attacking Midfielder,Kevin Schade,Medium
+E00628,Tolu Arokodare,Wolverhampton Wanderers,Nigeria,Born in 2000,Striker,João Gomes,Medium
+E00629,Jacob Greaves,Ipswich Town,England,Born in 2000,Center Back,Leif Davis,Medium
+E00630,Gabri Veiga,FC Porto,Spain,Born in 2002,Attacking Midfielder,Samu Aghehowa,Medium
+E00631,Guéla Doué,RC Strasbourg Alsace,Cote d'Ivoire / France,Born in 2002,Right Back,Emmanuel Emegha,Medium
+E00632,Lesley Ugochukwu,Burnley FC,France / Nigeria,Born in 2004,Defensive Midfielder,Florentino,Medium
+E00633,Hákon Arnar Haraldsson,LOSC Lille,Iceland,Born in 2003,Attacking Midfielder,Alexsandro,Medium
+E00634,Diego Moreira,RC Strasbourg Alsace,Belgium / Portugal,Born in 2004,Left Midfield,Emmanuel Emegha,Medium
+E00636,Carney Chukwuemeka,Borussia Dortmund,England / Nigeria,Born in 2003,Central Midfielder,Serhou Guirassy,Medium
+E00638,Ismaël Doukouré,RC Strasbourg Alsace,France / Cote d'Ivoire,Born in 2003,Center Back,Emmanuel Emegha,Medium
+E00639,El Chadaille Bitshiabu,RB Leipzig,France / DR Congo,Born in 2005,Center Back,Castello Lukeba,Medium
+E00640,Igor Thiago,Brentford FC,Brazil / Bulgaria,Born in 2001,Striker,Kevin Schade,Medium
+E00641,Can Uzun,Eintracht Frankfurt,Türkiye / Germany,Born in 2005,Attacking Midfielder,Hugo Larsson,Medium
+E00642,Michael Kayode,Brentford FC,Italy / Nigeria,Born in 2004,Right Back,Kevin Schade,Medium
+E00643,Paul Wanner,PSV Eindhoven,Germany / Austria,Born in 2005,Attacking Midfielder,Ismael Saibari,Medium
+E00645,Tim Kleindienst,Borussia Mönchengladbach,Germany,Born in 1995,Striker,Rocco Reitz,Medium
+E00646,Romano Schmid,SV Werder Bremen,Austria,Born in 2000,Attacking Midfielder,Victor Boniface,Medium
+E00647,Sofyan Amrabat,Real Betis Balompié,Morocco / Netherlands,Born in 1996,Defensive Midfielder,Antony,Medium
+E00648,Alexis Saelemaekers,AC Milan,Belgium,Born in 1999,Right Winger,Rafael Leão,Medium
+E00649,Lovro Majer,VfL Wolfsburg,Croatia,Born in 1998,Attacking Midfielder,Mohamed Amoura,Medium
+E00650,Diogo Leite,1.FC Union Berlin,Portugal,Born in 1999,Center Back,Danilho Doekhi,Medium
+E00651,Timothy Weah,Olympique Marseille,United States / France,Born in 2000,Right Winger,Mason Greenwood,Hard
+E00652,Konstantinos Mavropanos,West Ham United,Greece,Born in 1997,Center Back,Jarrod Bowen,Hard
+E00653,Martin Terrier,Bayer 04 Leverkusen,France,Born in 1997,Left Winger,Exequiel Palacios,Hard
+E00654,Roger Ibañez,Al-Ahli SFC,Brazil / Italy,Born in 1998,Center Back,Enzo Millot,Hard
+E00655,Lazar Samardžić,Atalanta BC,Serbia / Germany,Born in 2002,Attacking Midfielder,Ademola Lookman,Hard
+E00656,Maxi Araújo,Sporting CP,Uruguay,Born in 2000,Left Midfield,Morten Hjulmand,Hard
+E00657,Jhon Arias,Wolverhampton Wanderers,Colombia,Born in 1997,Right Winger,João Gomes,Hard
+E00658,Jean-Mattéo Bahoya,Eintracht Frankfurt,France / Cameroon,Born in 2005,Left Winger,Hugo Larsson,Hard
+E00659,Chris Rigg,Sunderland AFC,England,Born in 2007,Attacking Midfielder,Simon Adingra,Hard
+E00660,Finn Jeltsch,VfB Stuttgart,Germany,Born in 2006,Center Back,Angelo Stiller,Hard
+E00661,Konstantinos Karetsas,KRC Genk,Greece / Belgium,Born in 2007,Attacking Midfielder,Matte Smets,Hard
+E00662,Emiliano Sala,---,Argentina / Italy,Born in 1990,Striker,Diogo Jota,Hard
+E00663,John McGinn,Aston Villa,Scotland,Born in 1994,Central Midfielder,Morgan Rogers,Hard
+E00664,Jacob Murphy,Newcastle United,England / Ireland,Born in 1995,Right Winger,Bruno Guimarães,Hard
+E00665,Vanja Milinković-Savić,SSC Napoli,Serbia / Spain,Born in 1997,Goalkeeper,Scott McTominay,Hard
+E00666,Reiss Nelson,Brentford FC,England / Jamaica,Born in 1999,Left Winger,Kevin Schade,Hard
+E00667,Mykola Matvienko,Shakhtar Donetsk,Ukraine,Born in 1996,Center Back,Kauã Elias,Hard
+E00668,Gustavo Hamer,Sheffield United,Netherlands / Brazil,Born in 1997,Central Midfielder,Harrison Burrows,Hard
+E00669,Taiwo Awoniyi,Nottingham Forest,Nigeria,Born in 1997,Striker,Murillo,Hard
+E00670,Dominic Calvert-Lewin,Leeds United,England,Born in 1997,Striker,Wilfried Gnonto,Hard
+E00671,Josh Sargent,Norwich City,United States,Born in 2000,Striker,Mathias Kvistgaarden,Hard
+E00672,Sergiño Dest,PSV Eindhoven,United States / Netherlands,Born in 2000,Right Back,Ismael Saibari,Hard
+E00673,Maxence Caqueret,Como 1907,France,Born in 2000,Central Midfielder,Nico Paz,Hard
+E00674,Amadou Haidara,RB Leipzig,Mali,Born in 1998,Central Midfielder,Castello Lukeba,Hard
+E00675,Aaron Ramsdale,Newcastle United,England,Born in 1998,Goalkeeper,Bruno Guimarães,Hard
+E00676,Maxim De Cuyper,Brighton & Hove Albion,Belgium,Born in 2000,Left Back,Kaoru Mitoma,Hard
+E00677,Ivan Ilić,Torino FC,Serbia,Born in 2001,Central Midfielder,Ché Adams,Hard
+E00678,Lloyd Kelly,Juventus FC,England / Jamaica,Born in 1998,Center Back,Loïs Openda,Hard
+E00679,Finn Azaz,Southampton FC,Ireland / England,Born in 2000,Attacking Midfielder,Taylor Harwood-Bellis,Hard
+E00680,Konstantin Tyukavin,Dynamo Moscow,Russia,Born in 2002,Striker,Bitello,Hard
+E00681,Illan Meslier,Leeds United,France,Born in 2000,Goalkeeper,Wilfried Gnonto,Hard
+E00682,CJ Egan-Riley,Olympique Marseille,England / Ireland,Born in 2003,Center Back,Mason Greenwood,Hard
+E00683,Sem Steijn,Feyenoord Rotterdam,Netherlands,Born in 2001,Attacking Midfielder,Quinten Timber,Hard
+E00684,Ricardo Pepi,PSV Eindhoven,United States / Mexico,Born in 2003,Striker,Ismael Saibari,Hard
+E00685,Jaden Philogene,Ipswich Town,England / Dominica,Born in 2002,Left Winger,Leif Davis,Hard
+E00686,Richard Ríos,SL Benfica,Colombia,Born in 2000,Defensive Midfielder,Vangelis Pavlidis,Hard
+E00688,Christian Mawissa,AS Monaco,France / DR Congo,Born in 2005,Center Back,Maghnes Akliouche,Hard
+E00689,Mikey Moore,Rangers FC,England,Born in 2007,Left Winger,Nicolas Raskin,Hard
+E00690,Rayan,Clube de Regatas Vasco da Gama,Brazil,Born in 2006,Right Winger,Matheus França,Hard
+E00691,Christantus Uche,Crystal Palace,Nigeria,Born in 2003,Striker,Marc Guéhi,Hard
+E00692,Javi Rodríguez,Celta de Vigo,Spain,Born in 2003,Center Back,Óscar Mingueza,Hard
+E00693,Giovanni Leoni,Liverpool FC,Italy,Born in 2006,Center Back,Florian Wirtz,Hard
+E00694,Takumi Minamino,AS Monaco,Japan,Born in 1995,Left Winger,Maghnes Akliouche,Hard
+E00695,Aymeric Laporte,Athletic Bilbao,Spain / France,Born in 1994,Center Back,Nico Williams,Hard
+E00696,João Cancelo,Al-Hilal SFC,Portugal,Born in 1994,Right Back,Darwin Núñez,Hard
+E00697,Fabinho,Al-Ittihad Club,Brazil,Born in 1993,Defensive Midfielder,Moussa Diaby,Hard
+E00698,Otávio,Al-Qadsiah FC,Portugal / Brazil,Born in 1995,Attacking Midfielder,Mateo Retegui,Hard
+E00699,Benjamin Henrichs,RB Leipzig,Germany / Ghana,Born in 1997,Right Back,Castello Lukeba,Hard
+E00700,Milan Škriniar,Fenerbahce,Slovakia,Born in 1995,Center Back,Jhon Durán,Hard
+E00701,Gianluca Mancini,AS Roma,Italy,Born in 1996,Center Back,Manu Koné,Hard
+E00702,Chris Führich,VfB Stuttgart,Germany,Born in 1998,Left Winger,Angelo Stiller,Hard
+E00703,Giorgian de Arrascaeta,CR Flamengo,Uruguay / Italy,Born in 1994,Attacking Midfielder,Samuel Lino,Hard
+E00704,Lewis Cook,AFC Bournemouth,England,Born in 1997,Central Midfielder,Antoine Semenyo,Hard
+E00705,Iñaki Williams,Athletic Bilbao,Ghana / Spain,Born in 1994,Right Winger,Nico Williams,Hard
+E00706,Rico Henry,Brentford FC,England / Jamaica,Born in 1997,Left Back,Kevin Schade,Hard
+E00707,Nathan Tella,Bayer 04 Leverkusen,Nigeria / England,Born in 1999,Right Winger,Exequiel Palacios,Hard
+E00708,Kyle Walker-Peters,West Ham United,England / Jamaica,Born in 1997,Right Back,Jarrod Bowen,Hard
+E00709,Juan Miranda,Bologna FC 1909,Spain,Born in 2000,Left Back,Santiago Castro,Hard
+E00710,Ché Adams,Torino FC,Scotland / England,Born in 1996,Striker,Ivan Ilić,Hard
+E00711,Giovani Lo Celso,Real Betis Balompié,Argentina / Italy,Born in 1996,Attacking Midfielder,Antony,Hard
+E00713,Wilfred Ndidi,Besiktas JK,Nigeria / England,Born in 1996,Defensive Midfielder,Orkun Kökçü,Hard
+E00714,Harry Wilson,Fulham FC,Wales / England,Born in 1997,Right Winger,Antonee Robinson,Hard
+E00715,Moussa Niakhaté,Olympique Lyon,Senegal / France,Born in 1996,Center Back,Malick Fofana,Hard
+E00716,Ben Chilwell,RC Strasbourg Alsace,England / New Zealand,Born in 1996,Left Back,Emmanuel Emegha,Hard
+E00717,Sebastian Szymański,Fenerbahce,Poland,Born in 1999,Attacking Midfielder,Jhon Durán,Hard
+E00718,Emiliano Buendía,Aston Villa,Argentina / Spain,Born in 1996,Attacking Midfielder,Morgan Rogers,Hard
+E00719,Tammy Abraham,Besiktas JK,England / Nigeria,Born in 1997,Striker,Orkun Kökçü,Hard
+E00720,Wout Faes,Leicester City,Belgium,Born in 1998,Center Back,Victor Kristiansen,Hard
+E00721,Andrea Pinamonti,US Sassuolo,Italy,Born in 1999,Striker,Armand Laurienté,Hard
+E00722,Yangel Herrera,Real Sociedad,Venezuela / Spain,Born in 1998,Central Midfielder,Takefusa Kubo,Hard
+E00723,Ryan Sessegnon,Fulham FC,England,Born in 2000,Left Back,Antonee Robinson,Hard
+E00724,Brenden Aaronson,Leeds United,United States,Born in 2000,Attacking Midfielder,Wilfried Gnonto,Hard
+E00725,Leandro Barreiro,SL Benfica,Luxembourg / Portugal,Born in 2000,Central Midfielder,Vangelis Pavlidis,Hard
+E00726,Léo Ortiz,CR Flamengo,Brazil / Italy,Born in 1996,Center Back,Samuel Lino,Hard
+E00727,Mads Hermansen,West Ham United,Denmark,Born in 2000,Goalkeeper,Jarrod Bowen,Hard
+E00728,Claudinho,Al-Sadd SC,Brazil / Russia,Born in 1997,Attacking Midfielder,Mohamed Camara,Hard
+E00729,Marshall Munetsi,Wolverhampton Wanderers,Zimbabwe,Born in 1996,Central Midfielder,João Gomes,Hard
+E00730,Caio Henrique,AS Monaco,Brazil / Spain,Born in 1997,Left Back,Maghnes Akliouche,Hard
+E00731,Daizen Maeda,Celtic FC,Japan,Born in 1997,Left Winger,Cameron Carter-Vickers,Hard
+E00732,Nathan Patterson,Everton FC,Scotland,Born in 2001,Right Back,Jarrad Branthwaite,Hard
+E00733,Ansgar Knauff,Eintracht Frankfurt,Germany / Ghana,Born in 2002,Right Winger,Hugo Larsson,Hard
+E00734,Igor Jesus,Nottingham Forest,Brazil / United Arab Emirates,Born in 2001,Striker,Murillo,Hard
+E00735,Nikola Krstović,Atalanta BC,Montenegro / Serbia,Born in 2000,Striker,Ademola Lookman,Hard
+E00736,Facundo Torres,Sociedade Esportiva Palmeiras,Uruguay,Born in 2000,Left Winger,Andreas Pereira,Hard
+E00737,Sergi Altimira,Real Betis Balompié,Spain,Born in 2001,Central Midfielder,Antony,Hard
+E00738,Adrián Bernabé,Parma Calcio 1913,Spain,Born in 2001,Central Midfielder,Zion Suzuki,Hard
+E00739,Rocco Reitz,Borussia Mönchengladbach,Germany,Born in 2002,Central Midfielder,Tim Kleindienst,Hard
+E00740,Francisco Moura,FC Porto,Portugal,Born in 1999,Left Back,Samu Aghehowa,Hard
+E00741,Juan Foyth,Villarreal CF,Argentina / Spain,Born in 1998,Center Back,Renato Veiga,Hard
+E00742,Pape Gueye,Villarreal CF,Senegal / France,Born in 1999,Defensive Midfielder,Renato Veiga,Hard
+E00743,Joaquín Piquerez,Sociedade Esportiva Palmeiras,Uruguay / Italy,Born in 1998,Left Back,Andreas Pereira,Hard
+E00744,Luka Sucic,Real Sociedad,Croatia,Born in 2002,Central Midfielder,Takefusa Kubo,Hard
+E00745,Luis Sinisterra,Cruzeiro Esporte Clube,Colombia,Born in 1999,Left Winger,Matheus Pereira,Hard
+E00746,Fotis Ioannidis,Sporting CP,Greece,Born in 2000,Striker,Morten Hjulmand,Hard
+E00747,Melvin Bard,OGC Nice,France,Born in 2000,Left Back,Terem Moffi,Hard
+E00748,Patrick Wimmer,VfL Wolfsburg,Austria,Born in 2001,Right Winger,Mohamed Amoura,Hard
+E00749,Bryan Gil,Girona FC,Spain,Born in 2001,Left Winger,Vitor Reis,Hard
+E00750,Terem Moffi,OGC Nice,Nigeria,Born in 1999,Striker,Melvin Bard,Hard
+E00751,Tuta,Al-Duhail SC,Brazil,Born in 1999,Center Back,Marco Verratti,Hard
+E00752,Quentin Merlin,Stade Rennais FC,France,Born in 2002,Left Back,Ludovic Blas,Hard
+E00753,Jack Clarke,Ipswich Town,England,Born in 2000,Left Winger,Leif Davis,Hard
+E00754,Hicham Boudaoui,OGC Nice,Algeria,Born in 1999,Central Midfielder,Melvin Bard,Hard
+E00755,Victor Kristiansen,Leicester City,Denmark,Born in 2002,Left Back,Wout Faes,Hard
+E00756,Mathias Kvistgaarden,Norwich City,Denmark,Born in 2002,Striker,Josh Sargent,Hard
+E00757,Ander Barrenetxea,Real Sociedad,Spain,Born in 2001,Left Winger,Takefusa Kubo,Hard
+E00758,Diego López,Valencia CF,Spain,Born in 2002,Right Winger,Javi Guerra,Hard
+E00759,Armand Laurienté,US Sassuolo,France / Guadeloupe,Born in 1998,Left Winger,Andrea Pinamonti,Hard
+E00760,Cesare Casadei,Torino FC,Italy,Born in 2003,Central Midfielder,Ivan Ilić,Hard
+E00761,Julen Agirrezabala,Valencia CF,Spain,Born in 2000,Goalkeeper,Javi Guerra,Hard
+E00762,Boulaye Dia,SS Lazio,Senegal / France,Born in 1996,Striker,Mattéo Guendouzi,Hard
+E00763,Vladyslav Vanat,Girona FC,Ukraine,Born in 2002,Striker,Vitor Reis,Hard
+E00764,Aimar Oroz,CA Osasuna,Spain,Pamplona,Attacking Midfielder,Enzo Boyomo,Hard
+E00766,Mohamed-Ali Cho,OGC Nice,France / England,Born in 2004,Right Winger,Melvin Bard,Hard
+E00767,Chadi Riad,Crystal Palace,Morocco / Spain,Born in 2003,Center Back,Marc Guéhi,Hard
+E00768,Ilias Akhomach,Villarreal CF,Morocco / Spain,Born in 2004,Right Winger,Renato Veiga,Hard
+E00769,Andy Diouf,Inter Milan,France / Senegal,Born in 2003,Central Midfielder,Lautaro Martínez,Hard
+E00770,Yegor Yarmolyuk,Brentford FC,Ukraine,Born in 2004,Central Midfielder,Kevin Schade,Hard
+E00771,Manfred Ugalde,Spartak Moscow,Costa Rica,Born in 2002,Striker,Gedson Fernandes,Hard
+E00772,El Bilal Touré,Besiktas JK,Mali / Cote d'Ivoire,Born in 2001,Striker,Orkun Kökçü,Hard
+E00773,Adrien Truffert,AFC Bournemouth,France,Born in 2001,Left Back,Antoine Semenyo,Hard
+E00774,Samú Costa,RCD Mallorca,Portugal,Born in 2000,Defensive Midfielder,Marash Kumbulla,Hard
+E00775,Orri Óskarsson,Real Sociedad,Iceland,Born in 2004,Striker,Takefusa Kubo,Hard
+E00776,Jon Aramburu,Real Sociedad,Venezuela / Spain,Born in 2002,Right Back,Takefusa Kubo,Hard
+E00777,Jota Silva,Nottingham Forest,Portugal,Born in 1999,Right Winger,Murillo,Hard
+E00778,Vini Souza,VfL Wolfsburg,Brazil,Born in 1999,Defensive Midfielder,Mohamed Amoura,Hard
+E00779,Rodrigo Gomes,Wolverhampton Wanderers,Portugal,Born in 2003,Right Back,João Gomes,Hard
+E00780,Andreas Schjelderup,SL Benfica,Norway,Born in 2004,Left Winger,Vangelis Pavlidis,Hard
+E00781,Matías Fernández-Pardo,LOSC Lille,Spain / Belgium,Born in 2005,Left Winger,Alexsandro,Hard
+E00782,Antonín Kinský,Tottenham Hotspur,Czech Republic,Born in 2003,Goalkeeper,Xavi Simons,Hard
+E00783,Álex Jiménez,AFC Bournemouth,Spain,Born in 2005,Right Back,Antoine Semenyo,Hard
+E00785,Omar El Hilali,RCD Espanyol Barcelona,Morocco / Spain,Born in 2003,Right Back,Luca Koleosho,Hard
+E00786,Ernest Nuamah,Olympique Lyon,Ghana,Born in 2003,Right Winger,Malick Fofana,Hard
+E00787,Jeanuël Belocian,Bayer 04 Leverkusen,France / Guadeloupe,Born in 2005,Center Back,Exequiel Palacios,Hard
+E00788,Nathan Zézé,NEOM SC,France / Cote d'Ivoire,Born in 2005,Center Back,Marcin Bulka,Hard
+E00789,Mateus Fernandes,West Ham United,Portugal,Born in 2004,Central Midfielder,Jarrod Bowen,Hard
+E00790,Neil El Aynaoui,AS Roma,Morocco / France,Born in 2001,Central Midfielder,Manu Koné,Hard
+E00791,Yáser Asprilla,Girona FC,Colombia,Born in 2003,Right Winger,Vitor Reis,Hard
+E00792,Benja Domínguez,Bologna FC 1909,Argentina,Born in 2003,Left Winger,Santiago Castro,Hard
+E00793,Claudio Echeverri,Bayer 04 Leverkusen,Argentina,Born in 2006,Attacking Midfielder,Exequiel Palacios,Hard
+E00794,Thomas Partey,Villarreal CF,Ghana,Born in 1993,Defensive Midfielder,Renato Veiga,Hard
+E00795,Issa Diop,Fulham FC,France / Senegal,Born in 1997,Center Back,Antonee Robinson,Hard
+E00796,Saša Lukić,Fulham FC,Serbia,Born in 1996,Central Midfielder,Antonee Robinson,Hard
+E00797,Cameron Carter-Vickers,Celtic FC,United States / England,Born in 1997,Center Back,Daizen Maeda,Hard
+E00798,Federico Chiesa,Liverpool FC,Italy,Born in 1997,Right Winger,Florian Wirtz,Hard
+E00799,Anton Stach,Leeds United,Germany,Born in 1998,Defensive Midfielder,Wilfried Gnonto,Hard
+E00800,Simon Banza,SC Braga,DR Congo / France,Born in 1996,Striker,Rodrigo Zalazar,Hard
+E00801,Kamil Grabara,VfL Wolfsburg,Poland,Born in 1999,Goalkeeper,Mohamed Amoura,Hard
+E00802,Steven Bergwijn,Al-Ittihad Club,Netherlands / Suriname,Born in 1997,Left Winger,Moussa Diaby,Hard
+E00803,Jens Stage,SV Werder Bremen,Denmark,Born in 1996,Central Midfielder,Victor Boniface,Hard
+E00804,Ferland Mendy,Real Madrid,France / Senegal,Born in 1995,Left Back,Kylian Mbappé,Hard
+E00805,Mathias Jensen,Brentford FC,Denmark,Born in 1996,Central Midfielder,Kevin Schade,Hard
+E00806,Matteo Gabbia,AC Milan,Italy,Born in 1999,Center Back,Rafael Leão,Hard
+E00809,Franck Kessié,Al-Ahli SFC,Cote d'Ivoire / Italy,Born in 1996,Central Midfielder,Enzo Millot,Hard
+E00810,Joakim Mæhle,VfL Wolfsburg,Denmark,Born in 1997,Left Back,Mohamed Amoura,Hard
+E00811,Rasmus Kristensen,Eintracht Frankfurt,Denmark,Born in 1997,Right Back,Hugo Larsson,Hard
+E00812,Manor Solomon,Villarreal CF,Israel / Portugal,Born in 1999,Left Winger,Renato Veiga,Hard
+E00813,Yunus Akgün,Galatasaray,Turkey,Born in 2000,Right Winger,Victor Osimhen,Hard
+E00814,Eljif Elmas,SSC Napoli,North Macedonia,Born in 1999,Left Winger,Scott McTominay,Hard
+E00815,Jack Harrison,Leeds United,England,Born in 1996,Left Winger,Wilfried Gnonto,Hard
+E00816,Paulinho,Sociedade Esportiva Palmeiras,Brazil,Born in 2000,Left Winger,Andreas Pereira,Hard
+E00817,Andreas Skov Olsen,VfL Wolfsburg,Denmark,Born in 1999,Right Winger,Mohamed Amoura,Hard
+E00818,Anthony Patterson,Sunderland AFC,England,Born in 2000,Goalkeeper,Simon Adingra,Hard
+E00820,Maksim Glushenkov,Zenit St. Petersburg,Russia,Born in 1999,İkinci Forvet,Gerson,Hard
+E00821,Esequiel Barco,Spartak Moscow,Argentina,Born in 1999,Attacking Midfielder,Gedson Fernandes,Hard
+E00822,Quilindschy Hartman,Burnley FC,Netherlands / Curacao,Born in 2001,Left Back,Florentino,Hard
+E00823,Johan Vásquez,Genoa CFC,Mexico,Born in 1998,Center Back,Morten Frendrup,Hard
+E00824,Mohamed Camara,Al-Sadd SC,Mali,Born in 2000,Defensive Midfielder,Claudinho,Hard
+E00825,Troy Parrott,AZ Alkmaar,Ireland,Born in 2002,Striker,Peer Koopmeiners,Hard
+E00826,Fábio Carvalho,Brentford FC,Portugal / England,Born in 2002,Attacking Midfielder,Kevin Schade,Hard
+E00827,Fabio Miretti,Juventus FC,Italy,Born in 2003,Central Midfielder,Loïs Openda,Hard
+E00828,Hugo Duro,Valencia CF,Spain,Born in 1999,Striker,Javi Guerra,Hard
+E00829,Chris Richards,Crystal Palace,United States,Born in 2000,Center Back,Marc Guéhi,Hard
+E00831,Borja Sainz,FC Porto,Spain,Born in 2001,Left Winger,Samu Aghehowa,Hard
+E00832,Morato,Nottingham Forest,Brazil,Born in 2001,Center Back,Murillo,Hard
+E00833,Samuel Mbangula,SV Werder Bremen,Belgium / DR Congo,Born in 2004,Left Winger,Victor Boniface,Hard
+E00834,Petar Sučić,Inter Milan,Croatia / Bosnia-Herzegovina,Born in 2003,Defensive Midfielder,Lautaro Martínez,Hard
+E00835,Ben Doak,AFC Bournemouth,Scotland,Born in 2005,Right Winger,Antoine Semenyo,Hard
+E00836,Carlos Alcaraz,Everton FC,Argentina,Born in 2002,Central Midfielder,Jarrad Branthwaite,Hard
+E00837,Martinelli,Fluminense Football Club,Brazil,Born in 2001,Defensive Midfielder,Luciano Acosta,Hard
+E00838,Anis Hadj Moussa,Feyenoord Rotterdam,Algeria / France,Born in 2002,Right Winger,Quinten Timber,Hard
+E00839,Diego Gómez,Brighton & Hove Albion,Paraguay,Born in 2003,Central Midfielder,Kaoru Mitoma,Hard
+E00840,Matte Smets,KRC Genk,Belgium,Born in 2004,Center Back,Konstantinos Karetsas,Hard
+E00841,Harry Maguire,Manchester United,England,Born in 1993,Center Back,Benjamin Sesko,Hard
+E00842,Kenny Tete,Fulham FC,Netherlands / Mozambique,Born in 1995,Right Back,Antonee Robinson,Hard
+E00843,Timothy Castagne,Fulham FC,Belgium,Born in 1995,Right Back,Antonee Robinson,Hard
+E00844,Allan Saint-Maximin,CF América,France / Haiti,Born in 1997,Left Winger,Álvaro Fidalgo,Hard
+E00845,Merih Demiral,Al-Ahli SFC,Turkey,Born in 1998,Center Back,Enzo Millot,Hard
+E00846,Noah Okafor,Leeds United,Switzerland / Nigeria,Born in 2000,Left Winger,Wilfried Gnonto,Hard
+E00847,Kasper Dolberg,Ajax Amsterdam,Denmark,Born in 1997,Striker,Kenneth Taylor,Hard
+E00848,Lucas Torreira,Galatasaray,Uruguay / Spain,Born in 1996,Defensive Midfielder,Victor Osimhen,Hard
+E00849,Danilho Doekhi,1.FC Union Berlin,Netherlands / Suriname,Born in 1998,Center Back,Diogo Leite,Hard
+E00850,James Justin,Leeds United,England / St. Lucia,Born in 1998,Right Back,Wilfried Gnonto,Hard
+E00851,Renan Lodi,Al-Hilal SFC,Brazil / Italy,Born in 1998,Left Back,Darwin Núñez,Hard
+E00852,Cameron Puertas,SV Werder Bremen,Spain,Born in 1998,Attacking Midfielder,Victor Boniface,Hard
+E00853,Nehuén Pérez,FC Porto,Argentina,Born in 2000,Center Back,Samu Aghehowa,Hard
+E00854,Reo Hatate,Celtic FC,Japan,Born in 1997,Central Midfielder,Daizen Maeda,Hard
+E00855,Flynn Downes,Southampton FC,England,Born in 1999,Defensive Midfielder,Taylor Harwood-Bellis,Hard
+E00856,Hidemasa Morita,Sporting CP,Japan,Born in 1995,Central Midfielder,Morten Hjulmand,Hard
+E00857,Kristjan Asllani,Torino FC,Albania / Italy,Born in 2002,Defensive Midfielder,Ivan Ilić,Hard
+E00858,Franjo Ivanović,SL Benfica,Croatia,Born in 2003,Striker,Vangelis Pavlidis,Hard
+E00859,Rodrigo Garro,Sport Club Corinthians Paulista,Argentina / Italy,Born in 1998,Attacking Midfielder,Yuri Alberto,Hard
+E00860,Leopold Querfeld,1.FC Union Berlin,Austria,Born in 2003,Center Back,Diogo Leite,Hard
+E00862,Tomás Händel,Red Star Belgrade,Portugal / Austria,Guimarães,Defensive Midfielder,Timi Max Elsnik,Hard
+E00863,Kamaldeen Sulemana,Atalanta BC,Ghana,Born in 2002,Left Winger,Ademola Lookman,Hard
+E00864,Niccolò Pisilli,AS Roma,Italy,Born in 2004,Central Midfielder,Manu Koné,Hard
+E00865,Franculino,FC Midtjylland,Guinea-Bissau / Portugal,Born in 2004,Striker,Philip Billing,Hard
+E00866,Ezechiel Banzuzi,RB Leipzig,Netherlands / DR Congo,Born in 2005,Central Midfielder,Castello Lukeba,Hard
+E00867,Jair Cunha,Nottingham Forest,Brazil,Born in 2005,Center Back,Murillo,Hard
+E00868,Givairo Read,Feyenoord Rotterdam,Netherlands / Suriname,Born in 2006,Right Back,Quinten Timber,Hard
+E00869,George Ilenikhena,AS Monaco,Nigeria / France,Born in 2006,Striker,Maghnes Akliouche,Hard
+E00870,Breno Bidon,Sport Club Corinthians Paulista,Brazil,Born in 2005,Central Midfielder,Yuri Alberto,Hard
+E00871,Granit Xhaka,Sunderland AFC,Switzerland,Born in 1992,Defensive Midfielder,Simon Adingra,Hard
+E00872,Joane Gadou,Red Bull Salzburg,France / Cote d'Ivoire,Born in 2007,Center Back,Mads Bidstrup,Hard
+E00873,Marco Friedl,SV Werder Bremen,Austria,Born in 1998,Center Back,Victor Boniface,Hard
+E00874,Luke Shaw,Manchester United,England,Born in 1995,Left Back,Benjamin Sesko,Hard
+E00875,Jhon Córdoba,FC Krasnodar,Colombia,Born in 1993,Striker,Eduard Spertsyan,Hard
+E00876,Corentin Tolisso,Olympique Lyon,France / Togo,Born in 1994,Central Midfielder,Malick Fofana,Hard
+E00877,Brice Samba,Stade Rennais FC,France / Congo,Born in 1994,Goalkeeper,Ludovic Blas,Hard
+E00878,Alexander Nübel,VfB Stuttgart,Germany,Born in 1996,Goalkeeper,Angelo Stiller,Hard
+E00879,Andreas Christensen,FC Barcelona,Denmark,Born in 1996,Center Back,Lamine Yamal,Hard
+E00880,Giovanni Di Lorenzo,SSC Napoli,Italy,Born in 1993,Right Back,Scott McTominay,Hard
+E00881,Philipp Lienhart,SC Freiburg,Austria,Born in 1996,Center Back,Noah Atubolu,Hard
+E00882,Matheus Pereira,Cruzeiro Esporte Clube,Brazil / Portugal,Born in 1996,Attacking Midfielder,Luis Sinisterra,Hard
+E00883,Franck Honorat,Borussia Mönchengladbach,France,Born in 1996,Right Winger,Tim Kleindienst,Hard
+E00884,Atakan Karazor,VfB Stuttgart,Türkiye / Germany,Born in 1996,Defensive Midfielder,Angelo Stiller,Hard
+E00885,Amir Rrahmani,SSC Napoli,Kosovo / Albania,Born in 1994,Center Back,Scott McTominay,Hard
+E00886,Ricardo Horta,SC Braga,Portugal,Born in 1994,Right Winger,Rodrigo Zalazar,Hard
+E00887,Breel Embolo,Stade Rennais FC,Switzerland / Cameroon,Born in 1997,Striker,Ludovic Blas,Hard
+E00888,Adam Armstrong,Southampton FC,England,Born in 1997,Striker,Taylor Harwood-Bellis,Hard
+E00890,Mattias Svanberg,VfL Wolfsburg,Sweden,Born in 1999,Central Midfielder,Mohamed Amoura,Hard
+E00891,Boubakary Soumaré,Leicester City,France / Senegal,Born in 1999,Defensive Midfielder,Wout Faes,Hard
+E00892,Jens Odgaard,Bologna FC 1909,Denmark,Born in 1999,Attacking Midfielder,Santiago Castro,Hard
+E00893,Luca Ranieri,ACF Fiorentina,Italy,Born in 1999,Center Back,Moise Kean,Hard
+E00894,Kalvin Phillips,Manchester City,England / Jamaica,Born in 1995,Defensive Midfielder,Erling Haaland,Hard
+E00895,Moses Simon,Paris FC,Nigeria,Born in 1995,Left Winger,Willem Geubbels,Hard
+E00896,Robin Hack,Borussia Mönchengladbach,Germany,Born in 1998,Left Winger,Tim Kleindienst,Hard
+E00897,Ainsley Maitland-Niles,Olympique Lyon,England / Jamaica,Born in 1997,Right Back,Malick Fofana,Hard
+E00899,Christoph Baumgartner,RB Leipzig,Austria,Born in 1999,Attacking Midfielder,Castello Lukeba,Hard
+E00900,Nicolas Kühn,Como 1907,Germany,Born in 2000,Right Winger,Nico Paz,Hard
+E00901,Hee-chan Hwang,Wolverhampton Wanderers,"Korea, South",Born in 1996,Striker,João Gomes,Hard
+E00902,Jeff Chabot,VfB Stuttgart,Germany / France,Born in 1998,Center Back,Angelo Stiller,Hard
+E00903,Rolando Mandragora,ACF Fiorentina,Italy,Born in 1997,Defensive Midfielder,Moise Kean,Hard
+E00904,Marcus Edwards,Burnley FC,England / Cyprus,Born in 1998,Right Winger,Florentino,Hard
+E00905,Robert Lewandowski,FC Barcelona,Poland,Born in 1988,Striker,Lamine Yamal,Rookie
+E00906,Jakub Moder,Feyenoord Rotterdam,Poland,Born in 1999,Central Midfielder,Quinten Timber,Hard
+E00907,Alexis Claude-Maurice,FC Augsburg,France / Guadeloupe,Born in 1998,Attacking Midfielder,Chrislain Matsima,Hard
+E00908,Josep Martínez,Inter Milan,Spain,Born in 1998,Goalkeeper,Lautaro Martínez,Hard
+E00909,Jonas Wind,VfL Wolfsburg,Denmark,Born in 1999,Striker,Mohamed Amoura,Hard
+E00910,Nicolò Zaniolo,Udinese Calcio,Italy,Born in 1999,Attacking Midfielder,Oumar Solet,Hard
+E00911,Zakaria Aboukhlal,Torino FC,Morocco / Netherlands,Born in 2000,Right Winger,Ivan Ilić,Hard
+E00912,Levi García,Spartak Moscow,Trinidad and Tobago,Born in 1997,Striker,Gedson Fernandes,Hard
+E00913,Igor Zubeldia,Real Sociedad,Spain,Born in 1997,Center Back,Takefusa Kubo,Hard
+E00914,Ko Itakura,Ajax Amsterdam,Japan,Born in 1997,Center Back,Kenneth Taylor,Hard
+E00915,Daichi Kamada,Crystal Palace,Japan,Born in 1996,Attacking Midfielder,Marc Guéhi,Hard
+E00916,Guus Til,PSV Eindhoven,Netherlands,Born in 1997,Attacking Midfielder,Ismael Saibari,Hard
+E00917,Julián Quiñones,Al-Qadsiah FC,Mexico / Colombia,Born in 1997,Striker,Mateo Retegui,Hard
+E00918,Ryan Yates,Nottingham Forest,England,Born in 1997,Central Midfielder,Murillo,Hard
+E00919,Vitão,Sport Club Internacional,Brazil,Born in 2000,Center Back,Ricardo Mathias,Hard
+E00920,Roberto Piccoli,ACF Fiorentina,Italy,Born in 2001,Striker,Moise Kean,Hard
+E00921,Raphael Veiga,Sociedade Esportiva Palmeiras,Brazil,Born in 1995,Attacking Midfielder,Andreas Pereira,Hard
+E00922,Rodrigo Riquelme,Real Betis Balompié,Spain,Born in 2000,Left Winger,Antony,Hard
+E00923,Daniel Bragança,Sporting CP,Portugal,Born in 1999,Central Midfielder,Morten Hjulmand,Hard
+E00924,Jens Cajuste,Ipswich Town,Sweden / United States,Born in 1999,Defensive Midfielder,Leif Davis,Hard
+E00925,Yehvann Diouf,OGC Nice,Senegal / France,Born in 1999,Goalkeeper,Melvin Bard,Hard
+E00926,Benedict Hollerbach,1.FSV Mainz 05,Germany,Born in 2001,Striker,Paul Nebel,Hard
+E00927,Jesús Areso,Athletic Bilbao,Spain,Born in 1999,Right Back,Nico Williams,Hard
+E00928,Wilson Isidor,Sunderland AFC,France / Haiti,Born in 2000,Striker,Simon Adingra,Hard
+E00929,Trai Hume,Sunderland AFC,Northern Ireland,Born in 2002,Right Back,Simon Adingra,Hard
+E00930,Amar Dedić,SL Benfica,Bosnia-Herzegovina,Born in 2002,Right Back,Vangelis Pavlidis,Hard
+E00931,Andrei Rațiu,Rayo Vallecano,Romania / Spain,Born in 1998,Right Back,Augusto Batalla,Hard
+E00932,Cameron Archer,Southampton FC,England / Jamaica,Born in 2001,Striker,Taylor Harwood-Bellis,Hard
+E00933,Harrison Burrows,Sheffield United,England,Born in 2002,Left Back,Gustavo Hamer,Hard
+E00934,Hayden Hackney,Middlesbrough FC,England / Scotland,Born in 2002,Central Midfielder,Sverre Nypan,Hard
+E00935,Thijs Dallinga,Bologna FC 1909,Netherlands,Born in 2000,Striker,Santiago Castro,Hard
+E00936,Zeki Amdouni,Burnley FC,Switzerland / Türkiye,Born in 2000,Striker,Florentino,Hard
+E00937,Nicola Zalewski,Atalanta BC,Poland,Born in 2002,Left Midfield,Ademola Lookman,Hard
+E00938,Youri Baas,Ajax Amsterdam,Netherlands,Born in 2003,Center Back,Kenneth Taylor,Hard
+E00939,Mohammed Salisu,AS Monaco,Ghana,Born in 1999,Center Back,Maghnes Akliouche,Hard
+E00940,Arne Engels,Celtic FC,Belgium,Born in 2003,Central Midfielder,Daizen Maeda,Hard
+E00941,Armando Broja,Burnley FC,Albania / England,Born in 2001,Striker,Florentino,Hard
+E00942,Hannibal,Burnley FC,Tunisia / France,Born in 2003,Attacking Midfielder,Florentino,Hard
+E00943,Jonas Urbig,Bayern Munich,Germany,Born in 2003,Goalkeeper,Jamal Musiala,Hard
+E00944,Merlin Röhl,Everton FC,Germany,Born in 2002,Attacking Midfielder,Jarrad Branthwaite,Hard
+E00945,Tiago Tomás,VfB Stuttgart,Portugal,Born in 2002,Striker,Angelo Stiller,Hard
+E00946,Daniel Svensson,Borussia Dortmund,Sweden,Born in 2002,Left Back,Serhou Guirassy,Hard
+E00947,Albian Hajdari,TSG 1899 Hoffenheim,Switzerland / Kosovo,Born in 2003,Center Back,Adam Hlozek,Hard
+E00948,Mario Stroeykens,RSC Anderlecht,Belgium,Born in 2004,Attacking Midfielder,Yasin Özcan,Hard
+E00949,Giovanni Fabbian,Bologna FC 1909,Italy,Born in 2003,Attacking Midfielder,Santiago Castro,Hard
+E00950,Tommaso Baldanzi,AS Roma,Italy,Born in 2003,Attacking Midfielder,Manu Koné,Hard
+E00951,Dorgeles Nene,Fenerbahce,Mali,Born in 2002,Right Winger,Jhon Durán,Hard
+E00952,Jonathan Rowe,Bologna FC 1909,England / Jamaica,Born in 2003,Left Winger,Santiago Castro,Hard
+E00953,Youssouf Ndayishimiye,OGC Nice,Burundi,Born in 1998,Center Back,Melvin Bard,Hard
+E00954,Juanlu Sánchez,Sevilla FC,Spain,Born in 2003,Right Back,José Ángel Carmona,Hard
+E00955,Mauricio,Sociedade Esportiva Palmeiras,Brazil / Paraguay,Born in 2001,Attacking Midfielder,Andreas Pereira,Hard
+E00956,Bitello,Dynamo Moscow,Brazil,Born in 2000,Attacking Midfielder,Konstantin Tyukavin,Hard
+E00957,Gerard Martín,FC Barcelona,Spain,Born in 2002,Left Back,Lamine Yamal,Hard
+E00958,Mandela Keita,Parma Calcio 1913,Belgium / Guinea,Born in 2002,Defensive Midfielder,Zion Suzuki,Hard
+E00959,Nicolò Savona,Nottingham Forest,Italy,Born in 2003,Right Back,Murillo,Hard
+E00960,José Ángel Carmona,Sevilla FC,Spain,Born in 2002,Right Back,Juanlu Sánchez,Hard
+E00961,Bryan Zaragoza,Celta de Vigo,Spain,Born in 2001,Left Winger,Óscar Mingueza,Hard
+E00963,Jack Rudoni,Coventry City,England,Born in 2001,Central Midfielder,Milan van Ewijk,Hard
+E00964,Equi Fernández,Bayer 04 Leverkusen,Argentina / Paraguay,Born in 2002,Defensive Midfielder,Exequiel Palacios,Hard
+E00965,Máximo Perrone,Como 1907,Argentina / Spain,Born in 2003,Defensive Midfielder,Nico Paz,Hard
+E00967,Valentín Carboni,Genoa CFC,Argentina / Italy,Born in 2005,Attacking Midfielder,Morten Frendrup,Hard
+E00968,Abde Ezzalzouli,Real Betis Balompié,Morocco / Spain,Born in 2001,Left Winger,Antony,Hard
+E00969,Noah Sadiki,Sunderland AFC,DR Congo / Belgium,Born in 2004,Central Midfielder,Simon Adingra,Hard
+E00970,Santiago Hezze,Olympiacos Piraeus,Argentina / Poland,Born in 2001,Defensive Midfielder,Konstantinos Tzolakis,Hard
+E00971,Soungoutou Magassa,West Ham United,France / Mali,Born in 2003,Defensive Midfielder,Jarrod Bowen,Hard
+E00972,Ramón Sosa,Sociedade Esportiva Palmeiras,Paraguay / Argentina,Born in 1999,Left Winger,Andreas Pereira,Hard
+E00973,Luca Koleosho,RCD Espanyol Barcelona,Italy / United States,Born in 2004,Right Winger,Omar El Hilali,Hard
+E00974,Marc-André ter Stegen,FC Barcelona,Germany,Born in 1992,Goalkeeper,Lamine Yamal,Hard
+E00975,Cristiano Ronaldo,Al-Nassr FC,Portugal,Born in 1985,Striker,Kingsley Coman,Rookie
+E00976,Zakaria El Ouahdi,KRC Genk,Morocco / Belgium,Born in 2001,Right Back,Konstantinos Karetsas,Hard
+E00977,Mike Penders,RC Strasbourg Alsace,Belgium,Born in 2005,Goalkeeper,Emmanuel Emegha,Hard
+E00978,Eli Kroupi,AFC Bournemouth,France / Cote d'Ivoire,Born in 2006,Striker,Antoine Semenyo,Hard
+E00979,Ibrahim Maza,Bayer 04 Leverkusen,Algeria / Germany,Born in 2005,Attacking Midfielder,Exequiel Palacios,Hard
+E00980,Sverre Nypan,Middlesbrough FC,Norway,Born in 2006,Central Midfielder,Hayden Hackney,Hard
+E00981,Sindre Walle Egeli,Ipswich Town,Norway,Born in 2006,Right Winger,Leif Davis,Hard
+E00982,Kevin,Fulham FC,Brazil,Born in 2003,Left Winger,Antonee Robinson,Hard
+E00983,Senny Mayulu,Paris Saint-Germain,France / DR Congo,Born in 2006,Central Midfielder,Ousmane Dembélé,Hard
+E00984,José Manuel López,Sociedade Esportiva Palmeiras,Argentina,Born in 2000,Striker,Andreas Pereira,Hard
+E00985,Valentín Barco,RC Strasbourg Alsace,Argentina,Born in 2004,Central Midfielder,Emmanuel Emegha,Hard
+E00986,Luciano Gondou,Zenit St. Petersburg,Argentina / Italy,Born in 2001,Striker,Gerson,Hard
+E00987,Romain Esse,Crystal Palace,England / Cote d'Ivoire,Born in 2005,Right Winger,Marc Guéhi,Hard
+E00988,Eliezer Mayenda,Sunderland AFC,Spain / France,Born in 2005,Striker,Simon Adingra,Hard
+E00989,Luis Guilherme,West Ham United,Brazil,Born in 2006,Right Winger,Jarrod Bowen,Hard
+E00990,Kauã Elias,Shakhtar Donetsk,Brazil,Born in 2006,Striker,Mykola Matvienko,Hard
+E00991,Álvaro Morata,Como 1907,Spain,Born in 1992,Striker,Nico Paz,Hard
+E00992,Christian Nørgaard,Arsenal FC,Denmark,Born in 1994,Defensive Midfielder,Bukayo Saka,Hard
+E00993,Gonçalo Guedes,Real Sociedad,Portugal,Born in 1996,Left Winger,Takefusa Kubo,Hard
+E00994,Adam Webster,Brighton & Hove Albion,England,Born in 1995,Center Back,Kaoru Mitoma,Hard
+E00995,Bryan Heynen,KRC Genk,Belgium,Born in 1997,Central Midfielder,Konstantinos Karetsas,Hard
+E00996,Tetê,Panathinaikos FC,Brazil,Born in 2000,Right Winger,Anass Zaroury,Hard
+E00998,Yukinari Sugawara,SV Werder Bremen,Japan,Born in 2000,Right Back,Victor Boniface,Hard
+E00999,Koki Machida,TSG 1899 Hoffenheim,Japan,Born in 1997,Center Back,Adam Hlozek,Hard
+E01000,Albert Grønbæk,Genoa CFC,Denmark,Born in 2001,Attacking Midfielder,Morten Frendrup,Hard
+E01001,Tariq Lamptey,ACF Fiorentina,Ghana / England,Born in 2000,Right Back,Moise Kean,Hard
+E01002,Nino,Zenit St. Petersburg,Brazil,Born in 1997,Center Back,Gerson,Hard
+E01003,Igoh Ogbu,SK Slavia Prague,Nigeria,Jos,Center Back,Christos Zafeiris,Hard
+E01004,İsmail Yüksek,Fenerbahce,Turkey,Born in 1999,Defensive Midfielder,Jhon Durán,Hard
+E01005,Christos Zafeiris,SK Slavia Prague,Greece / Norway,Athens,Central Midfielder,Igoh Ogbu,Hard
+E01007,Bento,Al-Nassr FC,Brazil / Italy,Born in 1999,Goalkeeper,Kingsley Coman,Hard
+E01008,Jay Stansfield,Birmingham City,England,Born in 2002,Striker,Tommy Doyle,Hard
+E01009,Jarne Steuckers,KRC Genk,Belgium,Born in 2002,Right Winger,Konstantinos Karetsas,Hard
+E01010,Martin Vitík,Bologna FC 1909,Czech Republic,Born in 2003,Center Back,Santiago Castro,Hard
+E01011,Aleksandar Stanković,Club Brugge KV,Serbia / Italy,Born in 2005,Defensive Midfielder,Joel Ordóñez,Hard
+E01012,Rômulo,RB Leipzig,Brazil,Born in 2002,Striker,Castello Lukeba,Hard
+E01013,Issahaku Fatawu,Leicester City,Ghana,Born in 2004,Right Winger,Wout Faes,Hard
+E01014,Jérémy Jacquet,Stade Rennais FC,France / Guadeloupe,Born in 2005,Center Back,Ludovic Blas,Hard
+E01015,Gift Orban,Hellas Verona,Nigeria / Togo,Born in 2002,Striker,Victor Nelsson,Hard
+E01016,Marco Verratti,Al-Duhail SC,Italy,Born in 1992,Central Midfielder,Tuta,Hard
+E01017,Maroan Sannadi,Athletic Bilbao,Morocco / Spain,Born in 2001,Striker,Nico Williams,Hard
+E01018,Ibrahim Osman,AJ Auxerre,Ghana,Accra,Left Winger,Kévin Danois,Hard
+E01019,Gustavo Nunes,Brentford FC,Brazil,Born in 2005,Left Winger,Kevin Schade,Hard
+E01020,Chris Wood,Nottingham Forest,New Zealand,Born in 1991,Striker,Murillo,Hard
+E01021,Moïse Bombito,OGC Nice,Canada / DR Congo,Born in 2000,Center Back,Melvin Bard,Hard
+E01022,Raheem Sterling,Chelsea FC,England / Jamaica,Born in 1994,Right Winger,Cole Palmer,Hard
+E01023,Lucas Digne,Aston Villa,France,Born in 1993,Left Back,Morgan Rogers,Hard
+E01024,Mark Flekken,Bayer 04 Leverkusen,Netherlands,Born in 1993,Goalkeeper,Exequiel Palacios,Hard
+E01025,Marcelo Brozović,Al-Nassr FC,Croatia,Born in 1992,Defensive Midfielder,Kingsley Coman,Hard
+E01027,Casemiro,Manchester United,Brazil / Spain,Born in 1992,Defensive Midfielder,Benjamin Sesko,Hard
+E01028,Seko Fofana,Stade Rennais FC,Cote d'Ivoire / France,Born in 1995,Central Midfielder,Ludovic Blas,Hard
+E01029,Ryan Christie,AFC Bournemouth,Scotland,Born in 1995,Central Midfielder,Antoine Semenyo,Hard
+E01030,Maximilian Eggestein,SC Freiburg,Germany,Born in 1996,Central Midfielder,Noah Atubolu,Hard
+E01031,Fred,Fenerbahce,Brazil,Born in 1993,Central Midfielder,Jhon Durán,Hard
+E01032,Kepa Arrizabalaga,Arsenal FC,Spain,Born in 1994,Goalkeeper,Bukayo Saka,Hard
+E01033,Matteo Politano,SSC Napoli,Italy,Born in 1993,Right Winger,Scott McTominay,Hard
+E01034,Piotr Zieliński,Inter Milan,Poland / Italy,Born in 1994,Central Midfielder,Lautaro Martínez,Hard
+E01035,Emerson,Olympique Marseille,Italy / Brazil,Born in 1994,Left Back,Mason Greenwood,Hard
+E01036,Xaver Schlager,RB Leipzig,Austria,Born in 1997,Central Midfielder,Castello Lukeba,Hard
+E01037,Ruben Loftus-Cheek,AC Milan,England / Guyana,Born in 1996,Central Midfielder,Rafael Leão,Hard
+E01038,Mario Pasalić,Atalanta BC,Croatia,Born in 1995,Central Midfielder,Ademola Lookman,Hard
+E01039,Jérémie Boga,OGC Nice,Cote d'Ivoire / France,Born in 1997,Left Winger,Melvin Bard,Hard
+E01040,Talisca,Fenerbahce,Brazil,Born in 1994,Attacking Midfielder,Jhon Durán,Hard
+E01041,Jefferson Lerma,Crystal Palace,Colombia,Born in 1994,Defensive Midfielder,Marc Guéhi,Hard
+E01042,Ángel Correa,Tigres UANL,Argentina / Spain,Born in 1995,Right Winger,Juan Brunetta,Hard
+E01044,Ayoze Pérez,Villarreal CF,Spain,Born in 1993,Striker,Renato Veiga,Hard
+E01045,Enes Ünal,AFC Bournemouth,Turkey,Born in 1997,Striker,Antoine Semenyo,Hard
+E01046,Stephy Mavididi,Leicester City,England / DR Congo,Born in 1998,Left Winger,Wout Faes,Hard
+E01047,Guido Rodríguez,West Ham United,Argentina / Italy,Born in 1994,Defensive Midfielder,Jarrod Bowen,Hard
+E01048,Nordi Mukiele,Sunderland AFC,France / DR Congo,Born in 1997,Right Back,Simon Adingra,Hard
+E01049,Lucas Perri,Leeds United,Brazil / Italy,Born in 1997,Goalkeeper,Wilfried Gnonto,Hard
+E01050,David Brooks,AFC Bournemouth,Wales / England,Born in 1997,Right Winger,Antoine Semenyo,Hard
+E01051,Marin Pongracic,ACF Fiorentina,Croatia / Germany,Born in 1997,Center Back,Moise Kean,Hard
+E01052,Saïd Benrahma,NEOM SC,Algeria / France,Born in 1995,Left Winger,Marcin Bulka,Hard
+E01054,Dani Ceballos,Real Madrid,Spain,Born in 1996,Central Midfielder,Kylian Mbappé,Hard
+E01055,Philip Billing,FC Midtjylland,Denmark / Nigeria,Born in 1996,Central Midfielder,Franculino,Hard
+E01056,Roland Sallai,Galatasaray,Hungary,Born in 1997,Right Back,Victor Osimhen,Hard
+E01057,Sammie Szmodics,Ipswich Town,Ireland / Hungary,Born in 1995,Attacking Midfielder,Leif Davis,Hard
+E01058,Joe Rodon,Leeds United,Wales,Born in 1997,Center Back,Wilfried Gnonto,Hard
+E01059,Jefferson Savarino,Botafogo de Futebol e Regatas,Venezuela / Italy,Born in 1996,Attacking Midfielder,Danilo,Hard
+E01060,André Almeida,Valencia CF,Portugal,Born in 2000,Attacking Midfielder,Javi Guerra,Hard
+E01062,Arthur Cabral,Botafogo de Futebol e Regatas,Brazil,Born in 1998,Striker,Danilo,Hard
+E01063,Amir Murillo,Olympique Marseille,Panama,Born in 1996,Right Back,Mason Greenwood,Hard
+E01064,Peer Koopmeiners,AZ Alkmaar,Netherlands,Born in 2000,Defensive Midfielder,Troy Parrott,Hard
+E01065,Mateo Cassierra,Zenit St. Petersburg,Colombia,Born in 1997,Striker,Gerson,Hard
+E01066,In-beom Hwang,Feyenoord Rotterdam,"Korea, South",Born in 1996,Defensive Midfielder,Quinten Timber,Hard
+E01067,Leo Østigård,Genoa CFC,Norway,Born in 1999,Center Back,Morten Frendrup,Hard
+E01068,Batista Mendy,Sevilla FC,France / Guinea-Bissau,Born in 2000,Defensive Midfielder,Juanlu Sánchez,Hard
+E01069,Dennis Man,PSV Eindhoven,Romania,Born in 1998,Right Winger,Ismael Saibari,Hard
+E01070,Samuel Chukwueze,Fulham FC,Nigeria,Born in 1999,Right Winger,Antonee Robinson,Hard
+E01071,Oliver Skipp,Leicester City,England,Born in 2000,Defensive Midfielder,Wout Faes,Hard
+E01072,Javi Puado,RCD Espanyol Barcelona,Spain,Born in 1998,Left Winger,Omar El Hilali,Hard
+E01073,Nicolas Raskin,Rangers FC,Belgium,Born in 2001,Central Midfielder,Mikey Moore,Hard
+E01074,Victor Nelsson,Hellas Verona,Denmark,Born in 1998,Center Back,Gift Orban,Hard
+E01075,Alexis Vega,Deportivo Toluca,Mexico,Mexico City,Left Winger,Paulinho,Hard
+E01078,Fabrício Bruno,Cruzeiro Esporte Clube,Brazil,Born in 1996,Center Back,Luis Sinisterra,Hard
+E01079,Tommy Doyle,Birmingham City,England,Born in 2001,Central Midfielder,Jay Stansfield,Hard
+E01080,Caleb Okoli,Leicester City,Italy / Nigeria,Born in 2001,Center Back,Wout Faes,Hard
+E01081,Mads Bidstrup,Red Bull Salzburg,Denmark,Born in 2001,Central Midfielder,Joane Gadou,Hard
+E01082,Willem Geubbels,Paris FC,France / Netherlands,Born in 2001,Striker,Moses Simon,Hard
+E01083,Youssoufa Moukoko,FC Copenhagen,Germany / Cameroon,Yaoundé,Striker,Dominik Kotarski,Hard
+E01084,Christos Mandas,SS Lazio,Greece,Born in 2001,Goalkeeper,Mattéo Guendouzi,Hard
+E01085,Santiago Bueno,Wolverhampton Wanderers,Uruguay / Italy,Born in 1998,Center Back,João Gomes,Hard
+E01086,Patrick Osterhage,SC Freiburg,Germany,Born in 2000,Defensive Midfielder,Noah Atubolu,Hard
+E01087,Josha Vagnoman,VfB Stuttgart,Germany / Cote d'Ivoire,Born in 2000,Right Back,Angelo Stiller,Hard
+E01088,Alexander Bah,SL Benfica,Denmark / The Gambia,Born in 1997,Right Back,Vangelis Pavlidis,Hard
+E01089,Josh Maja,West Bromwich Albion,Nigeria / England,London,Striker,Samuel Iling-Junior,Hard
+E01090,Lilian Brassier,Stade Rennais FC,France / Togo,Born in 1999,Center Back,Ludovic Blas,Hard
+E01091,Ao Tanaka,Leeds United,Japan,Born in 1998,Central Midfielder,Wilfried Gnonto,Hard
+E01093,Lucas Da Cunha,Como 1907,France / Portugal,Born in 2001,Central Midfielder,Nico Paz,Hard
+E01095,Pavel Sulc,Olympique Lyon,Czech Republic,Born in 2000,Attacking Midfielder,Malick Fofana,Hard
+E01096,Morgan Whittaker,Middlesbrough FC,England,Born in 2001,Right Winger,Sverre Nypan,Hard
+E01097,Joe Scally,Borussia Mönchengladbach,United States,Born in 2002,Right Back,Tim Kleindienst,Hard
+E01098,Stephen Eustaquio,FC Porto,Canada / Portugal,Born in 1996,Central Midfielder,Samu Aghehowa,Hard
+E01099,Julián Araujo,AFC Bournemouth,Mexico / United States,Born in 2001,Right Back,Antoine Semenyo,Hard
+E01100,Anastasios Douvikas,Como 1907,Greece,Born in 1999,Striker,Nico Paz,Hard
+E01101,João Mário,Juventus FC,Portugal,Born in 2000,Right Midfield,Loïs Openda,Hard
+E01102,Artem Bondarenko,Shakhtar Donetsk,Ukraine,Born in 2000,Attacking Midfielder,Mykola Matvienko,Hard
+E01103,Daniel Maldini,Atalanta BC,Italy / Venezuela,Born in 2001,Attacking Midfielder,Ademola Lookman,Hard
+E01106,Kiliann Sildillia,PSV Eindhoven,France / Guadeloupe,Born in 2002,Right Back,Ismael Saibari,Hard
+E01107,Konstantinos Tzolakis,Olympiacos Piraeus,Greece,Born in 2002,Goalkeeper,Santiago Hezze,Hard
+E01108,Devyne Rensch,AS Roma,Netherlands / Suriname,Born in 2003,Right Back,Manu Koné,Hard
+E01109,Sofiane Diop,OGC Nice,Morocco / France,Born in 2000,Left Winger,Melvin Bard,Hard
+E01110,Charlie Cresswell,FC Toulouse,England,Born in 2002,Center Back,Guillaume Restes,Hard
+E01111,Loum Tchaouna,Burnley FC,France / Chad,Born in 2003,Right Winger,Florentino,Hard
+E01112,Maurits Kjærgaard,Red Bull Salzburg,Denmark,Born in 2003,Central Midfielder,Joane Gadou,Hard
+E01114,Hugo Souza,Sport Club Corinthians Paulista,Brazil,Born in 1999,Goalkeeper,Yuri Alberto,Hard
+E01115,Jean Lucas,Esporte Clube Bahia,Brazil,Born in 1998,Central Midfielder,Rodrigo Nestor,Hard
+E01116,Samuel Iling-Junior,West Bromwich Albion,England / DR Congo,London,Left Winger,Josh Maja,Hard
+E01117,Ernest Muci,Trabzonspor,Albania,Born in 2001,Attacking Midfielder,André Onana,Hard
+E01118,Milan van Ewijk,Coventry City,Netherlands / Suriname,Born in 2000,Right Back,Jack Rudoni,Hard
+E01119,Saúl Coco,Torino FC,Equatorial Guinea / Spain,Born in 1999,Center Back,Ivan Ilić,Hard
+E01120,Aaron Hickey,Brentford FC,Scotland,Born in 2002,Right Back,Kevin Schade,Hard
+E01121,Azzedine Ounahi,Girona FC,Morocco,Born in 2000,Central Midfielder,Vitor Reis,Hard
+E01122,Tom Fellows,Southampton FC,England,Born in 2003,Right Winger,Taylor Harwood-Bellis,Hard
+E01123,Beñat Turrientes,Real Sociedad,Spain,Born in 2002,Central Midfielder,Takefusa Kubo,Hard
+E01124,Alistair Johnston,Celtic FC,Canada / Northern Ireland,Born in 1998,Right Back,Daizen Maeda,Hard
+E01125,Enzo Barrenechea,SL Benfica,Argentina,Born in 2001,Defensive Midfielder,Vangelis Pavlidis,Hard
+E01126,Sergi Cardona,Villarreal CF,Spain,Born in 1999,Left Back,Renato Veiga,Hard
+E01127,Nnamdi Collins,Eintracht Frankfurt,Germany / Nigeria,Born in 2004,Center Back,Hugo Larsson,Hard
+E01128,Anthony Rouault,Stade Rennais FC,France,Born in 2001,Center Back,Ludovic Blas,Hard
+E01129,Jacopo Fazzini,ACF Fiorentina,Italy,Born in 2003,Central Midfielder,Moise Kean,Hard
+E01130,Manu Silva,SL Benfica,Portugal,Born in 2001,Defensive Midfielder,Vangelis Pavlidis,Hard
+E01132,César Tárrega,Valencia CF,Spain,Born in 2002,Center Back,Javi Guerra,Hard
+E01133,Luiz Júnior,Villarreal CF,Brazil / Portugal,Born in 2001,Goalkeeper,Renato Veiga,Hard
+E01134,Aaron Ramsey,Leicester City,England,Born in 2003,Attacking Midfielder,Wout Faes,Hard
+E01135,Wouter Goes,AZ Alkmaar,Netherlands,Born in 2004,Center Back,Troy Parrott,Hard
+E01136,Warren Bondo,US Cremonese,France / DR Congo,Évry,Central Midfielder,Jeremy Sarmiento,Hard
+E01137,Félix Lemaréchal,RC Strasbourg Alsace,France / Cote d'Ivoire,Born in 2003,Attacking Midfielder,Emmanuel Emegha,Hard
+E01138,Diego Coppola,Brighton & Hove Albion,Italy / Netherlands,Born in 2003,Center Back,Kaoru Mitoma,Hard
+E01139,Leon Avdullahu,TSG 1899 Hoffenheim,Kosovo / Switzerland,Born in 2004,Defensive Midfielder,Adam Hlozek,Hard
+E01140,Marlon Gomes,Shakhtar Donetsk,Brazil,Born in 2003,Central Midfielder,Mykola Matvienko,Hard
+E01141,Yuito Suzuki,SC Freiburg,Japan,Born in 2001,Attacking Midfielder,Noah Atubolu,Hard
+E01142,Tom Cannon,Sheffield United,Ireland / England,Born in 2002,Striker,Gustavo Hamer,Hard
+E01143,Tom Rothe,1.FC Union Berlin,Germany,Born in 2004,Left Back,Diogo Leite,Hard
+E01144,Bernd Leno,Fulham FC,Germany,Born in 1992,Goalkeeper,Antonee Robinson,Hard
+E01146,Matheus França,Clube de Regatas Vasco da Gama,Brazil,Born in 2004,Attacking Midfielder,Rayan,Hard
+E01147,Shea Charles,Southampton FC,Northern Ireland / England,Born in 2003,Defensive Midfielder,Taylor Harwood-Bellis,Hard
+E01148,Mika Godts,Ajax Amsterdam,Belgium,Born in 2005,Left Winger,Kenneth Taylor,Hard
+E01149,Niclas Füllkrug,West Ham United,Germany,Born in 1993,Striker,Jarrod Bowen,Hard
+E01150,Arnau Martínez,Girona FC,Spain,Born in 2003,Right Back,Vitor Reis,Hard
+E01151,Valentin Atangana,Al-Ahli SFC,France / Cameroon,Born in 2005,Central Midfielder,Enzo Millot,Hard
+E01152,Alberto Costa,FC Porto,Portugal,Born in 2003,Right Back,Samu Aghehowa,Hard
+E01153,Kosta Nedeljkovic,RB Leipzig,Serbia,Born in 2005,Right Back,Castello Lukeba,Hard
+E01154,Bénie Traoré,FC Basel 1893,Cote d'Ivoire,Born in 2002,Left Winger,Jonas Adjetey,Hard
+E01155,Nasser Djiga,Rangers FC,Burkina Faso / Serbia,Born in 2002,Center Back,Mikey Moore,Hard
+E01156,Abakar Sylla,RC Strasbourg Alsace,Cote d'Ivoire,Born in 2002,Center Back,Emmanuel Emegha,Hard
+E01157,Reda Belahyane,SS Lazio,Morocco / France,Born in 2004,Defensive Midfielder,Mattéo Guendouzi,Hard
+E01158,Diego Carlos,Como 1907,Brazil / Spain,Born in 1993,Center Back,Nico Paz,Hard
+E01159,Uğurcan Çakır,Galatasaray,Turkey,Born in 1996,Goalkeeper,Victor Osimhen,Hard
+E01161,Mahamadou Doumbia,Al-Ittihad Club,Mali,Born in 2004,Central Midfielder,Moussa Diaby,Hard
+E01162,Charalampos Kostoulas,Brighton & Hove Albion,Greece,Born in 2007,Striker,Kaoru Mitoma,Hard
+E01163,Gabriel Carvalho,Al-Qadsiah FC,Brazil,Born in 2007,Right Winger,Mateo Retegui,Hard
+E01164,Alphonse Areola,West Ham United,France / Philippines,Born in 1993,Goalkeeper,Jarrod Bowen,Hard
+E01165,Robert Andrich,Bayer 04 Leverkusen,Germany,Born in 1994,Defensive Midfielder,Exequiel Palacios,Hard
+E01166,Memphis Depay,Sport Club Corinthians Paulista,Netherlands / Ghana,Born in 1994,Striker,Yuri Alberto,Hard
+E01167,James Tarkowski,Everton FC,England / Poland,Born in 1992,Center Back,Jarrad Branthwaite,Hard
+E01168,Douglas Santos,Zenit St. Petersburg,Brazil / Russia,Born in 1994,Left Back,Gerson,Hard
+E01169,José Gayà,Valencia CF,Spain,Born in 1995,Left Back,Javi Guerra,Hard
+E01170,Nélson Semedo,Fenerbahce,Portugal / Cape Verde,Born in 1993,Right Back,Jhon Durán,Hard
+E01171,Adama Traoré,Fulham FC,Spain / Mali,Born in 1996,Right Winger,Antonee Robinson,Hard
+E01172,Dominik Livakovic,Girona FC,Croatia,Born in 1995,Goalkeeper,Vitor Reis,Hard
+E01173,Álvaro Fidalgo,CF América,Spain / Mexico,Born in 1997,Central Midfielder,Allan Saint-Maximin,Hard
+E01174,Rafa Silva,Besiktas JK,Portugal,Born in 1993,İkinci Forvet,Orkun Kökçü,Hard
+E01175,Jan Bednarek,FC Porto,Poland,Born in 1996,Center Back,Samu Aghehowa,Hard
+E01176,Harry Winks,Leicester City,England,Born in 1996,Central Midfielder,Wout Faes,Hard
+E01177,Finn Dahmen,FC Augsburg,Germany / England,Born in 1998,Goalkeeper,Chrislain Matsima,Hard
+E01179,Álex Berenguer,Athletic Bilbao,Spain,Born in 1995,Left Winger,Nico Williams,Hard
+E01180,Senne Lynen,SV Werder Bremen,Belgium,Born in 1999,Defensive Midfielder,Victor Boniface,Hard
+E01181,Gorka Guruzeta,Athletic Bilbao,Spain,Born in 1996,Striker,Nico Williams,Hard
+E01182,Róger Guedes,Al-Rayyan SC,Brazil,Born in 1996,İkinci Forvet,Aleksandar Mitrović,Hard
+E01183,Lorenzo Pellegrini,AS Roma,Italy,Born in 1996,Attacking Midfielder,Manu Koné,Hard
+E01184,Léo Pereira,CR Flamengo,Brazil,Born in 1996,Center Back,Samuel Lino,Hard
+E01185,Nuno Santos,Sporting CP,Portugal,Born in 1995,Left Back,Morten Hjulmand,Hard
+E01186,Mahdi Camara,Stade Rennais FC,France / The Gambia,Born in 1998,Central Midfielder,Ludovic Blas,Hard
+E01187,Ridle Baku,RB Leipzig,Germany / DR Congo,Born in 1998,Right Back,Castello Lukeba,Hard
+E01188,Pepelu,Valencia CF,Spain,Born in 1998,Defensive Midfielder,Javi Guerra,Hard
+E01189,Valentin Rongier,Stade Rennais FC,France,Born in 1994,Central Midfielder,Ludovic Blas,Hard
+E01190,Kieran Tierney,Celtic FC,Scotland / Isle of Man,Born in 1997,Left Back,Daizen Maeda,Hard
+E01191,Tommaso Pobega,Bologna FC 1909,Italy,Born in 1999,Central Midfielder,Santiago Castro,Hard
+E01192,Jordan Teze,AS Monaco,Netherlands / Congo,Born in 1999,Right Back,Maghnes Akliouche,Hard
+E01193,Patson Daka,Leicester City,Zambia,Born in 1998,Striker,Wout Faes,Hard
+E01194,Dominik Kotarski,FC Copenhagen,Croatia,Zabok,Goalkeeper,Youssoufa Moukoko,Hard
+E01195,Ivan Oblyakov,CSKA Moscow,Russia,"Vyndin Ostrov, Leningrad Oblast",Attacking Midfielder,Igor Diveev,Hard
+E01198,Jayden Bogle,Leeds United,England,Born in 2000,Right Back,Wilfried Gnonto,Hard
+E01199,Armel Bella-Kotchap,Hellas Verona,Germany / Cameroon,Born in 2001,Center Back,Gift Orban,Hard
+E01200,Emerson Royal,CR Flamengo,Brazil,Born in 1999,Right Back,Samuel Lino,Hard
+E01201,Alexandre Penetra,AZ Alkmaar,Portugal,Born in 2001,Center Back,Troy Parrott,Hard
+E01202,Kyogo Furuhashi,Birmingham City,Japan,Born in 1995,Striker,Jay Stansfield,Hard
+E01205,Senne Lammens,Manchester United,Belgium,Born in 2002,Goalkeeper,Benjamin Sesko,Hard
+E01206,Michael Cooper,Sheffield United,England,Born in 1999,Goalkeeper,Gustavo Hamer,Hard
+E01208,Arsen Zakharyan,Real Sociedad,Russia,Born in 2003,Attacking Midfielder,Takefusa Kubo,Hard
+E01209,Kristian Thorstvedt,US Sassuolo,Norway,Born in 1999,Attacking Midfielder,Andrea Pinamonti,Hard
+E01210,Strahinja Erakovic,Zenit St. Petersburg,Serbia / Australia,Born in 2001,Center Back,Gerson,Hard
+E01211,Tsuyoshi Watanabe,Feyenoord Rotterdam,Japan,Born in 1997,Center Back,Quinten Timber,Hard
+E01212,Sven Mijnans,AZ Alkmaar,Netherlands,Born in 2000,Attacking Midfielder,Troy Parrott,Hard
+E01213,Gavin Bazunu,Southampton FC,Ireland / Nigeria,Born in 2002,Goalkeeper,Taylor Harwood-Bellis,Hard
+E01214,Jaidon Anthony,Burnley FC,England / Jamaica,Born in 1999,Left Winger,Florentino,Hard
+E01215,Juan Cabal,Juventus FC,Colombia,Born in 2001,Left Back,Loïs Openda,Hard
+E01216,Mauro Icardi,Galatasaray,Argentina / Italy,Born in 1993,Striker,Victor Osimhen,Hard
+E01217,Tim Iroegbunam,Everton FC,England / Nigeria,Born in 2003,Central Midfielder,Jarrad Branthwaite,Hard
+E01218,Lorenz Assignon,VfB Stuttgart,France / Togo,Born in 2000,Right Back,Angelo Stiller,Hard
+E01219,Nicolò Tresoldi,Club Brugge KV,Germany / Italy,Born in 2004,Striker,Joel Ordóñez,Hard
+E01220,Christian,Cruzeiro Esporte Clube,Brazil,Born in 2000,Central Midfielder,Luis Sinisterra,Hard
+E01221,David Møller Wolfe,Wolverhampton Wanderers,Norway,Born in 2002,Left Back,João Gomes,Hard
+E01222,Bence Dárdai,VfL Wolfsburg,Hungary / Germany,Born in 2006,Attacking Midfielder,Mohamed Amoura,Hard
+E01223,Alidu Seidu,Stade Rennais FC,Ghana,Born in 2000,Center Back,Ludovic Blas,Hard
+E01224,Bradley Locko,Stade Brestois 29,France / Congo,Born in 2002,Left Back,Romain Del Castillo,Hard
+E01226,Natan,Real Betis Balompié,Brazil,Born in 2001,Center Back,Antony,Hard
+E01227,Jaouen Hadjam,BSC Young Boys,Algeria / France,Algeria,Left Back,Alvyn Sanches,Hard
+E01228,Abdallah Sima,RC Lens,Senegal,Born in 2001,Left Winger,Odsonne Édouard,Hard
+E01229,Martim Fernandes,FC Porto,Portugal,Born in 2006,Right Back,Samu Aghehowa,Hard
+E01230,Ismaël Koné,US Sassuolo,Canada / Cote d'Ivoire,Born in 2002,Central Midfielder,Andrea Pinamonti,Hard
+E01231,Victor Froholdt,FC Porto,Denmark,Born in 2006,Central Midfielder,Samu Aghehowa,Hard
+E01232,Luka Vuskovic,Hamburger SV,Croatia,Born in 2007,Center Back,Fábio Vieira,Hard
+E01233,Farès Chaïbi,Eintracht Frankfurt,Algeria / France,Born in 2002,Attacking Midfielder,Hugo Larsson,Hard
+E01234,Stefan Bajcetic,Liverpool FC,Spain / Serbia,Born in 2004,Defensive Midfielder,Florian Wirtz,Hard
+E01235,Jhon Jhon,Red Bull Bragantino,Brazil,Born in 2002,Attacking Midfielder,Isidro Pitta,Hard
+E01236,Sandi Lovrić,Udinese Calcio,Slovenia / Austria,Born in 1998,Central Midfielder,Oumar Solet,Hard
+E01238,Krzysztof Piatek,Al-Duhail SC,Poland,Born in 1995,Striker,Tuta,Hard
+E01239,Houssem Aouar,Al-Ittihad Club,Algeria / France,Born in 1998,Attacking Midfielder,Moussa Diaby,Hard
+E01240,Hans Nicolussi Caviglia,ACF Fiorentina,Italy,Born in 2000,Central Midfielder,Moise Kean,Hard
+E01241,Nicolò Cambiaghi,Bologna FC 1909,Italy,Born in 2000,Left Winger,Santiago Castro,Hard
+E01243,Amir Richardson,ACF Fiorentina,Morocco / France,Born in 2002,Central Midfielder,Moise Kean,Hard
+E01244,Julio Soler,AFC Bournemouth,Argentina / Paraguay,Born in 2005,Left Back,Antoine Semenyo,Hard
+E01245,Ibrahima Sory Bangoura,KRC Genk,Guinea,Born in 2004,Defensive Midfielder,Konstantinos Karetsas,Hard
+E01246,Aarón Anselmino,Borussia Dortmund,Argentina,Born in 2005,Center Back,Serhou Guirassy,Hard
+E01247,Marcel Sabitzer,Borussia Dortmund,Austria,Born in 1994,Central Midfielder,Serhou Guirassy,Hard
+E01248,Gabriel Moscardo,SC Braga,Brazil,Born in 2005,Defensive Midfielder,Rodrigo Zalazar,Hard
+E01249,Bertrand Traoré,Sunderland AFC,Burkina Faso,Born in 1995,Right Winger,Simon Adingra,Hard
+E01250,Callum Wilson,West Ham United,England,Born in 1992,Striker,Jarrod Bowen,Hard
+E01251,Daniel Carvajal,Real Madrid,Spain,Born in 1992,Right Back,Kylian Mbappé,Hard
+E01252,Wataru Endo,Liverpool FC,Japan,Born in 1993,Defensive Midfielder,Florian Wirtz,Hard
+E01253,Victor Lindelöf,Aston Villa,Sweden,Born in 1994,Center Back,Morgan Rogers,Hard
+E01254,Predrag Rajković,Al-Ittihad Club,Serbia,Born in 1995,Goalkeeper,Moussa Diaby,Hard
+E01255,Nick Pope,Newcastle United,England,Born in 1992,Goalkeeper,Bruno Guimarães,Hard
+E01256,Nico Elvedi,Borussia Mönchengladbach,Switzerland,Born in 1996,Center Back,Tim Kleindienst,Hard
+E01257,Niklas Süle,Borussia Dortmund,Germany,Born in 1995,Center Back,Serhou Guirassy,Hard
+E01258,Raphaël Guerreiro,Bayern Munich,Portugal / France,Born in 1993,Left Back,Jamal Musiala,Hard
+E01259,Riyad Mahrez,Al-Ahli SFC,Algeria / France,Born in 1991,Right Winger,Enzo Millot,Hard
+E01260,Eric Dier,AS Monaco,England / Portugal,Born in 1994,Center Back,Maghnes Akliouche,Hard
+E01261,Domenico Berardi,US Sassuolo,Italy,Born in 1994,Right Winger,Andrea Pinamonti,Hard
+E01263,James Ward-Prowse,West Ham United,England,Born in 1994,Central Midfielder,Jarrod Bowen,Hard
+E01264,Kiril Despodov,PAOK Thessaloniki,Bulgaria,Born in 1996,Right Winger,Andrija Zivkovic,Hard
+E01265,Stefan Posch,Como 1907,Austria,Born in 1997,Center Back,Nico Paz,Hard
+E01267,Gerónimo Rulli,Olympique Marseille,Argentina / Italy,Born in 1992,Goalkeeper,Mason Greenwood,Hard
+E01268,Maxwel Cornet,Genoa CFC,Cote d'Ivoire / France,Born in 1996,Left Winger,Morten Frendrup,Hard
+E01270,Sadio Mané,Al-Nassr FC,Senegal,Born in 1992,Left Winger,Kingsley Coman,Hard
+E01271,Paulo Dybala,AS Roma,Argentina / Italy,Born in 1993,İkinci Forvet,Manu Koné,Hard
+E01272,Andrija Zivkovic,PAOK Thessaloniki,Serbia,Born in 1996,Right Winger,Kiril Despodov,Hard
+E01273,Lukas Klostermann,RB Leipzig,Germany,Born in 1996,Center Back,Castello Lukeba,Hard
+E01274,Neal Maupay,Olympique Marseille,France / Argentina,Born in 1996,Striker,Mason Greenwood,Hard
+E01275,Wilmar Barrios,Zenit St. Petersburg,Colombia,Born in 1993,Defensive Midfielder,Gerson,Hard
+E01276,Maximilian Wöber,SV Werder Bremen,Austria,Born in 1998,Center Back,Victor Boniface,Hard
+E01278,Robin Gosens,ACF Fiorentina,Germany / Netherlands,Born in 1994,Left Back,Moise Kean,Hard
+E01280,Vaclav Cerny,Besiktas JK,Czech Republic,Born in 1997,Right Winger,Orkun Kökçü,Hard
+E01281,Tyrell Malacia,Manchester United,Netherlands / Curacao,Born in 1999,Left Back,Benjamin Sesko,Hard
+E01282,Odsonne Édouard,RC Lens,France / French Guiana,Born in 1998,Striker,Abdallah Sima,Hard
+E01283,Guilherme Arana,Clube Atlético Mineiro,Brazil,Born in 1997,Left Back,Gustavo Scarpa,Hard
+E01284,Agustín Rossi,CR Flamengo,Argentina / Italy,Born in 1995,Goalkeeper,Samuel Lino,Hard
+E01285,Omar Alderete,Sunderland AFC,Paraguay,Born in 1996,Center Back,Simon Adingra,Hard
+E01286,Iñaki Peña,Elche CF,Spain,Alicante,Goalkeeper,Héctor Fort,Hard
+E01287,Oleksandr Zubkov,Trabzonspor,Ukraine,Born in 1996,Right Winger,André Onana,Hard
+E01288,Timi Max Elsnik,Red Star Belgrade,Slovenia,Zlatoličje,Central Midfielder,Tomás Händel,Hard
+E01289,Michal Sadílek,SK Slavia Prague,Czech Republic,Uherské Hradiště,Central Midfielder,Igoh Ogbu,Hard
+E01290,Jota,Celtic FC,Portugal,Born in 1999,Left Winger,Daizen Maeda,Hard
+E01291,Luis Chávez,Dynamo Moscow,Mexico,Born in 1996,Defensive Midfielder,Konstantin Tyukavin,Hard
+E01293,Altay Bayındır,Manchester United,Turkey,Born in 1998,Goalkeeper,Benjamin Sesko,Hard
+E01294,Akram Afif,Al-Sadd SC,Qatar / Yemen,Born in 1996,Left Winger,Claudinho,Hard
+E01295,Nikola Vlašić,Torino FC,Croatia,Born in 1997,Attacking Midfielder,Ivan Ilić,Hard
+E01296,Azor Matusiwa,Ipswich Town,Netherlands / Angola,Born in 1998,Defensive Midfielder,Leif Davis,Hard
+E01297,Haji Wright,Coventry City,United States / Liberia,Born in 1998,Striker,Jack Rudoni,Hard
+E01298,Moatasem Al-Musrati,Hellas Verona,Libya / Portugal,Born in 1996,Defensive Midfielder,Gift Orban,Hard
+E01299,Santi Comesaña,Villarreal CF,Spain,Born in 1996,Central Midfielder,Renato Veiga,Hard
+E01300,Albert Sambi Lokonga,Hamburger SV,Belgium / DR Congo,Born in 1999,Central Midfielder,Fábio Vieira,Hard
+E01301,Tyrese Campbell,Sheffield United,England / Jamaica,Born in 1999,Striker,Gustavo Hamer,Hard
+E01302,Alberto Dossena,Como 1907,Italy,Born in 1998,Center Back,Nico Paz,Hard
+E01303,Felix Agu,SV Werder Bremen,Nigeria / Germany,Born in 1999,Left Back,Victor Boniface,Hard
+E01304,Gaëtan Perrin,FC Krasnodar,France,Born in 1996,Right Winger,Eduard Spertsyan,Hard
+E01305,Cyril Ngonge,Torino FC,Belgium / DR Congo,Born in 2000,Right Winger,Ivan Ilić,Hard
+E01306,Pablo Rosario,FC Porto,Dominican Republic / Netherlands,Born in 1997,Defensive Midfielder,Samu Aghehowa,Hard
+E01308,Amine Harit,Basaksehir FK,Morocco / France,Pontoise,Attacking Midfielder,Eldor Shomurodov,Hard
+E01309,Junior Firpo,Real Betis Balompié,Dominican Republic / Spain,Born in 1996,Left Back,Antony,Hard
+E01310,Daniil Fomin,Dynamo Moscow,Russia,Born in 1997,Defensive Midfielder,Konstantin Tyukavin,Hard
+E01312,Sikou Niakaté,SC Braga,Mali / France,Born in 1999,Center Back,Rodrigo Zalazar,Hard
+E01313,Tiago Djaló,Besiktas JK,Portugal / Guinea-Bissau,Born in 2000,Center Back,Orkun Kökçü,Hard
+E01314,Fran Beltrán,Celta de Vigo,Spain,Born in 1999,Central Midfielder,Óscar Mingueza,Hard
+E01315,Luis Suárez,Sporting CP,Colombia / Spain,Born in 1997,Striker,Morten Hjulmand,Hard
+E01316,Aleksandr Chernikov,FC Krasnodar,Russia,Born in 2000,Defensive Midfielder,Eduard Spertsyan,Hard
+E01317,John Victor,Nottingham Forest,Brazil / Portugal,Born in 1996,Goalkeeper,Murillo,Hard
+E01318,Marco Brescianini,Atalanta BC,Italy,Born in 2000,Central Midfielder,Ademola Lookman,Hard
+E01319,Yann Gboho,FC Toulouse,France / Cote d'Ivoire,Born in 2001,Left Winger,Guillaume Restes,Hard
+E01320,Ben Johnson,Ipswich Town,England,Born in 2000,Right Back,Leif Davis,Hard
+E01321,Rodrigo Nestor,Esporte Clube Bahia,Brazil,Born in 2000,Central Midfielder,Jean Lucas,Hard
+E01322,Marcos Antônio,São Paulo Futebol Clube,Brazil,Born in 2000,Central Midfielder,Ferreirinha,Hard
+E01323,David Strelec,Middlesbrough FC,Slovakia,Born in 2001,Striker,Sverre Nypan,Hard
+E01324,Artur,Botafogo de Futebol e Regatas,Brazil,Born in 1998,Right Winger,Danilo,Hard
+E01325,Maarten Vandevoordt,RB Leipzig,Belgium,Born in 2002,Goalkeeper,Castello Lukeba,Hard
+E01326,Anass Zaroury,Panathinaikos FC,Morocco / Belgium,Born in 2000,Left Winger,Tetê,Hard
+E01327,Emil Holm,Bologna FC 1909,Sweden,Born in 2000,Right Back,Santiago Castro,Hard
+E01328,Mujaid Sadick,KRC Genk,Spain / Nigeria,Born in 2000,Center Back,Konstantinos Karetsas,Hard
+E01329,Dan Ballard,Sunderland AFC,Northern Ireland / England,Born in 1999,Center Back,Simon Adingra,Hard
+E01331,Fisnik Asllani,TSG 1899 Hoffenheim,Kosovo / Germany,Born in 2002,Striker,Adam Hlozek,Hard
+E01332,Igor Diveev,CSKA Moscow,Russia,Ufa,Center Back,Ivan Oblyakov,Hard
+E01334,Georgios Vagiannidis,Sporting CP,Greece,Born in 2001,Right Back,Morten Hjulmand,Hard
+E01335,Diego Costa,FC Krasnodar,Brazil,Born in 1999,Center Back,Eduard Spertsyan,Hard
+E01336,Dennis Cirkin,Sunderland AFC,England / Ireland,Born in 2002,Left Back,Simon Adingra,Hard
+E01337,Lucien Agoumé,Sevilla FC,France / Cameroon,Born in 2002,Defensive Midfielder,Juanlu Sánchez,Hard
+E01338,Danil Glebov,Dynamo Moscow,Russia,Born in 1999,Defensive Midfielder,Konstantin Tyukavin,Hard
+E01339,Ferran Jutglà,Celta de Vigo,Spain,Born in 1999,Striker,Óscar Mingueza,Hard
+E01340,Max Rosenfelder,SC Freiburg,Germany,Born in 2003,Center Back,Noah Atubolu,Hard
+E01341,Érik Lira,CD Cruz Azul,Mexico,Born in 2000,Defensive Midfielder,Mateusz Bogusz,Hard
+E01342,William Bøving,1.FSV Mainz 05,Denmark,Born in 2003,Striker,Paul Nebel,Hard
+E01344,Ante Crnac,Norwich City,Croatia,Born in 2003,Striker,Josh Sargent,Hard
+E01345,Eiran Cashin,Birmingham City,Ireland / England,Born in 2001,Center Back,Jay Stansfield,Hard
+E01346,Ayase Ueda,Feyenoord Rotterdam,Japan,Born in 1998,Striker,Quinten Timber,Hard
+E01347,Gonzalo Plata,CR Flamengo,Ecuador,Born in 2000,Right Winger,Samuel Lino,Hard
+E01348,Thomas Beelen,Feyenoord Rotterdam,Netherlands,Born in 2001,Center Back,Quinten Timber,Hard
+E01349,Lucas Gourna-Douath,Red Bull Salzburg,France / Central African Republic,Born in 2003,Defensive Midfielder,Joane Gadou,Hard
+E01350,Andrew Omobamidele,RC Strasbourg Alsace,Ireland / Nigeria,Born in 2002,Center Back,Emmanuel Emegha,Hard
+E01351,Luciano Juba,Esporte Clube Bahia,Brazil,Born in 1999,Left Back,Jean Lucas,Hard
+E01352,Facundo Pellistri,Panathinaikos FC,Uruguay / Spain,Born in 2001,Right Winger,Tetê,Hard
+E01353,Mexx Meerdink,AZ Alkmaar,Netherlands,Born in 2003,Striker,Troy Parrott,Hard
+E01354,Santiago Ramos Mingo,Esporte Clube Bahia,Argentina / Italy,Born in 2001,Center Back,Jean Lucas,Hard
+E01355,Ferreirinha,São Paulo Futebol Clube,Brazil,Born in 1997,Left Winger,Marcos Antônio,Hard
+E01356,Hugo Bueno,Wolverhampton Wanderers,Spain,Born in 2002,Left Back,João Gomes,Hard
+E01357,Yerson Mosquera,Wolverhampton Wanderers,Colombia,Born in 2001,Center Back,João Gomes,Hard
+E01358,Eren Dinkçi,SC Freiburg,Türkiye / Germany,Born in 2001,Right Winger,Noah Atubolu,Hard
+E01359,Samson Baidoo,RC Lens,Austria,Born in 2004,Center Back,Abdallah Sima,Hard
+E01360,Mohamed Diomandé,Rangers FC,Cote d'Ivoire / Ghana,Born in 2001,Central Midfielder,Mikey Moore,Hard
+E01361,Soumaïla Coulibaly,RC Strasbourg Alsace,France / Mali,Born in 2003,Center Back,Emmanuel Emegha,Hard
+E01362,Jacob Ondrejka,Parma Calcio 1913,Sweden,Born in 2002,Left Winger,Zion Suzuki,Hard
+E01363,Jordan James,Leicester City,Wales / England,Born in 2004,Central Midfielder,Wout Faes,Hard
+E01364,Youssef Chermiti,Rangers FC,Portugal / Tunisia,Born in 2004,Striker,Mikey Moore,Hard
+E01366,Alfie Gilchrist,West Bromwich Albion,England,London,Right Back,Josh Maja,Hard
+E01368,Jonas Adjetey,FC Basel 1893,Ghana,Born in 2003,Center Back,Bénie Traoré,Hard
+E01369,Ruben van Bommel,PSV Eindhoven,Netherlands,Born in 2004,Left Winger,Ismael Saibari,Hard
+E01370,Koke,Atlético de Madrid,Spain,Born in 1992,Central Midfielder,Julián Alvarez,Hard
+E01371,Carlos Forbs,Club Brugge KV,Portugal / Guinea-Bissau,Born in 2004,Left Winger,Joel Ordóñez,Hard
+E01372,Chemsdine Talbi,Sunderland AFC,Morocco / Belgium,Born in 2005,Right Winger,Simon Adingra,Hard
+E01373,Kévin Danois,AJ Auxerre,France / Guadeloupe,Basse-Terre,Central Midfielder,Ibrahim Osman,Hard
+E01374,Elias Baum,Eintracht Frankfurt,Germany,Born in 2005,Right Back,Hugo Larsson,Hard
+E01376,Kike Salas,Sevilla FC,Spain,Born in 2002,Center Back,Juanlu Sánchez,Hard
+E01378,Gonzalo García,Real Madrid,Spain,Born in 2004,Striker,Kylian Mbappé,Hard
+E01379,Erick Pulga,Esporte Clube Bahia,Brazil,Born in 2000,Left Winger,Jean Lucas,Hard
+E01380,Willi Orbán,RB Leipzig,Hungary / Germany,Born in 1992,Center Back,Castello Lukeba,Hard
+E01381,Iván Fresneda,Sporting CP,Spain,Born in 2004,Right Back,Morten Hjulmand,Hard
+E01382,Saba Goglichidze,Udinese Calcio,Georgia,Born in 2004,Center Back,Oumar Solet,Hard
+E01383,Pablo Marín,Real Sociedad,Spain,Born in 2003,Attacking Midfielder,Takefusa Kubo,Hard
+E01384,Oliver Scarles,West Ham United,England,Born in 2005,Left Back,Jarrod Bowen,Hard
+E01385,Johan Manzambi,SC Freiburg,Switzerland,Born in 2005,Central Midfielder,Noah Atubolu,Hard
+E01386,Djaoui Cissé,Stade Rennais FC,France / Mali,Born in 2004,Central Midfielder,Ludovic Blas,Hard
+E01388,Darío Osorio,FC Midtjylland,Chile,Born in 2004,Right Winger,Franculino,Hard
+E01389,Pablo Maia,São Paulo Futebol Clube,Brazil,Born in 2002,Defensive Midfielder,Marcos Antônio,Hard
+E01390,Jackson Tchatchoua,Wolverhampton Wanderers,Cameroon / Belgium,Born in 2001,Right Back,João Gomes,Hard
+E01391,Arthur Atta,Udinese Calcio,France / Benin,Born in 2003,Central Midfielder,Oumar Solet,Hard
+E01392,Kevin Castaño,CA River Plate,Colombia,Born in 2000,Defensive Midfielder,Lucas Martínez Quarta,Hard
+E01393,Stefan Ortega,Manchester City,Germany / Spain,Born in 1992,Goalkeeper,Erling Haaland,Hard
+E01394,Alessandro Circati,Parma Calcio 1913,Australia / Italy,Born in 2003,Center Back,Zion Suzuki,Hard
+E01395,Joaquin Seys,Club Brugge KV,Belgium,Born in 2005,Left Back,Joel Ordóñez,Hard
+E01396,Christopher Bonsu Baah,Al-Qadsiah FC,Ghana,Born in 2004,Left Winger,Mateo Retegui,Hard
+E01397,Ousmane Diao,FC Midtjylland,Senegal,Born in 2004,Center Back,Franculino,Hard
+E01398,Clément Lenglet,Atlético de Madrid,France,Born in 1995,Center Back,Julián Alvarez,Hard
+E01399,Mario Lemina,Galatasaray,Gabon / France,Born in 1993,Defensive Midfielder,Victor Osimhen,Hard
+E01400,Anthony Martial,CF Monterrey,France / Guadeloupe,Massy,Striker,Lucas Ocampos,Hard
+E01401,Djibril Sow,Sevilla FC,Switzerland / Senegal,Born in 1997,Central Midfielder,Juanlu Sánchez,Hard
+E01403,Michel Aebischer,Pisa Sporting Club,Switzerland,Born in 1997,Central Midfielder,Lorran,Hard
+E01405,Maduka Okoye,Udinese Calcio,Nigeria / Germany,Born in 1999,Goalkeeper,Oumar Solet,Hard
+E01406,Cengiz Ünder,Besiktas JK,Turkey,Born in 1997,Right Winger,Orkun Kökçü,Hard
+E01407,Diego Conde,Villarreal CF,Spain,Born in 1998,Goalkeeper,Renato Veiga,Hard
+E01408,Fedor Chalov,PAOK Thessaloniki,Russia,Born in 1998,Striker,Kiril Despodov,Hard
+E01409,Ellyes Skhiri,Eintracht Frankfurt,Tunisia / France,Born in 1995,Defensive Midfielder,Hugo Larsson,Hard
+E01410,Gustavo Scarpa,Clube Atlético Mineiro,Brazil / Italy,Born in 1994,Attacking Midfielder,Guilherme Arana,Hard
+E01411,Walter Benítez,Crystal Palace,Argentina / France,Born in 1993,Goalkeeper,Marc Guéhi,Hard
+E01414,Rafa Mujica,Al-Sadd SC,Spain,Born in 1998,Striker,Claudinho,Hard
+E01415,Marash Kumbulla,RCD Mallorca,Albania / Italy,Born in 2000,Center Back,Samú Costa,Hard
+E01416,Ben Brereton Díaz,Derby County,Chile / England,Chile,Striker,Carlton Morris,Hard
+E01418,Mateusz Bogusz,CD Cruz Azul,Poland,Born in 2001,Attacking Midfielder,Érik Lira,Hard
+E01419,Mady Camara,PAOK Thessaloniki,Guinea,Born in 1997,Central Midfielder,Kiril Despodov,Hard
+E01420,Daniel Boloca,US Sassuolo,Italy / Romania,Born in 1998,Defensive Midfielder,Andrea Pinamonti,Hard
+E01421,Largie Ramazani,Valencia CF,Belgium / Burundi,Born in 2001,Left Winger,Javi Guerra,Hard
+E01422,Fisayo Dele-Bashiru,SS Lazio,Nigeria / England,Born in 2001,Attacking Midfielder,Mattéo Guendouzi,Hard
+E01423,Jay Idzes,US Sassuolo,Indonesia / Netherlands,Born in 2000,Center Back,Andrea Pinamonti,Hard
+E01426,Dan Neil,Sunderland AFC,England,Born in 2001,Central Midfielder,Simon Adingra,Hard
+E01427,Stanislav Agkatsev,FC Krasnodar,Russia,Born in 2002,Goalkeeper,Eduard Spertsyan,Hard
+E01428,Ameen Al-Dakhil,VfB Stuttgart,Belgium / Iraq,Born in 2002,Center Back,Angelo Stiller,Hard
+E01429,Raúl Moro,Ajax Amsterdam,Spain,Born in 2002,Left Winger,Kenneth Taylor,Hard
+E01430,Aurèle Amenda,Eintracht Frankfurt,Switzerland / Cameroon,Born in 2003,Center Back,Hugo Larsson,Hard
+E01431,Isidro Pitta,Red Bull Bragantino,Paraguay,Born in 1999,Striker,Jhon Jhon,Hard
+E01432,Kevin Paredes,VfL Wolfsburg,United States / Dominican Republic,Born in 2003,Left Midfield,Mohamed Amoura,Hard
+E01433,Roony Bardghji,FC Barcelona,Sweden / Syria,Born in 2005,Right Winger,Lamine Yamal,Hard
+E01434,Tommy Conway,Middlesbrough FC,Scotland / England,Born in 2002,Striker,Sverre Nypan,Hard
+E01435,Ismaël Gharbi,FC Augsburg,Tunisia / Spain,Born in 2004,Left Winger,Chrislain Matsima,Hard
+E01436,Sydie Peck,Sheffield United,England / Wales,Born in 2004,Central Midfielder,Gustavo Hamer,Hard
+E01437,Luca Marianucci,SSC Napoli,Italy,Born in 2004,Center Back,Scott McTominay,Hard
+E01438,Robert Renan,Clube de Regatas Vasco da Gama,Brazil,Born in 2003,Center Back,Rayan,Hard
+E01439,Davide Astori,---,Italy,Born in 1987,Center Back,Diogo Jota,Hard
+E01440,Hugo Álvarez,Celta de Vigo,Spain,Born in 2003,Left Winger,Óscar Mingueza,Hard
+E01441,Yarek Gasiorowski,PSV Eindhoven,Spain / Poland,Born in 2005,Center Back,Ismael Saibari,Hard
+E01442,Matija Frigan,Parma Calcio 1913,Croatia,Born in 2003,Striker,Zion Suzuki,Hard
+E01443,Oscar Højlund,Eintracht Frankfurt,Denmark,Born in 2005,Central Midfielder,Hugo Larsson,Hard
+E01445,Mathis Amougou,RC Strasbourg Alsace,France / Cameroon,Born in 2006,Central Midfielder,Emmanuel Emegha,Hard
+E01446,Christian Ordóñez,Parma Calcio 1913,Argentina / Paraguay,Born in 2004,Central Midfielder,Zion Suzuki,Hard
+E01447,Kendry Páez,RC Strasbourg Alsace,Ecuador,Born in 2007,Attacking Midfielder,Emmanuel Emegha,Hard
+E01449,Andrés García,Aston Villa,Spain,Born in 2003,Right Back,Morgan Rogers,Hard
+E01450,Joaquín Panichelli,RC Strasbourg Alsace,Argentina,Born in 2002,Striker,Emmanuel Emegha,Hard
+E01453,Fabian Schär,Newcastle United,Switzerland,Born in 1991,Center Back,Bruno Guimarães,Hard
+E01454,Hans Vanaken,Club Brugge KV,Belgium,Born in 1992,Attacking Midfielder,Joel Ordóñez,Hard
+E01455,Geoffrey Kondogbia,Olympique Marseille,Central African Republic / France,Born in 1993,Defensive Midfielder,Mason Greenwood,Hard
+E01456,Abdoulaye Doucouré,NEOM SC,Mali / France,Born in 1993,Attacking Midfielder,Marcin Bulka,Hard
+E01457,Matz Sels,Nottingham Forest,Belgium,Born in 1992,Goalkeeper,Murillo,Hard
+E01458,Luis Alberto,Al-Duhail SC,Spain,Born in 1992,Attacking Midfielder,Tuta,Hard
+E01459,Matthias Ginter,SC Freiburg,Germany,Born in 1994,Center Back,Noah Atubolu,Hard
+E01460,Emre Can,Borussia Dortmund,Germany / Türkiye,Born in 1994,Center Back,Serhou Guirassy,Hard
+E01461,Bruma,SL Benfica,Portugal / Guinea-Bissau,Born in 1994,Left Winger,Vangelis Pavlidis,Hard
+E01463,Karim Benzema,Al-Ittihad Club,France / Algeria,Born in 1987,Striker,Moussa Diaby,Rookie
+E01464,Álex Moreno,Girona FC,Spain,Born in 1993,Left Back,Vitor Reis,Hard
+E01465,Chuba Akpom,Ipswich Town,England / Nigeria,Born in 1995,Striker,Leif Davis,Hard
+E01466,Bryan Cristante,AS Roma,Italy / Canada,Born in 1995,Defensive Midfielder,Manu Koné,Hard
+E01467,Timo Werner,RB Leipzig,Germany,Born in 1996,Left Winger,Castello Lukeba,Hard
+E01468,Rui Silva,Sporting CP,Portugal,Born in 1994,Goalkeeper,Morten Hjulmand,Hard
+E01469,Georgios Giakoumakis,PAOK Thessaloniki,Greece,Born in 1994,Striker,Kiril Despodov,Hard
+E01470,Abdülkerim Bardakcı,Galatasaray,Turkey,Born in 1994,Center Back,Victor Osimhen,Hard
+E01473,Will Hughes,Crystal Palace,England,Born in 1995,Central Midfielder,Marc Guéhi,Hard
+E01474,İrfan Can Kahveci,Fenerbahce,Turkey,Born in 1995,Right Winger,Jhon Durán,Hard
+E01475,Benjamin Bourigeaud,Al-Duhail SC,France,Born in 1994,Central Midfielder,Tuta,Hard
+E01476,Duje Caleta-Car,Real Sociedad,Croatia,Born in 1996,Center Back,Takefusa Kubo,Hard
+E01477,Przemyslaw Frankowski,Stade Rennais FC,Poland,Born in 1995,Right Back,Ludovic Blas,Hard
+E01478,Denis Vavro,VfL Wolfsburg,Slovakia,Born in 1996,Center Back,Mohamed Amoura,Hard
+E01480,José Sá,Wolverhampton Wanderers,Portugal,Born in 1993,Goalkeeper,João Gomes,Hard
+E01481,Yeray Álvarez,Athletic Bilbao,Spain,Born in 1995,Center Back,Nico Williams,Hard
+E01482,Niklas Beste,SC Freiburg,Germany,Born in 1999,Right Winger,Noah Atubolu,Hard
+E01483,Rubén Vargas,Sevilla FC,Switzerland / Dominican Republic,Born in 1998,Left Winger,Juanlu Sánchez,Hard
+E01484,Felix Uduokhai,Besiktas JK,Germany / Nigeria,Born in 1997,Center Back,Orkun Kökçü,Hard
+E01485,Mario Hermoso,AS Roma,Spain,Born in 1995,Center Back,Manu Koné,Hard
+E01486,Ramy Bensebaini,Borussia Dortmund,Algeria,Born in 1995,Left Back,Serhou Guirassy,Hard
+E01487,Baptiste Santamaria,Valencia CF,France,Born in 1995,Defensive Midfielder,Javi Guerra,Hard
+E01488,Léo Jardim,Clube de Regatas Vasco da Gama,Brazil / Italy,Born in 1995,Goalkeeper,Rayan,Hard
+E01489,Everton,CR Flamengo,Brazil,Born in 1996,Left Winger,Samuel Lino,Hard
+E01490,Jonathan Ikoné,Paris FC,France / DR Congo,Born in 1998,Right Winger,Moses Simon,Hard
+E01491,Orbelín Pineda,AEK Athens,Mexico,Born in 1996,Central Midfielder,Dereck Kutesa,Hard
+E01492,David García,Al-Rayyan SC,Spain,Born in 1994,Center Back,Aleksandar Mitrović,Hard
+E01495,Ismail Jakobs,Galatasaray,Senegal / Germany,Born in 1999,Left Back,Victor Osimhen,Hard
+E01496,Cédric Zesiger,FC Augsburg,Switzerland,Born in 1998,Center Back,Chrislain Matsima,Hard
+E01498,Chiedozie Ogbene,Sheffield United,Ireland / Nigeria,Born in 1997,Right Winger,Gustavo Hamer,Hard
+E01499,Romain Del Castillo,Stade Brestois 29,France / Spain,Born in 1996,Right Winger,Bradley Locko,Hard
+E01500,Jorge Carrascal,CR Flamengo,Colombia,Born in 1998,Attacking Midfielder,Samuel Lino,Hard
+E01501,Sergio Akieme,Stade Reims,Spain / Equatorial Guinea,Spain,Left Back,Keito Nakamura,Hard
+E01502,Simone Canestrelli,Pisa Sporting Club,Italy,Born in 2000,Center Back,Lorran,Hard
+E01503,Mitchel Bakker,Atalanta BC,Netherlands,Born in 2000,Left Back,Ademola Lookman,Hard
+E01504,Jurgen Ekkelenkamp,Udinese Calcio,Netherlands,Born in 2000,Central Midfielder,Oumar Solet,Hard
+E01505,Gabriel Gudmundsson,Leeds United,Sweden,Born in 1999,Left Back,Wilfried Gnonto,Hard
+E01506,Lucas Martínez Quarta,CA River Plate,Argentina / Italy,Born in 1996,Center Back,Kevin Castaño,Hard
+E01507,Gijs Smal,Feyenoord Rotterdam,Netherlands,Born in 1997,Left Back,Quinten Timber,Hard
+E01508,Filip Ugrinic,Valencia CF,Switzerland,Born in 1999,Central Midfielder,Javi Guerra,Hard
+E01509,Valeriy Bondar,Shakhtar Donetsk,Ukraine,Born in 1999,Center Back,Mykola Matvienko,Hard
+E01511,Calvin Stengs,Pisa Sporting Club,Netherlands / Suriname,Born in 1998,Attacking Midfielder,Lorran,Hard
+E01512,Myron Boadu,PSV Eindhoven,Netherlands / Ghana,Born in 2001,Striker,Ismael Saibari,Hard
+E01513,Ragnar Ache,1.FC Köln,Germany / Ghana,Born in 1998,Striker,Ísak Jóhannesson,Hard
+E01515,Frank Onyeka,Brentford FC,Nigeria,Born in 1998,Central Midfielder,Kevin Schade,Hard
+E01517,Estéban Lepaul,Stade Rennais FC,France,Born in 2000,Striker,Ludovic Blas,Hard
+E01518,Carlos Cuesta,Clube de Regatas Vasco da Gama,Colombia,Born in 1999,Center Back,Rayan,Hard
+E01519,Matteo Tramoni,Pisa Sporting Club,Italy / France,Born in 2000,Attacking Midfielder,Lorran,Hard
+E01521,Ethan Pinnock,Brentford FC,Jamaica / England,Born in 1993,Center Back,Kevin Schade,Hard
+E01523,Tanguy Ndombélé,OGC Nice,France / DR Congo,Born in 1996,Central Midfielder,Melvin Bard,Hard
+E01525,Krépin Diatta,AS Monaco,Senegal,Born in 1999,Right Winger,Maghnes Akliouche,Hard
+E01526,Ludovit Reis,Club Brugge KV,Netherlands / Slovakia,Born in 2000,Central Midfielder,Joel Ordóñez,Hard
+E01527,Adrià Pedrosa,Elche CF,Spain,Barcelona,Left Back,Héctor Fort,Hard
+E01528,Michel-Ange Balikwisha,Celtic FC,Belgium / DR Congo,Born in 2001,Left Winger,Daizen Maeda,Hard
+E01529,Tomás Cuello,Clube Atlético Mineiro,Argentina,Born in 2000,Left Winger,Guilherme Arana,Hard
+E01530,Aster Vranckx,US Sassuolo,Belgium / DR Congo,Born in 2002,Central Midfielder,Andrea Pinamonti,Hard
+E01531,Giovanni Reyna,Borussia Mönchengladbach,United States / Portugal,Born in 2002,Attacking Midfielder,Tim Kleindienst,Hard
+E01532,Oliver Sørensen,Parma Calcio 1913,Denmark,Born in 2002,Central Midfielder,Zion Suzuki,Hard
+E01533,Pedrinho,Shakhtar Donetsk,Brazil,Born in 1998,Right Winger,Mykola Matvienko,Hard
+E01534,Vítor Tormena,FC Krasnodar,Brazil,Born in 1996,Center Back,Eduard Spertsyan,Hard
+E01537,Anis Mehmeti,Bristol City,Albania / England,Albania,Attacking Midfielder,Jason Knight,Hard
+E01539,Dmytro Kryskiv,Shakhtar Donetsk,Ukraine,Born in 2000,Central Midfielder,Mykola Matvienko,Hard
+E01541,Jon Moncayola,CA Osasuna,Spain,Garinoain,Central Midfielder,Enzo Boyomo,Hard
+E01542,Mark McGuinness,Sheffield United,Ireland / England,Born in 2001,Center Back,Gustavo Hamer,Hard
+E01543,Jeremy Sarmiento,US Cremonese,Ecuador / England,Madrid,Left Winger,Warren Bondo,Hard
+E01544,Valentin Gendrey,TSG 1899 Hoffenheim,France / Guadeloupe,Born in 2000,Right Back,Adam Hlozek,Hard
+E01545,Dmytro Riznyk,Shakhtar Donetsk,Ukraine,Born in 1999,Goalkeeper,Mykola Matvienko,Hard
+E01546,Luciano Valente,Feyenoord Rotterdam,Netherlands / Italy,Born in 2003,Attacking Midfielder,Quinten Timber,Hard
+E01547,Samuel Dahl,SL Benfica,Sweden,Born in 2003,Left Back,Vangelis Pavlidis,Hard
+E01548,Gabriel Menino,Clube Atlético Mineiro,Brazil,Born in 2000,Central Midfielder,Guilherme Arana,Hard
+E01549,William Osula,Newcastle United,Denmark / England,Born in 2003,Striker,Bruno Guimarães,Hard
+E01550,Bashir Humphreys,Burnley FC,England / Uganda,Born in 2003,Left Back,Florentino,Hard
+E01551,Silas,VfB Stuttgart,DR Congo,Born in 1998,Right Winger,Angelo Stiller,Hard
+E01552,Tyler Morton,Olympique Lyon,England,Born in 2002,Defensive Midfielder,Malick Fofana,Hard
+E01553,Josh Eccles,Coventry City,England,Born in 2000,Central Midfielder,Jack Rudoni,Hard
+E01554,Ísak Jóhannesson,1.FC Köln,Iceland,Born in 2003,Central Midfielder,Ragnar Ache,Hard
+E01555,Archie Brown,Fenerbahce,England / Jamaica,Born in 2002,Left Back,Jhon Durán,Hard
+E01557,Justin Njinmah,SV Werder Bremen,Germany / Nigeria,Born in 2000,Right Winger,Victor Boniface,Hard
+E01559,Tarik Muharemović,US Sassuolo,Bosnia-Herzegovina / Slovenia,Born in 2003,Center Back,Andrea Pinamonti,Hard
+E01560,Aljoscha Kemlein,1.FC Union Berlin,Germany,Born in 2004,Defensive Midfielder,Diogo Leite,Hard
+E01561,Badredine Bouanani,VfB Stuttgart,Algeria / France,Born in 2004,Right Winger,Angelo Stiller,Hard
+E01562,Isaak Touré,FC Lorient,France / Cote d'Ivoire,France,Center Back,Montassar Talbi,Hard
+E01563,Abner,Olympique Lyon,Brazil,Born in 2000,Left Back,Malick Fofana,Hard
+E01564,Elias Jelert,Southampton FC,Denmark,Born in 2003,Right Back,Taylor Harwood-Bellis,Hard
+E01565,Tyrhys Dolan,RCD Espanyol Barcelona,England,Born in 2001,Right Winger,Omar El Hilali,Hard
+E01566,Rafa Marín,Villarreal CF,Spain,Born in 2002,Center Back,Renato Veiga,Hard
+E01567,Matheus Martins,Botafogo de Futebol e Regatas,Brazil,Born in 2003,Left Winger,Danilo,Hard
+E01568,Lucas Piton,Clube de Regatas Vasco da Gama,Italy / Brazil,Born in 2000,Left Back,Rayan,Hard
+E01569,Muhammed Damar,TSG 1899 Hoffenheim,Germany / Türkiye,Born in 2004,Attacking Midfielder,Adam Hlozek,Hard
+E01570,Alexandro Bernabei,Sport Club Internacional,Argentina / Italy,Born in 2000,Left Back,Vitão,Hard
+E01571,Matej Jurasek,Norwich City,Czech Republic,Born in 2003,Right Winger,Josh Sargent,Hard
+E01572,Caio Alexandre,Esporte Clube Bahia,Brazil,Born in 1999,Defensive Midfielder,Jean Lucas,Hard
+E01573,Giovani,Al-Sadd SC,Brazil,Born in 2004,Right Winger,Claudinho,Hard
+E01575,Tyrique George,Chelsea FC,England / Nigeria,Born in 2006,Left Winger,Cole Palmer,Hard
+E01576,Héctor Fort,Elche CF,Spain,Barcelona,Right Back,Iñaki Peña,Hard
+E01577,Sead Kolasinac,Atalanta BC,Bosnia-Herzegovina / Germany,Born in 1993,Center Back,Ademola Lookman,Hard
+E01578,Kassoum Ouattara,AS Monaco,France / Cote d'Ivoire,Born in 2004,Left Back,Maghnes Akliouche,Hard
+E01579,Saël Kumbedi,VfL Wolfsburg,France / DR Congo,Born in 2005,Right Back,Mohamed Amoura,Hard
+E01582,Hamza Igamane,LOSC Lille,Morocco,Born in 2002,Striker,Alexsandro,Hard
+E01583,Cuiabano,Botafogo de Futebol e Regatas,Brazil,Born in 2003,Left Back,Danilo,Hard
+E01584,Marius Broholm,LOSC Lille,Norway,Born in 2004,Right Winger,Alexsandro,Hard
+E01585,Alan Matturro,Levante UD,Uruguay / Italy,Uruguay,Center Back,Manu Sánchez,Hard
+E01586,Matheus Gonçalves,Al-Ahli SFC,Brazil,Born in 2005,Right Winger,Enzo Millot,Hard
+E01587,Arthur,Bayer 04 Leverkusen,Brazil,Born in 2003,Right Back,Exequiel Palacios,Hard
+E01588,Ibrahim Sulemana,Bologna FC 1909,Ghana,Born in 2003,Defensive Midfielder,Santiago Castro,Hard
+E01589,Josh Cullen,Burnley FC,Ireland / England,Born in 1996,Defensive Midfielder,Florentino,Hard
+E01590,Aarón Martín,Genoa CFC,Spain,Born in 1997,Left Back,Morten Frendrup,Hard
+E01592,Milot Rashica,Besiktas JK,Kosovo / Albania,Born in 1996,Right Winger,Orkun Kökçü,Hard
+E01594,Jordan Lotomba,Feyenoord Rotterdam,Switzerland / DR Congo,Born in 1998,Right Back,Quinten Timber,Hard
+E01595,Kristijan Jakic,FC Augsburg,Croatia,Born in 1997,Defensive Midfielder,Chrislain Matsima,Hard
+E01596,Enrico Delprato,Parma Calcio 1913,Italy,Born in 1999,Right Back,Zion Suzuki,Hard
+E01598,Bright Osayi-Samuel,Birmingham City,Nigeria / England,Born in 1997,Right Back,Jay Stansfield,Hard
+E01600,Zian Flemming,Burnley FC,Netherlands,Born in 1998,Striker,Florentino,Hard
+E01601,Helinho,Deportivo Toluca,Brazil,Sertãozinho,Right Winger,Alexis Vega,Hard
+E01603,Juan Brunetta,Tigres UANL,Argentina / Italy,Born in 1997,Attacking Midfielder,Ángel Correa,Hard
+E01604,Ephron Mason-Clark,Coventry City,England,Born in 1999,Left Winger,Jack Rudoni,Hard
+E01606,Miguel Merentiel,CA Boca Juniors,Uruguay / Argentina,Uruguay,Striker,Williams Alarcón,Hard
+E01609,Stefano Turati,US Sassuolo,Italy,Born in 2001,Goalkeeper,Andrea Pinamonti,Hard
+E01614,Cristian Volpato,US Sassuolo,Italy / Australia,Born in 2003,Attacking Midfielder,Andrea Pinamonti,Hard
+E01615,Jesús Orozco Chiquete,CD Cruz Azul,Mexico,Born in 2002,Center Back,Érik Lira,Hard
+E01616,William Gomes,FC Porto,Brazil,Born in 2006,Left Winger,Samu Aghehowa,Hard
+E01617,Lorran,Pisa Sporting Club,Brazil,Born in 2006,Attacking Midfielder,Michel Aebischer,Hard
+E01618,Junior Mwanga,FC Nantes,France / DR Congo,France,Defensive Midfielder,Matthis Abline,Hard
+E01619,Jorginho,CR Flamengo,Italy / Brazil,Born in 1991,Defensive Midfielder,Samuel Lino,Hard
+E01620,Tomás Avilés,Inter Miami CF,Argentina / Chile,Río Gallegos,Center Back,Rodrigo De Paul,Hard
+E01621,Sam Johnstone,Wolverhampton Wanderers,England,Born in 1993,Goalkeeper,João Gomes,Hard
+E01624,Bazoumana Touré,TSG 1899 Hoffenheim,Cote d'Ivoire,Born in 2006,Left Winger,Adam Hlozek,Hard
+E01625,Wallace Yan,CR Flamengo,Brazil,Born in 2005,Striker,Samuel Lino,Hard
+E01626,Ross Barkley,Aston Villa,England,Born in 1993,Central Midfielder,Morgan Rogers,Hard
+E01627,Dan Burn,Newcastle United,England,Born in 1992,Center Back,Bruno Guimarães,Hard
+E01628,Danny Ings,Sheffield United,England,Born in 1992,Striker,Gustavo Hamer,Hard
+E01629,Julien De Sart,Al-Rayyan SC,Belgium,Born in 1994,Defensive Midfielder,Aleksandar Mitrović,Hard
+E01630,Nicolás Tagliafico,Olympique Lyon,Argentina / Italy,Born in 1992,Left Back,Malick Fofana,Hard
+E01631,Marvin Ducksch,Birmingham City,Germany,Born in 1994,Striker,Jay Stansfield,Hard
+E01633,Lewis Dunk,Brighton & Hove Albion,England,Born in 1991,Center Back,Kaoru Mitoma,Hard
+E01634,Vincenzo Grifo,SC Freiburg,Italy,Born in 1993,Left Winger,Noah Atubolu,Hard
+E01635,Lucas Ocampos,CF Monterrey,Argentina / Spain,Quilmes,Left Winger,Anthony Martial,Hard
+E01636,Ben Davies,Tottenham Hotspur,Wales,Born in 1993,Center Back,Xavi Simons,Hard
+E01638,Julian Weigl,Al-Qadsiah FC,Germany,Born in 1995,Defensive Midfielder,Mateo Retegui,Hard
+E01639,Timon Wellenreuther,Feyenoord Rotterdam,Germany,Born in 1995,Goalkeeper,Quinten Timber,Hard
+E01640,Berat Djimsiti,Atalanta BC,Albania / Switzerland,Born in 1993,Center Back,Ademola Lookman,Hard
+E01642,André Gomes,LOSC Lille,Portugal,Born in 1993,Central Midfielder,Alexsandro,Hard
+E01643,Srdjan Babic,Spartak Moscow,Serbia / Bosnia-Herzegovina,Born in 1996,Center Back,Gedson Fernandes,Hard
+E01644,Harrison Reed,Fulham FC,England,Born in 1995,Central Midfielder,Antonee Robinson,Hard
+E01645,Solly March,Brighton & Hove Albion,England,Born in 1994,Right Winger,Kaoru Mitoma,Hard
+E01646,Carl Starfelt,Celta de Vigo,Sweden,Born in 1995,Center Back,Óscar Mingueza,Hard
+E01647,Patrick Cutrone,Parma Calcio 1913,Italy,Born in 1998,Striker,Zion Suzuki,Hard
+E01648,Adam Buksa,Udinese Calcio,Poland,Born in 1996,Striker,Oumar Solet,Hard
+E01649,Paul Onuachu,Trabzonspor,Nigeria,Born in 1994,Striker,André Onana,Hard
+E01650,Nabil Bentaleb,LOSC Lille,Algeria / France,Born in 1994,Defensive Midfielder,Alexsandro,Hard
+E01651,Diego Llorente,Real Betis Balompié,Spain,Born in 1993,Center Back,Antony,Hard
+E01652,Christopher Martins,Spartak Moscow,Luxembourg / Cape Verde,Born in 1997,Defensive Midfielder,Gedson Fernandes,Hard
+E01654,Brendan Chardonnet,Stade Brestois 29,France,Born in 1994,Center Back,Bradley Locko,Hard
+E01655,Zeki Çelik,AS Roma,Turkey,Born in 1997,Right Back,Manu Koné,Hard
+E01656,Alex Král,1.FC Union Berlin,Czech Republic,Born in 1998,Central Midfielder,Diogo Leite,Hard
+E01657,Sebastiaan Bornauw,Leeds United,Belgium,Born in 1999,Center Back,Wilfried Gnonto,Hard
+E01658,Iván Martín,Girona FC,Spain,Born in 1999,Attacking Midfielder,Vitor Reis,Hard
+E01659,Nicolas Pépé,Villarreal CF,Cote d'Ivoire / France,Born in 1995,Right Winger,Renato Veiga,Hard
+E01660,Ben Godfrey,Sheffield United,England / Jamaica,Born in 1998,Center Back,Gustavo Hamer,Hard
+E01661,Radoslaw Majecki,Stade Brestois 29,Poland,Born in 1999,Goalkeeper,Bradley Locko,Hard
+E01662,Junya Ito,KRC Genk,Japan,Born in 1993,Right Winger,Konstantinos Karetsas,Hard
+E01664,Ayrton Lucas,CR Flamengo,Brazil,Born in 1997,Left Back,Samuel Lino,Hard
+E01666,Augusto Batalla,Rayo Vallecano,Argentina / Italy,Born in 1996,Goalkeeper,Andrei Rațiu,Hard
+E01667,Martin Valjent,RCD Mallorca,Slovakia,Born in 1995,Center Back,Samú Costa,Hard
+E01668,Théo Bongonda,Spartak Moscow,DR Congo / Belgium,Born in 1995,Right Winger,Gedson Fernandes,Hard
+E01670,Fran Navarro,SC Braga,Spain,Born in 1998,Striker,Rodrigo Zalazar,Hard
+E01672,Maxime Lopez,Paris FC,France / Algeria,Born in 1997,Defensive Midfielder,Moses Simon,Hard
+E01673,Dominik Greif,Olympique Lyon,Slovakia,Born in 1997,Goalkeeper,Malick Fofana,Hard
+E01674,Rafael Borré,Sport Club Internacional,Colombia,Born in 1995,Striker,Vitão,Hard
+E01676,Marc Roca,Real Betis Balompié,Spain,Born in 1996,Defensive Midfielder,Antony,Hard
+E01677,Sebastián Driussi,CA River Plate,Argentina / Italy,Born in 1996,Striker,Kevin Castaño,Hard
+E01678,Harry Souttar,Leicester City,Australia / Scotland,Born in 1998,Center Back,Wout Faes,Hard
+E01680,Robert Enke,---,Germany,Born in 1977,Goalkeeper,Diogo Jota,Hard
+E01682,Luciano Acosta,Fluminense Football Club,Argentina,Born in 1994,Attacking Midfielder,Martinelli,Hard
+E01683,Michael Folorunsho,Cagliari Calcio,Italy / Nigeria,Italy,Central Midfielder,Elia Caprile,Hard
+E01684,Pierre Lees-Melou,Paris FC,France,Born in 1993,Defensive Midfielder,Moses Simon,Hard
+E01685,Matheus Reis,Sporting CP,Brazil,Born in 1995,Left Back,Morten Hjulmand,Hard
+E01686,Lyanco,Clube Atlético Mineiro,Brazil / Serbia,Born in 1997,Center Back,Guilherme Arana,Hard
+E01689,Auston Trusty,Celtic FC,United States,Born in 1998,Center Back,Daizen Maeda,Hard
+E01690,Nicolò Casale,Bologna FC 1909,Italy,Born in 1998,Center Back,Santiago Castro,Hard
+E01691,Mads Roerslev,Southampton FC,Denmark,Born in 1999,Right Back,Taylor Harwood-Bellis,Hard
+E01692,Douglas Augusto,FC Krasnodar,Brazil,Born in 1997,Central Midfielder,Eduard Spertsyan,Hard
+E01693,Mert Müldür,Fenerbahce,Türkiye / Austria,Born in 1999,Right Back,Jhon Durán,Hard
+E01694,Pablo Fornals,Real Betis Balompié,Spain,Born in 1996,Central Midfielder,Antony,Hard
+E01695,Berke Özer,LOSC Lille,Turkey,Born in 2000,Goalkeeper,Alexsandro,Hard
+E01696,Greg Taylor,PAOK Thessaloniki,Scotland,Born in 1997,Left Back,Kiril Despodov,Hard
+E01697,Marlon Freitas,Botafogo de Futebol e Regatas,Brazil,Born in 1995,Defensive Midfielder,Danilo,Hard
+E01698,Rony,Clube Atlético Mineiro,Brazil,Born in 1995,Striker,Guilherme Arana,Hard
+E01701,Alessandro Zanoli,Udinese Calcio,Italy,Born in 2000,Right Back,Oumar Solet,Hard
+E01702,Jordan Beyer,Burnley FC,Germany,Born in 2000,Center Back,Florentino,Hard
+E01703,Yannik Engelhardt,Borussia Mönchengladbach,Germany,Born in 2001,Defensive Midfielder,Tim Kleindienst,Hard
+E01704,Juninho Capixaba,Red Bull Bragantino,Brazil,Born in 1997,Left Back,Jhon Jhon,Hard
+E01705,Yorbe Vertessen,Red Bull Salzburg,Belgium,Born in 2001,Striker,Joane Gadou,Hard
+E01706,Joël Monteiro,BSC Young Boys,Switzerland / Portugal,Switzerland,Right Midfield,Alvyn Sanches,Hard
+E01707,Keven Schlotterbeck,FC Augsburg,Germany,Born in 1997,Center Back,Chrislain Matsima,Hard
+E01708,Danylo Sikan,Trabzonspor,Ukraine,Born in 2001,Striker,André Onana,Hard
+E01710,Mark McKenzie,FC Toulouse,United States / Jamaica,Born in 1999,Center Back,Guillaume Restes,Hard
+E01711,Tino Anjorin,Torino FC,England / Nigeria,Born in 2001,Attacking Midfielder,Ivan Ilić,Hard
+E01712,Ardian Ismajli,Torino FC,Albania / Kosovo,Born in 1996,Center Back,Ivan Ilić,Hard
+E01713,Luiz Araújo,CR Flamengo,Brazil,Born in 1996,Right Winger,Samuel Lino,Hard
+E01714,Kilian Fischer,VfL Wolfsburg,Germany,Born in 2000,Right Back,Mohamed Amoura,Hard
+E01715,Patrizio Masini,Genoa CFC,Italy,Born in 2001,Central Midfielder,Morten Frendrup,Hard
+E01717,Aleksandr Sobolev,Zenit St. Petersburg,Russia,Born in 1997,Striker,Gerson,Hard
+E01718,Casper Tengstedt,Feyenoord Rotterdam,Denmark,Born in 2000,Striker,Quinten Timber,Hard
+E01719,Brian Rodríguez,CF América,Uruguay,Born in 2000,Left Winger,Allan Saint-Maximin,Hard
+E01720,Lyle Foster,Burnley FC,South Africa,Born in 2000,Striker,Florentino,Hard
+E01721,Cristian Cásseres Jr.,FC Toulouse,Venezuela,Born in 2000,Central Midfielder,Guillaume Restes,Hard
+E01722,Joe Aribo,Southampton FC,Nigeria / England,Born in 1996,Central Midfielder,Taylor Harwood-Bellis,Hard
+E01723,Vitinho,Botafogo de Futebol e Regatas,Brazil,Born in 1999,Right Back,Danilo,Hard
+E01724,Ransford Königsdörffer,Hamburger SV,Ghana / Germany,Born in 2001,Striker,Fábio Vieira,Hard
+E01726,Max Aarons,Rangers FC,England / Jamaica,Born in 2000,Right Back,Mikey Moore,Hard
+E01727,Hugo Magnetti,Stade Brestois 29,France,Born in 1998,Central Midfielder,Bradley Locko,Hard
+E01728,Benjamin Nygren,Celtic FC,Sweden,Born in 2001,Right Winger,Daizen Maeda,Hard
+E01730,Chris Mepham,West Bromwich Albion,Wales / England,London,Center Back,Josh Maja,Hard
+E01731,Mathías Villasanti,Grêmio Foot-Ball Porto Alegrense,Paraguay,Born in 1997,Defensive Midfielder,Cristian Olivera,Hard
+E01733,Gabriel Strefezza,Olympiacos Piraeus,Brazil / Italy,Born in 1997,Right Winger,Santiago Hezze,Hard
+E01734,Murilo,Sociedade Esportiva Palmeiras,Brazil,Born in 1997,Center Back,Andreas Pereira,Hard
+E01735,Lorenzo Pirola,Olympiacos Piraeus,Italy,Born in 2002,Center Back,Santiago Hezze,Hard
+E01737,Facundo Colidio,CA River Plate,Argentina / Italy,Born in 2000,Striker,Kevin Castaño,Hard
+E01738,Víctor Gómez,SC Braga,Spain,Born in 2000,Right Back,Rodrigo Zalazar,Hard
+E01739,Montassar Talbi,FC Lorient,Tunisia / France,Tunisia,Center Back,Isaak Touré,Hard
+E01742,Luke Thomas,Leicester City,England,Born in 2001,Left Back,Wout Faes,Hard
+E01743,Fabian Rieder,FC Augsburg,Switzerland,Born in 2002,Attacking Midfielder,Chrislain Matsima,Hard
+E01744,Ellis Simms,Coventry City,England,Born in 2001,Striker,Jack Rudoni,Hard
+E01747,Luca Netz,Borussia Mönchengladbach,Germany,Born in 2003,Left Back,Tim Kleindienst,Hard
+E01748,Oliver Antman,Rangers FC,Finland,Born in 2001,Right Winger,Mikey Moore,Hard
+E01749,Junior Dina Ebimbe,Stade Brestois 29,France / Cameroon,Born in 2000,Right Midfield,Bradley Locko,Hard
+E01750,Luca Jaquez,VfB Stuttgart,Switzerland / Dominican Republic,Born in 2003,Center Back,Angelo Stiller,Hard
+E01751,César Huerta,RSC Anderlecht,Mexico,Born in 2000,Left Winger,Mario Stroeykens,Hard
+E01752,Tomas Suslov,Hellas Verona,Slovakia,Born in 2002,Attacking Midfielder,Gift Orban,Hard
+E01754,Fabiano Parisi,ACF Fiorentina,Italy,Born in 2000,Left Back,Moise Kean,Hard
+E01755,Mousa Tamari,Stade Rennais FC,Jordan,Born in 1997,Right Winger,Ludovic Blas,Hard
+E01757,Vítor Carvalho,SC Braga,Brazil,Born in 1997,Defensive Midfielder,Rodrigo Zalazar,Hard
+E01758,Romain Faivre,Al-Taawoun FC,France / Algeria,France,Attacking Midfielder,Musa Barrow,Hard
+E01759,Youri Regeer,Ajax Amsterdam,Netherlands,Born in 2003,Central Midfielder,Kenneth Taylor,Hard
+E01760,Robert Navarro,Athletic Bilbao,Spain,Born in 2002,Right Winger,Nico Williams,Hard
+E01761,Umut Tohumcu,TSG 1899 Hoffenheim,Germany / Türkiye,Born in 2004,Central Midfielder,Adam Hlozek,Hard
+E01762,Charles Vanhoutte,OGC Nice,Belgium,Born in 1998,Defensive Midfielder,Melvin Bard,Hard
+E01763,Christopher Wooh,Spartak Moscow,Cameroon / France,Born in 2001,Center Back,Gedson Fernandes,Hard
+E01765,Jens Castrop,Borussia Mönchengladbach,"Korea, South / Germany",Born in 2003,Central Midfielder,Tim Kleindienst,Hard
+E01766,Gaetano Oristanio,Parma Calcio 1913,Italy,Born in 2002,Attacking Midfielder,Zion Suzuki,Hard
+E01767,Ilaix Moriba,Celta de Vigo,Guinea / Spain,Born in 2003,Central Midfielder,Óscar Mingueza,Hard
+E01769,Bright Arrey-Mbi,SC Braga,Germany / England,Born in 2003,Center Back,Rodrigo Zalazar,Hard
+E01773,Jesurun Rak-Sakyi,Crystal Palace,England / Ghana,Born in 2002,Right Winger,Marc Guéhi,Hard
+E01775,David Alaba,Real Madrid,Austria,Born in 1992,Center Back,Kylian Mbappé,Hard
+E01776,Eric Martel,1.FC Köln,Germany,Born in 2002,Defensive Midfielder,Ragnar Ache,Hard
+E01777,Joris Chotard,Stade Brestois 29,France,Born in 2001,Defensive Midfielder,Bradley Locko,Hard
+E01778,Lukas Hornicek,SC Braga,Czech Republic,Born in 2002,Goalkeeper,Rodrigo Zalazar,Hard
+E01779,Nicolò Bertola,Udinese Calcio,Italy,Born in 2003,Center Back,Oumar Solet,Hard
+E01781,Tajon Buchanan,Villarreal CF,Canada / Jamaica,Born in 1999,Right Winger,Renato Veiga,Hard
+E01782,Talles Magno,Sport Club Corinthians Paulista,Brazil,Born in 2002,Left Winger,Yuri Alberto,Hard
+E01783,Samuel Edozie,Southampton FC,England / Nigeria,Born in 2003,Left Winger,Taylor Harwood-Bellis,Hard
+E01784,Isaac Romero,Sevilla FC,Spain,Born in 2000,Striker,Juanlu Sánchez,Hard
+E01785,Romaine Mundle,Sunderland AFC,England / Jamaica,Born in 2003,Left Winger,Simon Adingra,Hard
+E01786,Thomas Kristensen,Udinese Calcio,Denmark,Born in 2002,Center Back,Oumar Solet,Hard
+E01789,Ramón Juárez,CF América,Mexico,Born in 2001,Center Back,Allan Saint-Maximin,Hard
+E01790,Rome Jayden Owusu-Oduro,AZ Alkmaar,Netherlands / Ghana,Born in 2004,Goalkeeper,Troy Parrott,Hard
+E01791,Romeo Vermant,Club Brugge KV,Belgium,Born in 2004,Striker,Joel Ordóñez,Hard
+E01792,Álex Valle,Como 1907,Spain,Born in 2004,Left Back,Nico Paz,Hard
+E01793,Marcelino Núñez,Ipswich Town,Chile,Born in 2000,Central Midfielder,Leif Davis,Hard
+E01794,Lamare Bogarde,Aston Villa,Netherlands / Suriname,Born in 2004,Center Back,Morgan Rogers,Hard
+E01796,Cristian Olivera,Grêmio Foot-Ball Porto Alegrense,Uruguay,Born in 2002,Right Winger,Mathías Villasanti,Hard
+E01797,Sergio Canales,CF Monterrey,Spain,Santander,Attacking Midfielder,Anthony Martial,Hard
+E01798,Mikayil Faye,US Cremonese,Senegal,Sedhiou,Center Back,Warren Bondo,Hard
+E01801,Kayky,Esporte Clube Bahia,Brazil,Born in 2003,Right Winger,Jean Lucas,Hard
+E01802,Rodrigo Huescas,FC Copenhagen,Mexico,Naucalpan de Juárez,Right Back,Youssoufa Moukoko,Hard
+E01803,Tanner Tessmann,Olympique Lyon,United States,Born in 2001,Defensive Midfielder,Malick Fofana,Hard
+E01804,David Datro Fofana,Chelsea FC,Cote d'Ivoire,Born in 2002,Striker,Cole Palmer,Hard
+E01805,Gvidas Gineitis,Torino FC,Lithuania,Born in 2004,Central Midfielder,Ivan Ilić,Hard
+E01806,Adamo Nagalo,PSV Eindhoven,Burkina Faso / Cote d'Ivoire,Born in 2002,Center Back,Ismael Saibari,Hard
+E01807,Saïdou Sow,RC Strasbourg Alsace,Guinea / France,Born in 2002,Center Back,Emmanuel Emegha,Hard
+E01808,Mamadou Sangaré,RC Lens,Mali,Born in 2002,Central Midfielder,Abdallah Sima,Hard
+E01809,David Da Costa,Portland Timbers,Portugal / France,Portugal,Attacking Midfielder,Kristoffer Velde,Hard
+E01810,Pablo Torre,RCD Mallorca,Spain,Born in 2003,Attacking Midfielder,Samú Costa,Hard
+E01811,Roberto Fernández,RCD Espanyol Barcelona,Spain,Born in 2002,Striker,Omar El Hilali,Hard
+E01812,Aaron Zehnter,VfL Wolfsburg,Germany,Born in 2004,Left Midfield,Mohamed Amoura,Hard
+E01813,Gabriel Pereira,Al-Rayyan SC,Brazil,Born in 2001,Right Winger,Aleksandar Mitrović,Hard
+E01814,Natanael,Clube Atlético Mineiro,Brazil,Born in 2002,Right Back,Guilherme Arana,Hard
+E01816,Rodriguinho,São Paulo Futebol Clube,Brazil,Born in 2004,Attacking Midfielder,Marcos Antônio,Hard
+E01817,Justin Devenny,Crystal Palace,Northern Ireland / Scotland,Born in 2003,Attacking Midfielder,Marc Guéhi,Hard
+E01818,Jordy Makengo,SC Freiburg,France / DR Congo,Born in 2001,Left Back,Noah Atubolu,Hard
+E01820,Unai Gómez,Athletic Bilbao,Spain,Born in 2003,Attacking Midfielder,Nico Williams,Hard
+E01821,Alexandre Lacazette,NEOM SC,France / Guadeloupe,Born in 1991,Striker,Marcin Bulka,Hard
+E01822,Kalidou Koulibaly,Al-Hilal SFC,Senegal / France,Born in 1991,Center Back,Darwin Núñez,Hard
+E01824,Rubens,Dynamo Moscow,Brazil,Born in 2001,Left Back,Konstantin Tyukavin,Hard
+E01826,Adilson Malanda,Charlotte FC,France / Congo,France,Center Back,Liel Abada,Hard
+E01827,Jusef Erabi,KRC Genk,Sweden / Afghanistan,Born in 2003,Striker,Konstantinos Karetsas,Hard
+E01828,Isco,Real Betis Balompié,Spain,Born in 1992,Attacking Midfielder,Antony,Hard
+E01829,John Kennedy,Fluminense Football Club,Brazil,Born in 2002,Striker,Martinelli,Hard
+E01830,Mateo Pellegrino,Parma Calcio 1913,Argentina / Spain,Born in 2001,Striker,Zion Suzuki,Hard
+E01831,Joaquim,Tigres UANL,Brazil,Born in 1998,Center Back,Ángel Correa,Hard
+E01832,Nicolás Valentini,Hellas Verona,Argentina / Italy,Born in 2001,Center Back,Gift Orban,Hard
+E01833,Cauly,Esporte Clube Bahia,Brazil / Germany,Born in 1995,Attacking Midfielder,Jean Lucas,Hard
+E01834,Bono,Al-Hilal SFC,Morocco / Canada,Born in 1991,Goalkeeper,Darwin Núñez,Hard
+E01835,Daniel Podence,Olympiacos Piraeus,Portugal,Born in 1995,Left Winger,Santiago Hezze,Hard
+E01840,Fernando Gorriarán,Tigres UANL,Uruguay,Born in 1994,Central Midfielder,Ángel Correa,Hard
+E01841,Jesús Angulo,Tigres UANL,Mexico,Born in 1998,Left Back,Ángel Correa,Hard
+E01842,Bernardo,TSG 1899 Hoffenheim,Brazil,Born in 1995,Center Back,Adam Hlozek,Hard
+E01843,Víctor Dávila,CF América,Chile,Born in 1997,Striker,Allan Saint-Maximin,Hard
+E01845,Muhammed Cham,SK Slavia Prague,Austria,Wien,Attacking Midfielder,Igoh Ogbu,Hard
+E01847,Mattia Viti,ACF Fiorentina,Italy,Born in 2002,Center Back,Moise Kean,Hard
+E01848,Paulo Bernardo,Celtic FC,Portugal,Born in 2002,Central Midfielder,Daizen Maeda,Hard
+E01849,Efraín Álvarez,Deportivo Guadalajara,Mexico / United States,Mexico,Right Winger,Roberto Alvarado,Hard
+E01851,Emirhan Topçu,Besiktas JK,Turkey,Born in 2000,Center Back,Orkun Kökçü,Hard
+E01852,David Zima,SK Slavia Prague,Czech Republic,Olomouc,Center Back,Igoh Ogbu,Hard
+E01854,Martín Payero,US Cremonese,Argentina / Italy,Pascanas,Central Midfielder,Warren Bondo,Hard
+E01856,Salis Abdul Samed,OGC Nice,Ghana / Cote d'Ivoire,Born in 2000,Defensive Midfielder,Melvin Bard,Hard
+E01857,Samuele Angori,Pisa Sporting Club,Italy,Born in 2003,Left Midfield,Lorran,Hard
+E01858,João Marcelo,Cruzeiro Esporte Clube,Brazil,Born in 2000,Center Back,Luis Sinisterra,Hard
+E01860,Julien Duranville,Borussia Dortmund,Belgium,Born in 2006,Left Winger,Serhou Guirassy,Hard
+E01862,Ibrahima Bamba,Al-Duhail SC,Italy / Cote d'Ivoire,Born in 2002,Center Back,Tuta,Hard
+E01863,Niccolò Fortini,ACF Fiorentina,Italy,Born in 2006,Left Back,Moise Kean,Hard
+E01864,Gianluca Prestianni,SL Benfica,Argentina / Italy,Born in 2006,Right Winger,Vangelis Pavlidis,Hard
+E01865,Josh Acheampong,Chelsea FC,England / Ghana,Born in 2006,Right Back,Cole Palmer,Hard
+E01866,Jon Martín,Real Sociedad,Spain,Born in 2006,Center Back,Takefusa Kubo,Hard
+E01868,Jeremy Agbonifo,FC Basel 1893,Sweden / Nigeria,Born in 2005,Right Winger,Bénie Traoré,Hard
+E01869,Fer López,Wolverhampton Wanderers,Spain,Born in 2004,Attacking Midfielder,João Gomes,Hard
+E01870,Stefan de Vrij,Inter Milan,Netherlands,Born in 1992,Center Back,Lautaro Martínez,Hard
+E01872,Wagner Pina,Trabzonspor,Cape Verde / Portugal,Born in 2002,Right Back,André Onana,Hard
+E01874,Nathan Fernandes,Botafogo de Futebol e Regatas,Brazil,Born in 2005,Right Winger,Danilo,Hard
+E01875,Roberto Firmino,Al-Sadd SC,Brazil,Born in 1991,Striker,Claudinho,Hard
+E01876,Marten de Roon,Atalanta BC,Netherlands,Born in 1991,Defensive Midfielder,Ademola Lookman,Hard
+E01877,Callum McGregor,Celtic FC,Scotland,Born in 1993,Defensive Midfielder,Daizen Maeda,Hard
+E01878,Paul Pogba,AS Monaco,France / Guinea,Born in 1993,Central Midfielder,Maghnes Akliouche,Hard
+E01879,Odysseas Vlachodimos,Sevilla FC,Greece / Germany,Born in 1994,Goalkeeper,Juanlu Sánchez,Hard
+E01880,Maximilian Arnold,VfL Wolfsburg,Germany,Born in 1994,Central Midfielder,Mohamed Amoura,Hard
+E01881,Michael Keane,Everton FC,England / Ireland,Born in 1993,Center Back,Jarrad Branthwaite,Hard
+E01882,Mitchell Weiser,SV Werder Bremen,Germany / Algeria,Born in 1994,Right Back,Victor Boniface,Hard
+E01883,Wilfried Zaha,Charlotte FC,Cote d'Ivoire / England,Cote d'Ivoire,Left Winger,Liel Abada,Hard
+E01884,Remo Freuler,Bologna FC 1909,Switzerland,Born in 1992,Central Midfielder,Santiago Castro,Hard
+E01885,Yussuf Poulsen,Hamburger SV,Denmark / Tanzania,Born in 1994,Striker,Fábio Vieira,Hard
+E01886,Vladimír Coufal,TSG 1899 Hoffenheim,Czech Republic,Born in 1992,Right Back,Adam Hlozek,Hard
+E01887,Iñigo Martínez,Al-Nassr FC,Spain,Born in 1991,Center Back,Kingsley Coman,Hard
+E01888,Filip Kostić,Juventus FC,Serbia,Born in 1992,Left Midfield,Loïs Openda,Hard
+E01889,Florian Thauvin,RC Lens,France,Born in 1993,İkinci Forvet,Abdallah Sima,Hard
+E01890,Mohamed Elyounoussi,FC Copenhagen,Norway,Al Hoceima,Right Winger,Youssoufa Moukoko,Hard
+E01891,Ulisses Garcia,Olympique Marseille,Switzerland / Cape Verde,Born in 1996,Left Back,Mason Greenwood,Hard
+E01893,Alassane Pléa,PSV Eindhoven,France / Mali,Born in 1993,Striker,Ismael Saibari,Hard
+E01894,Davide Zappacosta,Atalanta BC,Italy,Born in 1992,Right Midfield,Ademola Lookman,Hard
+E01895,Morgan Sanson,OGC Nice,France,Born in 1994,Central Midfielder,Melvin Bard,Hard
+E01896,Jonathan Clauss,OGC Nice,France,Born in 1992,Right Back,Melvin Bard,Hard
+E01897,Patrick Roberts,Birmingham City,England,Born in 1997,Right Winger,Jay Stansfield,Hard
+E01899,Abdou Diallo,Al-Duhail SC,Senegal / France,Born in 1996,Center Back,Tuta,Hard
+E01901,Wanderson,Cruzeiro Esporte Clube,Brazil / Belgium,Born in 1994,Left Winger,Luis Sinisterra,Hard
+E01902,Thomas Lemar,Girona FC,France / Guadeloupe,Born in 1995,Attacking Midfielder,Vitor Reis,Hard
+E01903,Raúl Jiménez,Fulham FC,Mexico,Born in 1991,Striker,Antonee Robinson,Hard
+E01904,Gustavo Gómez,Sociedade Esportiva Palmeiras,Paraguay,Born in 1993,Center Back,Andreas Pereira,Hard
+E01905,Erick Pulgar,CR Flamengo,Chile,Born in 1994,Defensive Midfielder,Samuel Lino,Hard
+E01906,Adrien Thomasson,RC Lens,France / Croatia,Born in 1993,Attacking Midfielder,Abdallah Sima,Hard
+E01907,Vedat Muriqi,RCD Mallorca,Kosovo / Albania,Born in 1994,Striker,Samú Costa,Hard
+E01908,Aurélio Buta,Eintracht Frankfurt,Portugal / Angola,Born in 1997,Right Back,Hugo Larsson,Hard
+E01909,Matt Grimes,Coventry City,England,Born in 1995,Defensive Midfielder,Jack Rudoni,Hard
+E01910,Dereck Kutesa,AEK Athens,Switzerland / Angola,Born in 1997,Left Winger,Orbelín Pineda,Hard
+E01911,Reinildo Mandava,Sunderland AFC,Mozambique,Born in 1994,Left Back,Simon Adingra,Hard
+E01912,Pedro Chirivella,Panathinaikos FC,Spain,Born in 1997,Defensive Midfielder,Tetê,Hard
+E01913,Glen Kamara,Stade Rennais FC,Finland / Sierra Leone,Born in 1995,Central Midfielder,Ludovic Blas,Hard
+E01914,Gabriel Barbosa,Cruzeiro Esporte Clube,Brazil,Born in 1996,Striker,Luis Sinisterra,Hard
+E01915,Angelo Fulgini,Al-Taawoun FC,France / Cote d'Ivoire,France,Attacking Midfielder,Musa Barrow,Hard
+E01916,Matt Targett,Middlesbrough FC,England / Scotland,Born in 1995,Left Back,Sverre Nypan,Hard
+E01917,Philipp Köhn,AS Monaco,Switzerland / Germany,Born in 1998,Goalkeeper,Maghnes Akliouche,Hard
+E01918,Pablo Maffeo,RCD Mallorca,Argentina / Spain,Born in 1997,Right Back,Samú Costa,Hard
+E01919,Tyrone Mings,Aston Villa,England,Born in 1993,Center Back,Morgan Rogers,Hard
+E01920,Umar Sadiq,Real Sociedad,Nigeria,Born in 1997,Striker,Takefusa Kubo,Hard
+E01922,Alessio Castro-Montes,1.FC Köln,Belgium / Spain,Born in 1997,Right Midfield,Ragnar Ache,Hard
+E01924,Axel Tuanzebe,Burnley FC,DR Congo / England,Born in 1997,Right Back,Florentino,Hard
+E01926,Malang Sarr,RC Lens,France / Senegal,Born in 1999,Center Back,Abdallah Sima,Hard
+E01927,Tahith Chong,Sheffield United,Curacao / Netherlands,Born in 1999,Attacking Midfielder,Gustavo Hamer,Hard
+E01930,Giovanni Simeone,Torino FC,Argentina / Spain,Born in 1995,Striker,Ivan Ilić,Hard
+E01931,Donny van de Beek,Girona FC,Netherlands,Born in 1997,Central Midfielder,Vitor Reis,Hard
+E01932,Phillip Tietz,FC Augsburg,Germany,Born in 1997,Striker,Chrislain Matsima,Hard
+E01933,Andoni Gorosabel,Athletic Bilbao,Spain,Born in 1996,Right Back,Nico Williams,Hard
+E01935,Romain Perraud,LOSC Lille,France,Born in 1997,Left Back,Alexsandro,Hard
+E01936,Gustaf Nilsson,Club Brugge KV,Sweden,Born in 1997,Striker,Joel Ordóñez,Hard
+E01937,Panagiotis Retsos,Olympiacos Piraeus,Greece,Born in 1998,Center Back,Santiago Hezze,Hard
+E01938,Arnaud Nordin,1.FSV Mainz 05,France / Martinique,Born in 1998,Right Winger,Paul Nebel,Hard
+E01939,Derek Cornelius,Rangers FC,Canada / Jamaica,Born in 1997,Center Back,Mikey Moore,Hard
+E01940,Franco Cristaldo,Grêmio Foot-Ball Porto Alegrense,Argentina / Paraguay,Born in 1996,Attacking Midfielder,Mathías Villasanti,Hard
+E01941,Chiquinho,Olympiacos Piraeus,Portugal,Born in 1995,Attacking Midfielder,Santiago Hezze,Hard
+E01942,Kevin Diks,Borussia Mönchengladbach,Indonesia / Netherlands,Born in 1996,Center Back,Tim Kleindienst,Hard
+E01943,Philipp Treu,SC Freiburg,Germany,Born in 2000,Right Back,Noah Atubolu,Hard
+E01945,Jacob Bruun Larsen,Burnley FC,Denmark,Born in 1998,Left Winger,Florentino,Hard
+E01946,Maksim Osipenko,Dynamo Moscow,Russia,Born in 1994,Center Back,Konstantin Tyukavin,Hard
+E01948,Yeferson Soteldo,Fluminense Football Club,Venezuela,Born in 1997,Left Winger,Martinelli,Hard
+E01949,Justin Bijlow,Feyenoord Rotterdam,Netherlands,Born in 1998,Goalkeeper,Quinten Timber,Hard
+E01952,Alexander Barboza,Botafogo de Futebol e Regatas,Argentina / Uruguay,Born in 1995,Center Back,Danilo,Hard
+E01953,Ilia Gruev,Leeds United,Bulgaria / Germany,Born in 2000,Defensive Midfielder,Wilfried Gnonto,Hard
+E01954,Mike Tresor,Burnley FC,Belgium / Burundi,Born in 1999,Left Winger,Florentino,Hard
+E01956,Yusuf Yazıcı,Olympiacos Piraeus,Turkey,Born in 1997,Attacking Midfielder,Santiago Hezze,Hard
+E01958,Derrick Köhn,1.FC Union Berlin,Ghana / Germany,Born in 1999,Left Back,Diogo Leite,Hard
+E01960,Nadir Zortea,Bologna FC 1909,Italy,Born in 1999,Right Back,Santiago Castro,Hard
+E01961,Alfon González,Sevilla FC,Spain,Born in 1999,Left Winger,Juanlu Sánchez,Hard
+E01963,Eldor Shomurodov,Basaksehir FK,Uzbekistan,"Jarkurgan, Surxondaryo Region",Striker,Amine Harit,Hard
+E01964,Jean-Philippe Krasso,Paris FC,Cote d'Ivoire / France,Born in 1997,Striker,Moses Simon,Hard
+E01965,Ozan Kabak,TSG 1899 Hoffenheim,Turkey,Born in 2000,Center Back,Adam Hlozek,Hard
+E01966,Arthur Melo,Grêmio Foot-Ball Porto Alegrense,Brazil,Born in 1996,Defensive Midfielder,Mathías Villasanti,Hard
+E01967,Moisés,CSKA Moscow,Brazil,São Paulo,Left Back,Ivan Oblyakov,Hard
+E01968,Arijanet Murić,US Sassuolo,Kosovo / Montenegro,Born in 1998,Goalkeeper,Andrea Pinamonti,Hard
+E01970,Mads Bech Sørensen,FC Midtjylland,Denmark,Born in 1999,Center Back,Franculino,Hard
+E01971,Oliver Edvardsen,Ajax Amsterdam,Norway,Born in 1999,Left Winger,Kenneth Taylor,Hard
+E01973,Adam Gnezda Cerin,Panathinaikos FC,Slovenia,Born in 1999,Central Midfielder,Tetê,Hard
+E01974,Gonzalo Montiel,CA River Plate,Argentina / Spain,Born in 1997,Right Back,Kevin Castaño,Hard
+E01975,Giorgi Kochorashvili,Sporting CP,Georgia,Born in 1999,Defensive Midfielder,Morten Hjulmand,Hard
+E01976,Jakub Kaminski,1.FC Köln,Poland,Born in 2002,Left Winger,Ragnar Ache,Hard
+E01977,Jerome Opoku,Basaksehir FK,Ghana / England,London,Center Back,Amine Harit,Hard
+E01979,Pol Lozano,RCD Espanyol Barcelona,Spain,Born in 1999,Central Midfielder,Omar El Hilali,Hard
+E01980,Joe Worrall,Burnley FC,England,Born in 1997,Center Back,Florentino,Hard
+E01981,Perr Schuurs,Torino FC,Netherlands,Born in 1999,Center Back,Ivan Ilić,Hard
+E01984,Alexander Prass,TSG 1899 Hoffenheim,Austria,Born in 2001,Left Back,Adam Hlozek,Hard
+E01985,Moritz Jenz,VfL Wolfsburg,Germany / Nigeria,Born in 1999,Center Back,Mohamed Amoura,Hard
+E01987,Benjamín Garré,Clube de Regatas Vasco da Gama,Argentina / Italy,Born in 2000,Right Winger,Rayan,Hard
+E01989,Ante Budimir,CA Osasuna,Croatia,Zenica,Striker,Enzo Boyomo,Hard
+E01990,Nahuel Ferraresi,São Paulo Futebol Clube,Venezuela / Italy,Born in 1998,Center Back,Marcos Antônio,Hard
+E01991,Ansu Fati,AS Monaco,Spain / Guinea-Bissau,Born in 2002,Left Winger,Maghnes Akliouche,Hard
+E01992,Yukhym Konoplya,Shakhtar Donetsk,Ukraine,Born in 1999,Right Back,Mykola Matvienko,Hard
+E01993,Gonçalo Borges,Feyenoord Rotterdam,Portugal,Born in 2001,Right Winger,Quinten Timber,Hard
+E01995,Ramon Hendriks,VfB Stuttgart,Netherlands,Born in 2001,Center Back,Angelo Stiller,Hard
+E01996,Matías Viña,CR Flamengo,Uruguay / Italy,Born in 1997,Left Back,Samuel Lino,Hard
+E01998,Edouard Mendy,Al-Ahli SFC,Senegal / Guinea-Bissau,Born in 1992,Goalkeeper,Enzo Millot,Hard
+E02000,Abdul Mumin,Rayo Vallecano,Ghana / Nigeria,Born in 1998,Center Back,Andrei Rațiu,Hard
+E02001,Ahmed Kutucu,Galatasaray,Türkiye / Germany,Born in 2000,Left Winger,Victor Osimhen,Hard
+E02002,David Affengruber,Elche CF,Austria,Scheibbs,Center Back,Héctor Fort,Hard
+E02003,Junior Adamu,SC Freiburg,Austria,Born in 2001,Striker,Noah Atubolu,Hard
+E02004,Killian Sardella,RSC Anderlecht,Belgium / Cameroon,Born in 2002,Right Back,Mario Stroeykens,Hard
+E02005,András Schäfer,1.FC Union Berlin,Hungary,Born in 1999,Central Midfielder,Diogo Leite,Hard
+E02007,Agustín Canobbio,Fluminense Football Club,Uruguay / Italy,Born in 1998,Left Winger,Martinelli,Hard
+E02008,Luiz Felipe,Rayo Vallecano,Italy / Brazil,Born in 1997,Center Back,Andrei Rațiu,Hard
+E02010,Ki-Jana Hoever,Wolverhampton Wanderers,Netherlands / Suriname,Born in 2002,Right Back,João Gomes,Hard
+E02011,Lorenzo Colombo,Genoa CFC,Italy,Born in 2002,Striker,Morten Frendrup,Hard
+E02012,Fausto Vera,Clube Atlético Mineiro,Argentina,Born in 2000,Defensive Midfielder,Guilherme Arana,Hard
+E02013,Julián Carranza,Leicester City,Argentina / Italy,Born in 2000,Striker,Wout Faes,Hard
+E02015,Franco Israel,Torino FC,Uruguay / Italy,Born in 2000,Goalkeeper,Ivan Ilić,Hard
+E02016,Jorge Cuenca,Fulham FC,Spain,Born in 1999,Center Back,Antonee Robinson,Hard
+E02017,David Jurásek,Besiktas JK,Czech Republic,Born in 2000,Left Back,Orkun Kökçü,Hard
+E02018,Yari Verschaeren,RSC Anderlecht,Belgium,Born in 2001,Attacking Midfielder,Mario Stroeykens,Hard
+E02019,Leonidas Stergiou,VfB Stuttgart,Switzerland / Greece,Born in 2002,Right Back,Angelo Stiller,Hard
+E02020,Simon Sohm,ACF Fiorentina,Switzerland / Nigeria,Born in 2001,Central Midfielder,Moise Kean,Hard
+E02022,João Batxi,FC Krasnodar,Angola / Portugal,Born in 1998,Left Winger,Eduard Spertsyan,Hard
+E02023,Ruslan Litvinov,Spartak Moscow,Russia,Born in 2001,Center Back,Gedson Fernandes,Hard
+E02025,Sebastián Cáceres,CF América,Uruguay,Born in 1999,Center Back,Allan Saint-Maximin,Hard
+E02026,Carlos Rodríguez,CD Cruz Azul,Mexico,Born in 1997,Defensive Midfielder,Érik Lira,Hard
+E02027,İlkay Gündoğan,Galatasaray,Germany,Born in 1990,Central Midfielder,Victor Osimhen,Hard
+E02028,Han-Noah Massengo,FC Augsburg,France / Congo,Born in 2001,Central Midfielder,Chrislain Matsima,Hard
+E02029,Costinha,Olympiacos Piraeus,Portugal,Born in 2000,Right Back,Santiago Hezze,Hard
+E02030,Kevin Lenini,FC Krasnodar,Cape Verde / Portugal,Born in 1997,Defensive Midfielder,Eduard Spertsyan,Hard
+E02031,Gregore,Al-Rayyan SC,Brazil,Born in 1994,Defensive Midfielder,Aleksandar Mitrović,Hard
+E02034,Matej Kovar,PSV Eindhoven,Czech Republic,Born in 2000,Goalkeeper,Ismael Saibari,Hard
+E02035,Matheus Henrique,Cruzeiro Esporte Clube,Brazil,Born in 1997,Central Midfielder,Luis Sinisterra,Hard
+E02036,Tim Lemperle,TSG 1899 Hoffenheim,Germany,Born in 2002,Striker,Adam Hlozek,Hard
+E02038,Sékou Mara,AJ Auxerre,France / Senegal,Paris,Striker,Ibrahim Osman,Hard
+E02039,Kian Fitz-Jim,Ajax Amsterdam,Netherlands / Suriname,Born in 2003,Central Midfielder,Kenneth Taylor,Hard
+E02040,Edoardo Bove,AS Roma,Italy,Born in 2002,Central Midfielder,Manu Koné,Hard
+E02042,Leo Román,RCD Mallorca,Spain,Born in 2000,Goalkeeper,Samú Costa,Hard
+E02043,Kazeem Olaigbe,Trabzonspor,Belgium / Nigeria,Born in 2003,Left Winger,André Onana,Hard
+E02044,Josh Doig,US Sassuolo,Scotland,Born in 2002,Left Back,Andrea Pinamonti,Hard
+E02045,Faris Moumbagna,US Cremonese,Cameroon,Yaoundé,Striker,Warren Bondo,Hard
+E02046,Alessandro Bianco,PAOK Thessaloniki,Italy,Born in 2002,Central Midfielder,Kiril Despodov,Hard
+E02047,Igor Matanovic,SC Freiburg,Croatia / Germany,Born in 2003,Striker,Noah Atubolu,Hard
+E02048,Akor Adams,Sevilla FC,Nigeria,Born in 2000,Striker,Juanlu Sánchez,Hard
+E02049,Willer Ditta,CD Cruz Azul,Colombia,Born in 1998,Center Back,Érik Lira,Hard
+E02052,Mirko Topić,Norwich City,Serbia / Bosnia-Herzegovina,Born in 2001,Defensive Midfielder,Josh Sargent,Hard
+E02053,Eren Elmalı,Galatasaray,Turkey,Born in 2000,Left Back,Victor Osimhen,Hard
+E02054,Mohamed Bamba,FC Lorient,Cote d'Ivoire / Guinea,Cote d'Ivoire,Striker,Isaak Touré,Hard
+E02057,Milson,Red Star Belgrade,Angola / Portugal,Luanda,Left Winger,Tomás Händel,Hard
+E02058,David de Gea,ACF Fiorentina,Spain,Born in 1990,Goalkeeper,Moise Kean,Hard
+E02059,Matheuzinho,Sport Club Corinthians Paulista,Brazil,Born in 2000,Right Back,Yuri Alberto,Hard
+E02060,Pep Chavarría,Rayo Vallecano,Spain,Born in 1998,Left Back,Andrei Rațiu,Hard
+E02061,Adrian Leon Barisic,FC Basel 1893,Bosnia-Herzegovina / Croatia,Born in 2001,Center Back,Bénie Traoré,Hard
+E02062,Urko González de Zárate,RCD Espanyol Barcelona,Spain,Born in 2001,Defensive Midfielder,Omar El Hilali,Hard
+E02064,André Amaro,Al-Rayyan SC,Portugal,Born in 2002,Center Back,Aleksandar Mitrović,Hard
+E02065,Martín Satriano,Olympique Lyon,Uruguay / Italy,Born in 2001,Striker,Malick Fofana,Hard
+E02066,James Beadle,Birmingham City,England,Born in 2004,Goalkeeper,Jay Stansfield,Hard
+E02067,João Victor,CSKA Moscow,Brazil,Bauru,Center Back,Ivan Oblyakov,Hard
+E02069,Yira Sor,KRC Genk,Nigeria,Born in 2000,Left Winger,Konstantinos Karetsas,Hard
+E02073,Daniele Ghilardi,AS Roma,Italy,Born in 2003,Center Back,Manu Koné,Hard
+E02074,Sinaly Diomandé,AJ Auxerre,Cote d'Ivoire,Yopougon,Center Back,Ibrahim Osman,Hard
+E02075,Bruno Gomes,Sport Club Internacional,Brazil / Italy,Born in 2001,Right Back,Vitão,Hard
+E02077,Carlos Romero,RCD Espanyol Barcelona,Spain,Born in 2001,Left Back,Omar El Hilali,Hard
+E02078,Leo Sauer,Feyenoord Rotterdam,Slovakia,Born in 2005,Left Winger,Quinten Timber,Hard
+E02080,Nicolás Capaldo,Hamburger SV,Argentina / Italy,Born in 1998,Central Midfielder,Fábio Vieira,Hard
+E02081,Cher Ndour,ACF Fiorentina,Italy / Senegal,Born in 2004,Central Midfielder,Moise Kean,Hard
+E02082,Khellven,Sociedade Esportiva Palmeiras,Brazil,Born in 2001,Right Back,Andreas Pereira,Hard
+E02083,Anton Kade,FC Augsburg,Germany,Born in 2004,Right Midfield,Chrislain Matsima,Hard
+E02084,Toby Collyer,West Bromwich Albion,England,Worthing,Defensive Midfielder,Josh Maja,Hard
+E02086,Bilal Nadir,Olympique Marseille,Morocco / France,Born in 2003,Central Midfielder,Mason Greenwood,Hard
+E02088,Mathias Løvik,Parma Calcio 1913,Norway,Born in 2003,Left Back,Zion Suzuki,Hard
+E02091,Alexander Aravena,Grêmio Foot-Ball Porto Alegrense,Chile,Born in 2002,Left Winger,Mathías Villasanti,Hard
+E02094,Danny Welbeck,Brighton & Hove Albion,England / Ghana,Born in 1990,Striker,Kaoru Mitoma,Hard
+E02095,Benjamin Bouchouari,Trabzonspor,Morocco / Belgium,Born in 2001,Central Midfielder,André Onana,Hard
+E02099,Clément Akpa,AJ Auxerre,Cote d'Ivoire / France,Meudon,Center Back,Ibrahim Osman,Hard
+E02101,Fidel Ambríz,CF Monterrey,Mexico,León de Los Aldama,Defensive Midfielder,Anthony Martial,Hard
+E02104,Lucas Hey,RSC Anderlecht,Denmark,Born in 2003,Center Back,Mario Stroeykens,Hard
+E02106,Ilan Kebbal,Paris FC,Algeria / France,Born in 1998,Attacking Midfielder,Moses Simon,Hard
+E02108,Vinícius Tobias,Shakhtar Donetsk,Brazil / Spain,Born in 2004,Right Back,Mykola Matvienko,Hard
+E02109,Thiago Borbas,Red Bull Bragantino,Uruguay,Born in 2002,Striker,Jhon Jhon,Hard
+E02110,Amin Sarr,Hellas Verona,Sweden / Senegal,Born in 2001,Striker,Gift Orban,Hard
+E02111,Obed Nkambadio,Paris FC,France / DR Congo,Born in 2003,Goalkeeper,Moses Simon,Hard
+E02112,Williot Swedberg,Celta de Vigo,Sweden,Born in 2004,Left Winger,Óscar Mingueza,Hard
+E02113,Kaio César,Al-Hilal SFC,Brazil,Born in 2004,Right Winger,Darwin Núñez,Hard
+E02114,Miguel Monsalve,Grêmio Foot-Ball Porto Alegrense,Colombia,Born in 2004,Attacking Midfielder,Mathías Villasanti,Hard
+E02115,Pascal Groß,Borussia Dortmund,Germany,Born in 1991,Central Midfielder,Serhou Guirassy,Hard
+E02116,Victor Gabriel,Sport Club Internacional,Brazil,Born in 2004,Center Back,Vitão,Hard
+E02117,Marc Guiu,Chelsea FC,Spain,Born in 2006,Striker,Cole Palmer,Hard
+E02118,Jahmai Simpson-Pusey,Celtic FC,England,Born in 2005,Center Back,Daizen Maeda,Hard
+E02119,Clement Bischoff,Red Bull Salzburg,Denmark / Kenya,Born in 2005,Left Winger,Joane Gadou,Hard
+E02122,Lennon Miller,Udinese Calcio,Scotland,Born in 2006,Central Midfielder,Oumar Solet,Hard
+E02123,Lucas Pires,Burnley FC,Brazil,Born in 2001,Left Back,Florentino,Hard
+E02124,Evertton Araújo,CR Flamengo,Brazil,Born in 2003,Defensive Midfielder,Samuel Lino,Hard
+E02125,Tom Watson,Brighton & Hove Albion,England,Born in 2006,Left Winger,Kaoru Mitoma,Hard
+E02126,Biel,Clube Atlético Mineiro,Brazil,Born in 2001,Left Winger,Guilherme Arana,Hard
+E02127,Arthur Chaves,TSG 1899 Hoffenheim,Brazil,Born in 2001,Center Back,Adam Hlozek,Hard
+E02128,Jeffinho,Botafogo de Futebol e Regatas,Brazil,Born in 1999,Left Winger,Danilo,Hard
+E02130,Facundo Bernal,Fluminense Football Club,Uruguay / Italy,Born in 2003,Defensive Midfielder,Martinelli,Hard
+E02132,Benjamin André,LOSC Lille,France,Born in 1990,Defensive Midfielder,Alexsandro,Hard
+E02134,Micael,Sociedade Esportiva Palmeiras,Brazil,Born in 2000,Center Back,Andreas Pereira,Hard
+E02136,Tani Oluwaseyi,Villarreal CF,Canada / Nigeria,Born in 2000,Striker,Renato Veiga,Hard
+E02139,David Ricardo,Botafogo de Futebol e Regatas,Brazil,Born in 2002,Center Back,Danilo,Hard
+E02140,Zachary Athekame,AC Milan,Switzerland / Nigeria,Born in 2004,Right Back,Rafael Leão,Hard
+E02141,Alexsander,Clube Atlético Mineiro,Brazil,Born in 2003,Defensive Midfielder,Guilherme Arana,Hard
+E02142,Benja Cremaschi,Parma Calcio 1913,United States / Italy,Born in 2005,Central Midfielder,Zion Suzuki,Hard
+E02144,José Córdoba,Norwich City,Panama,Born in 2001,Center Back,Josh Sargent,Expert
+E02145,Fabricio Bustos,CA River Plate,Argentina,Born in 1996,Right Back,Kevin Castaño,Expert
+E02146,Tomás Belmonte,CA Boca Juniors,Argentina / Italy,Argentina,Defensive Midfielder,Miguel Merentiel,Expert
+E02147,Giuliano Galoppo,CA River Plate,Argentina / Italy,Born in 1999,Central Midfielder,Kevin Castaño,Expert
+E02149,Festy Ebosele,Basaksehir FK,Ireland / Nigeria,"Enniscorthy, Wexford",Right Back,Amine Harit,Expert
+E02150,Baltasar Rodríguez,Inter Miami CF,Argentina,Monte Hermoso,Attacking Midfielder,Rodrigo De Paul,Expert
+E02152,Yasin Özcan,RSC Anderlecht,Turkey,Born in 2006,Center Back,Mario Stroeykens,Hard
+E02153,Koen Casteels,Al-Qadsiah FC,Belgium,Born in 1992,Goalkeeper,Mateo Retegui,Expert
+E02154,Danilo Pereira,Al-Ittihad Club,Portugal / Guinea-Bissau,Born in 1991,Center Back,Moussa Diaby,Expert
+E02155,Valentino Lazaro,Torino FC,Austria,Born in 1996,Right Back,Ivan Ilić,Expert
+E02157,Michael Zetterer,Eintracht Frankfurt,Germany,Born in 1995,Goalkeeper,Hugo Larsson,Expert
+E02160,Connor Roberts,Burnley FC,Wales,Born in 1995,Right Back,Florentino,Expert
+E02161,Ricardo Pereira,Leicester City,Portugal / Cape Verde,Born in 1993,Right Back,Wout Faes,Expert
+E02162,Luka Jović,AEK Athens,Serbia / Bosnia-Herzegovina,Born in 1997,Striker,Orbelín Pineda,Expert
+E02163,Suat Serdar,Hellas Verona,Germany / Türkiye,Born in 1997,Central Midfielder,Gift Orban,Expert
+E02164,Davide Calabria,Panathinaikos FC,Italy,Born in 1996,Right Back,Tetê,Expert
+E02165,Hamza Choudhury,Leicester City,Bangladesh / England,Born in 1997,Defensive Midfielder,Wout Faes,Expert
+E02166,William,Cruzeiro Esporte Clube,Brazil,Born in 1995,Right Back,Luis Sinisterra,Expert
+E02169,Sebastian Walukiewicz,US Sassuolo,Poland,Born in 2000,Center Back,Andrea Pinamonti,Expert
+E02170,Aleksandr Maksimenko,Spartak Moscow,Russia,Born in 1998,Goalkeeper,Gedson Fernandes,Expert
+E02171,Rasmus Nicolaisen,FC Toulouse,Denmark,Born in 1997,Center Back,Guillaume Restes,Expert
+E02172,Nikola Moro,Bologna FC 1909,Croatia,Born in 1998,Defensive Midfielder,Santiago Castro,Expert
+E02173,Karol Swiderski,Panathinaikos FC,Poland,Born in 1997,Striker,Tetê,Expert
+E02175,Borna Sosa,Crystal Palace,Croatia / Germany,Born in 1998,Left Back,Marc Guéhi,Expert
+E02177,Kelechi Iheanacho,Celtic FC,Nigeria,Born in 1996,Striker,Daizen Maeda,Expert
+E02179,Nahitan Nández,Al-Qadsiah FC,Uruguay / Italy,Born in 1995,Central Midfielder,Mateo Retegui,Expert
+E02180,Jakub Piotrowski,Udinese Calcio,Poland,Born in 1997,Central Midfielder,Oumar Solet,Expert
+E02182,Hjalmar Ekdal,Burnley FC,Sweden,Born in 1998,Center Back,Florentino,Expert
+E02184,Adriano Bertaccini,RSC Anderlecht,Belgium / Italy,Born in 2000,Striker,Mario Stroeykens,Expert
+E02185,Felipe Carballo,Portland Timbers,Uruguay / Italy,Uruguay,Central Midfielder,Kristoffer Velde,Expert
+E02186,Samuel Essende,FC Augsburg,DR Congo / France,Born in 1998,Striker,Chrislain Matsima,Expert
+E02187,Alan Cervantes,CF América,Mexico,Born in 1998,Defensive Midfielder,Allan Saint-Maximin,Expert
+E02189,Wouter Burger,TSG 1899 Hoffenheim,Netherlands,Born in 2001,Defensive Midfielder,Adam Hlozek,Expert
+E02192,Aboubakary Koita,AEK Athens,Mauritania / Belgium,Born in 1998,Left Winger,Orbelín Pineda,Expert
+E02194,Santiago Rodríguez,Botafogo de Futebol e Regatas,Uruguay,Born in 2000,Attacking Midfielder,Danilo,Expert
+E02195,Adrian Benedyczak,Parma Calcio 1913,Poland,Born in 2000,Left Winger,Zion Suzuki,Expert
+E02196,Alan Franco,São Paulo Futebol Clube,Argentina,Born in 1996,Center Back,Marcos Antônio,Expert
+E02199,Harry Clarke,Ipswich Town,England,Born in 2001,Right Back,Leif Davis,Expert
+E02202,Liam Kitching,Coventry City,England / Ireland,Born in 1999,Center Back,Jack Rudoni,Expert
+E02204,Matteo Cancellieri,SS Lazio,Italy,Born in 2002,Right Winger,Mattéo Guendouzi,Expert
+E02205,Bruno Méndez,Deportivo Toluca,Uruguay / Spain,Montevideo,Center Back,Alexis Vega,Expert
+E02206,Carlos Rotondi,CD Cruz Azul,Argentina,Born in 1997,Left Winger,Érik Lira,Expert
+E02207,Koba Koindredi,FC Basel 1893,France,Born in 2001,Central Midfielder,Bénie Traoré,Expert
+E02208,Bruno Duarte,Red Star Belgrade,Brazil / Italy,São Paulo,Striker,Tomás Händel,Expert
+E02210,Eric Ramires,Red Bull Bragantino,Brazil,Born in 2000,Central Midfielder,Jhon Jhon,Expert
+E02211,Tatsuhiro Sakamoto,Coventry City,Japan,Born in 1996,Right Midfield,Jack Rudoni,Expert
+E02213,Gabriele Piccinini,Pisa Sporting Club,Italy,Born in 2001,Central Midfielder,Lorran,Expert
+E02214,Erick,Esporte Clube Bahia,Brazil,Born in 1997,Defensive Midfielder,Jean Lucas,Expert
+E02215,Jordan Zemura,Udinese Calcio,Zimbabwe / England,Born in 1999,Left Back,Oumar Solet,Expert
+E02218,Young-woo Seol,Red Star Belgrade,"Korea, South","Ulju, Ulsan",Right Back,Tomás Händel,Expert
+E02219,Rav van den Berg,1.FC Köln,Netherlands,Born in 2004,Center Back,Ragnar Ache,Expert
+E02221,Finn van Breemen,FC Basel 1893,Netherlands,Born in 2003,Center Back,Bénie Traoré,Expert
+E02223,Amankwah Forson,Norwich City,Ghana,Born in 2002,Central Midfielder,Josh Sargent,Expert
+E02224,Matteo Dams,Al-Ahli SFC,Belgium,Born in 2004,Left Back,Enzo Millot,Expert
+E02225,Arseniy Batagov,Trabzonspor,Ukraine,Born in 2002,Center Back,André Onana,Expert
+E02227,Kevin Carlos,OGC Nice,Spain / Nigeria,Born in 2001,Striker,Melvin Bard,Expert
+E02230,Kyriani Sabbe,Club Brugge KV,Belgium,Born in 2005,Right Back,Joel Ordóñez,Expert
+E02231,Alieu Fadera,US Sassuolo,The Gambia,Born in 2001,Left Winger,Andrea Pinamonti,Expert
+E02232,Noah Adedeji-Sternberg,KRC Genk,Belgium / Germany,Born in 2005,Left Winger,Konstantinos Karetsas,Expert
+E02237,Berat Özdemir,Basaksehir FK,Turkey,Kayseri,Defensive Midfielder,Amine Harit,Expert
+E02241,Junior Diaz,Stade Brestois 29,Cote d'Ivoire / France,Born in 2003,Center Back,Bradley Locko,Expert
+E02242,Santiago García,---,Uruguay,Born in 1990,Striker,Diogo Jota,Expert
+E02243,Eguinaldo,Shakhtar Donetsk,Brazil,Born in 2004,Left Winger,Mykola Matvienko,Expert
+E02244,Nobel Mendy,Rayo Vallecano,Senegal / Guinea-Bissau,Born in 2004,Center Back,Andrei Rațiu,Expert
+E02245,Ilyas Ansah,1.FC Union Berlin,Germany / Ghana,Born in 2004,Striker,Diogo Leite,Expert
+E02246,Ricardo Mathias,Sport Club Internacional,Brazil,Born in 2006,Striker,Vitão,Hard
+E02247,Yaya Fofana,Stade Reims,Cote d'Ivoire / Mali,Cote d'Ivoire,Central Midfielder,Keito Nakamura,Expert
+E02249,Mario Dorgeles,SC Braga,Cote d'Ivoire,Born in 2004,Central Midfielder,Rodrigo Zalazar,Expert
+E02250,Jan Ziolkowski,AS Roma,Poland,Born in 2005,Center Back,Manu Koné,Expert
+E02252,Enso González,Wolverhampton Wanderers,Paraguay,Born in 2005,Left Winger,João Gomes,Expert
+E02253,Deniz Gül,FC Porto,Türkiye / Sweden,Born in 2004,Striker,Samu Aghehowa,Expert
+E02254,Joël Veltman,Brighton & Hove Albion,Netherlands,Born in 1992,Right Back,Kaoru Mitoma,Expert
+E02256,Patrick Agyemang,Derby County,United States / Ghana,United States,Striker,Ben Brereton Díaz,Expert
+E02257,Papa Amadou Diallo,Norwich City,Senegal,Born in 2004,Left Winger,Josh Sargent,Expert
+E02259,Jonathan Gradit,RC Lens,France,Born in 1992,Center Back,Abdallah Sima,Expert
+E02260,Isaque,Shakhtar Donetsk,Brazil,Born in 2007,Attacking Midfielder,Mykola Matvienko,Hard
+E02261,Lucas Ferreira,Shakhtar Donetsk,Brazil,Born in 2006,Right Winger,Mykola Matvienko,Hard
+E02262,Mariano Troilo,Parma Calcio 1913,Argentina,Born in 2003,Center Back,Zion Suzuki,Expert
+E02263,Amadou Koné,NEOM SC,Cote d'Ivoire / Mali,Born in 2005,Defensive Midfielder,Marcin Bulka,Expert
+E02264,Kaan Ayhan,Galatasaray,Türkiye / Germany,Born in 1994,Defensive Midfielder,Victor Osimhen,Expert
+E02265,Sergi Darder,RCD Mallorca,Spain,Born in 1993,Central Midfielder,Samú Costa,Expert
+E02266,Robin Zentner,1.FSV Mainz 05,Germany,Born in 1994,Goalkeeper,Paul Nebel,Expert
+E02267,Niklas Stark,SV Werder Bremen,Germany,Born in 1995,Center Back,Victor Boniface,Expert
+E02268,Anastasios Bakasetas,Panathinaikos FC,Greece,Born in 1993,Attacking Midfielder,Tetê,Expert
+E02269,Jamaal Lascelles,Newcastle United,England / Barbados,Born in 1993,Center Back,Bruno Guimarães,Expert
+E02270,André Silva,Elche CF,Portugal,Baguim do Monte,Striker,Héctor Fort,Expert
+E02272,Manuel Neuer,Bayern Munich,Germany,Born in 1986,Goalkeeper,Jamal Musiala,Expert
+E02273,Michy Batshuayi,Eintracht Frankfurt,Belgium / DR Congo,Born in 1993,Striker,Hugo Larsson,Expert
+E02274,Marko Grujić,AEK Athens,Serbia,Born in 1996,Defensive Midfielder,Orbelín Pineda,Expert
+E02275,Jesper Karlström,Udinese Calcio,Sweden,Born in 1995,Defensive Midfielder,Oumar Solet,Expert
+E02276,Jordan Torunarigha,Hamburger SV,Nigeria / Germany,Born in 1997,Center Back,Fábio Vieira,Expert
+E02277,Wout Weghorst,Ajax Amsterdam,Netherlands,Born in 1992,Striker,Kenneth Taylor,Expert
+E02279,John Souttar,Rangers FC,Scotland / Australia,Born in 1996,Center Back,Mikey Moore,Expert
+E02281,Óliver Torres,CF Monterrey,Spain,Navalmoral de la Mata,Central Midfielder,Anthony Martial,Expert
+E02282,Lucas Olaza,FC Krasnodar,Uruguay / Spain,Born in 1994,Left Back,Eduard Spertsyan,Expert
+E02284,Jay Dasilva,Coventry City,Wales / England,Born in 1998,Left Back,Jack Rudoni,Expert
+E02286,Nicolas Moumi Ngamaleu,Dynamo Moscow,Cameroon,Born in 1994,Left Winger,Konstantin Tyukavin,Expert
+E02287,Robert Skov,1.FC Union Berlin,Denmark,Born in 1996,Left Midfield,Diogo Leite,Expert
+E02288,Harold Moukoudi,AEK Athens,Cameroon / France,Born in 1997,Center Back,Orbelín Pineda,Expert
+E02289,Salih Özcan,Borussia Dortmund,Türkiye / Germany,Born in 1998,Defensive Midfielder,Serhou Guirassy,Expert
+E02290,Milan Gajic,CSKA Moscow,Serbia,Vukovar,Right Back,Ivan Oblyakov,Expert
+E02292,Guillermo Maripán,Torino FC,Chile,Born in 1994,Center Back,Ivan Ilić,Expert
+E02294,Niclas Eliasson,AEK Athens,Sweden / Brazil,Born in 1995,Right Midfield,Orbelín Pineda,Expert
+E02296,Alex Telles,Botafogo de Futebol e Regatas,Brazil / Italy,Born in 1992,Left Back,Danilo,Expert
+E02297,Christian Kouamé,ACF Fiorentina,Cote d'Ivoire / Italy,Born in 1997,Striker,Moise Kean,Expert
+E02299,Abel Ruiz,Girona FC,Spain,Born in 2000,Striker,Vitor Reis,Expert

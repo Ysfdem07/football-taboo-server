@@ -14,8 +14,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
+  football_en: require('../../assets/images/football_bg.jpg'),
   cinema: require('../../assets/images/cinema_bg.jpg'),
+  cinema_en: require('../../assets/images/cinema_bg.jpg'),
   music: require('../../assets/images/music_bg.jpg'),
+  music_en: require('../../assets/images/music_bg.jpg'),
 };
 
 type Props = {
