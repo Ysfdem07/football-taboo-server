@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import Constants from 'expo-constants';
 
 // Default production URL - Railway (MongoDB bağlı)
-export let SOCKET_URL = 'https://footballtaboo-server-production.up.railway.app';
+export let SOCKET_URL = 'https://wordico.net';
 // export let SOCKET_URL = 'https://futtaboo.onrender.com'; // Render fallback
 
 // Override with local development URL when running in Expo Go (debug mode)
