@@ -437,6 +437,17 @@ app.get('/api/refresh-words', async (req, res) => {
   }
 });
 
+// Temporary endpoint to fix tournaments
+app.get('/api/fix-tournaments', async (req, res) => {
+  try {
+    const WeeklyTournament = require('mongoose').model('WeeklyTournament');
+    const result = await WeeklyTournament.deleteMany({ weekId: { $regex: /_en$/ } });
+    res.json({ success: true, message: `Deleted ${result.deletedCount} EN tournaments. They will be regenerated.` });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // ─── Tournament Init ─────────────────────────────────────────────────────────
 async function initTournament() {
   try {
