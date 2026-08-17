@@ -892,7 +892,7 @@ io.on('connection', (socket) => {
         room.isPaused = false;
         
         // Timeout penalty
-        const penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
+        const penalty = 10;
         room.scores[id] = (room.scores[id] || 0) - penalty;
         io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'timeout', playerId: id });
         io.to(roomId).emit('guess_turn_ended');
@@ -996,7 +996,7 @@ io.on('connection', (socket) => {
       }, 4000);
     } else {
       // Incorrect guess
-      let penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
+      let penalty = 10;
       let reason = 'incorrect';
       
       if (room.activeShields && room.activeShields[id]) {
@@ -1130,10 +1130,9 @@ function getPotentialScore(room) {
   if (!room) return 10;
   const hintsPenalty = Math.max(0, (room.hintsShown || 1) - 1);
   const lettersPenalty = (room.revealedIndices ? room.revealedIndices.length : 0);
-  if (room.isRanked1v1 || room.isGroupRanked) {
-    return Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
-  }
-  return Math.max(5, 20 - (hintsPenalty * 2) - (lettersPenalty * 2));
+  
+  // Standardize scoring across all modes (Ranked and Friendly start at 100)
+  return Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
 }
 
 async function startRound(roomId) {
