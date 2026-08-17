@@ -150,6 +150,25 @@ export default function MarketScreen({ navigation }: any) {
               <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
+          
+          {/* Kalkan Jokeri */}
+          <View style={styles.jokerCard}>
+            <View style={styles.jokerInfo}>
+              <Ionicons name="shield-checkmark" size={32} color="#FFD700" />
+              <View style={styles.jokerTexts}>
+                <Text style={styles.jokerName}>{t('shield')}</Text>
+                <Text style={styles.jokerDesc}>{t('shieldDesc')}</Text>
+                <Text style={styles.jokerCount}>{t('owned')} {player?.jokers?.shield || 0}</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={[styles.buyBtn, loading && { opacity: 0.5 }]} 
+              onPress={() => buyJoker('shield')}
+              disabled={loading}
+            >
+              <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <BottomNavBar activeTab="market" navigation={navigation} />

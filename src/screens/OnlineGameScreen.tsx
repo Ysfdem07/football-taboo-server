@@ -276,6 +276,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     return () => {
       if (buzzerTimerRef.current) clearTimeout(buzzerTimerRef.current);
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      
+      socket.emit('leave_room', { roomId });
+      
       socket.off('game_start');
       socket.off('time_tick');
       socket.off('pass_update');
@@ -295,6 +298,37 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       socket.off('opponent_disconnected');
     };
   }, []);
+
+  // Prevent accidental back navigation (Android back button, iOS swipe back)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      // If the game is over, let them go back immediately without asking
+      if (gameOver) {
+        return;
+      }
+
+      // Prevent default behavior of leaving the screen
+      e.preventDefault();
+
+      Alert.alert(
+        'Oyundan Ayrıl?',
+        'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
+        [
+          { text: 'İptal', style: 'cancel', onPress: () => {} },
+          {
+            text: 'Çık',
+            style: 'destructive',
+            onPress: () => {
+              socket.disconnect(); // Ensure socket clears out
+              navigation.dispatch(e.data.action);
+            },
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, gameOver]);
 
   const sendGuess = () => {
     if (!guess.trim() || gameOver) return;
@@ -717,6 +751,23 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   <Text style={styles.jokerBadgeText}>{player?.jokers?.instantHints || 0}</Text>
                 </View>
               </TouchableOpacity>
+
+              {/* Kalkan — only active during OWN guess turn */}
+              <TouchableOpacity
+                style={[
+                  styles.jokerBtnWide,
+                  (jokerLoading || guessingPlayerId !== socket.id) && { opacity: 0.35 },
+                ]}
+                onPress={() => useJoker('shield')}
+                disabled={jokerLoading || guessingPlayerId !== socket.id}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="shield-checkmark" size={18} color="#FFD700" />
+                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]}>Kalkan</Text>
+                <View style={styles.jokerBadge}>
+                  <Text style={styles.jokerBadgeText}>{player?.jokers?.shield || 0}</Text>
+                </View>
+              </TouchableOpacity>
             </View>
 
             {/* ─── Action Buttons ─────────────────────────────────────────── */}
@@ -977,8 +1028,9 @@ const styles = StyleSheet.create({
   },
   jokersBar: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 12,
+    gap: 10,
     paddingVertical: 4,
   },
   jokerBtnWide: {
@@ -986,9 +1038,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: 'rgba(255,255,255,0.07)',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.15)',
   },

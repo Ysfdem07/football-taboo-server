@@ -60,7 +60,8 @@ const playerSchema = new mongoose.Schema({
   jokers: {
     revealLetters: { type: Number, default: 0 },
     extraTime: { type: Number, default: 0 },
-    instantHints: { type: Number, default: 0 }
+    instantHints: { type: Number, default: 0 },
+    shield: { type: Number, default: 0 }
   },
   resetCode: { type: String, default: null },
   resetExpires: { type: Date, default: null }
@@ -173,7 +174,7 @@ module.exports = {
       correct_guesses: 0,
       taboos: 0,
       coins: 100,
-      jokers: { revealLetters: 0, extraTime: 0, instantHints: 0 }
+      jokers: { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 }
     };
     const player = new Player(newPlayer);
     await player.save();
@@ -253,7 +254,7 @@ module.exports = {
     await connectDB();
     const player = await findPlayerById(playerId);
     if (!player) return { error: 'Oyuncu bulunamadı' };
-    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0 };
+    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 };
     if ((player.coins || 0) < price) return { error: 'Yetersiz jeton!' };
 
     player.coins -= price;
@@ -272,7 +273,7 @@ module.exports = {
     await connectDB();
     const player = await findPlayerById(playerId);
     if (!player) return { error: 'Oyuncu bulunamadı' };
-    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0 };
+    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 };
     if (player.jokers[jokerType] > 0) {
       player.jokers[jokerType] -= 1;
       player.markModified('jokers');

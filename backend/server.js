@@ -695,9 +695,9 @@ io.on('connection', (socket) => {
     if (!room) return socket.emit('joker_error', { message: 'Oda bulunamadı!' });
     
     // PRE-VALIDATION for game logic
-    if (jokerType === 'extraTime') {
+    if (jokerType === 'extraTime' || jokerType === 'shield') {
       if (!room.isPaused || room.guessingPlayerId !== playerId) {
-        return socket.emit('joker_error', { message: 'Ek süre jokeri sadece tahmin sırası sizdeyken kullanılabilir!' });
+        return socket.emit('joker_error', { message: 'Bu joker sadece tahmin sırası sizdeyken kullanılabilir!' });
       }
     }
     
@@ -739,6 +739,10 @@ io.on('connection', (socket) => {
         });
         socket.emit('joker_used', { jokerType, playerId }); // no message = no popup
       }
+    } else if (jokerType === 'shield') {
+      if (!room.activeShields) room.activeShields = {};
+      room.activeShields[playerId] = true;
+      socket.emit('joker_used', { jokerType, playerId });
     }
     
     // Update player data on client side so joker count drops
@@ -992,13 +996,71 @@ io.on('connection', (socket) => {
       }, 4000);
     } else {
       // Incorrect guess
-      const penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
-      room.scores[id] = Math.max(0, (room.scores[id] || 0) - penalty);
+      let penalty = (room.isRanked1v1 || room.isGroupRanked) ? 10 : 3;
+      let reason = 'incorrect';
+      
+      if (room.activeShields && room.activeShields[id]) {
+        room.activeShields[id] = false; // consume shield
+        penalty = 0;
+        reason = 'shielded';
+      } else {
+        room.scores[id] = Math.max(0, (room.scores[id] || 0) - penalty);
+      }
+      
       room.guessingPlayerId = null;
       room.isPaused = false;
 
-      io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: 'incorrect', playerId: id });
+      io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: reason, playerId: id });
       io.to(roomId).emit('guess_turn_ended');
+    }
+  });
+
+  socket.on('leave_room', async (data) => {
+    const { roomId } = data;
+    if (!roomId) return;
+    
+    socket.leave(roomId);
+    
+    const room = activeRooms[roomId];
+    if (!room) return;
+
+    const playerIndex = room.players.findIndex(p => p.id === socket.id);
+    if (playerIndex !== -1) {
+      if (room.status === 'waiting') {
+        room.players.splice(playerIndex, 1);
+        delete room.scores[socket.id];
+        if (room.players.length === 0) {
+          delete activeRooms[roomId];
+        } else {
+          if (room.hostId === socket.id) {
+            room.hostId = room.players[0].id;
+          }
+          io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
+        }
+      } else {
+        const disconnectedPlayer = room.players[playerIndex];
+        room.players.splice(playerIndex, 1);
+        io.to(roomId).emit('player_disconnected', { playerId: socket.id, players: room.players });
+        
+        if (room.players.length <= 1) {
+          if (room.timer) clearInterval(room.timer);
+          if (room.guessTimer) clearInterval(room.guessTimer);
+          
+          if (room.isRanked1v1) {
+            const roomCat = room.category || 'football';
+            const remainingPlayer = room.players[0];
+            if (remainingPlayer && remainingPlayer.dbPlayerId) {
+              await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true, 0, 0, roomCat);
+            }
+            if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
+              await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false, 0, 0, roomCat);
+            }
+          }
+          
+          io.to(roomId).emit('opponent_disconnected'); 
+          delete activeRooms[roomId];
+        }
+      }
     }
   });
 
