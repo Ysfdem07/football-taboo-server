@@ -33,7 +33,8 @@ export default function LeaderboardScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'Leaderboard'>>();
   const insets = useSafeAreaInsets();
   const { t, language } = useLanguage();
-  const initialCategory = (route.params as any)?.categoryId || 'football';
+  const initialCategory = (route.params as any)?.categoryId || (language === 'en' ? 'football_en' : 'football');
+  const isSingleCategoryMode = !!(route.params as any)?.categoryId;
 
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
@@ -43,7 +44,7 @@ export default function LeaderboardScreen() {
   const CATEGORIES = [
     { id: language === 'en' ? 'football_en' : 'football', label: t('football').toUpperCase(), icon: 'football', color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
     { id: language === 'en' ? 'cinema_en' : 'cinema', label: t('cinema').toUpperCase(), icon: 'videocam', color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg') },
-    { id: 'music', label: t('music').toUpperCase(), icon: 'musical-notes', color: '#ff1493', bg: require('../../assets/images/music_bg.jpg') },
+    { id: language === 'en' ? 'music_en' : 'music', label: t('music').toUpperCase(), icon: 'musical-notes', color: '#ff1493', bg: require('../../assets/images/music_bg.jpg') },
   ];
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 12;
@@ -188,25 +189,27 @@ export default function LeaderboardScreen() {
         </View>
 
         {/* CATEGORY TABS */}
-        <View style={styles.categoryTabs}>
-          {CATEGORIES.map(cat => (
-            <TouchableOpacity
-              key={cat.id}
-              style={[
-                styles.catTab,
-                { borderColor: activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.15)' },
-                activeCategory === cat.id && { backgroundColor: `${cat.color}20` }
-              ]}
-              onPress={() => handleCategoryChange(cat.id)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name={cat.icon as any} size={16} color={activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.5)'} />
-              <Text style={[styles.catTabText, { color: activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.5)' }]}>
-                {cat.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {!isSingleCategoryMode && (
+          <View style={styles.categoryTabs}>
+            {CATEGORIES.map(cat => (
+              <TouchableOpacity
+                key={cat.id}
+                style={[
+                  styles.catTab,
+                  { borderColor: activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.15)' },
+                  activeCategory === cat.id && { backgroundColor: `${cat.color}20` }
+                ]}
+                onPress={() => handleCategoryChange(cat.id)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name={cat.icon as any} size={16} color={activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.5)'} />
+                <Text style={[styles.catTabText, { color: activeCategory === cat.id ? cat.color : 'rgba(255,255,255,0.5)' }]}>
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* LEAGUE FILTER */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.leagueFilterScroll} contentContainerStyle={{ paddingHorizontal: 16, gap: 8, alignItems: 'center' }}>
