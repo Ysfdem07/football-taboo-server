@@ -61,17 +61,17 @@ export default function AppNavigator() {
         <Stack.Screen name="CategoryMenu" component={CategoryMenuScreen} />
         <Stack.Screen name="Market" component={MarketScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="Game" component={GameScreen} />
+        <Stack.Screen name="Game" component={GameScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="OnlineLobby" component={OnlineLobbyScreen} />
         <Stack.Screen name="RoomLobby" component={RoomLobbyScreen} />
-        <Stack.Screen name="OnlineGame" component={OnlineGameScreen} />
+        <Stack.Screen name="OnlineGame" component={OnlineGameScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="About" component={AboutScreen} />
         <Stack.Screen name="HowToPlay" component={HowToPlayScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
         <Stack.Screen name="Tournament" component={TournamentScreen} />
-        <Stack.Screen name="TournamentGame" component={TournamentGameScreen} />
+        <Stack.Screen name="TournamentGame" component={TournamentGameScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="CardAlbum" component={CardAlbumScreen} />
         <Stack.Screen name="PitchBattle" component={PitchBattleScreen} />
       </Stack.Navigator>
