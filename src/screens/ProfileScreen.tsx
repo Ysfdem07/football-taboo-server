@@ -88,9 +88,9 @@ export default function ProfileScreen({ navigation }: Props) {
       if (res.success) {
         Analytics.logUserRegister(res.player.id, res.player.username);
         saveSession(res.player);
-        Alert.alert('Başarılı', 'Profiliniz başarıyla oluşturuldu!');
+        CustomAlert.show('Başarılı', 'Profiliniz başarıyla oluşturuldu!');
       } else {
-        Alert.alert('Kayıt Hatası', res.error || 'Bilinmeyen hata.');
+        CustomAlert.show('Kayıt Hatası', res.error || 'Bilinmeyen hata.');
       }
     });
 
@@ -105,7 +105,7 @@ export default function ProfileScreen({ navigation }: Props) {
         setIsLoggedIn(false);
         setPlayer(null);
         if (!loading) {
-          Alert.alert('Giriş Hatası', res.error || 'Şifre hatalı.');
+          CustomAlert.show('Giriş Hatası', res.error || 'Şifre hatalı.');
         }
       }
     });
@@ -114,26 +114,26 @@ export default function ProfileScreen({ navigation }: Props) {
       setLoading(false);
       if (res.success) {
         if (res.devMode) {
-          Alert.alert('Geliştirici Modu (Test)', `SMTP kurulu olmadığı için üretilen kod ekrana yansıtıldı:\n\nKOD: ${res.code}`);
+          CustomAlert.show('Geliştirici Modu (Test)', `SMTP kurulu olmadığı için üretilen kod ekrana yansıtıldı:\n\nKOD: ${res.code}`);
         } else {
-          Alert.alert('Başarılı', res.message);
+          CustomAlert.show('Başarılı', res.message);
         }
         setAuthStep('forgot_verify');
       } else {
-        Alert.alert('Hata', res.error || 'Sıfırlama kodu gönderilemedi.');
+        CustomAlert.show('Hata', res.error || 'Sıfırlama kodu gönderilemedi.');
       }
     });
 
     socket.on('reset_password_response', (res: any) => {
       setLoading(false);
       if (res.success) {
-        Alert.alert('Başarılı', res.message);
+        CustomAlert.show('Başarılı', res.message);
         setResetEmail('');
         setResetCode('');
         setNewPassword('');
         setAuthStep('login');
       } else {
-        Alert.alert('Sıfırlama Hatası', res.error || 'Şifre güncellenemedi.');
+        CustomAlert.show('Sıfırlama Hatası', res.error || 'Şifre güncellenemedi.');
       }
     });
 
@@ -174,41 +174,41 @@ export default function ProfileScreen({ navigation }: Props) {
       socket.emit('update_avatar', { playerId: player.id, avatar: avatarId });
     }
 
-    Alert.alert('Başarılı! 🎉', 'Profil avatarın başarıyla güncellendi.');
+    CustomAlert.show('Başarılı! 🎉', 'Profil avatarın başarıyla güncellendi.');
   };
 
   const handleAuth = () => {
     if (!username.trim() || !password.trim()) {
-      Alert.alert('Hata', 'Lütfen tüm alanları doldurun.');
+      CustomAlert.show('Hata', 'Lütfen tüm alanları doldurun.');
       return;
     }
     const isEmailInput = username.includes('@');
     if (isRegisterMode || !isEmailInput) {
       if (username.length < 3 || username.length > 30) {
-        Alert.alert('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
+        CustomAlert.show('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
         return;
       }
     }
 
     if (isRegisterMode) {
       if (password.length < 6 || password.length > 20) {
-        Alert.alert('Hata', 'Şifre 6-20 karakter arasında olmalıdır.');
+        CustomAlert.show('Hata', 'Şifre 6-20 karakter arasında olmalıdır.');
         return;
       }
     }
 
     if (isRegisterMode) {
       if (!email.trim()) {
-        Alert.alert('Hata', 'E-posta adresi gereklidir.');
+        CustomAlert.show('Hata', 'E-posta adresi gereklidir.');
         return;
       }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.trim())) {
-        Alert.alert('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+        CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
         return;
       }
       if (!marketingConsent) {
-        Alert.alert('Hata', 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
+        CustomAlert.show('Hata', 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
         return;
       }
     }
@@ -229,12 +229,12 @@ export default function ProfileScreen({ navigation }: Props) {
 
   const handleForgotRequest = () => {
     if (!resetEmail.trim()) {
-      Alert.alert('Hata', 'Lütfen e-posta adresinizi girin.');
+      CustomAlert.show('Hata', 'Lütfen e-posta adresinizi girin.');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(resetEmail.trim())) {
-      Alert.alert('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+      CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
       return;
     }
     setLoading(true);
@@ -242,7 +242,7 @@ export default function ProfileScreen({ navigation }: Props) {
     // Safety timeout: If socket fails to respond in 15 seconds, close spinner and show alert
     const safetyTimeout = setTimeout(() => {
       setLoading(false);
-      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
     }, 15000);
 
     socket.emit('forgot_password', { email: resetEmail.trim() });
@@ -255,15 +255,15 @@ export default function ProfileScreen({ navigation }: Props) {
 
   const handleForgotVerify = () => {
     if (!resetCode.trim() || !newPassword.trim()) {
-      Alert.alert('Hata', 'Lütfen tüm alanları doldurun.');
+      CustomAlert.show('Hata', 'Lütfen tüm alanları doldurun.');
       return;
     }
     if (resetCode.trim().length !== 6) {
-      Alert.alert('Hata', 'Doğrulama kodu 6 haneli olmalıdır.');
+      CustomAlert.show('Hata', 'Doğrulama kodu 6 haneli olmalıdır.');
       return;
     }
     if (newPassword.length < 6) {
-      Alert.alert('Hata', 'Yeni şifre en az 6 karakter olmalıdır.');
+      CustomAlert.show('Hata', 'Yeni şifre en az 6 karakter olmalıdır.');
       return;
     }
     setLoading(true);
@@ -281,7 +281,7 @@ export default function ProfileScreen({ navigation }: Props) {
       setPlayer(null);
       setUsername('');
       setPassword('');
-      Alert.alert('Çıkış Yapıldı', 'Profil oturumu sonlandırıldı.');
+      CustomAlert.show('Çıkış Yapıldı', 'Profil oturumu sonlandırıldı.');
     } catch (e) {
       console.error(e);
     }

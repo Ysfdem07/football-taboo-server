@@ -52,7 +52,7 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
 
   const startGame = () => {
     if (players.length < 2) {
-      Alert.alert('Uyarı', 'Oyunu başlatmak için en az 2 kişi olmalı!');
+      CustomAlert.show('Uyarı', 'Oyunu başlatmak için en az 2 kişi olmalı!');
       return;
     }
     socket.emit('start_room_game', { roomId });

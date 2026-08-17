@@ -122,13 +122,13 @@ export default function PitchBattleScreen({ navigation }: Props) {
     if (!selectedHandCard) return;
 
     if (selectedHandCard.cost > energy) {
-      Alert.alert('Yetersiz Enerji', `Bu kart ${selectedHandCard.cost} enerji istiyor. Mevcut enerjin: ${energy}`);
+      CustomAlert.show('Yetersiz Enerji', `Bu kart ${selectedHandCard.cost} enerji istiyor. Mevcut enerjin: ${energy}`);
       return;
     }
 
     const targetLane = lanes.find(l => l.id === targetLaneId);
     if (targetLane && targetLane.userCards.length >= 3) {
-      Alert.alert('Bölge Dolu', 'Her bölgeye en fazla 3 kart yerleştirebilirsin!');
+      CustomAlert.show('Bölge Dolu', 'Her bölgeye en fazla 3 kart yerleştirebilirsin!');
       return;
     }
 

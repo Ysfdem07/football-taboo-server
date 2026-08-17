@@ -132,7 +132,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
   const findMatch = () => {
     if (!profile || !profile.email) {
-      Alert.alert(
+      CustomAlert.show(
         'Dereceli Mod İsteği',
         'Dereceli düello oynamak ve Kariyer Puanı (KP) kazanmak için profilinize e-posta ile giriş yapmalısınız.',
         [
@@ -158,13 +158,13 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     }, () => {
       Analytics.logEvent('join_queue_failed');
       setLobbyStatus('idle');
-      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen uygulamayı yenileyin veya internetinizi kontrol edin.');
+      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen uygulamayı yenileyin veya internetinizi kontrol edin.');
     });
   };
 
   const createRoom = (isRanked = false) => {
     if (isRanked && (!profile || !profile.email)) {
-      Alert.alert(
+      CustomAlert.show(
         'Dereceli Mod İsteği',
         'Dereceli düello oynamak ve Kariyer Puanı (KP) kazanmak için profilinize e-posta ile giriş yapmalısınız.',
         [
@@ -192,7 +192,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     }, () => {
       Analytics.logEvent('create_room_failed', { isRanked });
       setLobbyStatus('idle');
-      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
+      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
     });
   };
 
@@ -216,12 +216,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       s.on('join_error', (data: any) => {
         Analytics.logEvent('join_room_error', { message: data.message });
         setLobbyStatus('idle');
-        Alert.alert('Hata', data.message);
+        CustomAlert.show('Hata', data.message);
       });
     }, () => {
       Analytics.logEvent('join_room_failed');
       setLobbyStatus('idle');
-      Alert.alert('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
+      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
     });
   };
 

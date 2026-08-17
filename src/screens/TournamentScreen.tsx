@@ -187,7 +187,7 @@ export default function TournamentScreen() {
 
   const handlePlay = () => {
     if (!player) {
-      Alert.alert(
+      CustomAlert.show(
         language === 'en' ? 'Sign In Required' : 'Giriş Gerekli',
         language === 'en' ? 'Please create a profile to enter the tournament.' : 'Turnuvaya katılmak için profil oluşturmalısın.',
         [{ text: t('ok'), onPress: () => navigation.navigate('Profile') }]
@@ -207,7 +207,7 @@ export default function TournamentScreen() {
         const socket = getSocket();
         if (socket) {
           socket.emit('grant_tournament_ad_attempt', { playerId: player.id, category: categoryId });
-          Alert.alert(
+          CustomAlert.show(
             language === 'en' ? 'Congratulations!' : 'Tebrikler!',
             language === 'en' ? 'Watched ad to the end. +1 Attempt granted! 🎁' : 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎁'
           );

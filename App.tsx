@@ -15,6 +15,8 @@ import {
 
 import { LanguageProvider } from './src/context/LanguageContext';
 
+import { CustomAlert } from './src/components/CustomAlert';
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -42,6 +44,7 @@ export default function App() {
       <LanguageProvider>
         <StatusBar style="light" translucent backgroundColor="transparent" />
         <AppNavigator />
+        <CustomAlert />
       </LanguageProvider>
     </SafeAreaProvider>
   );

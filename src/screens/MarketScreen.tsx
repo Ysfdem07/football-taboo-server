@@ -53,19 +53,19 @@ export default function MarketScreen({ navigation }: any) {
         setLoading(false);
         setPlayer(data.player);
         await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
-        Alert.alert(t('success'), t('jokerBought'));
+        CustomAlert.show(t('success'), t('jokerBought'));
       });
       
       s.on('joker_error', (data: { message: string }) => {
         setLoading(false);
-        Alert.alert(t('error'), data.message);
+        CustomAlert.show(t('error'), data.message);
       });
     }
   };
 
   const buyJoker = async (jokerType: string) => {
-    if (!player) return Alert.alert(t('error'), t('loginRequired'));
-    if ((player.coins || 0) < 50) return Alert.alert(t('insufficientFunds'), t('needMoreCoins'));
+    if (!player) return CustomAlert.show(t('error'), t('loginRequired'));
+    if ((player.coins || 0) < 50) return CustomAlert.show(t('insufficientFunds'), t('needMoreCoins'));
     
     setLoading(true);
     let s = getSocket();
@@ -78,7 +78,7 @@ export default function MarketScreen({ navigation }: any) {
       s.emit('buy_joker', { playerId: player.id, jokerType });
     } else {
       setLoading(false);
-      Alert.alert(t('error'), t('serverError'));
+      CustomAlert.show(t('error'), t('serverError'));
     }
   };
 

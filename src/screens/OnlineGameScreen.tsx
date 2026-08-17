@@ -81,7 +81,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     if (!player || !player.id) return;
     const count = player.jokers?.[jokerType] || 0;
     if (count <= 0) {
-      Alert.alert('Joker Yok', 'Marketten joker satın alabilirsin!');
+      CustomAlert.show('Joker Yok', 'Marketten joker satın alabilirsin!');
       return;
     }
     setJokerLoading(true);
@@ -174,13 +174,13 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     socket.on('joker_used', (data: any) => {
-      if (data.message) Alert.alert('Joker Kullanıldı!', data.message);
+      if (data.message) CustomAlert.show('Joker Kullanıldı!', data.message);
       if (data.hint) setWordHint(data.hint);
     });
 
     socket.on('joker_error', (data: any) => {
       setJokerLoading(false);
-      Alert.alert('Joker Hatası', data.message || 'Joker kullanılamadı.');
+      CustomAlert.show('Joker Hatası', data.message || 'Joker kullanılamadı.');
     });
 
     // Server sends updated profile after coin/KP rewards
@@ -481,7 +481,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     showRewarded(() => {
                       socket.emit('reward_double_coins', { playerId: player?.id });
                       setRewardCollected(true);
-                      Alert.alert('Tebrikler!', "Kazancınız 2'ye katlandı (+50 Jeton eklendi).");
+                      CustomAlert.show('Tebrikler!', "Kazancınız 2'ye katlandı (+50 Jeton eklendi).");
                     });
                   }}
                   activeOpacity={0.8}
