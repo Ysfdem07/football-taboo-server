@@ -579,10 +579,30 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.header}>
-              <Text style={styles.roundText}>TUR {currentRound} / {maxRounds}</Text>
-              <View style={styles.timerWrap}>
-                <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>{timeLeft}</Text>
+            <View style={[styles.header, { flexDirection: 'row', justifyContent: 'center', position: 'relative' }]}>
+              <TouchableOpacity 
+                onPress={() => {
+                  Alert.alert(
+                    'Oyundan Ayrıl?',
+                    'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
+                    [
+                      { text: 'İptal', style: 'cancel' },
+                      { text: 'Çık', style: 'destructive', onPress: () => {
+                        socket.disconnect();
+                        navigation.navigate('Home');
+                      }}
+                    ]
+                  );
+                }} 
+                style={{ position: 'absolute', left: 20, top: 0, zIndex: 10, padding: 5 }}
+              >
+                <Ionicons name="close" size={32} color="#fff" />
+              </TouchableOpacity>
+              <View style={{ alignItems: 'center' }}>
+                <Text style={styles.roundText}>TUR {currentRound} / {maxRounds}</Text>
+                <View style={styles.timerWrap}>
+                  <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>{timeLeft}</Text>
+                </View>
               </View>
             </View>
             

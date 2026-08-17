@@ -428,8 +428,26 @@ export default function TournamentGameScreen() {
                   <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={{ flex: 1, justifyContent: 'space-between' }}>
                     <View>
                       {/* Top Bar (With Safe Insets Top Padding) */}
-                      <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12) }]}>
-                        <Text style={styles.qCounter}>{qIndex + 1} / {cards.length}</Text>
+                      <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12), position: 'relative' }]}>
+                        <TouchableOpacity 
+                          onPress={() => {
+                            Alert.alert(
+                              'Oyundan Çık?',
+                              'Çıkarsanız skorunuz kaydedilmez. Emin misiniz?',
+                              [
+                                { text: 'İptal', style: 'cancel' },
+                                { text: 'Çık', style: 'destructive', onPress: () => {
+                                  if (timerRef.current) clearInterval(timerRef.current);
+                                  navigation.goBack(); 
+                                } }
+                              ]
+                            );
+                          }}
+                          style={{ position: 'absolute', left: 10, top: Math.max(insets.top + 4, 12) - 2, zIndex: 10, padding: 5 }}
+                        >
+                          <Ionicons name="close" size={30} color="#fff" />
+                        </TouchableOpacity>
+                        <Text style={[styles.qCounter, { marginLeft: 34 }]}>{qIndex + 1} / {cards.length}</Text>
                         <View style={styles.timerWrap}>
                           <Text style={[styles.timerText, { color: timerColor }]}>{timeLeft}</Text>
                           <View style={styles.timerBarBg}>
