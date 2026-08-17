@@ -26,7 +26,11 @@ export default function ProfileScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   
-  const CATEGORY_META = [
+  const CATEGORY_META = language === 'en' ? [
+    { id: 'football_en', label: t('football'),  icon: '⚽', color: '#39ff14' },
+    { id: 'cinema_en',   label: t('cinema'),  icon: '🎬', color: '#b026ff' },
+    { id: 'music_en',    label: t('music'),   icon: '🎵', color: '#ff1493' },
+  ] : [
     { id: 'football', label: t('football'),  icon: '⚽', color: '#39ff14' },
     { id: 'cinema',   label: t('cinema'),  icon: '🎬', color: '#b026ff' },
     { id: 'music',    label: t('music'),   icon: '🎵', color: '#ff1493' },
@@ -283,10 +287,11 @@ export default function ProfileScreen({ navigation }: Props) {
     }
   };
 
-  // League computation
+  // Overall Profile Level computation
   const kp = player ? player.kp : 0;
-  const league = getLeagueForKp(kp);
-  const nextLeague = getLeagueForKp(kp + 1000);
+  const overallLevel = Math.floor(kp / 500) + 1;
+  const nextLevelKp = 500 - (kp % 500);
+  const progressPercent = (kp % 500) / 500 * 100;
 
   const getCategoryKp = (catId: string) => {
     return (player as any)?.categoryKp?.[catId] ?? 0;
@@ -330,13 +335,15 @@ export default function ProfileScreen({ navigation }: Props) {
               <Text style={[styles.username, { marginTop: 8 }]}>{player.username}</Text>
               {player.email && <Text style={styles.emailText}>{player.email}</Text>}
               
-              {/* League & KP Card */}
+              {/* Overall Level Card */}
               <View style={styles.leagueCard}>
-                <View style={{ marginBottom: 8 }}>
-                  <LeagueBadge league={league} size="large" />
+                <View style={{ marginBottom: 8, padding: 16, backgroundColor: 'rgba(0,255,136,0.1)', borderRadius: 40 }}>
+                  <Ionicons name="star" size={44} color="#00FF88" />
                 </View>
-                <Text style={[styles.leagueName, { color: league.color }]}>{league.name}</Text>
-                <Text style={styles.kpText}>{player.kp} KP</Text>
+                <Text style={[styles.leagueName, { color: '#00FF88', fontSize: 22 }]}>
+                  {language === 'en' ? 'Player Level' : 'Oyuncu Seviyesi'} {overallLevel}
+                </Text>
+                <Text style={styles.kpText}>{language === 'en' ? 'Total' : 'Toplam'}: {player.kp} KP</Text>
                 
                 {/* KP Progress Bar */}
                 <View style={styles.progressBarBg}>
@@ -344,14 +351,14 @@ export default function ProfileScreen({ navigation }: Props) {
                     style={[
                       styles.progressBarFill, 
                       { 
-                        backgroundColor: league.color,
-                        width: `${Math.min(100, (player.kp % 1000) / 10)}%` 
+                        backgroundColor: '#00FF88',
+                        width: `${progressPercent}%` 
                       }
                     ]} 
                   />
                 </View>
                 <Text style={styles.progressText}>
-                  {t('nextLeagueRequires')} {1000 - (player.kp % 1000)} {t('kpRequired')}
+                  {language === 'en' ? 'Next level requires' : 'Sonraki Seviye İçin:'} {nextLevelKp} {t('kpRequired')}
                 </Text>
               </View>
 

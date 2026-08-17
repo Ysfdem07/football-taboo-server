@@ -39,12 +39,18 @@ const playerSchema = new mongoose.Schema({
   categoryKp: {
     football: { type: Number, default: 0 },
     cinema:   { type: Number, default: 0 },
-    music:    { type: Number, default: 0 }
+    music:    { type: Number, default: 0 },
+    football_en: { type: Number, default: 0 },
+    cinema_en:   { type: Number, default: 0 },
+    music_en:    { type: Number, default: 0 }
   },
   categoryWins: {
     football: { type: Number, default: 0 },
     cinema:   { type: Number, default: 0 },
-    music:    { type: Number, default: 0 }
+    music:    { type: Number, default: 0 },
+    football_en: { type: Number, default: 0 },
+    cinema_en:   { type: Number, default: 0 },
+    music_en:    { type: Number, default: 0 }
   },
   matches_played: { type: Number, default: 0 },
   matches_won: { type: Number, default: 0 },
@@ -211,15 +217,16 @@ module.exports = {
     player.kp = Math.max(0, player.kp + kpChange);
 
     // Category-specific KP (never goes below 0)
-    if (!player.categoryKp) player.categoryKp = { football: 0, cinema: 0, music: 0 };
-    const cat = ['football', 'cinema', 'music'].includes(category) ? category : 'football';
+    if (!player.categoryKp) player.categoryKp = { football: 0, cinema: 0, music: 0, football_en: 0, cinema_en: 0, music_en: 0 };
+    const validCats = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
+    const cat = validCats.includes(category) ? category : 'football';
     player.categoryKp[cat] = Math.max(0, (player.categoryKp[cat] || 0) + kpChange);
     player.markModified('categoryKp');
 
     player.matches_played += 1;
     if (isWin) {
       player.matches_won += 1;
-      if (!player.categoryWins) player.categoryWins = { football: 0, cinema: 0, music: 0 };
+      if (!player.categoryWins) player.categoryWins = { football: 0, cinema: 0, music: 0, football_en: 0, cinema_en: 0, music_en: 0 };
       player.categoryWins[cat] = (player.categoryWins[cat] || 0) + 1;
       player.markModified('categoryWins');
       player.coins = (player.coins || 0) + 50;

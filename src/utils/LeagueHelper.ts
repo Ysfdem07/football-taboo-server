@@ -99,6 +99,7 @@ export function getLeagueForKp(kp: number): LeagueInfo {
 }
 
 export function getLeagueLogo(categoryId: string, leagueId: string): ImageSourcePropType {
-  const catMap = CATEGORY_LEAGUE_LOGOS[categoryId] || CATEGORY_LEAGUE_LOGOS.football;
+  const baseCat = categoryId.replace('_en', '');
+  const catMap = CATEGORY_LEAGUE_LOGOS[baseCat] || CATEGORY_LEAGUE_LOGOS.football;
   return catMap[leagueId] || catMap.amateur;
 }
