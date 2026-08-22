@@ -547,6 +547,11 @@ module.exports = {
     return isConnected;
   },
 
+  getPlayersWithPushTokens: async () => {
+    await connectDB();
+    return await Player.find({ pushToken: { $ne: null } }, 'id username pushToken');
+  },
+
   updatePushToken: async (playerId, token) => {
     await connectDB();
     await Player.findOneAndUpdate({ id: playerId }, { pushToken: token });

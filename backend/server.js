@@ -1359,6 +1359,32 @@ async function startRound(roomId) {
   }, 1000);
 }
 
+const cron = require('node-cron');
+const { sendPushNotifications } = require('./notifications');
+
+// Cron Job: Her Cuma saat 18:00'da haftalık turnuva hatırlatıcısı
+cron.schedule('0 18 * * 5', async () => {
+  console.log('[CRON] Starting weekly tournament push notification job...');
+  try {
+    const players = await db.getPlayersWithPushTokens();
+    const messages = players.map(p => ({
+      pushToken: p.pushToken,
+      title: '🏆 Haftalık Turnuva Zamanı!',
+      body: 'Yeni haftalık turnuva başladı. Hemen katıl ve liderlik tablosunda yerini al!',
+      data: { route: 'Tournament' }
+    }));
+
+    if (messages.length > 0) {
+      await sendPushNotifications(messages);
+      console.log(`[CRON] Sent notifications to ${messages.length} players.`);
+    }
+  } catch (err) {
+    console.error('[CRON] Error sending notifications:', err);
+  }
+}, {
+  timezone: "Europe/Istanbul"
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
