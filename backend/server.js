@@ -680,6 +680,26 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('reward_free_coins', async (data) => {
+    const { playerId } = data;
+    if (!playerId) return;
+    try {
+      const db = client.db('wordico');
+      const users = db.collection('users');
+      await users.updateOne({ _id: new ObjectId(playerId) }, { $inc: { coins: 50 } });
+      const updatedUser = await users.findOne({ _id: new ObjectId(playerId) });
+      if (updatedUser) {
+        // Reuse joker_bought event which updates the player profile seamlessly on the client
+        socket.emit('joker_bought', { 
+          player: { id: updatedUser._id.toString(), ...updatedUser }, 
+          jokerType: 'freeCoins' 
+        });
+      }
+    } catch (e) {
+      console.error('Error rewarding free coins:', e);
+    }
+  });
+
   socket.on('reward_double_coins', async (data) => {
     const { playerId } = data;
     if (!playerId) return;
