@@ -72,23 +72,25 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
   return (
     <ImageBackground source={THEMES[currentCategory as keyof typeof THEMES] || THEMES.football} style={styles.bgImage}>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>ÖZEL ODA</Text>
+        <Text style={styles.title}>{language === 'en' ? 'PRIVATE ROOM' : 'ÖZEL ODA'}</Text>
         
         <View style={styles.mainWrapper}>
           <View style={styles.codeContainer}>
-          <Text style={styles.codeLabel}>ODA KODU</Text>
+          <Text style={styles.codeLabel}>{language === 'en' ? 'ROOM CODE' : 'ODA KODU'}</Text>
           <Text style={styles.codeText}>{roomCode}</Text>
         </View>
 
         <View style={styles.playersContainer}>
-          <Text style={styles.playersTitle}>Oyuncular ({players.length})</Text>
+          <Text style={styles.playersTitle}>
+            {language === 'en' ? `Players (${players.length})` : `Oyuncular (${players.length})`}
+          </Text>
           <FlatList
             data={players}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.playerRow}>
                 <Text style={styles.playerName}>
-                  {item.id === socket.id ? item.name + " (Sen)" : item.name}
+                  {item.id === socket.id ? item.name + (language === 'en' ? ' (You)' : ' (Sen)') : item.name}
                   {item.id === currentHostId ? " 👑" : ""}
                 </Text>
               </View>
@@ -103,16 +105,16 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
               onPress={startGame}
               disabled={players.length < 2}
             >
-              <Text style={styles.buttonText}>OYUNU BAŞLAT</Text>
+              <Text style={styles.buttonText}>{language === 'en' ? 'START GAME' : 'OYUNU BAŞLAT'}</Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.waitingContainer}>
-              <Text style={styles.waitingText}>Kurucunun oyunu başlatması bekleniyor...</Text>
+              <Text style={styles.waitingText}>{language === 'en' ? 'Waiting for host to start...' : 'Kurucunun oyunu başlatması bekleniyor...'}</Text>
             </View>
           )}
 
           <TouchableOpacity style={[styles.button, styles.leaveButton]} onPress={leaveRoom}>
-            <Text style={styles.buttonText}>Odadan Ayrıl</Text>
+            <Text style={styles.buttonText}>{language === 'en' ? 'Leave Room' : 'Odadan Ayrıl'}</Text>
           </TouchableOpacity>
         </View>
         </View>

@@ -271,7 +271,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       Analytics.logEvent('online_opponent_disconnected', { roomId });
       setGameOver(true);
       setIsFinal(true);
-      setWinnerMessage('Rakip oyundan ayrıldı! Hükmen kazandınız.');
+      setWinnerMessage(language === 'en' ? 'Opponent left! You won by forfeit.' : 'Rakip oyundan ayrıldı! Hükmen kazandınız.');
     });
 
     return () => {
@@ -393,7 +393,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               </Text>
 
               <View style={styles.loadingSection}>
-                <Text style={styles.nextRoundText}>Sonraki Tur Hazırlanıyor...</Text>
+                <Text style={styles.nextRoundText}>{language === 'en' ? 'Preparing next round...' : 'Sonraki Tur Hazırlanıyor...'}</Text>
                 <View style={styles.loadingBarBg}>
                   <View style={styles.loadingBarFill} />
                 </View>
@@ -419,11 +419,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
     let resultText = '';
     if (winnerIds.length === 1 && winnerIds[0] === socket.id) {
-      resultText = 'KAZANDIN!';
+      resultText = language === 'en' ? 'YOU WON!' : 'KAZANDIN!';
     } else if (winnerIds.includes(socket.id)) {
-      resultText = 'BERABERE!';
+      resultText = language === 'en' ? 'DRAW!' : 'BERABERE!';
     } else {
-      resultText = 'KAYBETTİN!';
+      resultText = language === 'en' ? 'YOU LOST!' : 'KAYBETTİN!';
     }
 
     return (
@@ -436,12 +436,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
             {/* ── Header ── */}
             <View style={styles.gameOverHeader}>
-              <Text style={styles.gameOverTitle}>OYUN BİTTİ</Text>
+              <Text style={styles.gameOverTitle}>{language === 'en' ? 'GAME OVER' : 'OYUN BİTTİ'}</Text>
               <Text style={[
                 styles.resultText,
                 {
-                  color: resultText === 'KAZANDIN!' ? NEON_GREEN
-                       : resultText === 'BERABERE!'  ? NEON_GOLD
+                  color: (resultText === 'KAZANDIN!' || resultText === 'YOU WON!') ? NEON_GREEN
+                       : (resultText === 'BERABERE!' || resultText === 'DRAW!')  ? NEON_GOLD
                        : '#FF4444',
                 }
               ]}>{resultText}</Text>
@@ -493,7 +493,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                       ) : null}
                     </View>
 
-                    <Text style={styles.finalScoreValue}>{scores[p.id] || 0} Puan</Text>
+                    <Text style={styles.finalScoreValue}>{scores[p.id] || 0} {language === 'en' ? 'Pts' : 'Puan'}</Text>
                   </View>
                 );
               })}
@@ -502,7 +502,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             {/* ── My updated balance ── */}
             {player?.coins !== undefined && (
               <View style={styles.balanceChip}>
-                <Text style={styles.balanceChipLabel}>Güncel Jeton Bakiyeniz</Text>
+                <Text style={styles.balanceChipLabel}>{language === 'en' ? 'Current Coin Balance' : 'Güncel Jeton Bakiyeniz'}</Text>
                 <Text style={styles.balanceChipValue}>{player.coins} 🪙</Text>
               </View>
             )}
@@ -536,7 +536,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="home-outline" size={18} color={NEON_GREEN} style={{ marginRight: 8 }} />
-                <Text style={styles.menuButtonText}>ANA MENÜYE DÖN</Text>
+                <Text style={styles.menuButtonText}>{language === 'en' ? 'BACK TO MAIN MENU' : 'ANA MENÜYE DÖN'}</Text>
               </TouchableOpacity>
             </View>
 
@@ -701,12 +701,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <Text style={styles.potentialScoreText}>
                   {(() => {
                     if (serverPotentialScore !== null) {
-                      return `Kazanılacak Puan: +${serverPotentialScore}`;
+                      return language === 'en' ? `Points to Win: +${serverPotentialScore}` : `Kazanılacak Puan: +${serverPotentialScore}`;
                     }
                     const hintsPenalty = Math.max(0, hints.length - 1);
                     const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
                     const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
-                    return `Kazanılacak Puan: +${potentialScore}`;
+                    return language === 'en' ? `Points to Win: +${potentialScore}` : `Kazanılacak Puan: +${potentialScore}`;
                   })()}
                 </Text>
               </View>
@@ -864,7 +864,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <View style={{ flexDirection: 'column', gap: 8, width: '100%' }}>
                 <View style={styles.waitingContainer}>
                   <Text style={styles.waitingText}>
-                    ⏳ {guessingPlayerName} tahmin ediyor... ({guessTimeLeft})
+                    ⏳ {guessingPlayerName} {language === 'en' ? `is guessing... (${guessTimeLeft})` : `tahmin ediyor... (${guessTimeLeft})`}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -884,7 +884,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           </View>
 
           {showWrongGuess && (
-            <Text style={styles.wrongGuessText}>❌ Yanlış Tahmin! (-{lastPenalty} Puan)</Text>
+            <Text style={styles.wrongGuessText}>{language === 'en' ? `❌ Wrong Guess! (-${lastPenalty} Pts)` : `❌ Yanlış Tahmin! (-${lastPenalty} Puan)`}</Text>
           )}
 
         </KeyboardAvoidingView>
