@@ -283,14 +283,14 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                 if (socket) socket.disconnect();
               }}
             >
-              <Text style={styles.buttonText}>İPTAL ET</Text>
+              <Text style={styles.buttonText}>{language === 'en' ? 'CANCEL' : 'İPTAL ET'}</Text>
             </TouchableOpacity>
           </View>
         ) : showJoinInput ? (
           <View style={[styles.searchingContainer, { width: '100%', paddingHorizontal: 20 }]}>
             <TextInput 
               style={[styles.input, { width: '100%', height: 60, fontSize: 22 }]} 
-              placeholder="ODA KODU GİRİN" 
+              placeholder={language === 'en' ? "ENTER ROOM CODE" : "ODA KODU GİRİN"} 
               placeholderTextColor="#aaa" 
               autoCapitalize="characters" 
               value={roomCodeInput} 
@@ -301,7 +301,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                 <Text style={styles.buttonText}>{language === 'en' ? 'JOIN' : 'KATIL'}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, styles.cancelButton, { flex: 1, marginLeft: 5 }]} onPress={() => setShowJoinInput(false)}>
-                <Text style={styles.buttonText}>İPTAL</Text>
+                <Text style={styles.buttonText}>{language === 'en' ? 'CANCEL' : 'İPTAL'}</Text>
               </TouchableOpacity>
             </View>
           </View>
