@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, SafeAreaView, ScrollView, Alert, ActivityIndicator, StatusBar, Platform, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -483,14 +483,20 @@ export default function ProfileScreen({ navigation }: Props) {
             ) : (
               // AUTH LOGIN / REGISTER VIEW
               <View style={styles.authCard}>
-                <Text style={styles.authTitle}>{isRegisterMode ? 'Yeni Profil Oluştur' : 'Profiline Giriş Yap'}</Text>
+                <Text style={styles.authTitle}>
+                  {isRegisterMode 
+                    ? (language === 'en' ? 'Create New Profile' : 'Yeni Profil Oluştur') 
+                    : (language === 'en' ? 'Log In' : 'Profiline Giriş Yap')}
+                </Text>
                 <Text style={styles.authSubtitle}>
-                  {isRegisterMode ? 'Lig sıralamasına katılmak ve KP toplamak için kaydol!' : 'Kariyer puanlarını ve rütbeni korumak için giriş yap.'}
+                  {isRegisterMode 
+                    ? (language === 'en' ? 'Register to join the league rankings and collect KP!' : 'Lig sıralamasına katılmak ve KP toplamak için kaydol!') 
+                    : (language === 'en' ? 'Log in to protect your career points and rank.' : 'Kariyer puanlarını ve rütbeni korumak için giriş yap.')}
                 </Text>
 
                 <TextInput
                   style={styles.input}
-                  placeholder={isRegisterMode ? "Kullanıcı Adı" : "Kullanıcı Adı veya E-posta"}
+                  placeholder={isRegisterMode ? (language === 'en' ? "Username" : "Kullanıcı Adı") : (language === 'en' ? "Username or Email" : "Kullanıcı Adı veya E-posta")}
                   placeholderTextColor="#888"
                   value={username}
                   onChangeText={setUsername}
@@ -499,7 +505,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 <TextInput
                   style={styles.input}
-                  placeholder="Şifre"
+                  placeholder={language === 'en' ? "Password" : "Şifre"}
                   placeholderTextColor="#888"
                   secureTextEntry
                   value={password}
@@ -509,14 +515,14 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 {!isRegisterMode && (
                   <TouchableOpacity onPress={() => setAuthStep('forgot_request')} style={styles.forgotLink}>
-                    <Text style={styles.forgotLinkText}>Şifremi Unuttum</Text>
+                    <Text style={styles.forgotLinkText}>{language === 'en' ? 'Forgot Password?' : 'Şifremi Unuttum'}</Text>
                   </TouchableOpacity>
                 )}
 
                 {isRegisterMode && (
                   <TextInput
                     style={styles.input}
-                    placeholder="E-posta Adresi"
+                    placeholder={language === 'en' ? "Email Address" : "E-posta Adresi"}
                     placeholderTextColor="#888"
                     value={email}
                     onChangeText={setEmail}
@@ -527,7 +533,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 {isRegisterMode && (
                   <View style={styles.avatarSelectionSection}>
-                    <Text style={styles.avatarSelectLabel}>Profil Avatarınızı Seçin:</Text>
+                    <Text style={styles.avatarSelectLabel}>{language === 'en' ? 'Select Your Profile Avatar:' : 'Profil Avatarınızı Seçin:'}</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll} contentContainerStyle={{ gap: 10, paddingVertical: 4 }}>
                       {AVATAR_OPTIONS.map(opt => (
                         <TouchableOpacity 
@@ -566,7 +572,9 @@ export default function ProfileScreen({ navigation }: Props) {
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleAuth}>
                     <Text style={styles.authButtonText}>
-                      {isRegisterMode ? 'KAYDOL VE BAŞLA' : 'GİRİŞ YAP'}
+                      {isRegisterMode 
+                        ? (language === 'en' ? 'CREATE PROFILE' : 'PROFİL YARAT') 
+                        : (language === 'en' ? 'LOG IN' : 'GİRİŞ YAP')}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -576,7 +584,9 @@ export default function ProfileScreen({ navigation }: Props) {
                   style={styles.toggleLink}
                 >
                   <Text style={styles.toggleLinkText}>
-                    {isRegisterMode ? 'Zaten bir hesabın var mı? Giriş Yap' : 'Henüz hesabın yok mu? Profil Yarat'}
+                    {isRegisterMode 
+                      ? (language === 'en' ? 'Already have an account? Log In' : 'Zaten hesabın var mı? Giriş Yap') 
+                      : (language === 'en' ? "Don't have an account? Create Profile" : 'Henüz hesabın yok mu? Profil Yarat')}
                   </Text>
                 </TouchableOpacity>
               </View>

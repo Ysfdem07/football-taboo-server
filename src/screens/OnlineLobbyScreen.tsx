@@ -266,14 +266,14 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       <View style={styles.cyberOverlay} />
       <SafeAreaView style={styles.container}>
         <View style={styles.mainWrapper}>
-          <Text style={styles.title}>DÜELLO</Text>
-          <Text style={styles.subtitle}>Gerçek Zamanlı Online Mod</Text>
+          <Text style={styles.title}>{language === 'en' ? 'DUEL' : 'DÜELLO'}</Text>
+          <Text style={styles.subtitle}>{language === 'en' ? 'Real-Time Online Mode' : 'Gerçek Zamanlı Online Mod'}</Text>
           {lobbyStatus !== 'idle' ? (
           <View style={styles.searchingContainer}>
             <ActivityIndicator size="large" color="#00FF88" />
             <Text style={styles.searchingText}>
               {lobbyStatus === 'searching_match' ? 'Rakip Aranıyor...' : 
-               lobbyStatus === 'creating_room' ? 'Oda Kuruluyor...' : 'Odaya Bağlanılıyor...'}
+               lobbyStatus === 'creating_room' ? language === 'en' ? 'Creating room...' : language === "en" ? "Creating room..." : "Oda Kuruluyor..." : 'Odaya Bağlanılıyor...'}
             </Text>
             <TouchableOpacity 
               style={[styles.button, styles.cancelButton, { marginTop: 25, width: 200 }]} 
@@ -297,7 +297,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
             />
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 10 }}>
               <TouchableOpacity style={[styles.button, { flex: 1, marginRight: 5 }]} onPress={joinRoom}>
-                <Text style={styles.buttonText}>KATIL</Text>
+                <Text style={styles.buttonText}>{language === 'en' ? 'JOIN' : 'KATIL'}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, styles.cancelButton, { flex: 1, marginLeft: 5 }]} onPress={() => setShowJoinInput(false)}>
                 <Text style={styles.buttonText}>İPTAL</Text>
@@ -330,8 +330,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       <Ionicons name="flash" size={22} color="#00BFFF" />
                     </View>
                     <View style={styles.actionTextContainer}>
-                      <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>1v1 Hızlı Eşleşme</Text>
-                      <Text style={styles.actionSub}>Rastgele bir rakiple anında oyna</Text>
+                      <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>{language === 'en' ? '1v1 Quick Match' : '1v1 Hızlı Eşleşme'}</Text>
+                      <Text style={styles.actionSub}>{language === 'en' ? 'Play instantly with a random opponent' : 'Rastgele bir rakiple anında oyna'}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
@@ -343,8 +343,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       <Ionicons name="add" size={26} color="#00FF88" />
                     </View>
                     <View style={styles.actionTextContainer}>
-                      <Text style={[styles.actionTitle, { color: '#00FF88' }]}>Oda Kur (Dereceli)</Text>
-                      <Text style={styles.actionSub}>Arkadaşınla oyna, puan kazan</Text>
+                      <Text style={[styles.actionTitle, { color: '#00FF88' }]}>{language === 'en' ? 'Create Room (Ranked)' : 'Oda Kur (Dereceli)'}</Text>
+                      <Text style={styles.actionSub}>{language === 'en' ? 'Play with a friend, earn points' : 'Arkadaşınla oyna, puan kazan'}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
@@ -356,8 +356,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       <Ionicons name="enter" size={22} color="#A855F7" />
                     </View>
                     <View style={styles.actionTextContainer}>
-                      <Text style={[styles.actionTitle, { color: '#A855F7' }]}>Odaya Katıl</Text>
-                      <Text style={styles.actionSub}>Kod ile odaya gir</Text>
+                      <Text style={[styles.actionTitle, { color: '#A855F7' }]}>{language === 'en' ? 'Join Room' : 'Odaya Katıl'}</Text>
+                      <Text style={styles.actionSub}>{language === 'en' ? 'Enter room with a code' : 'Kod ile odaya gir'}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
@@ -389,8 +389,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                         <Ionicons name="flash" size={22} color="#00BFFF" />
                       </View>
                       <View style={styles.actionTextContainer}>
-                        <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>Hızlı Dostluk Maçı</Text>
-                        <Text style={styles.actionSub}>Rastgele rakip (Sadece Coin Kazandırır)</Text>
+                        <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>{language === 'en' ? 'Quick Friendly Match' : 'Hızlı Dostluk Maçı'}</Text>
+                        <Text style={styles.actionSub}>{language === 'en' ? 'Random opponent (Coins only)' : 'Rastgele rakip (Sadece Coin Kazandırır)'}</Text>
                       </View>
                       <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
@@ -402,8 +402,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                         <Ionicons name="add" size={26} color="#00FF88" />
                       </View>
                       <View style={styles.actionTextContainer}>
-                        <Text style={[styles.actionTitle, { color: '#00FF88' }]}>Oda Kur (Dostluk)</Text>
-                        <Text style={styles.actionSub}>Sıralamayı etkilemeyen oda kur</Text>
+                        <Text style={[styles.actionTitle, { color: '#00FF88' }]}>{language === 'en' ? 'Create Room (Friendly)' : 'Oda Kur (Dostluk)'}</Text>
+                        <Text style={styles.actionSub}>{language === 'en' ? 'Create an unranked room' : 'Sıralamayı etkilemeyen oda kur'}</Text>
                       </View>
                       <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
@@ -415,17 +415,16 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                         <Ionicons name="enter" size={22} color="#A855F7" />
                       </View>
                       <View style={styles.actionTextContainer}>
-                        <Text style={[styles.actionTitle, { color: '#A855F7' }]}>Odaya Katıl</Text>
-                        <Text style={styles.actionSub}>Kod ile odaya gir</Text>
+                        <Text style={[styles.actionTitle, { color: '#A855F7' }]}>{language === 'en' ? 'Join Room' : 'Odaya Katıl'}</Text>
+                        <Text style={styles.actionSub}>{language === 'en' ? 'Enter room with a code' : 'Kod ile odaya gir'}</Text>
                       </View>
                       <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  /* Room settings panel */
                   <>
                     <View style={styles.roundsSelectionContainer}>
-                      <Text style={styles.roundsLabel}>Özel Oda Tur Sayısı:</Text>
+                      <Text style={styles.roundsLabel}>{language === 'en' ? 'Private Room Rounds:' : 'Özel Oda Tur Sayısı:'}</Text>
                       <View style={styles.roundsOptions}>
                         {[10, 20, 30, 50].map(val => (
                           <TouchableOpacity 
@@ -442,18 +441,18 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     </View>
 
                     <TouchableOpacity style={[styles.button, { marginTop: 10 }]} onPress={() => createRoom(false)}>
-                      <Text style={styles.buttonText}>Oluştur ve Başla</Text>
+                      <Text style={styles.buttonText}>{language === 'en' ? 'Create & Start' : 'Oluştur ve Başla'}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={[styles.button, styles.cancelButton, { marginTop: 10 }]} onPress={() => setShowFriendlyRoomSettings(false)}>
-                      <Text style={styles.buttonText}>Geri Dön</Text>
+                      <Text style={styles.buttonText}>{language === 'en' ? 'Go Back' : 'Geri Dön'}</Text>
                     </TouchableOpacity>
                   </>
                 )}
               </>
             )}
 
-            {/* ── DEFAULT MAIN GRID ── */}
+            {/* 🟦🟦 DEFAULT MAIN GRID 🟦🟦 */}
             {!showRankedOptions && !showFriendlyOptions && (
               <View style={styles.modeGrid}>
                 <TouchableOpacity
@@ -474,8 +473,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       color={NEON_PURPLE} 
                       style={{ marginBottom: 12 }} 
                     />
-                    <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DERECELİ</Text>
-                    <Text style={[styles.modeSubLabel, { color: '#fff' }]}>OYNA</Text>
+                    <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>{language === 'en' ? 'RANKED' : 'DERECELİ'}</Text>
+                    <Text style={[styles.modeSubLabel, { color: '#fff' }]}>{language === 'en' ? 'PLAY' : 'OYNA'}</Text>
                   </BlurView>
                 </TouchableOpacity>
 
@@ -497,8 +496,8 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       color={NEON_GREEN} 
                       style={{ marginBottom: 12 }} 
                     />
-                    <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DOSTLUK</Text>
-                    <Text style={[styles.modeSubLabel, { color: '#fff' }]}>MAÇI</Text>
+                    <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>{language === 'en' ? 'FRIENDLY' : 'DOSTLUK'}</Text>
+                    <Text style={[styles.modeSubLabel, { color: '#fff' }]}>{language === 'en' ? 'MATCH' : 'MAÇI'}</Text>
                   </BlurView>
                 </TouchableOpacity>
               </View>
@@ -510,7 +509,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back-outline" size={16} color="#00FF88" />
-          <Text style={styles.backButtonText}>Ana Menüye Dön</Text>
+          <Text style={styles.backButtonText}>{language === 'en' ? 'Back to Main Menu' : 'Ana Menüye Dön'}</Text>
         </TouchableOpacity>
         <BannerAdComponent />
       </SafeAreaView>
