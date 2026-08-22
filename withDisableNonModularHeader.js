@@ -9,29 +9,27 @@ const withDisableNonModularHeader = (config) => {
       const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile');
       let podfile = fs.readFileSync(podfilePath, 'utf8');
 
-      // Add a post_install hook to set CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES to YES
-      const postInstallHook = `
+      const marker = '# RNFB_FIX_APPLIED';
+
+      if (!podfile.includes(marker)) {
+        // Insert post_install block before the last "end" in the Podfile
+        const postInstallBlock = `
+${marker}
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
+      # Fix: non-modular header & implicit-int errors from react-native-firebase + Xcode 16
       config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = 'YES'
+      config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
     end
   end
 end
 `;
-
-      if (!podfile.includes('CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES')) {
-        // Find existing post_install or append
-        if (podfile.includes('post_install do |installer|')) {
-          podfile = podfile.replace(
-            'post_install do |installer|',
-            'post_install do |installer|\n  installer.pods_project.targets.each do |target|\n    target.build_configurations.each do |config|\n      config.build_settings[\'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES\'] = \'YES\'\n    end\n  end'
-          );
-        } else {
-          podfile += postInstallHook;
-        }
+        podfile = podfile + postInstallBlock;
         fs.writeFileSync(podfilePath, podfile);
       }
+
       return config;
     },
   ]);
