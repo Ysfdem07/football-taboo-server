@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Line, Circle, Path, Rect, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import WordCardComponent from '../components/WordCardComponent';
 import { Analytics } from '../services/analytics';
+import { CustomAlert } from '../components/CustomAlert';
 
 const GOLD_NEON = '#FFD700';
 const CYAN_NEON = '#00FFFF';

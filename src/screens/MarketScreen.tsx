@@ -6,6 +6,7 @@ import { BottomNavBar } from '../components/BottomNavBar';
 import { getSocket, initSocketWithUrl, fetchTunnelUrl } from '../services/socket';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
+import { CustomAlert } from '../components/CustomAlert';
 
 const THEMES = {
   football: require('../../assets/images/home_bg.jpg')
@@ -53,7 +54,7 @@ export default function MarketScreen({ navigation }: any) {
         setLoading(false);
         setPlayer(data.player);
         await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
-        CustomAlert.show(t('success'), t('jokerBought'));
+        CustomAlert.show(t('buySuccess'), t('jokerBought'));
       });
       
       s.on('joker_error', (data: { message: string }) => {

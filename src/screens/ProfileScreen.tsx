@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ImageBackground, SafeAreaView, ScrollView, Alert, ActivityIndicator, StatusBar, Platform, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,6 +14,7 @@ import { LeagueBadge } from '../components/LeagueBadge';
 import { UserAvatar, AVATAR_OPTIONS, getAvatarOption } from '../components/UserAvatar';
 import { Analytics } from '../services/analytics';
 import { useLanguage } from '../context/LanguageContext';
+import { CustomAlert } from '../components/CustomAlert';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Profile'>;

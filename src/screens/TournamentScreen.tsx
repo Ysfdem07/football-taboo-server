@@ -13,6 +13,7 @@ import { getSocket } from '../services/socket';
 import { BannerAdComponent, showRewarded } from '../services/ads';
 import { UserAvatar } from '../components/UserAvatar';
 import { useLanguage } from '../context/LanguageContext';
+import { CustomAlert } from '../components/CustomAlert';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Tournament'>;
 
@@ -103,7 +104,7 @@ export default function TournamentScreen() {
         setTournamentData(data);
         setLoading(false);
         setLoadError(false);
-      } else if (data && data.error && data.error.includes('hazırlan')) {
+      } else if (data && data.error && (data.error.toLowerCase().includes('hazirlan') || data.error.toLowerCase().includes('hazırlan') || data.error.toLowerCase().includes('preparing'))) {
         // Soft error: tournament is being prepared (race condition on first deploy)
         // Auto-retry after 3 seconds
         console.log('[Tournament] Soft error, auto-retrying in 3s:', data.error);

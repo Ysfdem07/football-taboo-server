@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, ImageBackground, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
 import { getSocket } from '../services/socket';
 import { BannerAdComponent } from '../services/ads';
+import { CustomAlert } from '../components/CustomAlert';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'RoomLobby'>;

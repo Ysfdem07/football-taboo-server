@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, ImageBackground, TextInput, Alert, Image, useWindowDimensions } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { Analytics } from '../services/analytics';
 import { BannerAdComponent } from '../services/ads';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { CustomAlert } from '../components/CustomAlert';
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
