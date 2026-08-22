@@ -81,7 +81,8 @@
           "iosUserTrackingPermission": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-notifications"
     ]
   }
 }
