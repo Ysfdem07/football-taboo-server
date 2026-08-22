@@ -216,7 +216,8 @@ export default function TournamentScreen() {
       },
       () => {
         setWatchingAd(false);
-      }
+      },
+      'tourney'
     );
   };
 

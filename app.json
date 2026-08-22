@@ -18,9 +18,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ysfdem.footballtaboo",
-      
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir.", "ITSAppUsesNonExemptEncryption": false,
+        "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir.",
+        "ITSAppUsesNonExemptEncryption": false,
         "SKAdNetworkItems": [
           {
             "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
@@ -34,8 +34,7 @@
           {
             "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
           }
-        ],
-        "ITSAppUsesNonExemptEncryption": false
+        ]
       }
     },
     "android": {
@@ -46,7 +45,9 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.ysfdem.footballtaboo",
       "googleServicesFile": "./google-services.json",
-      "permissions": ["android.permission.INTERNET"]
+      "permissions": [
+        "android.permission.INTERNET"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -61,7 +62,7 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-3816139413382983~5298206474",
-          "iosAppId": "ca-app-pub-3816139413382983~5298206474"
+          "iosAppId": "ca-app-pub-3816139413382983~7258007018"
         }
       ],
       [

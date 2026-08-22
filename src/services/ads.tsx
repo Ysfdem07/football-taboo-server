@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, NativeModules, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const isFirebaseAvailable = !!NativeModules.RNFBAppModule;
+const isFirebaseAvailable = !!NativeModules.RNGoogleMobileAdsModule;
 
 let MobileAds: any = null;
 let InterstitialAd: any = null;
@@ -16,30 +16,36 @@ let RewardedAdEventType: any = null;
 
 if (isFirebaseAvailable) {
   try {
-    // const googleAds = require('react-native-google-mobile-ads');
-    // MobileAds = googleAds.default;
-    // InterstitialAd = googleAds.InterstitialAd;
-    // BannerAd = googleAds.BannerAd;
-    // RewardedAd = googleAds.RewardedAd;
-    // BannerAdSize = googleAds.BannerAdSize;
-    // TestIds = googleAds.TestIds;
-    // AdEventType = googleAds.AdEventType;
-    // RewardedAdEventType = googleAds.RewardedAdEventType;
+    const googleAds = require('react-native-google-mobile-ads');
+    MobileAds = googleAds.default;
+    InterstitialAd = googleAds.InterstitialAd;
+    BannerAd = googleAds.BannerAd;
+    RewardedAd = googleAds.RewardedAd;
+    BannerAdSize = googleAds.BannerAdSize;
+    TestIds = googleAds.TestIds;
+    AdEventType = googleAds.AdEventType;
+    RewardedAdEventType = googleAds.RewardedAdEventType;
   } catch (err) {
     console.warn('[Ads] Failed to load Google Mobile Ads library:', err);
   }
 }
 
 // AD UNIT IDs
-const BANNER_ID = __DEV__ ? (TestIds ? TestIds.BANNER : '') : 'ca-app-pub-3816139413382983/4862946418';
-const INTERSTITIAL_ID = __DEV__ ? (TestIds ? TestIds.INTERSTITIAL : '') : 'ca-app-pub-3816139413382983/5106634788';
-const REWARDED_ID = __DEV__ ? (TestIds ? TestIds.REWARDED : '') : 'ca-app-pub-3816139413382983/7273487336';
+const BANNER_ID = __DEV__ ? (TestIds ? TestIds.BANNER : '') : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8571973167' : 'ca-app-pub-3816139413382983/4862946418');
+const INTERSTITIAL_ID = __DEV__ ? (TestIds ? TestIds.INTERSTITIAL : '') : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8076159463' : 'ca-app-pub-3816139413382983/5106634788');
+
+const REWARDED_IDS: Record<string, string> = {
+  x2: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/4224649561' : 'ca-app-pub-3816139413382983/7273487336',
+  tourney: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/5537731236' : 'ca-app-pub-3816139413382983/7273487336',
+  market: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/7314731817' : 'ca-app-pub-3816139413382983/4136914456'
+};
 
 // Keep track of ad instances
 let interstitialAdInstance: any = null;
 let isInterstitialLoaded = false;
-let rewardedAdInstance: any = null;
-let isRewardedLoaded = false;
+
+const rewardedInstances: Record<string, any> = { x2: null, tourney: null, market: null };
+const rewardedLoaded: Record<string, boolean> = { x2: false, tourney: false, market: false };
 
 export const initAds = async (): Promise<void> => {
   if (!isFirebaseAvailable || !MobileAds) {
@@ -55,7 +61,9 @@ export const initAds = async (): Promise<void> => {
       console.log('[Ads] Google Mobile Ads SDK initialized:', adapterStatuses);
     }
     loadInterstitial();
-    loadRewarded();
+    loadRewarded('x2');
+    loadRewarded('tourney');
+    loadRewarded('market');
   } catch (err) {
     console.warn('[Ads] Initialization failed:', err);
   }
@@ -86,26 +94,29 @@ const loadInterstitial = () => {
   }
 };
 
-const loadRewarded = () => {
-  if (!isFirebaseAvailable || !RewardedAd || !REWARDED_ID) return;
+const loadRewarded = (type: 'x2' | 'tourney' | 'market') => {
+  if (!isFirebaseAvailable || !RewardedAd) return;
+  const unitId = __DEV__ && TestIds ? TestIds.REWARDED : REWARDED_IDS[type];
+  if (!unitId) return;
 
   try {
-    rewardedAdInstance = RewardedAd.createForAdRequest(REWARDED_ID, {
+    const instance = RewardedAd.createForAdRequest(unitId, {
       requestNonPersonalizedAdsOnly: true,
     });
 
-    rewardedAdInstance.addAdEventListener(RewardedAdEventType.LOADED, () => {
-      isRewardedLoaded = true;
-      if (__DEV__) console.log('[Ads] Rewarded Ad loaded.');
+    instance.addAdEventListener(RewardedAdEventType.LOADED, () => {
+      rewardedLoaded[type] = true;
+      if (__DEV__) console.log(`[Ads] Rewarded Ad loaded for type: ${type}`);
     });
 
-    rewardedAdInstance.addAdEventListener(AdEventType.CLOSED, () => {
-      isRewardedLoaded = false;
-      if (__DEV__) console.log('[Ads] Rewarded Ad closed. Loading next one...');
-      loadRewarded(); // Preload the next one
+    instance.addAdEventListener(AdEventType.CLOSED, () => {
+      rewardedLoaded[type] = false;
+      if (__DEV__) console.log(`[Ads] Rewarded Ad closed. Loading next one for type: ${type}...`);
+      loadRewarded(type); // Preload the next one
     });
 
-    rewardedAdInstance.load();
+    instance.load();
+    rewardedInstances[type] = instance;
   } catch (err) {
     console.warn('[Ads] Failed to load rewarded ad:', err);
   }
@@ -131,10 +142,10 @@ export const showInterstitial = (): void => {
   }
 };
 
-export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: () => void): void => {
-  if (!isFirebaseAvailable || !rewardedAdInstance) {
+export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: () => void, type: 'x2' | 'tourney' | 'market' = 'x2'): void => {
+  if (!isFirebaseAvailable || !rewardedInstances[type]) {
     if (__DEV__) {
-      console.log('[Ads Mock] [Expo Go] Rewarded Ad Triggered! (Simulating 100 Gold reward)');
+      console.log(`[Ads Mock] [Expo Go] Rewarded Ad Triggered! Type: ${type}`);
       onRewardEarned({ type: 'gold', amount: 100 });
       if (onClose) onClose();
     }
@@ -142,10 +153,11 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
   }
 
   try {
-    if (isRewardedLoaded) {
+    const instance = rewardedInstances[type];
+    if (rewardedLoaded[type]) {
       // Set up the earner listener specifically for this view
       let earned = false;
-      const unsubscribeEarned = rewardedAdInstance.addAdEventListener(
+      const unsubscribeEarned = instance.addAdEventListener(
         RewardedAdEventType.EARNED_REWARD,
         (reward: any) => {
           if (__DEV__) console.log('[Ads] Reward Earned:', reward);
@@ -156,7 +168,7 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
       );
 
       // Set up a temporary close listener
-      const unsubscribeClosed = rewardedAdInstance.addAdEventListener(
+      const unsubscribeClosed = instance.addAdEventListener(
         AdEventType.CLOSED,
         () => {
           if (onClose) onClose();
@@ -165,10 +177,10 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
         }
       );
 
-      rewardedAdInstance.show();
+      instance.show();
     } else {
       if (__DEV__) console.log('[Ads] Rewarded Ad not loaded yet. Retrying load...');
-      rewardedAdInstance.load();
+      instance.load();
       if (onClose) onClose();
     }
   } catch (err) {

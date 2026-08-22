@@ -7,6 +7,7 @@ import { getSocket, initSocketWithUrl, fetchTunnelUrl } from '../services/socket
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
 import { CustomAlert } from '../components/CustomAlert';
+import { showRewarded } from '../services/ads';
 
 const THEMES = {
   football: require('../../assets/images/home_bg.jpg')
@@ -23,6 +24,7 @@ export default function MarketScreen({ navigation }: any) {
   
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [watchingAd, setWatchingAd] = useState(false);
   
   useEffect(() => {
     loadPlayer();
@@ -38,6 +40,22 @@ export default function MarketScreen({ navigation }: any) {
     } catch (e) {
       console.log('Error loading player data:', e);
     }
+  };
+
+  const watchAdForCoins = () => {
+    if (!player) return CustomAlert.show(t('error'), t('loginRequired'));
+    setWatchingAd(true);
+    showRewarded(
+      (reward) => {
+        let s = getSocket();
+        if (s && s.connected) {
+          s.emit('reward_free_coins', { playerId: player.id });
+          CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
+        }
+      },
+      () => setWatchingAd(false),
+      'market'
+    );
   };
 
   const setupSocket = async () => {
@@ -149,6 +167,24 @@ export default function MarketScreen({ navigation }: any) {
               disabled={loading}
             >
               <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Reklam İzle Kazan Kartı */}
+          <View style={[styles.jokerCard, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.05)' }]}>
+            <View style={styles.jokerInfo}>
+              <Ionicons name="play-circle" size={32} color={NEON_GOLD} />
+              <View style={styles.jokerTexts}>
+                <Text style={styles.jokerName}>{language === 'en' ? 'Watch Ad & Earn' : 'İzle ve Kazan'}</Text>
+                <Text style={styles.jokerDesc}>{language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.'}</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={[styles.buyBtn, { backgroundColor: NEON_GOLD }, watchingAd && { opacity: 0.5 }]} 
+              onPress={watchAdForCoins}
+              disabled={watchingAd}
+            >
+              <Text style={[styles.buyBtnText, { color: '#000' }]}>+50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
           
