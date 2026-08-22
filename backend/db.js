@@ -28,6 +28,12 @@ async function connectDB() {
   }
 }
 
+const guestTokenSchema = new mongoose.Schema({
+  token: { type: String, required: true, unique: true },
+  createdAt: { type: Date, default: Date.now }
+});
+const GuestToken = mongoose.model('GuestToken', guestTokenSchema);
+
 const playerSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
@@ -552,9 +558,28 @@ module.exports = {
     return await Player.find({ pushToken: { $ne: null } }, 'id username pushToken');
   },
 
+  getGuestPushTokens: async () => {
+    await connectDB();
+    const guests = await GuestToken.find({}, 'token');
+    return guests.map(g => g.token);
+  },
+
   updatePushToken: async (playerId, token) => {
     await connectDB();
     await Player.findOneAndUpdate({ id: playerId }, { pushToken: token });
+  },
+
+  saveGuestPushToken: async (token) => {
+    await connectDB();
+    try {
+      await GuestToken.findOneAndUpdate(
+        { token },
+        { token },
+        { upsert: true }
+      );
+    } catch (e) {
+      console.error('Error saving guest token:', e);
+    }
   }
 };
 

@@ -55,22 +55,27 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      const loadProfile = async () => {
+      const loadProfileAndToken = async () => {
         try {
+          // 1. Her zaman bildirim izni iste (Guest de olsa)
+          const token = await registerForPushNotificationsAsync();
+          const socket = getSocket();
+
+          // 2. Profili kontrol et
           const profileData = await AsyncStorage.getItem('@logged_in_profile');
           if (profileData) {
             const parsed = JSON.parse(profileData);
             setPlayer(parsed);
-            // Register for push notifications
-            if (parsed.id) {
-              const token = await registerForPushNotificationsAsync();
-              if (token) {
-                const socket = getSocket();
-                socket.emit('save_push_token', { playerId: parsed.id, token });
-              }
+            // Kayıtlı oyuncuysa ID'siyle kaydet
+            if (parsed.id && token) {
+              socket.emit('save_push_token', { playerId: parsed.id, token });
             }
           } else {
             setPlayer(null);
+            // Misafirse sadece token'ı kaydet
+            if (token) {
+              socket.emit('save_guest_push_token', { token });
+            }
           }
         } catch (error) {
           console.error('Profile read error', error);
@@ -78,7 +83,7 @@ export default function HomeScreen() {
           setLoading(false);
         }
       };
-      loadProfile();
+      loadProfileAndToken();
     }, [])
   );
 

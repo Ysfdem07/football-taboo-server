@@ -1367,8 +1367,13 @@ cron.schedule('0 18 * * 5', async () => {
   console.log('[CRON] Starting weekly tournament push notification job...');
   try {
     const players = await db.getPlayersWithPushTokens();
-    const messages = players.map(p => ({
-      pushToken: p.pushToken,
+    const guestTokens = await db.getGuestPushTokens();
+    
+    // Merge tokens and remove duplicates (if any)
+    const allTokens = [...new Set([...players.map(p => p.pushToken), ...guestTokens])];
+
+    const messages = allTokens.map(token => ({
+      pushToken: token,
       title: '🏆 Haftalık Turnuva Zamanı!',
       body: 'Yeni haftalık turnuva başladı. Hemen katıl ve liderlik tablosunda yerini al!',
       data: { route: 'Tournament' }

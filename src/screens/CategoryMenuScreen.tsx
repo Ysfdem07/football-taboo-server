@@ -9,6 +9,8 @@ import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { useLanguage } from '../context/LanguageContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CustomAlert } from '../components/CustomAlert';
 
 type CategoryMenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CategoryMenu'>;
 type CategoryMenuScreenRouteProp = RouteProp<RootStackParamList, 'CategoryMenu'>;
@@ -69,6 +71,20 @@ export default function CategoryMenuScreen() {
   const NEON_COLOR = theme.color;
 
   const checkWordsAndNavigate = async (destination: 'Game' | 'OnlineLobby' | 'Tournament') => {
+    if (destination === 'Tournament') {
+      const profileData = await AsyncStorage.getItem('@logged_in_profile');
+      if (!profileData) {
+        CustomAlert.show(
+          t('error'),
+          language === 'en' ? 'You need to log in to play the Weekly Tournament!' : 'Haftalık turnuvaya katılmak için giriş yapmalısınız!',
+          [
+            { text: t('cancel'), style: 'cancel' },
+            { text: language === 'en' ? 'Sign In' : 'Giriş Yap', onPress: () => navigation.navigate('Profile') }
+          ]
+        );
+        return;
+      }
+    }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
