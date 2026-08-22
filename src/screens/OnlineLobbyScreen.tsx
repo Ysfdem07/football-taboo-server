@@ -272,8 +272,9 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
           <View style={styles.searchingContainer}>
             <ActivityIndicator size="large" color="#00FF88" />
             <Text style={styles.searchingText}>
-              {lobbyStatus === 'searching_match' ? 'Rakip Aranıyor...' : 
-               lobbyStatus === 'creating_room' ? language === 'en' ? 'Creating room...' : language === "en" ? "Creating room..." : "Oda Kuruluyor..." : 'Odaya Bağlanılıyor...'}
+              {lobbyStatus === 'searching_match' ? (language === 'en' ? 'Searching opponent...' : 'Rakip Aranıyor...') : 
+               lobbyStatus === 'creating_room' ? (language === 'en' ? 'Creating room...' : 'Oda Kuruluyor...') : 
+               (language === 'en' ? 'Connecting to room...' : 'Odaya Bağlanılıyor...')}
             </Text>
             <TouchableOpacity 
               style={[styles.button, styles.cancelButton, { marginTop: 25, width: 200 }]} 

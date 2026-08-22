@@ -37,7 +37,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const categoryId = route.params?.categoryId || 'football';
   const bgImageSource = THEMES[categoryId as keyof typeof THEMES] || THEMES.football;
   const socket = getSocket();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [wordHint, setWordHint] = useState<string>('...');
   const [timeLeft, setTimeLeft] = useState<number>(30);

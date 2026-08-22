@@ -29,7 +29,7 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
   const [currentHostId, setCurrentHostId] = useState<string | null>(null);
   const [roomCategory, setRoomCategory] = useState<string>(categoryId || 'football');
   const socket = getSocket();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     socket.on('room_update', (data: any) => {
