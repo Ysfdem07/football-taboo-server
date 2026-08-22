@@ -12,36 +12,29 @@ export interface AnalyticsProvider {
 }
 
 /**
- * Firebase Analytics & Crashlytics Provider
+ * Firebase Analytics Provider
  * Safely handles environments where Firebase native modules are missing (like Expo Go) without crashing.
- * Checks for the presence of the native RNFBAppModule before executing any requires.
  */
 class FirebaseAnalyticsProvider implements AnalyticsProvider {
   name = 'Firebase';
   private analytics: any = null;
-  private crashlytics: any = null;
 
   async init(): Promise<void> {
     try {
-      // Access NativeModules dynamically to avoid static dependency failures
       const { NativeModules } = require('react-native');
       const isFirebaseAvailable = !!NativeModules.RNFBAppModule;
 
       if (!isFirebaseAvailable) {
         if (__DEV__) {
-          console.log('[Analytics] Firebase native module (RNFBAppModule) is not available. Skipping Firebase initialization (expected in Expo Go).');
+          console.log('[Analytics] Firebase native module not available. Skipping (expected in Expo Go).');
         }
         return;
       }
 
-      // Dynamic require ensures Expo Go does not execute this block and fail
       const firebaseAnalytics = require('@react-native-firebase/analytics').default;
-      const firebaseCrashlytics = require('@react-native-firebase/crashlytics').default;
-      
       this.analytics = firebaseAnalytics();
-      this.crashlytics = firebaseCrashlytics();
       if (__DEV__) {
-        console.log('[Analytics] Firebase Analytics & Crashlytics initialized.');
+        console.log('[Analytics] Firebase Analytics initialized.');
       }
     } catch (err) {
       if (__DEV__) {
@@ -71,17 +64,6 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
         }
       } catch (err) {
         console.error('[Analytics] Firebase failed to set user properties:', err);
-      }
-    }
-
-    if (this.crashlytics) {
-      try {
-        this.crashlytics.setUserId(userId);
-        if (properties) {
-          this.crashlytics.setAttributes(properties);
-        }
-      } catch (err) {
-        console.error('[Analytics] Firebase Crashlytics failed to set properties:', err);
       }
     }
   }
