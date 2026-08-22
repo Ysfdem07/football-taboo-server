@@ -139,7 +139,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     setLobbyStatus('searching_match');
     ensureSocket((s) => {
       s.emit('join_friendly_queue', { 
-        name: playerName.trim() || (language === 'en' ? 'Guest' : 'Misafir'),
+        name: (playerName.trim() === 'Misafir' && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
         dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
       });
@@ -173,7 +173,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     setLobbyStatus('searching_match');
     ensureSocket((s) => {
       s.emit('join_queue', { 
-        name: playerName.trim() || (language === 'en' ? 'Player' : 'Oyuncu'),
+        name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
         dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
       });
@@ -207,7 +207,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     setLobbyStatus('creating_room');
     ensureSocket((s) => {
       s.emit('create_room', { 
-        name: playerName.trim() || (language === 'en' ? 'Player' : 'Oyuncu'), 
+        name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'), 
         maxRounds: isRanked ? 10 : maxRounds,
         isRanked,
         dbPlayerId: profile?.id || profile?._id || null,
@@ -232,7 +232,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       s.emit('join_room', { 
         roomCode: roomCodeInput.trim(), 
-        name: playerName.trim() || (language === 'en' ? 'Player' : 'Oyuncu'),
+        name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
         dbPlayerId: profile?.id || profile?._id || null
       });
       
