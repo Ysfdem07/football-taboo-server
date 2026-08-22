@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ysfdem.footballtaboo",
-      "googleServicesFile": "./GoogleService-Info.plist",
+      "googleServicesFile": "GoogleService-Info.plist",
       
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir.", "ITSAppUsesNonExemptEncryption": false,
