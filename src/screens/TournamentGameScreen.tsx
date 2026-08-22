@@ -433,11 +433,11 @@ export default function TournamentGameScreen() {
                         <TouchableOpacity 
                           onPress={() => {
                             CustomAlert.show(
-                              'Oyundan Çık?',
-                              'Çıkarsanız skorunuz kaydedilmez. Emin misiniz?',
+                              t('exitTournamentTitle'),
+                              t('exitTournamentMsg'),
                               [
-                                { text: 'İptal', style: 'cancel' },
-                                { text: 'Çık', style: 'destructive', onPress: () => {
+                                { text: t('cancel'), style: 'cancel' },
+                                { text: t('exitBtn'), style: 'destructive', onPress: () => {
                                   if (timerRef.current) clearInterval(timerRef.current);
                                   navigation.goBack(); 
                                 } }

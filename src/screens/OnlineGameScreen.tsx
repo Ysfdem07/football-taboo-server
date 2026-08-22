@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showInterstitial, showRewarded } from '../services/ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CustomAlert } from '../components/CustomAlert';
+import { useLanguage } from '../context/LanguageContext';
 
 const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
@@ -36,6 +37,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const categoryId = route.params?.categoryId || 'football';
   const bgImageSource = THEMES[categoryId as keyof typeof THEMES] || THEMES.football;
   const socket = getSocket();
+  const { t } = useLanguage();
 
   const [wordHint, setWordHint] = useState<string>('...');
   const [timeLeft, setTimeLeft] = useState<number>(30);
@@ -82,7 +84,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     if (!player || !player.id) return;
     const count = player.jokers?.[jokerType] || 0;
     if (count <= 0) {
-      CustomAlert.show('Joker Yok', 'Marketten joker satın alabilirsin!');
+      CustomAlert.show(t('noJokerTitle'), t('noJokerMsg'));
       return;
     }
     setJokerLoading(true);
@@ -124,9 +126,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setGuess('');
       setPassVotesCount(0);
       setHasPassed(false);
-      setBuzzerLocked(false); // FIX: reset buzzer on new round
-      setShowWrongGuess(false); // FIX: reset wrong guess toast
-      setJokerLoading(false); // FIX: unlock jokers
+      setBuzzerLocked(false);
+      setShowWrongGuess(false);
+      setJokerLoading(false);
     });
 
     socket.on('time_tick', (data: any) => {
@@ -140,7 +142,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     socket.on('hint_revealed', (data: any) => {
-      // FIX: prevent duplicate hints from stale events between rounds
       setHints(prev => {
         if (prev.includes(data.hint)) return prev;
         return [...prev, data.hint];
@@ -175,13 +176,13 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     socket.on('joker_used', (data: any) => {
-      if (data.message) CustomAlert.show('Joker Kullanıldı!', data.message);
+      if (data.message) CustomAlert.show(t('jokerUsedTitle'), data.message);
       if (data.hint) setWordHint(data.hint);
     });
 
     socket.on('joker_error', (data: any) => {
       setJokerLoading(false);
-      CustomAlert.show('Joker Hatası', data.message || 'Joker kullanılamadı.');
+      CustomAlert.show(t('jokerErrorTitle'), data.message || t('jokerErrorMsg'));
     });
 
     // Server sends updated profile after coin/KP rewards
@@ -189,7 +190,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.player) {
         setPlayer(data.player);
         try {
-          // Preserve password from cached profile
           const stored = await AsyncStorage.getItem('@logged_in_profile');
           const cached = stored ? JSON.parse(stored) : {};
           const merged = { ...data.player, password: cached.password };
@@ -222,15 +222,15 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setScores(data.scores);
       if (data.reason === 'correct_guess') {
         if (data.winnerId === socket.id) {
-          setWinnerMessage('TEBRİKLER! KELİMEYİ BİLDİNİZ!\n\nKelime: ' + data.word);
+          setWinnerMessage(t('correctWin') + ' KELİMEYİ BİLDİNİZ!\n\nKelime: ' + data.word);
         } else {
           const winnerName = data.winnerName || 'RAKİBİNİZ';
           setWinnerMessage(winnerName.toUpperCase() + ' KELİMEYİ BİLDİ!\n\nKelime: ' + data.word);
         }
       } else if (data.reason === 'pass') {
-        setWinnerMessage('PAS GEÇİLDİ!\nTüm oyuncular pas geçti.\n\nKelime: ' + data.word);
+        setWinnerMessage(t('passDone') + '\n\nKelime: ' + data.word);
       } else {
-        setWinnerMessage('SÜRE DOLDU!\nKimse bilemedi.\n\nKelime: ' + data.word);
+        setWinnerMessage(t('timeUp') + data.word);
       }
     });
 
@@ -312,12 +312,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       e.preventDefault();
 
       CustomAlert.show(
-        'Oyundan Ayrıl?',
-        'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
+        t('exitGameTitle'),
+        t('exitGameMsg'),
         [
-          { text: 'İptal', style: 'cancel', onPress: () => {} },
+          { text: t('cancel'), style: 'cancel', onPress: () => {} },
           {
-            text: 'Çık',
+            text: t('exitBtn'),
             style: 'destructive',
             onPress: () => {
               socket.disconnect();
@@ -516,7 +516,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     showRewarded(() => {
                       socket.emit('reward_double_coins', { playerId: player?.id });
                       setRewardCollected(true);
-                      CustomAlert.show('Tebrikler!', "Kazancınız 2'ye katlandı (+50 Jeton eklendi).");
+                      CustomAlert.show(t('rewardTitle'), t('rewardDoubled'));
                     });
                   }}
                   activeOpacity={0.8}
@@ -584,11 +584,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <TouchableOpacity 
                 onPress={() => {
                   CustomAlert.show(
-                    'Oyundan Ayrıl?',
-                    'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
+                    t('exitGameTitle'),
+                    t('exitGameMsg'),
                     [
-                      { text: 'İptal', style: 'cancel' },
-                      { text: 'Çık', style: 'destructive', onPress: () => {
+                      { text: t('cancel'), style: 'cancel' },
+                      { text: t('exitBtn'), style: 'destructive', onPress: () => {
                         socket.disconnect();
                         navigation.navigate('Home');
                       }}

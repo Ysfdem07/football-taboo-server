@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, ImageBackground, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { Colors } from '../constants/Colors';
 import { getSocket } from '../services/socket';
 import { BannerAdComponent } from '../services/ads';
 import { CustomAlert } from '../components/CustomAlert';
+import { useLanguage } from '../context/LanguageContext';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'RoomLobby'>;
@@ -28,6 +29,7 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
   const [currentHostId, setCurrentHostId] = useState<string | null>(null);
   const [roomCategory, setRoomCategory] = useState<string>(categoryId || 'football');
   const socket = getSocket();
+  const { t } = useLanguage();
 
   useEffect(() => {
     socket.on('room_update', (data: any) => {
@@ -53,7 +55,7 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
 
   const startGame = () => {
     if (players.length < 2) {
-      CustomAlert.show('Uyarı', 'Oyunu başlatmak için en az 2 kişi olmalı!');
+      CustomAlert.show(t('roomMinPlayers'), t('roomMinPlayersMsg'));
       return;
     }
     socket.emit('start_room_game', { roomId });

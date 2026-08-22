@@ -128,6 +128,36 @@ export const translations = {
     needMoreCoins: 'Daha fazla jeton kazanmalısın!',
     loginRequired: 'Giriş yapmanız gerekiyor!',
     serverError: 'Sunucuya bağlanılamadı.',
+
+    // Game Exit Dialogs
+    exitGameTitle: 'Oyundan Ayrıl?',
+    exitGameMsg: 'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
+    exitTournamentTitle: 'Oyundan Çık?',
+    exitTournamentMsg: 'Çıkarsanız skorunuz kaydedilmez. Emin misiniz?',
+    exitBtn: 'Çık',
+
+    // Joker Alerts
+    noJokerTitle: 'Joker Yok',
+    noJokerMsg: 'Marketten joker satın alabilirsin!',
+    jokerUsedTitle: 'Joker Kullanıldı!',
+    jokerErrorTitle: 'Joker Hatası',
+    jokerErrorMsg: 'Joker kullanılamadı.',
+
+    // Connection / Room Alerts
+    connectionError: 'Bağlantı Hatası',
+    connectionErrorMsg: 'Sunucuya bağlanılamadı. Lütfen uygulamayı yenileyin veya internetinizi kontrol edin.',
+    connectionErrorMsg2: 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.',
+    roomMinPlayers: 'Uyarı',
+    roomMinPlayersMsg: 'Oyunu başlatmak için en az 2 kişi olmalı!',
+
+    // Online Game Round Labels
+    roundLabel: 'TUR',
+    timeUp: 'SÜRE DOLDU!\nKimse bilemedi.\n\nKelime: ',
+    correctWin: 'TEBRİKLER!',
+    passDone: 'PAS GEÇİLDİ!',
+    roundEnd: 'TUR SONU!',
+    rewardDoubled: "Kazancınız 2'ye katlandı (+50 Jeton eklendi).",
+    rewardTitle: 'Tebrikler!',
   },
 
   en: {
@@ -257,5 +287,35 @@ export const translations = {
     needMoreCoins: 'You need to earn more coins!',
     loginRequired: 'You need to log in!',
     serverError: 'Could not connect to server.',
+
+    // Game Exit Dialogs
+    exitGameTitle: 'Leave Game?',
+    exitGameMsg: 'Are you sure you want to leave? You may forfeit the match.',
+    exitTournamentTitle: 'Leave Game?',
+    exitTournamentMsg: 'Your score will not be saved if you leave. Are you sure?',
+    exitBtn: 'Leave',
+
+    // Joker Alerts
+    noJokerTitle: 'No Jokers',
+    noJokerMsg: 'You can buy jokers from the Store!',
+    jokerUsedTitle: 'Joker Used!',
+    jokerErrorTitle: 'Joker Error',
+    jokerErrorMsg: 'Could not use joker.',
+
+    // Connection / Room Alerts
+    connectionError: 'Connection Error',
+    connectionErrorMsg: 'Could not connect to server. Please refresh the app or check your internet.',
+    connectionErrorMsg2: 'Could not connect to server. Try fully closing and reopening the app.',
+    roomMinPlayers: 'Warning',
+    roomMinPlayersMsg: 'You need at least 2 players to start the game!',
+
+    // Online Game Round Labels
+    roundLabel: 'ROUND',
+    timeUp: 'TIME UP!\nNobody guessed it.\n\nWord: ',
+    correctWin: 'CONGRATULATIONS!',
+    passDone: 'PASSED!',
+    roundEnd: 'ROUND OVER!',
+    rewardDoubled: 'Your earnings doubled! (+50 Coins added).',
+    rewardTitle: 'Congratulations!',
   }
 };

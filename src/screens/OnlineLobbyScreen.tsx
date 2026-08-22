@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, ImageBackground, TextInput, Alert, Image, useWindowDimensions } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import { BannerAdComponent } from '../services/ads';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CustomAlert } from '../components/CustomAlert';
+import { useLanguage } from '../context/LanguageContext';
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
@@ -130,15 +131,18 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   };
 
   const categoryId = route.params?.categoryId || 'football';
+  const { t, language } = useLanguage();
 
   const findMatch = () => {
     if (!profile || !profile.email) {
       CustomAlert.show(
-        'Dereceli Mod İsteği',
-        'Dereceli düello oynamak ve Kariyer Puanı (KP) kazanmak için profilinize e-posta ile giriş yapmalısınız.',
+        t('error'),
+        language === 'en'
+          ? 'You must sign in with email to play ranked and earn KP.'
+          : 'Dereceli düello oynamak ve KP kazanmak için e-posta ile giriş yapmalısınız.',
         [
-          { text: 'İptal', style: 'cancel' },
-          { text: 'Profile Git', onPress: () => navigation.navigate('Profile') }
+          { text: t('cancel'), style: 'cancel' },
+          { text: language === 'en' ? 'Go to Profile' : 'Profile Git', onPress: () => navigation.navigate('Profile') }
         ]
       );
       return;
@@ -147,7 +151,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     setLobbyStatus('searching_match');
     ensureSocket((s) => {
       s.emit('join_queue', { 
-        name: playerName.trim() || 'Oyuncu',
+        name: playerName.trim() || (language === 'en' ? 'Player' : 'Oyuncu'),
         dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
       });
@@ -159,18 +163,20 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     }, () => {
       Analytics.logEvent('join_queue_failed');
       setLobbyStatus('idle');
-      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen uygulamayı yenileyin veya internetinizi kontrol edin.');
+      CustomAlert.show(t('connectionError'), t('connectionErrorMsg'));
     });
   };
 
   const createRoom = (isRanked = false) => {
     if (isRanked && (!profile || !profile.email)) {
       CustomAlert.show(
-        'Dereceli Mod İsteği',
-        'Dereceli düello oynamak ve Kariyer Puanı (KP) kazanmak için profilinize e-posta ile giriş yapmalısınız.',
+        t('error'),
+        language === 'en'
+          ? 'You must sign in with email to play ranked and earn KP.'
+          : 'Dereceli düello oynamak ve KP kazanmak için e-posta ile giriş yapmalısınız.',
         [
-          { text: 'İptal', style: 'cancel' },
-          { text: 'Profile Git', onPress: () => navigation.navigate('Profile') }
+          { text: t('cancel'), style: 'cancel' },
+          { text: language === 'en' ? 'Go to Profile' : 'Profile Git', onPress: () => navigation.navigate('Profile') }
         ]
       );
       return;
@@ -179,7 +185,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     setLobbyStatus('creating_room');
     ensureSocket((s) => {
       s.emit('create_room', { 
-        name: playerName.trim() || 'Oyuncu', 
+        name: playerName.trim() || (language === 'en' ? 'Player' : 'Oyuncu'), 
         maxRounds: isRanked ? 10 : maxRounds,
         isRanked,
         dbPlayerId: profile?.id || profile?._id || null,
@@ -193,7 +199,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     }, () => {
       Analytics.logEvent('create_room_failed', { isRanked });
       setLobbyStatus('idle');
-      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
+      CustomAlert.show(t('connectionError'), t('connectionErrorMsg2'));
     });
   };
 
@@ -204,7 +210,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       s.emit('join_room', { 
         roomCode: roomCodeInput.trim(), 
-        name: playerName.trim() || 'Oyuncu',
+        name: playerName.trim() || (language === 'en' ? 'Player' : 'Oyuncu'),
         dbPlayerId: profile?.id || profile?._id || null
       });
       
@@ -217,12 +223,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       s.on('join_error', (data: any) => {
         Analytics.logEvent('join_room_error', { message: data.message });
         setLobbyStatus('idle');
-        CustomAlert.show('Hata', data.message);
+        CustomAlert.show(t('error'), data.message);
       });
     }, () => {
       Analytics.logEvent('join_room_failed');
       setLobbyStatus('idle');
-      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.');
+      CustomAlert.show(t('connectionError'), t('connectionErrorMsg2'));
     });
   };
 
