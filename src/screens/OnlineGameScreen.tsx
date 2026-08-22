@@ -172,6 +172,16 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.player) {
         setPlayer(data.player);
         await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
+      } else {
+        setPlayer((prev: any) => {
+          if (!prev) return prev;
+          const updated = { ...prev };
+          if (updated.jokers && updated.jokers[data.jokerType] > 0) {
+            updated.jokers[data.jokerType] -= 1;
+          }
+          AsyncStorage.setItem('@logged_in_profile', JSON.stringify(updated)).catch(()=>{});
+          return updated;
+        });
       }
     });
 

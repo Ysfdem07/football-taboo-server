@@ -43,14 +43,21 @@ export default function MarketScreen({ navigation }: any) {
   };
 
   const watchAdForCoins = () => {
-    if (!player) return CustomAlert.show(t('error'), t('loginRequired'));
     setWatchingAd(true);
     showRewarded(
-      (reward) => {
-        let s = getSocket();
-        if (s && s.connected) {
-          s.emit('reward_free_coins', { playerId: player.id });
-          CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
+      async (reward) => {
+        if (!player || !player.id) {
+           let guest = player || { coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
+           guest.coins = (guest.coins || 0) + 50;
+           setPlayer({...guest});
+           await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
+           CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
+        } else {
+          let s = getSocket();
+          if (s && s.connected) {
+            s.emit('reward_free_coins', { playerId: player.id });
+            CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
+          }
         }
       },
       () => setWatchingAd(false),
@@ -83,8 +90,20 @@ export default function MarketScreen({ navigation }: any) {
   };
 
   const buyJoker = async (jokerType: string) => {
-    if (!player) return CustomAlert.show(t('error'), t('loginRequired'));
-    if ((player.coins || 0) < 50) return CustomAlert.show(t('insufficientFunds'), t('needMoreCoins'));
+    let p = player;
+    if (!p) p = { coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
+    
+    if ((p.coins || 0) < 50) return CustomAlert.show(t('insufficientFunds'), t('needMoreCoins'));
+    
+    if (!p.id) {
+      p.coins -= 50;
+      if (!p.jokers) p.jokers = { revealLetters:0, extraTime:0, instantHints:0, shield:0 };
+      p.jokers[jokerType] = (p.jokers[jokerType] || 0) + 1;
+      setPlayer({...p});
+      await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(p));
+      CustomAlert.show(t('buySuccess'), t('jokerBought'));
+      return;
+    }
     
     setLoading(true);
     let s = getSocket();
@@ -94,7 +113,7 @@ export default function MarketScreen({ navigation }: any) {
     }
     
     if (s && s.connected) {
-      s.emit('buy_joker', { playerId: player.id, jokerType });
+      s.emit('buy_joker', { playerId: p.id, jokerType });
     } else {
       setLoading(false);
       CustomAlert.show(t('error'), t('serverError'));

@@ -735,10 +735,14 @@ io.on('connection', (socket) => {
       }
     }
     
-    // Validate if player actually has the joker
-    const result = await db.useJoker(playerId, jokerType);
-    if (result.error) {
-      return socket.emit('joker_error', { message: result.error });
+    // Validate if player actually has the joker (Skip for guests)
+    let result = { success: true, player: null };
+    if (playerId) {
+      const dbResult = await db.useJoker(playerId, jokerType);
+      if (dbResult.error) {
+        return socket.emit('joker_error', { message: dbResult.error });
+      }
+      result = dbResult;
     }
 
     // Apply joker effect PRIVATELY (socket.emit instead of io.to(roomId).emit)
