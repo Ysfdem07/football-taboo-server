@@ -82,15 +82,7 @@
         }
       ],
       "expo-font",
-      "expo-notifications",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "useFrameworks": "static"
-          }
-        }
-      ]
+      "expo-notifications"
     ]
   }
 }
