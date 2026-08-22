@@ -28,6 +28,7 @@ type Props = {
 };
 
 export default function OnlineLobbyScreen({ navigation, route }: any) {
+  const { t, language } = useLanguage();
   const [lobbyStatus, setLobbyStatus] = useState<'idle' | 'searching_match' | 'creating_room' | 'joining_room'>('idle');
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [roomCodeInput, setRoomCodeInput] = useState('');
@@ -132,7 +133,6 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   };
 
   const categoryId = route.params?.categoryId || 'football';
-  const { t, language } = useLanguage();
 
   const findFriendlyMatch = () => {
     Analytics.logEvent('join_friendly_queue_start');
