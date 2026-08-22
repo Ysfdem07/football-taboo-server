@@ -12,60 +12,22 @@ export interface AnalyticsProvider {
 }
 
 /**
- * Firebase Analytics Provider
- * Safely handles environments where Firebase native modules are missing (like Expo Go) without crashing.
+ * Firebase Analytics Provider - DISABLED (Firebase removed for Xcode 16 compatibility)
+ * Firebase will be re-added once a compatible version is available.
  */
 class FirebaseAnalyticsProvider implements AnalyticsProvider {
   name = 'Firebase';
-  private analytics: any = null;
 
   async init(): Promise<void> {
-    try {
-      const { NativeModules } = require('react-native');
-      const isFirebaseAvailable = !!NativeModules.RNFBAppModule;
-
-      if (!isFirebaseAvailable) {
-        if (__DEV__) {
-          console.log('[Analytics] Firebase native module not available. Skipping (expected in Expo Go).');
-        }
-        return;
-      }
-
-      const firebaseAnalytics = require('@react-native-firebase/analytics').default;
-      this.analytics = firebaseAnalytics();
-      if (__DEV__) {
-        console.log('[Analytics] Firebase Analytics initialized.');
-      }
-    } catch (err) {
-      if (__DEV__) {
-        console.warn('[Analytics] Failed to initialize Firebase Analytics:', err);
-      }
-    }
+    // Firebase temporarily removed - incompatible with Xcode 16
   }
 
-  trackEvent(eventName: string, params?: AnalyticsEventParams): void {
-    if (this.analytics) {
-      try {
-        this.analytics.logEvent(eventName, params);
-      } catch (err) {
-        console.error('[Analytics] Firebase failed to log event:', err);
-      }
-    }
+  trackEvent(_eventName: string, _params?: AnalyticsEventParams): void {
+    // no-op
   }
 
-  setUserProperties(userId: string, properties?: Record<string, any>): void {
-    if (this.analytics) {
-      try {
-        this.analytics.setUserId(userId);
-        if (properties) {
-          for (const [key, value] of Object.entries(properties)) {
-            this.analytics.setUserProperty(key, value?.toString() || '');
-          }
-        }
-      } catch (err) {
-        console.error('[Analytics] Firebase failed to set user properties:', err);
-      }
-    }
+  setUserProperties(_userId: string, _properties?: Record<string, any>): void {
+    // no-op
   }
 }
 
