@@ -368,7 +368,7 @@ export default function ProfileScreen({ navigation }: Props) {
               <View style={styles.categoryLeaguesGrid}>
                 {CATEGORY_META.map(cat => {
                   const catKp = getCategoryKp(cat.id);
-                  const catLeague = getLeagueForKp(catKp);
+                  const catLeague = getLeagueForKp(catKp, language as 'tr'|'en');
                   return (
                     <View key={cat.id} style={[styles.categoryLeagueCard, { borderColor: `${cat.color}50` }]}>
                       <Text style={[styles.categoryLeagueLabel, { color: cat.color }]}>{cat.label}</Text>

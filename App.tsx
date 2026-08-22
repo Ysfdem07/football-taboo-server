@@ -5,6 +5,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { Analytics } from './src/services/analytics';
 import { RemoteConfig } from './src/services/remoteConfig';
 import { initAds } from './src/services/ads';
+import { initCrashlytics } from './src/services/crashlytics';
 import {
   useFonts,
   Poppins_400Regular,
@@ -28,6 +29,7 @@ export default function App() {
   useEffect(() => {
     // Initialize analytics, remote config, and ads on app launch
     const initServices = async () => {
+      await initCrashlytics();   // First — so it captures crashes from other inits
       await Analytics.init();
       await RemoteConfig.init();
       await initAds();

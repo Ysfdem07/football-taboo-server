@@ -3,17 +3,18 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ImageBackground,
   SafeAreaView, FlatList, ActivityIndicator, ScrollView, useWindowDimensions, StatusBar, Platform
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { getSocket } from '../services/socket';
-import { getLeagueForKp, LEAGUES } from '../utils/LeagueHelper';
+import { getSocket, initSocketWithUrl, fetchTunnelUrl } from '../services/socket';
+import { getLeagueForKp, getLeagues } from '../utils/LeagueHelper';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { LeagueBadge } from '../components/LeagueBadge';
 import { Analytics } from '../services/analytics';
 import { useLanguage } from '../context/LanguageContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Leaderboard'>;
 
@@ -40,11 +41,20 @@ export default function LeaderboardScreen() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState(language === 'en' ? 'All' : 'Tümü');
+  const [selectedCategory, setSelectedCategory] = useState('football');
+  const [activeTab, setActiveTab] = useState<'classic'|'duel'|'tournament'>('classic');
+
+  const trToUpper = (str: string) => {
+    if (language === 'tr') {
+      return str.replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase();
+    }
+    return str.toUpperCase();
+  };
 
   const CATEGORIES = [
-    { id: language === 'en' ? 'football_en' : 'football', label: t('football').toUpperCase(), icon: 'football', color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
-    { id: language === 'en' ? 'cinema_en' : 'cinema', label: t('cinema').toUpperCase(), icon: 'videocam', color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg') },
-    { id: language === 'en' ? 'music_en' : 'music', label: t('music').toUpperCase(), icon: 'musical-notes', color: '#ff1493', bg: require('../../assets/images/music_bg.jpg') },
+    { id: language === 'en' ? 'football_en' : 'football', label: trToUpper(t('football')), icon: 'football', color: '#39ff14', bg: require('../../assets/images/football_bg.jpg') },
+    { id: language === 'en' ? 'cinema_en' : 'cinema', label: trToUpper(t('cinema')), icon: 'videocam', color: '#b026ff', bg: require('../../assets/images/cinema_bg.jpg') },
+    { id: language === 'en' ? 'music_en' : 'music', label: trToUpper(t('music')), icon: 'musical-notes', color: '#ff1493', bg: require('../../assets/images/music_bg.jpg') },
   ];
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 12;
@@ -123,18 +133,18 @@ export default function LeaderboardScreen() {
 
   const filteredLeaderboard = (selectedLeague === 'Tümü' || selectedLeague === 'All')
     ? leaderboard
-    : leaderboard.filter(item => getLeagueForKp(item.displayKp ?? item.kp).name === selectedLeague);
+    : leaderboard.filter(item => getLeagueForKp(item.displayKp ?? item.kp, language as 'tr'|'en').name === selectedLeague);
 
   const activeLeagueObj = (selectedLeague !== 'Tümü' && selectedLeague !== 'All')
-    ? LEAGUES.find(l => l.name === selectedLeague) 
+    ? getLeagues(language as 'tr'|'en').find(l => l.name === selectedLeague) 
     : null;
   const activeLeagueForBadge = activeLeagueObj 
-    ? getLeagueForKp(activeLeagueObj.minKp) 
-    : LEAGUES[LEAGUES.length - 1];
+    ? getLeagueForKp(activeLeagueObj.minKp, language as 'tr'|'en') 
+    : getLeagues(language as 'tr'|'en')[getLeagues(language as 'tr'|'en').length - 1];
 
-  const renderItem = ({ item, index }: { item: LeaderboardItem; index: number }) => {
+  const renderItem = ({ item, index }: { item: LeaderboardItem, index: number }) => {
     const kpToShow = item.displayKp ?? item.kp;
-    const league = getLeagueForKp(kpToShow);
+    const league = getLeagueForKp(kpToShow, language as 'tr'|'en');
     const isTopThree = index < 3;
     const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
@@ -213,7 +223,7 @@ export default function LeaderboardScreen() {
 
         {/* LEAGUE FILTER */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.leagueFilterScroll} contentContainerStyle={{ paddingHorizontal: 16, gap: 8, alignItems: 'center' }}>
-          {LEAGUES.map(lg => (
+          {getLeagues(language as 'tr'|'en').map(lg => (
             <TouchableOpacity
               key={lg.name}
               style={[

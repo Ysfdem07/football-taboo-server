@@ -12,63 +12,66 @@ export interface LeagueInfo {
   vectorIcon: string;
 }
 
-export const LEAGUES: LeagueInfo[] = [
+export const getLeagues = (lang: 'tr' | 'en' = 'tr'): LeagueInfo[] => [
   { 
     id: 'amateur',
-    name: 'Amatör Küme', 
+    name: lang === 'en' ? 'Amateur League' : 'Amatör Küme', 
     minKp: 0, 
     maxKp: 500, 
     color: '#94A3B8',
     glowColor: 'rgba(148, 163, 184, 0.6)',
     badgeBg: ['#334155', '#0F172A'],
-    tierTitle: 'AMATÖR',
+    tierTitle: lang === 'en' ? 'AMATEUR' : 'AMATÖR',
     vectorIcon: 'shield-outline'
   },
   { 
     id: 'league3',
-    name: '3. Lig', 
+    name: lang === 'en' ? 'League 3' : '3. Lig', 
     minKp: 501, 
     maxKp: 1500, 
     color: '#CD7F32',
     glowColor: 'rgba(205, 127, 50, 0.7)',
     badgeBg: ['#78350F', '#1F2937'],
-    tierTitle: 'BRONZ',
+    tierTitle: lang === 'en' ? 'BRONZE' : 'BRONZ',
     vectorIcon: 'shield-sharp'
   },
   { 
     id: 'league2',
-    name: '2. Lig', 
+    name: lang === 'en' ? 'League 2' : '2. Lig', 
     minKp: 1501, 
     maxKp: 3000, 
     color: '#38BDF8',
     glowColor: 'rgba(56, 189, 248, 0.7)',
     badgeBg: ['#0284C7', '#0F172A'],
-    tierTitle: 'GÜMÜŞ',
+    tierTitle: lang === 'en' ? 'SILVER' : 'GÜMÜŞ',
     vectorIcon: 'ribbon-outline'
   },
   { 
     id: 'league1',
-    name: '1. Lig', 
+    name: lang === 'en' ? 'League 1' : '1. Lig', 
     minKp: 3001, 
     maxKp: 5000, 
     color: '#F59E0B',
     glowColor: 'rgba(245, 158, 11, 0.8)',
     badgeBg: ['#B45309', '#451A03'],
-    tierTitle: 'ALTIN',
+    tierTitle: lang === 'en' ? 'GOLD' : 'ALTIN',
     vectorIcon: 'medal-outline'
   },
   { 
     id: 'champions',
-    name: 'Şampiyonlar Ligi', 
+    name: lang === 'en' ? 'Champions League' : 'Şampiyonlar Ligi', 
     minKp: 5001, 
     maxKp: Infinity, 
     color: '#EC4899',
     glowColor: 'rgba(236, 72, 153, 0.9)',
     badgeBg: ['#BE185D', '#4C0519'],
-    tierTitle: 'ŞAMPİYON',
+    tierTitle: lang === 'en' ? 'CHAMPION' : 'ŞAMPİYON',
     vectorIcon: 'trophy-sharp'
   }
 ];
+
+// Fallback constant for backwards compatibility where language isn't readily available
+export const LEAGUES: LeagueInfo[] = getLeagues('tr');
 
 export const CATEGORY_LEAGUE_LOGOS: Record<string, Record<string, ImageSourcePropType>> = {
   football: {
@@ -94,8 +97,9 @@ export const CATEGORY_LEAGUE_LOGOS: Record<string, Record<string, ImageSourcePro
   }
 };
 
-export function getLeagueForKp(kp: number): LeagueInfo {
-  return LEAGUES.find(l => kp >= l.minKp && kp <= l.maxKp) || LEAGUES[0];
+export function getLeagueForKp(kp: number, lang: 'tr' | 'en' = 'tr'): LeagueInfo {
+  const leagues = getLeagues(lang);
+  return leagues.find(l => kp >= l.minKp && kp <= l.maxKp) || leagues[0];
 }
 
 export function getLeagueLogo(categoryId: string, leagueId: string): ImageSourcePropType {

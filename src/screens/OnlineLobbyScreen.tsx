@@ -50,7 +50,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
           if (stored) {
             const parsed = JSON.parse(stored);
             setProfile(parsed);
-            setPlayerName(parsed.username);
+            if (parsed.username === 'Misafir' && language === 'en') { setPlayerName('Guest'); } else if (parsed.username === 'Guest' && language === 'tr') { setPlayerName('Misafir'); } else { setPlayerName(parsed.username); }
           }
         } catch (e) {}
       };
@@ -67,7 +67,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
         if (stored) {
           const parsed = JSON.parse(stored);
           setProfile(parsed);
-          setPlayerName(parsed.username);
+          if (parsed.username === 'Misafir' && language === 'en') { setPlayerName('Guest'); } else if (parsed.username === 'Guest' && language === 'tr') { setPlayerName('Misafir'); } else { setPlayerName(parsed.username); }
         }
         
         const tunnel = await fetchTunnelUrl();

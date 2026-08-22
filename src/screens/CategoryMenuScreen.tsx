@@ -23,11 +23,18 @@ export default function CategoryMenuScreen() {
   const { categoryId } = route.params;
   const [loading, setLoading] = useState(false);
 
+  const trToUpper = (str: string) => {
+    if (language === 'tr') {
+      return str.replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase();
+    }
+    return str.toUpperCase();
+  };
+
   const THEMES = {
     football: { 
       color: '#39ff14', 
       bg: require('../../assets/images/football_bg.jpg'), 
-      title: t('football').toUpperCase(),
+      title: trToUpper(t('football')),
       classicIcon: 'flash-outline',
       duelIcon: 'game-controller-outline',
       tournamentIcon: 'trophy-outline'
@@ -35,7 +42,7 @@ export default function CategoryMenuScreen() {
     cinema: { 
       color: '#b026ff', 
       bg: require('../../assets/images/cinema_bg.jpg'), 
-      title: t('cinema').toUpperCase(),
+      title: trToUpper(t('cinema')),
       classicIcon: 'film-outline', 
       duelIcon: 'videocam-outline', 
       tournamentIcon: 'star-outline'
@@ -43,7 +50,7 @@ export default function CategoryMenuScreen() {
     music: { 
       color: '#ff1493', 
       bg: require('../../assets/images/music_bg.jpg'), 
-      title: t('music').toUpperCase(),
+      title: trToUpper(t('music')),
       classicIcon: 'musical-notes-outline', 
       duelIcon: 'headset-outline', 
       tournamentIcon: 'radio-outline'
@@ -58,11 +65,11 @@ export default function CategoryMenuScreen() {
     monday.setDate(now.getDate() + diffToMon);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
-    const MONTHS_TR = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+    const MONTHS_TR = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
     const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const months = language === 'en' ? MONTHS_EN : MONTHS_TR;
     const fmt = (d: Date) => `${d.getDate()} ${months[d.getMonth()]}`;
-    return `${fmt(monday)} – ${fmt(sunday)}`;
+    return `${fmt(monday)} - ${fmt(sunday)}`;
   };
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
@@ -101,7 +108,7 @@ export default function CategoryMenuScreen() {
         {loading && (
           <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', zIndex: 100 }]}>
             <ActivityIndicator size="large" color={NEON_COLOR} />
-            <Text style={[styles.loadingText, { color: NEON_COLOR }]}>{t('loading').toUpperCase()}</Text>
+            <Text style={[styles.loadingText, { color: NEON_COLOR }]}>{trToUpper(t('loading'))}</Text>
           </View>
         )}
 

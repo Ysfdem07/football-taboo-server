@@ -189,24 +189,6 @@ export default function MarketScreen({ navigation }: any) {
             </TouchableOpacity>
           </View>
           
-          {/* Reklam İzle Kazan Kartı */}
-          <View style={[styles.jokerCard, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.05)' }]}>
-            <View style={styles.jokerInfo}>
-              <Ionicons name="play-circle" size={32} color={NEON_GOLD} />
-              <View style={styles.jokerTexts}>
-                <Text style={styles.jokerName}>{language === 'en' ? 'Watch Ad & Earn' : 'İzle ve Kazan'}</Text>
-                <Text style={styles.jokerDesc}>{language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.'}</Text>
-              </View>
-            </View>
-            <TouchableOpacity 
-              style={[styles.buyBtn, { backgroundColor: NEON_GOLD }, watchingAd && { opacity: 0.5 }]} 
-              onPress={watchAdForCoins}
-              disabled={watchingAd}
-            >
-              <Text style={[styles.buyBtnText, { color: '#000' }]}>+50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
-            </TouchableOpacity>
-          </View>
-          
           {/* Kalkan Jokeri */}
           <View style={styles.jokerCard}>
             <View style={styles.jokerInfo}>
@@ -223,6 +205,24 @@ export default function MarketScreen({ navigation }: any) {
               disabled={loading}
             >
               <Text style={styles.buyBtnText}>50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Reklam İzle Kazan Kartı */}
+          <View style={[styles.jokerCard, { borderColor: NEON_GOLD, backgroundColor: 'rgba(255,215,0,0.05)' }]}>
+            <View style={styles.jokerInfo}>
+              <Ionicons name="play-circle" size={32} color={NEON_GOLD} />
+              <View style={styles.jokerTexts}>
+                <Text style={styles.jokerName}>{language === 'en' ? 'Watch Ad & Earn' : 'İzle ve Kazan'}</Text>
+                <Text style={styles.jokerDesc}>{language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.'}</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={[styles.buyBtn, { backgroundColor: NEON_GOLD }, watchingAd && { opacity: 0.5 }]} 
+              onPress={watchAdForCoins}
+              disabled={watchingAd}
+            >
+              <Text style={[styles.buyBtnText, { color: '#000' }]}>+50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
         </View>

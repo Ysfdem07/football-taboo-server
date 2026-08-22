@@ -23,11 +23,18 @@ export default function HomeScreen() {
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
+  const trToUpper = (str: string) => {
+    if (language === 'tr') {
+      return str.replace(/i/g, 'İ').replace(/ı/g, 'I').toUpperCase();
+    }
+    return str.toUpperCase();
+  };
+
   const CATEGORIES = [
     { 
       id: language === 'en' ? 'football_en' : 'football', 
-      title: t('football').toUpperCase(), 
-      subtitle: language === 'en' ? 'Legendary Footballers, Managers, Teams and Terms' : 'Efsane Futbolcular, Teknik Direktörler, Futbol Takımları ve Terimleri',
+      title: trToUpper(t('football')), 
+      subtitle: language === 'en' ? 'Top Leagues, Legends, Teams and Moments' : 'Süper Lig, Avrupa Ligleri ve Efsaneler',
       color: '#39ff14', 
       btnColors: ['#32e010', '#1fa30a'] as [string, string],
       image: require('../../assets/icons/football_3d_icon.png'),
@@ -35,8 +42,8 @@ export default function HomeScreen() {
     },
     { 
       id: language === 'en' ? 'cinema_en' : 'cinema', 
-      title: t('cinema').toUpperCase(), 
-      subtitle: language === 'en' ? 'Award Winning Movies & Shows, Actors, Directors and Characters' : 'Ödüllü Film ve Diziler, Oyuncu, Yönetmen ve Dizi Karakterleri',
+      title: trToUpper(t('cinema')), 
+      subtitle: language === 'en' ? 'Blockbusters, Actors, Directors and Genres' : 'Kült Filmler, Oyuncular ve Yönetmenler',
       color: '#b026ff', 
       btnColors: ['#a826ff', '#7c15c5'] as [string, string],
       image: require('../../assets/icons/cinema_3d_icon.png'),
@@ -44,7 +51,7 @@ export default function HomeScreen() {
     },
     { 
       id: language === 'en' ? 'music_en' : 'music',
-      title: t('music').toUpperCase(), 
+      title: trToUpper(t('music')), 
       subtitle: language === 'en' ? 'Famous Artists, Bands and Iconic Song Titles' : 'Ünlü Sanatçılar, Müzik Grupları ve Şarkı İsimleri',
       color: '#ff1493', 
       btnColors: ['#ff1493', '#c8096f'] as [string, string],

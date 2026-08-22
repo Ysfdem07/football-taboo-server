@@ -12,54 +12,80 @@ export interface AnalyticsProvider {
 }
 
 /**
- * Firebase Analytics Provider - DISABLED (Firebase removed for Xcode 16 compatibility)
- * Firebase will be re-added once a compatible version is available.
+ * Firebase Analytics Provider
+ * Uses dynamic require so it fails gracefully in Expo Go (no native module).
  */
 class FirebaseAnalyticsProvider implements AnalyticsProvider {
   name = 'Firebase';
+  private analytics: any = null;
 
   async init(): Promise<void> {
-    // Firebase temporarily removed - incompatible with Xcode 16
+    try {
+      const mod = require('@react-native-firebase/analytics');
+      this.analytics = (mod.default || mod)();
+      await this.analytics.setAnalyticsCollectionEnabled(true);
+      if (__DEV__) console.log('[Analytics] Firebase Provider initialized.');
+    } catch (err) {
+      if (__DEV__) {
+        console.log('[Analytics] Firebase native module not available (expected in Expo Go).');
+      }
+      this.analytics = null;
+    }
   }
 
-  trackEvent(_eventName: string, _params?: AnalyticsEventParams): void {
-    // no-op
+  trackEvent(eventName: string, params?: AnalyticsEventParams): void {
+    if (!this.analytics) return;
+    try {
+      this.analytics.logEvent(eventName, params);
+    } catch (err) {
+      console.warn('[Analytics] Firebase failed to log event:', err);
+    }
   }
 
-  setUserProperties(_userId: string, _properties?: Record<string, any>): void {
-    // no-op
+  setUserProperties(userId: string, properties?: Record<string, any>): void {
+    if (!this.analytics) return;
+    try {
+      this.analytics.setUserId(userId);
+      if (properties) {
+        // Firebase setUserProperties expects Record<string, string | null>
+        const stringProps: Record<string, string> = {};
+        for (const [k, v] of Object.entries(properties)) {
+          stringProps[k] = String(v);
+        }
+        this.analytics.setUserProperties(stringProps);
+      }
+    } catch (err) {
+      console.warn('[Analytics] Firebase failed to set user properties:', err);
+    }
   }
 }
 
 /**
- * Console Analytics Provider - Logs events to console during development.
+ * Console Analytics Provider — logs events during development.
  */
 class ConsoleAnalyticsProvider implements AnalyticsProvider {
   name = 'Console';
 
   async init(): Promise<void> {
-    if (__DEV__) {
-      console.log('[Analytics] Console Provider initialized.');
-    }
+    if (__DEV__) console.log('[Analytics] Console Provider initialized.');
   }
 
   trackEvent(eventName: string, params?: AnalyticsEventParams): void {
     if (__DEV__) {
-      console.log(`[Analytics] Event tracked: "${eventName}"`, params ? JSON.stringify(params) : '');
+      console.log(`[Analytics] Event: "${eventName}"`, params ? JSON.stringify(params) : '');
     }
   }
 
   setUserProperties(userId: string, properties?: Record<string, any>): void {
     if (__DEV__) {
-      console.log(`[Analytics] User Properties set for: "${userId}"`, properties ? JSON.stringify(properties) : '');
+      console.log(`[Analytics] User: "${userId}"`, properties ? JSON.stringify(properties) : '');
     }
   }
 }
 
 /**
  * Meta (Facebook) Analytics Provider
- * Uses react-native-fbsdk-next to send AppEvents for ROAS and App Install tracking.
- * Safely handles environments where native modules are missing (like Expo Go) without crashing.
+ * Uses react-native-fbsdk-next for ROAS and App Install tracking.
  */
 class MetaAnalyticsProvider implements AnalyticsProvider {
   name = 'Meta';
@@ -67,15 +93,14 @@ class MetaAnalyticsProvider implements AnalyticsProvider {
 
   async init(): Promise<void> {
     try {
-      // Dynamic require ensures Expo Go does not crash if native module is missing
       const fbsdk = require('react-native-fbsdk-next');
       this.appEventsLogger = fbsdk.AppEventsLogger;
       if (__DEV__) {
-        console.log('[Analytics] Meta Provider initialized (events logged to console in dev but not sent).');
+        console.log('[Analytics] Meta Provider initialized.');
       }
     } catch (err) {
       if (__DEV__) {
-        console.log('[Analytics] Meta SDK native module is not available. Skipping Meta initialization (expected in Expo Go).');
+        console.log('[Analytics] Meta SDK not available (expected in Expo Go).');
       }
     }
   }
@@ -83,12 +108,16 @@ class MetaAnalyticsProvider implements AnalyticsProvider {
   trackEvent(eventName: string, params?: AnalyticsEventParams): void {
     if (this.appEventsLogger && !__DEV__) {
       try {
-        this.appEventsLogger.logEvent(eventName, params ? params.valueToSum || undefined : undefined, params);
+        this.appEventsLogger.logEvent(
+          eventName,
+          params ? params.valueToSum || undefined : undefined,
+          params
+        );
       } catch (err) {
         console.warn('[Analytics] Meta failed to log event:', err);
       }
     } else if (__DEV__) {
-      console.log(`[Analytics] [Meta Stub] Would track event: "${eventName}"`, params);
+      console.log(`[Analytics] [Meta Stub] Would track: "${eventName}"`, params);
     }
   }
 
@@ -96,14 +125,12 @@ class MetaAnalyticsProvider implements AnalyticsProvider {
     if (this.appEventsLogger && !__DEV__) {
       try {
         this.appEventsLogger.setUserID(userId);
-        if (properties) {
-          this.appEventsLogger.setUserData(properties);
-        }
+        if (properties) this.appEventsLogger.setUserData(properties);
       } catch (err) {
         console.warn('[Analytics] Meta failed to set user data:', err);
       }
     } else if (__DEV__) {
-      console.log(`[Analytics] [Meta Stub] Would set user property: "${userId}"`, properties);
+      console.log(`[Analytics] [Meta Stub] Would set user: "${userId}"`, properties);
     }
   }
 }
@@ -124,14 +151,11 @@ class AnalyticsService {
       try {
         await provider.init();
       } catch (err) {
-        console.error(`[Analytics] Failed to initialize provider "${provider.name}":`, err);
+        console.error(`[Analytics] Failed to initialize "${provider.name}":`, err);
       }
     }
   }
 
-  /**
-   * Log a general event to all active providers
-   */
   logEvent(eventName: string, params?: AnalyticsEventParams): void {
     for (const provider of this.providers) {
       try {
@@ -142,20 +166,17 @@ class AnalyticsService {
     }
   }
 
-  /**
-   * Identify user and set properties across providers
-   */
   identify(userId: string, properties?: Record<string, any>): void {
     for (const provider of this.providers) {
       try {
         provider.setUserProperties(userId, properties);
       } catch (err) {
-        console.error(`[Analytics] Failed to set user properties in "${provider.name}":`, err);
+        console.error(`[Analytics] Failed to set user props in "${provider.name}":`, err);
       }
     }
   }
 
-  // Helper methods for semantic game events
+  // ── Semantic helpers ──────────────────────────────────────────
 
   logScreenView(screenName: string): void {
     this.logEvent('screen_view', { screen_name: screenName });
@@ -163,14 +184,14 @@ class AnalyticsService {
 
   logUserRegister(playerId: string, username: string): void {
     this.identify(playerId, { username });
-    this.logEvent('fb_mobile_complete_registration', { fb_registration_method: 'in_app' }); // Meta standard
-    this.logEvent('sign_up', { method: 'in_app' }); // Google standard
+    this.logEvent('fb_mobile_complete_registration', { fb_registration_method: 'in_app' });
+    this.logEvent('sign_up', { method: 'in_app' });
     this.logEvent('user_register', { player_id: playerId, username });
   }
 
   logUserLogin(playerId: string, username: string): void {
     this.identify(playerId, { username });
-    this.logEvent('login', { method: 'in_app' }); // Meta and Google standard
+    this.logEvent('login', { method: 'in_app' });
     this.logEvent('user_login', { player_id: playerId, username });
   }
 
