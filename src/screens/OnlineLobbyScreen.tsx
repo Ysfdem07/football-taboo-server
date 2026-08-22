@@ -31,7 +31,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [lobbyStatus, setLobbyStatus] = useState<'idle' | 'searching_match' | 'creating_room' | 'joining_room'>('idle');
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [roomCodeInput, setRoomCodeInput] = useState('');
-  const [playerName, setPlayerName] = useState('Misafir');
+  const [playerName, setPlayerName] = useState(language === 'en' ? 'Guest' : 'Misafir');
   const [maxRounds, setMaxRounds] = useState(10);
   const [socket, setSocket] = useState<any>(null);
   const [isConnecting, setIsConnecting] = useState(false);
