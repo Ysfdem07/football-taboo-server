@@ -18,8 +18,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ysfdem.footballtaboo",
+      
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kişiselleştirilmiş oyun içi reklamlar ve teklifler sunabilmemiz için kullanılmaktadır.",
+        "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir.", "ITSAppUsesNonExemptEncryption": false,
         "SKAdNetworkItems": [
           {
             "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
@@ -45,9 +46,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.ysfdem.footballtaboo",
       "googleServicesFile": "./google-services.json",
-      "permissions": [
-        "android.permission.INTERNET"
-      ]
+      "permissions": ["android.permission.INTERNET"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
