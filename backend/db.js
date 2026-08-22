@@ -34,6 +34,7 @@ const playerSchema = new mongoose.Schema({
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   marketingConsent: { type: Boolean, default: false },
+  pushToken: { type: String, default: null },
   avatar: { type: String, default: '⚽' },
   kp: { type: Number, default: 0 },
   categoryKp: {
@@ -544,6 +545,11 @@ module.exports = {
 
   getIsConnected: () => {
     return isConnected;
+  },
+
+  updatePushToken: async (playerId, token) => {
+    await connectDB();
+    await Player.findOneAndUpdate({ id: playerId }, { pushToken: token });
   }
 };
 

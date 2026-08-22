@@ -9,6 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useLanguage } from '../context/LanguageContext';
+import { getSocket } from '../services/socket';
+import { registerForPushNotificationsAsync } from '../services/notifications';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -57,7 +59,16 @@ export default function HomeScreen() {
         try {
           const profileData = await AsyncStorage.getItem('@logged_in_profile');
           if (profileData) {
-            setPlayer(JSON.parse(profileData));
+            const parsed = JSON.parse(profileData);
+            setPlayer(parsed);
+            // Register for push notifications
+            if (parsed.id) {
+              const token = await registerForPushNotificationsAsync();
+              if (token) {
+                const socket = getSocket();
+                socket.emit('save_push_token', { playerId: parsed.id, token });
+              }
+            }
           } else {
             setPlayer(null);
           }

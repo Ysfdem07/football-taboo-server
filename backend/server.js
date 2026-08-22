@@ -637,6 +637,19 @@ io.on('connection', (socket) => {
     });
   });
 
+  // Push Token
+  socket.on('save_push_token', async (data) => {
+    const { playerId, token } = data;
+    if (playerId && token) {
+      try {
+        await db.updatePushToken(playerId, token);
+        console.log(`[PushToken] Saved for player ${playerId}`);
+      } catch (e) {
+        console.error('[PushToken] Error saving token:', e);
+      }
+    }
+  });
+
   // Reset Password Verification
   socket.on('reset_password', async (data) => {
     const { email, code, newPassword } = data;
