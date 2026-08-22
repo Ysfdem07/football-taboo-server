@@ -2,8 +2,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, NativeModules, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
-const isFirebaseAvailable = !!NativeModules.RNGoogleMobileAdsModule;
+// In Expo Go, appOwnership is 'expo'. In EAS builds, it's null or 'standalone'.
+const isExpoGo = Constants.appOwnership === 'expo';
+const isFirebaseAvailable = !isExpoGo;
 
 let MobileAds: any = null;
 let InterstitialAd: any = null;
