@@ -284,55 +284,6 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
             </View>
           </View>
         ) : (
-          /* If no initial mode was passed (legacy), show the old grid. Otherwise, just show the selected menu directly. */
-          {!initialMode && !showRankedOptions && !showFriendlyOptions && (
-            <View style={styles.modeGrid}>
-              <TouchableOpacity
-                style={[styles.modeCard, styles.modeCardRanked, { width: mainCardSize, height: mainCardSize }]}
-                onPress={() => { setShowRankedOptions(true); setShowFriendlyOptions(false); }}
-                activeOpacity={0.8}
-              >
-                <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                  <LinearGradient
-                    colors={['rgba(168,85,247,0.4)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
-                    start={{x:0, y:0}} end={{x:0, y:1}}
-                    style={StyleSheet.absoluteFillObject}
-                  />
-                  <Ionicons 
-                    name="trophy" 
-                    size={mainIconSize} 
-                    color={NEON_PURPLE} 
-                    style={{ marginBottom: 12 }} 
-                  />
-                  <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DERECELİ</Text>
-                  <Text style={[styles.modeSubLabel, { color: '#fff' }]}>DÜELLO</Text>
-                </BlurView>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.modeCard, styles.modeCardFriendly, { width: mainCardSize, height: mainCardSize }]}
-                onPress={() => { setShowFriendlyOptions(true); setShowRankedOptions(false); }}
-                activeOpacity={0.8}
-              >
-                <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                  <LinearGradient
-                    colors={['rgba(0,255,136,0.4)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
-                    start={{x:0, y:0}} end={{x:0, y:1}}
-                    style={StyleSheet.absoluteFillObject}
-                  />
-                  <Ionicons 
-                    name="people" 
-                    size={mainIconSize * 0.8} 
-                    color={NEON_GREEN} 
-                    style={{ marginBottom: 12 }} 
-                  />
-                  <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DOSTLUK</Text>
-                  <Text style={[styles.modeSubLabel, { color: '#fff' }]}>MAÇI</Text>
-                </BlurView>
-              </TouchableOpacity>
-            </View>
-          )}
-
           <View style={styles.optionsContainer}>
 
             {/* 🏆 RANKED SUB-MENU 🏆 */}
