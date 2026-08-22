@@ -19,7 +19,7 @@
       "buildNumber": "2",
       "supportsTablet": true,
       "bundleIdentifier": "com.ysfdem.footballtaboo",
-      "googleServicesFile": "./GoogleService-Info.plist",
+      "googleServicesFile": "GoogleService-Info.plist",
       "infoPlist": {
         "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir.",
         "ITSAppUsesNonExemptEncryption": false,
@@ -46,7 +46,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.ysfdem.footballtaboo",
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "google-services.json",
       "permissions": [
         "android.permission.INTERNET"
       ]
