@@ -494,6 +494,7 @@ setInterval(async () => {
 }, 3600000);
 
 let queue = [];
+let friendlyQueue = []; // Coin-only, no KP, guests allowed
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
 
@@ -813,6 +814,46 @@ io.on('connection', (socket) => {
       setTimeout(() => {
         startRound(roomId);
       }, 3000);
+    }
+  });
+
+  // Friendly Quick Match queue — coins only, no KP, guests OK
+  socket.on('join_friendly_queue', (data) => {
+    if (friendlyQueue.find(u => u.id === socket.id)) return;
+    const category = data.category || 'football';
+    console.log(socket.id, 'joined friendly queue. Name:', data.name, 'Category:', category);
+    friendlyQueue.push({
+      id: socket.id,
+      name: data.name || 'Misafir',
+      dbPlayerId: data.dbPlayerId || null,
+      category
+    });
+    const catQueue = friendlyQueue.filter(u => u.category === category);
+    if (catQueue.length >= 2) {
+      const p1 = friendlyQueue.splice(friendlyQueue.findIndex(u => u.id === catQueue[0].id), 1)[0];
+      const p2 = friendlyQueue.splice(friendlyQueue.findIndex(u => u.id === catQueue[1].id), 1)[0];
+      const roomId = `friendly_${Date.now()}_${Math.random()}`;
+      io.sockets.sockets.get(p1.id)?.join(roomId);
+      io.sockets.sockets.get(p2.id)?.join(roomId);
+      activeRooms[roomId] = {
+        category,
+        isPrivate: false,
+        isRanked1v1: false,
+        isFriendly1v1: true,  // coins only, no KP/category XP
+        status: 'playing',
+        players: [p1, p2],
+        scores: { [p1.id]: 0, [p2.id]: 0 },
+        currentRound: 0,
+        maxRounds: 10,
+        usedWords: [],
+        timer: null,
+        roundActive: false,
+        isPaused: false,
+        guessingPlayerId: null,
+        guessTimer: null
+      };
+      io.to(roomId).emit('match_found', { players: [p1, p2], roomId, category, isFriendly: true });
+      setTimeout(() => { startRound(roomId); }, 3000);
     }
   });
 

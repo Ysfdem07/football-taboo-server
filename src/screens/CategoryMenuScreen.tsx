@@ -225,8 +225,10 @@ export default function CategoryMenuScreen() {
                 <Ionicons name={theme.tournamentIcon as any} size={48} color={NEON_COLOR} style={{ marginRight: 16 }} />
                 <View>
                   <Text 
-                    style={[styles.halfButtonTitle, { color: '#fff', fontSize: 24, textAlign: 'left', marginBottom: 2 }]} 
+                    style={[styles.halfButtonTitle, { color: '#fff', fontSize: 19, textAlign: 'left', marginBottom: 2 }]} 
                     allowFontScaling={false} 
+                    adjustsFontSizeToFit={true}
+                    numberOfLines={1}
                   >
                     {language === 'en' ? 'WEEKLY TOURNAMENT' : 'HAFTALIK TURNUVA'}
                   </Text>

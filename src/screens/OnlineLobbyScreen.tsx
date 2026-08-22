@@ -134,6 +134,27 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const categoryId = route.params?.categoryId || 'football';
   const { t, language } = useLanguage();
 
+  const findFriendlyMatch = () => {
+    Analytics.logEvent('join_friendly_queue_start');
+    setLobbyStatus('searching_match');
+    ensureSocket((s) => {
+      s.emit('join_friendly_queue', { 
+        name: playerName.trim() || (language === 'en' ? 'Guest' : 'Misafir'),
+        dbPlayerId: profile?.id || profile?._id || null,
+        category: categoryId
+      });
+      s.on('match_found', (data: any) => {
+        Analytics.logEvent('join_queue_success', { roomId: data.roomId });
+        setLobbyStatus('idle');
+        navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId });
+      });
+    }, () => {
+      Analytics.logEvent('join_friendly_queue_failed');
+      setLobbyStatus('idle');
+      CustomAlert.show(t('connectionError'), t('connectionErrorMsg'));
+    });
+  };
+
   const findMatch = () => {
     if (!profile || !profile.email) {
       CustomAlert.show(
@@ -361,6 +382,19 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
                 {!showFriendlyRoomSettings ? (
                   <View style={styles.actionList}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findFriendlyMatch} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
+                        <Ionicons name="flash" size={22} color="#00BFFF" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>Hızlı Dostluk Maçı</Text>
+                        <Text style={styles.actionSub}>Rastgele rakip (Sadece Coin Kazandırır)</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                    </TouchableOpacity>
+
                     <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => setShowFriendlyRoomSettings(true)} activeOpacity={0.8}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
                       <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
