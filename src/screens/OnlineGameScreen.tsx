@@ -1,5 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -311,7 +311,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       // Prevent default behavior of leaving the screen
       e.preventDefault();
 
-      Alert.alert(
+      CustomAlert.show(
         'Oyundan Ayrıl?',
         'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
         [
@@ -320,7 +320,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             text: 'Çık',
             style: 'destructive',
             onPress: () => {
-              socket.disconnect(); // Ensure socket clears out
+              socket.disconnect();
               navigation.dispatch(e.data.action);
             },
           },
@@ -583,7 +583,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             <View style={[styles.header, { flexDirection: 'row', justifyContent: 'center', position: 'relative' }]}>
               <TouchableOpacity 
                 onPress={() => {
-                  Alert.alert(
+                  CustomAlert.show(
                     'Oyundan Ayrıl?',
                     'Oyundan çıkmak istediğinize emin misiniz? Çıkarsanız oyunu hükmen kaybedebilirsiniz.',
                     [

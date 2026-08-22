@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
   ImageBackground, SafeAreaView, Animated, Keyboard,
-  KeyboardAvoidingView, Platform, Alert, ScrollView,
+  KeyboardAvoidingView, Platform, ScrollView,
   useWindowDimensions, TouchableWithoutFeedback
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
+import { CustomAlert } from '../components/CustomAlert';
 
 type Nav  = NativeStackNavigationProp<RootStackParamList, 'TournamentGame'>;
 type Route = RouteProp<RootStackParamList, 'TournamentGame'>;
@@ -431,7 +432,7 @@ export default function TournamentGameScreen() {
                       <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 4, 12), position: 'relative' }]}>
                         <TouchableOpacity 
                           onPress={() => {
-                            Alert.alert(
+                            CustomAlert.show(
                               'Oyundan Çık?',
                               'Çıkarsanız skorunuz kaydedilmez. Emin misiniz?',
                               [
