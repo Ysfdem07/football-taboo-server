@@ -70,13 +70,13 @@ export default function CategoryMenuScreen() {
   const theme = THEMES[baseCategory as keyof typeof THEMES] || THEMES.football;
   const NEON_COLOR = theme.color;
 
-  const checkWordsAndNavigate = async (destination: 'Game' | 'OnlineLobby' | 'Tournament') => {
-    if (destination === 'Tournament') {
+  const checkWordsAndNavigate = async (destination: 'Game' | 'OnlineLobby' | 'Tournament', mode?: 'ranked' | 'friendly') => {
+    if (destination === 'Tournament' || (destination === 'OnlineLobby' && mode === 'ranked')) {
       const profileData = await AsyncStorage.getItem('@logged_in_profile');
       if (!profileData) {
         CustomAlert.show(
           t('error'),
-          language === 'en' ? 'You need to log in to play the Weekly Tournament!' : 'Haftalık turnuvaya katılmak için giriş yapmalısınız!',
+          language === 'en' ? 'You need to log in to play ranked modes!' : 'Dereceli maç oynamak veya turnuvaya katılmak için giriş yapmalısınız!',
           [
             { text: t('cancel'), style: 'cancel' },
             { text: language === 'en' ? 'Sign In' : 'Giriş Yap', onPress: () => navigation.navigate('Profile') }
@@ -88,7 +88,7 @@ export default function CategoryMenuScreen() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      navigation.navigate(destination as any, { categoryId });
+      navigation.navigate(destination as any, { categoryId, mode });
     }, 500);
   };
 
@@ -122,30 +122,30 @@ export default function CategoryMenuScreen() {
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           
           <View style={styles.topRow}>
-            {/* WEEKLY TOURNAMENT BOX CARD */}
+            {/* FRIENDLY MATCH BOX CARD */}
             <TouchableOpacity 
               style={[styles.halfButtonContainer, { shadowColor: NEON_COLOR }]}
-              onPress={() => checkWordsAndNavigate('Tournament')}
+              onPress={() => checkWordsAndNavigate('OnlineLobby', 'friendly')}
               disabled={loading}
               activeOpacity={0.8}
             >
               <View style={[styles.glassCard, { backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}>
                 <LinearGradient
-                  colors={[`${NEON_COLOR}40`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
+                  colors={[`${NEON_COLOR}35`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.gradientOverlay}
                 />
-                <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}80` }]} />
+                <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}70` }]} />
                 
-                <Ionicons name={theme.tournamentIcon as any} size={48} color={NEON_COLOR} style={[styles.halfIcon]} />
+                <Ionicons name="people-outline" size={48} color={NEON_COLOR} style={[styles.halfIcon]} />
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
                   allowFontScaling={false} 
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  {language === 'en' ? 'WEEKLY' : 'HAFTALIK'}
+                  {language === 'en' ? 'FRIENDLY' : 'DOSTLUK'}
                 </Text>
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
@@ -153,20 +153,20 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  {language === 'en' ? 'TOURNAMENT' : 'TURNUVA'}
+                  {language === 'en' ? 'MATCH' : 'MAÇI'}
                 </Text>
                 
                 <View style={styles.tournamentSubRowShort}>
-                  <Ionicons name="calendar-outline" size={11} color="rgba(255,255,255,0.7)" />
-                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>{getWeekRange()}</Text>
+                  <Ionicons name="game-controller-outline" size={11} color="rgba(255,255,255,0.7)" />
+                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>{language === 'en' ? 'No Rank, Just Fun' : 'Serbest Oda'}</Text>
                 </View>
               </View>
             </TouchableOpacity>
 
-            {/* ONLINE DUEL BOX CARD */}
+            {/* RANKED DUEL BOX CARD */}
             <TouchableOpacity 
               style={[styles.halfButtonContainer, { shadowColor: NEON_COLOR }]}
-              onPress={() => checkWordsAndNavigate('OnlineLobby')}
+              onPress={() => checkWordsAndNavigate('OnlineLobby', 'ranked')}
               disabled={loading}
               activeOpacity={0.8}
             >
@@ -186,7 +186,7 @@ export default function CategoryMenuScreen() {
                   numberOfLines={1} 
                   adjustsFontSizeToFit={true}
                 >
-                  ONLINE
+                  {language === 'en' ? 'RANKED' : 'DERECELİ'}
                 </Text>
                 <Text 
                   style={[styles.halfButtonTitle, { color: '#fff' }]} 
@@ -198,19 +198,54 @@ export default function CategoryMenuScreen() {
                 </Text>
 
                 <View style={styles.tournamentSubRowShort}>
-                  <Ionicons name="people-outline" size={11} color="rgba(255,255,255,0.7)" />
-                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>{language === 'en' ? '1v1 & Lobby Match' : '1v1 & Lobi Maçı'}</Text>
+                  <Ionicons name="analytics-outline" size={11} color="rgba(255,255,255,0.7)" />
+                  <Text style={styles.tournamentSubShort} allowFontScaling={false}>{language === 'en' ? 'Earn KP' : 'KP Kazan'}</Text>
                 </View>
               </View>
             </TouchableOpacity>
           </View>
 
+          {/* WEEKLY TOURNAMENT BOX CARD (FULL WIDTH) */}
+          <TouchableOpacity 
+            style={[styles.fullWidthCardContainer, { shadowColor: NEON_COLOR, marginTop: 16 }]}
+            onPress={() => checkWordsAndNavigate('Tournament')}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.glassCard, { backgroundColor: 'rgba(5, 11, 20, 0.85)', paddingVertical: 20 }]}>
+              <LinearGradient
+                colors={[`${NEON_COLOR}40`, 'rgba(5,11,20,0.7)', 'rgba(5,11,20,0.95)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.gradientOverlay}
+              />
+              <View style={[styles.neonBorder, { borderColor: `${NEON_COLOR}80` }]} />
+              
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name={theme.tournamentIcon as any} size={48} color={NEON_COLOR} style={{ marginRight: 16 }} />
+                <View>
+                  <Text 
+                    style={[styles.halfButtonTitle, { color: '#fff', fontSize: 24, textAlign: 'left', marginBottom: 2 }]} 
+                    allowFontScaling={false} 
+                  >
+                    {language === 'en' ? 'WEEKLY TOURNAMENT' : 'HAFTALIK TURNUVA'}
+                  </Text>
+                  <View style={[styles.tournamentSubRowShort, { justifyContent: 'flex-start', marginTop: 4 }]}>
+                    <Ionicons name="calendar-outline" size={12} color="rgba(255,255,255,0.7)" />
+                    <Text style={[styles.tournamentSubShort, { fontSize: 13, marginLeft: 4 }]} allowFontScaling={false}>{getWeekRange()}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+
           {/* LEADERBOARD */}
           <TouchableOpacity
-            style={[styles.leaderboardBtn, { borderColor: `${NEON_COLOR}60`, shadowColor: NEON_COLOR }]}
+            style={[styles.leaderboardBtn, { borderColor: `${NEON_COLOR}60`, shadowColor: NEON_COLOR, marginTop: 16 }]}
             onPress={() => navigation.navigate('Leaderboard', { categoryId })}
             activeOpacity={0.8}
           >
+
             <View style={[styles.leaderboardGlassCard, { backgroundColor: 'rgba(5, 11, 20, 0.85)' }]}>
               <LinearGradient
                 colors={[`${NEON_COLOR}25`, 'rgba(5,11,20,0.9)']}
@@ -402,6 +437,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 10,
+  },
+  fullWidthCardContainer: {
+    width: '100%',
+    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    borderRadius: 24,
   },
   leaderboardGlassCard: {
     borderRadius: 18,

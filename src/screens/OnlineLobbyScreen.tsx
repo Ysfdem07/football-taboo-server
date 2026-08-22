@@ -36,8 +36,9 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [socket, setSocket] = useState<any>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [showRankedOptions, setShowRankedOptions] = useState(false);
-  const [showFriendlyOptions, setShowFriendlyOptions] = useState(false);
+  const initialMode = route.params?.mode;
+  const [showRankedOptions, setShowRankedOptions] = useState(initialMode === 'ranked');
+  const [showFriendlyOptions, setShowFriendlyOptions] = useState(initialMode === 'friendly');
   const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(false);
 
   useFocusEffect(
@@ -283,23 +284,72 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
             </View>
           </View>
         ) : (
+          /* If no initial mode was passed (legacy), show the old grid. Otherwise, just show the selected menu directly. */
+          {!initialMode && !showRankedOptions && !showFriendlyOptions && (
+            <View style={styles.modeGrid}>
+              <TouchableOpacity
+                style={[styles.modeCard, styles.modeCardRanked, { width: mainCardSize, height: mainCardSize }]}
+                onPress={() => { setShowRankedOptions(true); setShowFriendlyOptions(false); }}
+                activeOpacity={0.8}
+              >
+                <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                  <LinearGradient
+                    colors={['rgba(168,85,247,0.4)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
+                    start={{x:0, y:0}} end={{x:0, y:1}}
+                    style={StyleSheet.absoluteFillObject}
+                  />
+                  <Ionicons 
+                    name="trophy" 
+                    size={mainIconSize} 
+                    color={NEON_PURPLE} 
+                    style={{ marginBottom: 12 }} 
+                  />
+                  <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DERECELİ</Text>
+                  <Text style={[styles.modeSubLabel, { color: '#fff' }]}>DÜELLO</Text>
+                </BlurView>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modeCard, styles.modeCardFriendly, { width: mainCardSize, height: mainCardSize }]}
+                onPress={() => { setShowFriendlyOptions(true); setShowRankedOptions(false); }}
+                activeOpacity={0.8}
+              >
+                <BlurView intensity={40} tint="dark" style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                  <LinearGradient
+                    colors={['rgba(0,255,136,0.4)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.9)']}
+                    start={{x:0, y:0}} end={{x:0, y:1}}
+                    style={StyleSheet.absoluteFillObject}
+                  />
+                  <Ionicons 
+                    name="people" 
+                    size={mainIconSize * 0.8} 
+                    color={NEON_GREEN} 
+                    style={{ marginBottom: 12 }} 
+                  />
+                  <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>DOSTLUK</Text>
+                  <Text style={[styles.modeSubLabel, { color: '#fff' }]}>MAÇI</Text>
+                </BlurView>
+              </TouchableOpacity>
+            </View>
+          )}
+
           <View style={styles.optionsContainer}>
 
-            {/* ── RANKED SUB-MENU ── */}
+            {/* 🏆 RANKED SUB-MENU 🏆 */}
             {showRankedOptions && (
               <>
-                {/* Collapse header */}
-                <TouchableOpacity
-                  style={[styles.collapseHeader, { borderColor: 'rgba(168,85,247,0.4)' }]}
-                  onPress={() => setShowRankedOptions(false)}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="trophy" size={24} color={NEON_PURPLE} style={{ marginRight: 14 }} />
-                  <Text style={styles.collapseTitle}>DERECELİ OYNA</Text>
-                  <Ionicons name="chevron-up" size={20} color="#A855F7" style={{ marginLeft: 'auto' }} />
-                </TouchableOpacity>
+                {!initialMode && (
+                  <TouchableOpacity
+                    style={[styles.collapseHeader, { borderColor: 'rgba(168,85,247,0.4)' }]}
+                    onPress={() => setShowRankedOptions(false)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="trophy" size={24} color={NEON_PURPLE} style={{ marginRight: 14 }} />
+                    <Text style={styles.collapseTitle}>DERECELİ OYNA</Text>
+                    <Ionicons name="chevron-up" size={20} color="#A855F7" style={{ marginLeft: 'auto' }} />
+                  </TouchableOpacity>
+                )}
 
-                {/* Premium Vertical List */}
                 <View style={styles.actionList}>
                   <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
                     <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
@@ -335,7 +385,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     </View>
                     <View style={styles.actionTextContainer}>
                       <Text style={[styles.actionTitle, { color: '#A855F7' }]}>Odaya Katıl</Text>
-                      <Text style={styles.actionSub}>Davet kodunu girerek odaya katıl</Text>
+                      <Text style={styles.actionSub}>Kod ile odaya gir</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                   </TouchableOpacity>
@@ -343,36 +393,23 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
               </>
             )}
 
-            {/* ── FRIENDLY SUB-MENU ── */}
+            {/* 🟢 FRIENDLY SUB-MENU 🟢 */}
             {showFriendlyOptions && (
               <>
-                {/* Collapse header */}
-                <TouchableOpacity
-                  style={[styles.collapseHeader, { borderColor: 'rgba(0,255,136,0.4)' }]}
-                  onPress={() => { setShowFriendlyOptions(false); setShowFriendlyRoomSettings(false); }}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="people" size={24} color={NEON_GREEN} style={{ marginRight: 14 }} />
-                  <Text style={styles.collapseTitle}>DOSTLUK MAÇI</Text>
-                  <Ionicons name="chevron-up" size={20} color="#00FF88" style={{ marginLeft: 'auto' }} />
-                </TouchableOpacity>
+                {!initialMode && (
+                  <TouchableOpacity
+                    style={[styles.collapseHeader, { borderColor: 'rgba(0,255,136,0.4)' }]}
+                    onPress={() => { setShowFriendlyOptions(false); setShowFriendlyRoomSettings(false); }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="people" size={24} color={NEON_GREEN} style={{ marginRight: 14 }} />
+                    <Text style={styles.collapseTitle}>DOSTLUK MAÇI</Text>
+                    <Ionicons name="chevron-up" size={20} color="#00FF88" style={{ marginLeft: 'auto' }} />
+                  </TouchableOpacity>
+                )}
 
                 {!showFriendlyRoomSettings ? (
-                  /* Premium Vertical List */
                   <View style={styles.actionList}>
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
-                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
-                        <Ionicons name="flash" size={22} color="#00BFFF" />
-                      </View>
-                      <View style={styles.actionTextContainer}>
-                        <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>1v1 Hızlı Eşleşme</Text>
-                        <Text style={styles.actionSub}>Rastgele rakip (Puansız)</Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
-                    </TouchableOpacity>
-
                     <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => setShowFriendlyRoomSettings(true)} activeOpacity={0.8}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
                       <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
@@ -394,7 +431,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#A855F7' }]}>Odaya Katıl</Text>
-                        <Text style={styles.actionSub}>Davet koduyla giriş yap</Text>
+                        <Text style={styles.actionSub}>Kod ile odaya gir</Text>
                       </View>
                       <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
                     </TouchableOpacity>
