@@ -63,18 +63,20 @@ export default function ProfileScreen({ navigation }: Props) {
         const stored = await AsyncStorage.getItem('@logged_in_profile');
         if (stored) {
           const profile = JSON.parse(stored);
-          setPlayer(profile);
-          setIsLoggedIn(true);
-          
-          const emitSync = () => {
-            socket.emit('login_profile', { username: profile.username, password: profile.password });
-          };
+          if (profile && profile.id && profile.id !== 'guest') {
+            setPlayer(profile);
+            setIsLoggedIn(true);
+            
+            const emitSync = () => {
+              socket.emit('login_profile', { username: profile.username, password: profile.password });
+            };
 
-          if (socket.connected) {
-            emitSync();
-          } else {
-            socket.once('connect', emitSync);
-            socket.connect();
+            if (socket.connected) {
+              emitSync();
+            } else {
+              socket.once('connect', emitSync);
+              socket.connect();
+            }
           }
         }
       } catch (e) {

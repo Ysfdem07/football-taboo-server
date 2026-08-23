@@ -46,9 +46,12 @@ export default function MarketScreen({ navigation }: any) {
     setWatchingAd(true);
     showRewarded(
       async (reward) => {
-        if (!player || !player.id) {
-           let guest = player || { coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
+        if (!player || !player.id || player.id === 'guest') {
+           let guestName = player?.username?.startsWith('Guest_') ? player.username : `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
+           let guest = player || { id: 'guest', username: guestName, coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
            guest.coins = (guest.coins || 0) + 50;
+           guest.id = 'guest';
+           guest.username = guestName;
            setPlayer({...guest});
            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
            CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
@@ -56,6 +59,9 @@ export default function MarketScreen({ navigation }: any) {
           let s = getSocket();
           if (s && s.connected) {
             s.emit('reward_free_coins', { playerId: player.id });
+            const updatedPlayer = { ...player, coins: (player.coins || 0) + 50 };
+            setPlayer(updatedPlayer);
+            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(updatedPlayer));
             CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
           }
         }

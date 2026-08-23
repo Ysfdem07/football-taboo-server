@@ -32,7 +32,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [lobbyStatus, setLobbyStatus] = useState<'idle' | 'searching_match' | 'creating_room' | 'joining_room'>('idle');
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [roomCodeInput, setRoomCodeInput] = useState('');
-  const [playerName, setPlayerName] = useState(language === 'en' ? 'Guest' : 'Misafir');
+  const [playerName, setPlayerName] = useState(() => `Guest_${Math.floor(1000 + Math.random() * 9000)}`);
   const [maxRounds, setMaxRounds] = useState(10);
   const [socket, setSocket] = useState<any>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -50,7 +50,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
           if (stored) {
             const parsed = JSON.parse(stored);
             setProfile(parsed);
-            if (parsed.username === 'Misafir' && language === 'en') { setPlayerName('Guest'); } else if (parsed.username === 'Guest' && language === 'tr') { setPlayerName('Misafir'); } else { setPlayerName(parsed.username); }
+            if (parsed.username && parsed.username !== 'Misafir' && parsed.username !== 'Guest') { setPlayerName(parsed.username); }
           }
         } catch (e) {}
       };
@@ -67,7 +67,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
         if (stored) {
           const parsed = JSON.parse(stored);
           setProfile(parsed);
-          if (parsed.username === 'Misafir' && language === 'en') { setPlayerName('Guest'); } else if (parsed.username === 'Guest' && language === 'tr') { setPlayerName('Misafir'); } else { setPlayerName(parsed.username); }
+          if (parsed.username && parsed.username !== 'Misafir' && parsed.username !== 'Guest') { setPlayerName(parsed.username); }
         }
         
         const tunnel = await fetchTunnelUrl();
