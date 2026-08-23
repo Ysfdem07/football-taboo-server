@@ -415,7 +415,7 @@ export default function TournamentGameScreen() {
           <SafeAreaView style={{ flex: 1 }}>
             <KeyboardAvoidingView 
               style={{ flex: 1 }} 
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
               keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
             >
               <View style={{ flex: 1, justifyContent: 'space-between' }}>

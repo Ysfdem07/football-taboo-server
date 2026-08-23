@@ -580,7 +580,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         </View>
 
         <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
           style={styles.keyboardView}
           keyboardVerticalOffset={0}
         >

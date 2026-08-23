@@ -730,8 +730,8 @@ io.on('connection', (socket) => {
     
     // PRE-VALIDATION for game logic
     if (jokerType === 'extraTime' || jokerType === 'shield') {
-      if (!room.isPaused || room.guessingPlayerId !== playerId) {
-        return socket.emit('joker_error', { message: 'Bu joker sadece tahmin sırası sizdeyken kullanılabilir!' });
+      if (!room.isPaused || (room.guessingPlayerId !== playerId && room.guessingPlayerId !== socket.id)) {
+        return socket.emit('joker_error', { message: 'Bu joker sadece tahmin sırasıyken kullanılabilir!' });
       }
     }
     
@@ -1082,7 +1082,7 @@ io.on('connection', (socket) => {
         penalty = 0;
         reason = 'shielded';
       } else {
-        room.scores[id] = Math.max(0, (room.scores[id] || 0) - penalty);
+        room.scores[id] = (room.scores[id] || 0) - penalty;
       }
       
       room.guessingPlayerId = null;
