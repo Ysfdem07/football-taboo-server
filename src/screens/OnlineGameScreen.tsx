@@ -759,6 +759,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             </View>
             </View>
 
+          {showWrongGuess && (
+            <Text style={styles.wrongGuessText} maxFontSizeMultiplier={1.3}>{language === 'en' ? `❌ Wrong Guess! (-${lastPenalty} Pts)` : `❌ Yanlış Tahmin! (-${lastPenalty} Puan)`}</Text>
+          )}
+
           <View style={[styles.inputArea, { paddingBottom: keyboardVisible ? 8 : Math.max(20, insets.bottom + 16) }]}>
 
             {/* ─── Always-visible Jokers Bar ─────────────────────────────── */}
@@ -917,10 +921,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               </View>
             )}
           </View>
-
-          {showWrongGuess && (
-            <Text style={styles.wrongGuessText}>{language === 'en' ? `❌ Wrong Guess! (-${lastPenalty} Pts)` : `❌ Yanlış Tahmin! (-${lastPenalty} Puan)`}</Text>
-          )}
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
