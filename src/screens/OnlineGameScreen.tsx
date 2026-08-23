@@ -758,7 +758,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               )}
             </View>
             </View>
-          </ScrollView>
 
           <View style={[styles.inputArea, { paddingBottom: keyboardVisible ? 8 : Math.max(20, insets.bottom + 16) }]}>
 
@@ -922,7 +921,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           {showWrongGuess && (
             <Text style={styles.wrongGuessText}>{language === 'en' ? `❌ Wrong Guess! (-${lastPenalty} Pts)` : `❌ Yanlış Tahmin! (-${lastPenalty} Puan)`}</Text>
           )}
-
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ImageBackground>
