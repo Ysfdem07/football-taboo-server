@@ -90,7 +90,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   // conditionally-rendered branch — a delayed retry after the initial paint
   // reliably brings the keyboard up where a single autoFocus call did not.
   useEffect(() => {
-    if (guessingPlayerId !== socket.id) return;
+    if (guessingPlayerId !== myOriginalId) return;
     inputRef.current?.focus();
     const retry = setTimeout(() => inputRef.current?.focus(), 150);
     return () => clearTimeout(retry);
@@ -239,7 +239,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data && data.penalty !== undefined) setLastPenalty(data.penalty);
       if (data && data.scores) setScores(data.scores);
       
-      if (data && data.playerId === socket.id) {
+      if (data && data.playerId === myOriginalId) {
         setBuzzerLocked(true);
         if (buzzerTimerRef.current) clearTimeout(buzzerTimerRef.current);
         buzzerTimerRef.current = setTimeout(() => {
@@ -257,7 +257,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setGameOver(true);
       setScores(data.scores);
       if (data.reason === 'correct_guess') {
-        if (data.winnerId === socket.id) {
+        if (data.winnerId === myOriginalId) {
           setWinnerMessage(t('correctWin') + ' KELİMEYİ BİLDİNİZ!\n\nKelime: ' + data.word);
         } else {
           const winnerName = data.winnerName || 'RAKİBİNİZ';
@@ -440,7 +440,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       );
     }
 
-    const myScore = scores[socket.id] || 0;
+    const myScore = scores[myOriginalId] || 0;
     
     let highestScore = -Infinity;
     let winnerIds: string[] = [];
@@ -454,9 +454,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     let resultText = '';
-    if (winnerIds.length === 1 && winnerIds[0] === socket.id) {
+    if (winnerIds.length === 1 && winnerIds[0] === myOriginalId) {
       resultText = language === 'en' ? 'YOU WON!' : 'KAZANDIN!';
-    } else if (winnerIds.includes(socket.id)) {
+    } else if (winnerIds.includes(myOriginalId)) {
       resultText = language === 'en' ? 'DRAW!' : 'BERABERE!';
     } else {
       resultText = language === 'en' ? 'YOU LOST!' : 'KAYBETTİN!';
@@ -488,7 +488,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               {players.sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0)).map((p, index) => {
                 const kpVal = kpChanges[p.id];
                 const coinVal = coinChanges[p.id];
-                const isMe = p.id === socket.id;
+                const isMe = p.id === myOriginalId;
                 const isWinner = winnerIds.includes(p.id);
                 return (
                   <View key={p.id} style={[
@@ -545,7 +545,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
             {/* ── Action Buttons ── */}
             <View style={styles.gameOverActions}>
-              {winnerIds.includes(socket.id) && !rewardCollected && (
+              {winnerIds.includes(myOriginalId) && !rewardCollected && (
                 <TouchableOpacity
                   style={styles.rewardButton}
                   onPress={() => {
@@ -586,7 +586,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
   const guessingPlayer = players.find(p => p.id === guessingPlayerId);
-  const guessingPlayerName = guessingPlayer ? (guessingPlayer.id === socket.id ? guessingPlayer.name + " (Sen)" : guessingPlayer.name) : "Oyuncu";
+  const guessingPlayerName = guessingPlayer ? (guessingPlayer.id === myOriginalId ? guessingPlayer.name + " (Sen)" : guessingPlayer.name) : "Oyuncu";
 
   return (
     <ImageBackground source={bgImageSource} style={styles.bgImage}>
@@ -598,9 +598,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
           {players.map((p, index) => (
             <Text key={p.id} style={[
               styles.scoreText,
-              p.id === socket.id ? { borderColor: NEON_BLUE, color: '#fff' } : { borderColor: '#444', color: '#aaa' }
+              p.id === myOriginalId ? { borderColor: NEON_BLUE, color: '#fff' } : { borderColor: '#444', color: '#aaa' }
             ]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
-              {p.id === socket.id ? p.name + " (Sen)" : p.name}: {scores[p.id] || 0}
+              {p.id === myOriginalId ? p.name + " (Sen)" : p.name}: {scores[p.id] || 0}
             </Text>
           ))}
         </View>
@@ -643,7 +643,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               </View>
             </View>
             
-            <View style={styles.gameArea}>
+            <View style={[styles.gameArea, keyboardVisible && { justifyContent: 'flex-start' }]}>
             {/* Word Letter Placeholders with dynamic guess mapping */}
             {(() => {
               // wordHint formatı sunucudan "M____" veya "____ ____" şeklinde boşluklu gelir.
@@ -676,7 +676,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 fontSize = 16;
               }
 
-              const isMyTurn = guessingPlayerId === socket.id;
+              const isMyTurn = guessingPlayerId === myOriginalId;
 
               return (
                 <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()}>
@@ -782,10 +782,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <TouchableOpacity
                 style={[
                   styles.jokerBtnWide,
-                  (jokerLoading || guessingPlayerId !== socket.id) && { opacity: 0.35 },
+                  (jokerLoading || guessingPlayerId !== myOriginalId) && { opacity: 0.35 },
                 ]}
                 onPress={() => useJoker('extraTime')}
-                disabled={jokerLoading || guessingPlayerId !== socket.id}
+                disabled={jokerLoading || guessingPlayerId !== myOriginalId}
                 activeOpacity={0.8}
               >
                 <Ionicons name="time" size={18} color="#00BFFF" />
@@ -813,10 +813,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <TouchableOpacity
                 style={[
                   styles.jokerBtnWide,
-                  (jokerLoading || guessingPlayerId !== socket.id) && { opacity: 0.35 },
+                  (jokerLoading || guessingPlayerId !== myOriginalId) && { opacity: 0.35 },
                 ]}
                 onPress={() => useJoker('shield')}
-                disabled={jokerLoading || guessingPlayerId !== socket.id}
+                disabled={jokerLoading || guessingPlayerId !== myOriginalId}
                 activeOpacity={0.8}
               >
                 <Ionicons name="shield-checkmark" size={18} color="#FFD700" />
@@ -855,7 +855,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   </Text>
                 </TouchableOpacity>
               </View>
-            ) : guessingPlayerId === socket.id ? (
+            ) : guessingPlayerId === myOriginalId ? (
               // My guess turn: input + send + pass
               <View style={{ flexDirection: 'column', gap: 8, width: '100%' }}>
                 <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>

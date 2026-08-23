@@ -47,6 +47,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.ysfdem.footballtaboo",
       "googleServicesFile": "google-services.json",
+      "softwareKeyboardLayoutMode": "resize",
       "permissions": [
         "android.permission.INTERNET"
       ]
