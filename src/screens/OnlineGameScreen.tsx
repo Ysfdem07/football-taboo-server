@@ -859,43 +859,28 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 </TouchableOpacity>
               </View>
             ) : guessingPlayerId === myOriginalId ? (
-              // My guess turn: input + send + pass
-              <View style={{ flexDirection: 'column', gap: 8, width: '100%' }}>
-                <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-                  <TextInput
-                    ref={inputRef}
-                    style={styles.invisibleInput}
-                    value={guess}
-                    onChangeText={(text) => {
-                      const cleanText = text.replace(/\s+/g, '');
-                      setGuess(cleanText);
-                    }}
-                    onSubmitEditing={sendGuess}
-                    autoCapitalize="characters"
-                    autoCorrect={false}
-                    autoFocus
-                    maxLength={wordHint.replace(/\s+/g, '').length}
-                    underlineColorAndroid="transparent"
-                  />
-                  <View style={styles.inlineTimerWrap}>
-                    <Text style={styles.guessTimerText} maxFontSizeMultiplier={1.2}>{guessTimeLeft}s</Text>
-                  </View>
-                  <TouchableOpacity style={[styles.guessBtn, { flex: 1 }]} onPress={sendGuess} activeOpacity={0.85}>
-                    <Text style={styles.guessBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>GÖNDER ▶</Text>
-                  </TouchableOpacity>
+              // My guess turn: input + send (no pass — you're the one guessing)
+              <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', width: '100%' }}>
+                <TextInput
+                  ref={inputRef}
+                  style={styles.invisibleInput}
+                  value={guess}
+                  onChangeText={(text) => {
+                    const cleanText = text.replace(/\s+/g, '');
+                    setGuess(cleanText);
+                  }}
+                  onSubmitEditing={sendGuess}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  autoFocus
+                  maxLength={wordHint.replace(/\s+/g, '').length}
+                  underlineColorAndroid="transparent"
+                />
+                <View style={styles.inlineTimerWrap}>
+                  <Text style={styles.guessTimerText} maxFontSizeMultiplier={1.2}>{guessTimeLeft}s</Text>
                 </View>
-
-                <TouchableOpacity
-                  style={[styles.passBtn, hasPassed && styles.passBtnDisabled, { width: '100%' }]}
-                  onPress={sendPass}
-                  disabled={hasPassed}
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.passBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
-                    {hasPassed
-                      ? `✓ PAS (${passVotesCount}/${players.length || 2})`
-                      : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
-                  </Text>
+                <TouchableOpacity style={[styles.guessBtn, { flex: 1 }]} onPress={sendGuess} activeOpacity={0.85}>
+                  <Text style={styles.guessBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>GÖNDER ▶</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -1121,9 +1106,9 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   inlineTimerWrap: {
-    width: 50,
-    height: 48,
-    borderRadius: 12,
+    width: 46,
+    height: 40,
+    borderRadius: 10,
     borderWidth: 1.5,
     borderColor: '#ff4444',
     backgroundColor: 'rgba(255,68,68,0.06)',
@@ -1140,8 +1125,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: NEON_GREEN,
     backgroundColor: 'rgba(0, 255, 136, 0.12)',
-    borderRadius: 24,
-    height: 48,
+    borderRadius: 20,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
