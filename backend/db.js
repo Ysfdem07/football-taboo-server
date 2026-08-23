@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-// Bypass SRV to avoid Windows DNS resolution issues (ECONNREFUSED)
-const ATLAS_URI = 'mongodb://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush-shard-00-00.sphwagn.mongodb.net:27017,wordrush-shard-00-01.sphwagn.mongodb.net:27017,wordrush-shard-00-02.sphwagn.mongodb.net:27017/futtaboo?ssl=true&replicaSet=atlas-h2vxtg-shard-0&authSource=admin&retryWrites=true&w=majority';
+// Bypass SRV due to Windows Node.js DNS bug with Linksys router
+const ATLAS_URI = 'mongodb://wordrushtr_db_user:hsNIC3qKGwlYcz6T@ac-gnsx3ie-shard-00-00.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-01.sphwagn.mongodb.net:27017,ac-gnsx3ie-shard-00-02.sphwagn.mongodb.net:27017/futtaboo?ssl=true&replicaSet=atlas-r6zfqu-shard-0&authSource=admin&retryWrites=true&w=majority';
 // Never use internal Railway MongoDB - always use Atlas
 const MONGO_URI = ATLAS_URI;
 
@@ -116,6 +116,13 @@ const weeklyTournamentSchema = new mongoose.Schema({
 const WeeklyTournament = mongoose.model('WeeklyTournament', weeklyTournamentSchema);
 
 // Get ISO week string e.g. "2026-W31_football"
+// Escape regex metacharacters so user-supplied username/email values used in
+// case-insensitive lookups are matched literally, not as regex patterns
+// (e.g. a username of ".*" could otherwise match any single-char username).
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function getWeekId(category = 'football', date = new Date()) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -164,7 +171,7 @@ module.exports = {
   registerPlayer: async (username, password, avatar, email, marketingConsent) => {
     await connectDB();
     const existing = await Player.findOne({
-      $or: [{ username: new RegExp(`^${username.trim()}$`, 'i') }, { email: new RegExp(`^${email.trim()}$`, 'i') }]
+      $or: [{ username: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') }, { email: new RegExp(`^${escapeRegex(email.trim())}$`, 'i') }]
     });
     if (existing) return { error: 'Kullanıcı adı veya e-posta zaten kullanımda!' };
 
@@ -192,8 +199,8 @@ module.exports = {
     await connectDB();
     const player = await Player.findOne({
       $or: [
-        { username: new RegExp(`^${username.trim()}$`, 'i') },
-        { email: new RegExp(`^${username.trim()}$`, 'i') }
+        { username: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') },
+        { email: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') }
       ],
       password: password
     });
@@ -212,82 +219,95 @@ module.exports = {
     return player.toObject();
   },
 
+  // Atomic, race-safe stat/coin update. Uses a MongoDB aggregation-pipeline
+  // update so the kp/categoryKp floor-at-0 clamp is computed by the DB in the
+  // same operation as the increment — no read-modify-write gap for concurrent
+  // game-end / reward calls on the same player to race each other in.
   updatePlayerStats: async (playerId, kpChange, isWin, correctGuesses = 0, taboos = 0, category = 'football') => {
-    console.log(`[db] updatePlayerStats called for playerId: ${playerId}, isWin: ${isWin}`);
     await connectDB();
+    const validCats = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
+    const cat = validCats.includes(category) ? category : 'football';
+    const catKpField = `categoryKp.${cat}`;
+    const catWinsField = `categoryWins.${cat}`;
+
     const player = await findPlayerById(playerId);
     if (!player) {
       console.log(`[db] updatePlayerStats FAILED: Player not found for id ${playerId}`);
       return null;
     }
-    console.log(`[db] updatePlayerStats FOUND player: ${player.id || player._id} (name: ${player.name}), current coins: ${player.coins}`);
 
-    player.kp = Math.max(0, player.kp + kpChange);
-
-    // Category-specific KP (never goes below 0)
-    if (!player.categoryKp) player.categoryKp = { football: 0, cinema: 0, music: 0, football_en: 0, cinema_en: 0, music_en: 0 };
-    const validCats = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
-    const cat = validCats.includes(category) ? category : 'football';
-    player.categoryKp[cat] = Math.max(0, (player.categoryKp[cat] || 0) + kpChange);
-    player.markModified('categoryKp');
-
-    player.matches_played += 1;
+    const setStage = {
+      kp: { $max: [0, { $add: [{ $ifNull: ['$kp', 0] }, kpChange] }] },
+      [catKpField]: { $max: [0, { $add: [{ $ifNull: [`$${catKpField}`, 0] }, kpChange] }] },
+      matches_played: { $add: [{ $ifNull: ['$matches_played', 0] }, 1] },
+      correct_guesses: { $add: [{ $ifNull: ['$correct_guesses', 0] }, correctGuesses] },
+      taboos: { $add: [{ $ifNull: ['$taboos', 0] }, taboos] },
+    };
     if (isWin) {
-      player.matches_won += 1;
-      if (!player.categoryWins) player.categoryWins = { football: 0, cinema: 0, music: 0, football_en: 0, cinema_en: 0, music_en: 0 };
-      player.categoryWins[cat] = (player.categoryWins[cat] || 0) + 1;
-      player.markModified('categoryWins');
-      player.coins = (player.coins || 0) + 50;
-      console.log(`[db] updatePlayerStats ADDED 50 coins to player ${player.id || player._id}. New balance: ${player.coins}`);
+      setStage.matches_won = { $add: [{ $ifNull: ['$matches_won', 0] }, 1] };
+      setStage[catWinsField] = { $add: [{ $ifNull: [`$${catWinsField}`, 0] }, 1] };
+      setStage.coins = { $add: [{ $ifNull: ['$coins', 0] }, 50] };
     }
-    player.correct_guesses += correctGuesses;
-    player.taboos += taboos;
 
-    await player.save();
-    console.log(`[db] updatePlayerStats SAVED player ${player.id || player._id}.`);
-    return player.toObject();
+    const updated = await Player.findOneAndUpdate(
+      { _id: player._id },
+      [{ $set: setStage }],
+      { new: true }
+    );
+    console.log(`[db] updatePlayerStats SAVED player ${updated?.id || playerId}. isWin=${isWin} kpChange=${kpChange} newCoins=${updated?.coins}`);
+    return updated ? updated.toObject() : null;
   },
 
+  // Atomic coin adjustment. For a deduction (amount < 0), the $gte filter
+  // makes MongoDB check-and-decrement in a single operation, so two concurrent
+  // spends can never both succeed against a balance that only covers one.
   updatePlayerCoins: async (playerId, amount) => {
     await connectDB();
     const player = await findPlayerById(playerId);
     if (!player) return null;
-    player.coins = Math.max(0, (player.coins || 0) + amount);
-    await player.save();
-    return player.toObject();
+    const filter = amount < 0
+      ? { _id: player._id, coins: { $gte: -amount } }
+      : { _id: player._id };
+    const updated = await Player.findOneAndUpdate(filter, { $inc: { coins: amount } }, { new: true });
+    return updated ? updated.toObject() : null;
   },
 
   buyJoker: async (playerId, jokerType, price = 50) => {
     await connectDB();
+    const validJokers = ['revealLetters', 'extraTime', 'instantHints', 'shield'];
+    if (!validJokers.includes(jokerType)) return { error: 'Geçersiz joker türü' };
+
     const player = await findPlayerById(playerId);
     if (!player) return { error: 'Oyuncu bulunamadı' };
-    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 };
-    if ((player.coins || 0) < price) return { error: 'Yetersiz jeton!' };
 
-    player.coins -= price;
-    if (player.jokers[jokerType] !== undefined) {
-      player.jokers[jokerType] += 1;
-    } else {
-      return { error: 'Geçersiz joker türü' };
-    }
-    
-    player.markModified('jokers');
-    await player.save();
-    return { success: true, player: player.toObject() };
+    // Single atomic findOneAndUpdate: the coins >= price check and the
+    // deduction happen together, so a double-click / double-emit can't both
+    // pass the balance check before either write lands (no lost update).
+    const updated = await Player.findOneAndUpdate(
+      { _id: player._id, coins: { $gte: price } },
+      { $inc: { coins: -price, [`jokers.${jokerType}`]: 1 } },
+      { new: true }
+    );
+    if (!updated) return { error: 'Yetersiz jeton!' };
+    return { success: true, player: updated.toObject() };
   },
 
   useJoker: async (playerId, jokerType) => {
     await connectDB();
+    const validJokers = ['revealLetters', 'extraTime', 'instantHints', 'shield'];
+    if (!validJokers.includes(jokerType)) return { error: 'Geçersiz joker türü' };
+
     const player = await findPlayerById(playerId);
     if (!player) return { error: 'Oyuncu bulunamadı' };
-    if (!player.jokers) player.jokers = { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 };
-    if (player.jokers[jokerType] > 0) {
-      player.jokers[jokerType] -= 1;
-      player.markModified('jokers');
-      await player.save();
-      return { success: true, player: player.toObject() };
-    }
-    return { error: 'Bu jokerden elinizde yok!' };
+
+    const field = `jokers.${jokerType}`;
+    const updated = await Player.findOneAndUpdate(
+      { _id: player._id, [field]: { $gt: 0 } },
+      { $inc: { [field]: -1 } },
+      { new: true }
+    );
+    if (!updated) return { error: 'Bu jokerden elinizde yok!' };
+    return { success: true, player: updated.toObject() };
   },
 
   getLeaderboard: async (category = null) => {
@@ -319,7 +339,7 @@ module.exports = {
 
   generateResetCode: async (email) => {
     await connectDB();
-    const player = await Player.findOne({ email: new RegExp(`^${email.trim()}$`, 'i') });
+    const player = await Player.findOne({ email: new RegExp(`^${escapeRegex(email.trim())}$`, 'i') });
     if (!player) return { error: 'Bu e-posta adresine kayıtlı bir kullanıcı bulunamadı!' };
 
     // Generate random 6-digit code
@@ -333,7 +353,7 @@ module.exports = {
 
   resetPasswordWithCode: async (email, code, newPassword) => {
     await connectDB();
-    const player = await Player.findOne({ email: new RegExp(`^${email.trim()}$`, 'i') });
+    const player = await Player.findOne({ email: new RegExp(`^${escapeRegex(email.trim())}$`, 'i') });
     if (!player) return { error: 'Bu e-posta adresine kayıtlı bir kullanıcı bulunamadı!' };
 
     if (!player.resetCode || player.resetCode !== code.trim()) {

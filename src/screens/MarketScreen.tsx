@@ -58,11 +58,15 @@ export default function MarketScreen({ navigation }: any) {
         } else {
           let s = getSocket();
           if (s && s.connected) {
+            // Don't update local coins optimistically — wait for the server's
+            // 'joker_bought' (success) or 'joker_error' (failure/cooldown)
+            // response, handled in setupSocket(). Applying the +50 here
+            // unconditionally let the client's displayed balance drift out of
+            // sync with the DB whenever the server call silently failed.
+            setLoading(true);
             s.emit('reward_free_coins', { playerId: player.id });
-            const updatedPlayer = { ...player, coins: (player.coins || 0) + 50 };
-            setPlayer(updatedPlayer);
-            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(updatedPlayer));
-            CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
+          } else {
+            CustomAlert.show(t('error'), t('serverError'));
           }
         }
       },
@@ -85,7 +89,11 @@ export default function MarketScreen({ navigation }: any) {
         setLoading(false);
         setPlayer(data.player);
         await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
-        CustomAlert.show(t('buySuccess'), t('jokerBought'));
+        if (data.jokerType === 'freeCoins') {
+          CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
+        } else {
+          CustomAlert.show(t('buySuccess'), t('jokerBought'));
+        }
       });
       
       s.on('joker_error', (data: { message: string }) => {

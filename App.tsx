@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppNavigator from './src/navigation/AppNavigator';
 import { Analytics } from './src/services/analytics';
 import { RemoteConfig } from './src/services/remoteConfig';
 import { initAds } from './src/services/ads';
 import { initCrashlytics } from './src/services/crashlytics';
+import { getSocket } from './src/services/socket';
 import {
   useFonts,
   Poppins_400Regular,
@@ -35,6 +37,34 @@ export default function App() {
       await initAds();
     };
     initServices();
+  }, []);
+
+  useEffect(() => {
+    // Re-authenticate the socket connection with the backend on every connect
+    // (initial connect AND every reconnect after a network drop), not just
+    // whenever the Profile screen happens to be mounted. The server binds
+    // coin/joker/purchase operations to whichever account last logged in on
+    // this socket connection, so if this doesn't re-fire after a reconnect,
+    // those operations would start failing with "session not found" even
+    // though the user is still logged in from their perspective.
+    const socket = getSocket();
+    const resyncSession = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@logged_in_profile');
+        if (!stored) return;
+        const profile = JSON.parse(stored);
+        if (profile?.id && profile.id !== 'guest' && profile.username && profile.password) {
+          socket.emit('login_profile', { username: profile.username, password: profile.password });
+        }
+      } catch (e) {
+        // Best-effort — screens that need a fresher session will still prompt login.
+      }
+    };
+    socket.on('connect', resyncSession);
+    if (socket.connected) resyncSession();
+    return () => {
+      socket.off('connect', resyncSession);
+    };
   }, []);
 
   if (!fontsLoaded) {

@@ -167,6 +167,23 @@ function normalizeText(text) {
 
 const app = express();
 
+// Gate for internal/debug endpoints that expose PII, secrets, or destructive
+// operations. Requires an `x-admin-key` header (or `?key=` query param)
+// matching ADMIN_SECRET. Fails closed: if ADMIN_SECRET isn't configured,
+// these routes refuse everyone rather than staying open by default — set
+// ADMIN_SECRET in the environment (e.g. Railway variables) to use them.
+function requireAdmin(req, res, next) {
+  const configuredSecret = process.env.ADMIN_SECRET;
+  if (!configuredSecret) {
+    return res.status(503).json({ error: 'Admin endpoint not configured (ADMIN_SECRET missing).' });
+  }
+  const providedKey = req.get('x-admin-key') || req.query.key;
+  if (providedKey !== configuredSecret) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+}
+
 const memLogs = [];
 const originalLog = console.log;
 const originalError = console.error;
@@ -182,7 +199,7 @@ console.error = function(...args) {
   if (memLogs.length > 500) memLogs.shift();
 };
 
-app.get('/api/logs', (req, res) => {
+app.get('/api/logs', requireAdmin, (req, res) => {
   res.json(memLogs);
 });
 
@@ -214,58 +231,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'backend', 'public')));
 
 app.use(cors());
-// Seed route to insert initial players into MongoDB Atlas
-app.get('/seed-players', async (req, res) => {
-  try {
-    await db.connectDB();
-    const mongoose = require('mongoose');
-    const Player = mongoose.model('Player');
-    
-    const existingPlayers = [
-      {
-        id: 'player_d2qebyx51',
-        username: 'Lionel Yusuf',
-        password: 'Ysfdem88',
-        avatar: '🦅',
-        email: 'yusuf@futtaboo.com',
-        marketingConsent: true,
-        kp: 0,
-        matches_played: 9,
-        matches_won: 2,
-        correct_guesses: 0,
-        taboos: 0
-      },
-      {
-        id: 'player_7j9cehjaz',
-        username: 'toledo7',
-        password: 'Kaandikbasan1',
-        avatar: '⚽',
-        email: 'kaan@futtaboo.com',
-        marketingConsent: true,
-        kp: 275,
-        matches_played: 10,
-        matches_won: 7,
-        correct_guesses: 0,
-        taboos: 0
-      }
-    ];
-
-    const results = [];
-    for (const p of existingPlayers) {
-      const exists = await Player.findOne({ id: p.id });
-      if (exists) {
-        await Player.updateOne({ id: p.id }, p);
-        results.push(`Updated ${p.username}`);
-      } else {
-        await Player.create(p);
-        results.push(`Created ${p.username}`);
-      }
-    }
-    res.json({ success: true, message: 'Players seeded successfully!', details: results });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
@@ -275,7 +240,7 @@ app.get('/version', (req, res) => {
   res.json({ version: '2026-08-14-v3-tournament-fix', wordsLoaded: { football: wordsDb.football.length, cinema: wordsDb.cinema.length, music: wordsDb.music.length } });
 });
 
-app.get('/debug-tournament', async (req, res) => {
+app.get('/debug-tournament', requireAdmin, async (req, res) => {
   try {
     const category = req.query.category || 'football';
     const playerId = req.query.playerId || 'guest';
@@ -290,7 +255,7 @@ app.get('/debug-tournament', async (req, res) => {
   }
 });
 
-app.get('/debug-db', async (req, res) => {
+app.get('/debug-db', requireAdmin, async (req, res) => {
   try {
     const mongoose = require('mongoose');
     const isConnected = mongoose.connection.readyState === 1;
@@ -312,7 +277,7 @@ app.get('/debug-db', async (req, res) => {
   }
 });
 
-app.get('/health-legacy', async (req, res) => {
+app.get('/health-legacy', requireAdmin, async (req, res) => {
   const uri = process.env.MONGODB_URI || 'not-set';
   const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
   
@@ -430,7 +395,7 @@ loadWords().then(() => {
 setInterval(loadWords, 600000);
 
 // API endpoint to manually trigger a word refresh without restarting the server
-app.get('/api/refresh-words', async (req, res) => {
+app.get('/api/refresh-words', requireAdmin, async (req, res) => {
   try {
     await loadWords();
     res.json({ success: true, message: 'Kelimeler Google Sheetten başarıyla güncellendi.', stats: {
@@ -447,7 +412,7 @@ app.get('/api/refresh-words', async (req, res) => {
 });
 
 // Temporary endpoint to fix tournaments
-app.get('/api/fix-tournaments', async (req, res) => {
+app.get('/api/fix-tournaments', requireAdmin, async (req, res) => {
   try {
     const WeeklyTournament = require('mongoose').model('WeeklyTournament');
     const result = await WeeklyTournament.deleteMany({ weekId: { $regex: /_en$/ } });
@@ -498,13 +463,31 @@ let friendlyQueue = []; // Coin-only, no KP, guests allowed
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
 
+// Lightweight anti-spam gate for client-claimed "I watched an ad" reward events.
+// This does NOT verify the ad was actually shown (that requires AdMob
+// Server-Side Verification) — it only stops a modified/scripted client from
+// firing reward_free_coins/reward_double_coins in a tight loop.
+const rewardCooldowns = {}; // "playerId:rewardKind" -> timestamp of last granted reward
+const REWARD_COOLDOWN_MS = 20000;
+function checkRewardCooldown(playerId, rewardKind) {
+  const key = `${playerId}:${rewardKind}`;
+  const now = Date.now();
+  const last = rewardCooldowns[key] || 0;
+  if (now - last < REWARD_COOLDOWN_MS) return false;
+  rewardCooldowns[key] = now;
+  return true;
+}
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   // ─── Tournament Events ──────────────────────────────────────────────────
   socket.on('get_weekly_tournament', async (data) => {
-    const { playerId, category: cat } = data || {};
-    const category = cat || 'football';
+    // Prefer the server-trusted session id so a logged-in player always sees
+    // their own progress; fall back to the client-supplied value only for
+    // anonymous browsing (guests can preview but not play — enforced below).
+    const playerId = socket.data.playerId || data?.playerId || 'guest';
+    const category = data?.category || 'football';
     let wordSource = wordsDb[category]?.length > 0 ? wordsDb[category] : wordsDb.football;
     if (!wordSource || wordSource.length === 0) {
       try { wordSource = JSON.parse(fs.readFileSync(WORDS_PATH, 'utf8')); } catch(e) { wordSource = []; }
@@ -526,20 +509,45 @@ io.on('connection', (socket) => {
   });
 
   socket.on('grant_tournament_ad_attempt', async (data) => {
-    const { playerId, category } = data;
-    if (!playerId) return;
-    const result = await db.grantAdAttempt(playerId, category || 'football');
-    socket.emit('weekly_tournament_data', result);
+    const playerId = socket.data.playerId;
+    const category = data?.category || 'football';
+    if (!playerId) return socket.emit('weekly_tournament_data', { error: 'Ekstra hak almak için giriş yapmalısın.' });
+    if (!checkRewardCooldown(playerId, 'tournament_attempt')) {
+      return socket.emit('weekly_tournament_data', { error: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
+    }
+    try {
+      const result = await db.grantAdAttempt(playerId, category);
+      socket.emit('weekly_tournament_data', result);
+    } catch (e) {
+      console.error('[grant_tournament_ad_attempt] error:', e);
+      socket.emit('weekly_tournament_data', { error: 'Sunucu hatası, lütfen tekrar deneyin.' });
+    }
   });
 
+  // Must match the client's scoring formula (TournamentGameScreen.tsx):
+  // 100 pts max per card, 20 cards per tournament attempt.
+  const MAX_CARDS_PER_ATTEMPT = 20;
+  const MAX_SCORE_PER_CARD = 100;
+
   socket.on('submit_tournament_score', async (data) => {
-    const { playerId, username, avatar, score, correctCount, category } = data;
+    const playerId = socket.data.playerId;
+    const { username, avatar, score, correctCount, category } = data || {};
     if (!playerId || !username) {
-      socket.emit('tournament_score_result', { error: 'Skoru kaydetmek için giriş yapmalısın.' });
-      return;
+      return socket.emit('tournament_score_result', { error: 'Skoru kaydetmek için giriş yapmalısın.' });
     }
-    const result = await db.submitTournamentScore(playerId, username, avatar, score, correctCount, category || 'football');
-    socket.emit('tournament_score_result', result);
+    if (
+      !Number.isInteger(correctCount) || correctCount < 0 || correctCount > MAX_CARDS_PER_ATTEMPT ||
+      !Number.isInteger(score) || score < 0 || score > MAX_CARDS_PER_ATTEMPT * MAX_SCORE_PER_CARD
+    ) {
+      return socket.emit('tournament_score_result', { error: 'Geçersiz skor.' });
+    }
+    try {
+      const result = await db.submitTournamentScore(playerId, username, avatar, score, correctCount, category || 'football');
+      socket.emit('tournament_score_result', result);
+    } catch (e) {
+      console.error('[submit_tournament_score] error:', e);
+      socket.emit('tournament_score_result', { error: 'Sunucu hatası, lütfen tekrar deneyin.' });
+    }
   });
 
   socket.on('get_tournament_leaderboard', async (data) => {
@@ -558,35 +566,63 @@ io.on('connection', (socket) => {
 
   // Profile Registration
   socket.on('register_profile', async (data) => {
-    const { username, password, avatar, email, marketingConsent } = data;
-    const result = await db.registerPlayer(username, password, avatar, email, marketingConsent);
-    if (result.error) {
-      socket.emit('register_response', { success: false, error: result.error });
-    } else {
-      socket.emit('register_response', { success: true, player: result.player });
+    const { username, password, avatar, email, marketingConsent } = data || {};
+    if (typeof username !== 'string' || typeof password !== 'string' || typeof email !== 'string') {
+      return socket.emit('register_response', { success: false, error: 'Eksik veya geçersiz bilgi.' });
+    }
+    try {
+      const result = await db.registerPlayer(username, password, avatar, email, marketingConsent);
+      if (result.error) {
+        socket.emit('register_response', { success: false, error: result.error });
+      } else {
+        // Bind this socket to the newly created player so subsequent coin/joker
+        // events on this connection are authorized against a server-trusted id
+        // instead of whatever playerId the client claims in its payload.
+        socket.data.playerId = result.player.id;
+        socket.emit('register_response', { success: true, player: result.player });
+      }
+    } catch (e) {
+      console.error('[register_profile] error:', e);
+      socket.emit('register_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
   // Profile Login
   socket.on('login_profile', async (data) => {
-    const { username, password } = data;
-    const result = await db.loginPlayer(username, password);
-    if (result.error) {
-      socket.emit('login_response', { success: false, error: result.error });
-    } else {
-      socket.emit('login_response', { success: true, player: result.player });
+    const { username, password } = data || {};
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      return socket.emit('login_response', { success: false, error: 'Eksik bilgi.' });
+    }
+    try {
+      const result = await db.loginPlayer(username, password);
+      if (result.error) {
+        socket.emit('login_response', { success: false, error: result.error });
+      } else {
+        socket.data.playerId = result.player.id;
+        socket.emit('login_response', { success: true, player: result.player });
+      }
+    } catch (e) {
+      console.error('[login_profile] error:', e);
+      socket.emit('login_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
   // Update Avatar Request
   socket.on('update_avatar', async (data) => {
-    const { playerId, avatar } = data;
-    if (!playerId || !avatar) return;
-    const updated = await db.updateAvatar(playerId, avatar);
-    if (updated) {
-      socket.emit('update_avatar_response', { success: true, player: updated });
-    } else {
-      socket.emit('update_avatar_response', { success: false, error: 'Güncellenemedi' });
+    const playerId = socket.data.playerId;
+    const avatar = data?.avatar;
+    if (!playerId) return socket.emit('update_avatar_response', { success: false, error: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    if (typeof avatar !== 'string' || !avatar) return socket.emit('update_avatar_response', { success: false, error: 'Eksik bilgi!' });
+    try {
+      const updated = await db.updateAvatar(playerId, avatar);
+      if (updated) {
+        socket.emit('update_avatar_response', { success: true, player: updated });
+      } else {
+        socket.emit('update_avatar_response', { success: false, error: 'Güncellenemedi' });
+      }
+    } catch (e) {
+      console.error('[update_avatar] error:', e);
+      socket.emit('update_avatar_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
@@ -612,7 +648,9 @@ io.on('connection', (socket) => {
     const resetCode = result.code || '777777';
     const username = result.username || 'TestOyuncusu';
 
-    console.log(`[ForgotPwd Info] Generated reset code ${resetCode} for ${email}. Triggering sendResetEmail...`);
+    // Don't log the actual code — even with /api/logs now gated, this is one
+    // fewer place a valid reset code could leak from.
+    console.log(`[ForgotPwd Info] Generated reset code for ${email}. Triggering sendResetEmail...`);
     
     // Run mailer in background (Non-blocking)
     sendResetEmail(email, username, resetCode)
@@ -640,25 +678,33 @@ io.on('connection', (socket) => {
 
   // Push Token
   socket.on('save_push_token', async (data) => {
-    const { playerId, token } = data;
-    if (playerId && token) {
-      try {
-        await db.updatePushToken(playerId, token);
-        console.log(`[PushToken] Saved for player ${playerId}`);
-      } catch (e) {
-        console.error('[PushToken] Error saving token:', e);
-      }
+    const playerId = socket.data.playerId;
+    const token = data?.token;
+    if (!playerId || typeof token !== 'string' || !token) return;
+    try {
+      await db.updatePushToken(playerId, token);
+      console.log(`[PushToken] Saved for player ${playerId}`);
+    } catch (e) {
+      console.error('[PushToken] Error saving token:', e);
     }
   });
 
   // Reset Password Verification
   socket.on('reset_password', async (data) => {
-    const { email, code, newPassword } = data;
-    const result = await db.resetPasswordWithCode(email, code, newPassword);
-    if (result.error) {
-      socket.emit('reset_password_response', { success: false, error: result.error });
-    } else {
-      socket.emit('reset_password_response', { success: true, player: result.player, message: 'Şifreniz başarıyla sıfırlandı!' });
+    const { email, code, newPassword } = data || {};
+    if (typeof email !== 'string' || typeof code !== 'string' || typeof newPassword !== 'string') {
+      return socket.emit('reset_password_response', { success: false, error: 'Eksik bilgi.' });
+    }
+    try {
+      const result = await db.resetPasswordWithCode(email, code, newPassword);
+      if (result.error) {
+        socket.emit('reset_password_response', { success: false, error: result.error });
+      } else {
+        socket.emit('reset_password_response', { success: true, player: result.player, message: 'Şifreniz başarıyla sıfırlandı!' });
+      }
+    } catch (e) {
+      console.error('[reset_password] error:', e);
+      socket.emit('reset_password_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
@@ -670,51 +716,67 @@ io.on('connection', (socket) => {
   });
 
   socket.on('buy_joker', async (data) => {
-    const { playerId, jokerType } = data;
-    if (!playerId || !jokerType) return socket.emit('joker_error', { message: 'Eksik bilgi!' });
-    const result = await db.buyJoker(playerId, jokerType, 50);
-    if (result.error) {
-      socket.emit('joker_error', { message: result.error });
-    } else {
-      socket.emit('joker_bought', { player: result.player, jokerType });
+    const playerId = socket.data.playerId;
+    const jokerType = data?.jokerType;
+    if (!playerId) return socket.emit('joker_error', { message: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    if (typeof jokerType !== 'string') return socket.emit('joker_error', { message: 'Eksik bilgi!' });
+    try {
+      const result = await db.buyJoker(playerId, jokerType, 50);
+      if (result.error) {
+        socket.emit('joker_error', { message: result.error });
+      } else {
+        socket.emit('joker_bought', { player: result.player, jokerType });
+      }
+    } catch (e) {
+      console.error('[buy_joker] error:', e);
+      socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
   socket.on('reward_free_coins', async (data) => {
-    const { playerId } = data;
-    if (!playerId) return;
+    const playerId = socket.data.playerId;
+    if (!playerId) return socket.emit('joker_error', { message: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    if (!checkRewardCooldown(playerId, 'coins')) {
+      return socket.emit('joker_error', { message: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
+    }
     try {
-      const db = client.db('wordico');
-      const users = db.collection('users');
-      await users.updateOne({ _id: new ObjectId(playerId) }, { $inc: { coins: 50 } });
-      const updatedUser = await users.findOne({ _id: new ObjectId(playerId) });
+      const updatedUser = await db.updatePlayerCoins(playerId, 50);
       if (updatedUser) {
-        // Reuse joker_bought event which updates the player profile seamlessly on the client
-        socket.emit('joker_bought', { 
-          player: { id: updatedUser._id.toString(), ...updatedUser }, 
-          jokerType: 'freeCoins' 
-        });
+        socket.emit('joker_bought', { player: updatedUser, jokerType: 'freeCoins' });
+      } else {
+        socket.emit('joker_error', { message: 'Ödül eklenemedi, lütfen tekrar deneyin.' });
       }
     } catch (e) {
       console.error('Error rewarding free coins:', e);
+      socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
   socket.on('reward_double_coins', async (data) => {
-    const { playerId } = data;
-    if (!playerId) return;
-    const result = await db.updatePlayerCoins(playerId, 50);
-    if (result) {
-      socket.emit('coins_updated', { player: result });
+    const playerId = socket.data.playerId;
+    if (!playerId) return socket.emit('joker_error', { message: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    if (!checkRewardCooldown(playerId, 'coins')) {
+      return socket.emit('joker_error', { message: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
+    }
+    try {
+      const result = await db.updatePlayerCoins(playerId, 50);
+      if (result) {
+        socket.emit('coins_updated', { player: result });
+      } else {
+        socket.emit('joker_error', { message: 'Ödül eklenemedi, lütfen tekrar deneyin.' });
+      }
+    } catch (e) {
+      console.error('Error rewarding double coins:', e);
+      socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
   // Debug: client can call this to get real-time coin balance from DB
   socket.on('check_my_coins', async (data) => {
-    const { playerId } = data;
-    if (!playerId) { socket.emit('my_coins_result', { error: 'no playerId' }); return; }
+    const playerId = socket.data.playerId;
+    if (!playerId) { socket.emit('my_coins_result', { error: 'Oturum bulunamadı' }); return; }
     try {
-      await db.connectDB ? db.connectDB() : null;
+      await db.connectDB();
       const player = await require('mongoose').model('Player').findOne({ id: playerId });
       if (!player) { socket.emit('my_coins_result', { error: 'player not found', playerId }); return; }
       socket.emit('my_coins_result', { coins: player.coins, playerId, username: player.username });
@@ -724,31 +786,54 @@ io.on('connection', (socket) => {
   });
 
   socket.on('use_joker', async (data) => {
-    const { roomId, playerId, jokerType } = data;
+    const { roomId, jokerType } = data || {};
+    // Room-scoped participant id (matches the id used for scores/guessingPlayerId,
+    // which is always socket.id-based — see request_guess_turn/guess_word).
+    // This is NOT an account identity, so it's fine to take it from the payload.
+    const roomPlayerId = data?.playerId || socket.id;
+    const validJokers = ['revealLetters', 'extraTime', 'instantHints', 'shield'];
+
     const room = activeRooms[roomId];
     if (!room) return socket.emit('joker_error', { message: 'Oda bulunamadı!' });
-    
+    if (!validJokers.includes(jokerType)) return socket.emit('joker_error', { message: 'Geçersiz joker türü' });
+
     // PRE-VALIDATION for game logic
     if (jokerType === 'extraTime' || jokerType === 'shield') {
-      if (!room.isPaused || (room.guessingPlayerId !== playerId && room.guessingPlayerId !== socket.id)) {
+      if (!room.isPaused || (room.guessingPlayerId !== roomPlayerId && room.guessingPlayerId !== socket.id)) {
         return socket.emit('joker_error', { message: 'Bu joker sadece tahmin sırasıyken kullanılabilir!' });
       }
     }
-    
-    // Validate if player actually has the joker (Skip for guests)
+
+    // Validate the player actually owns the joker, using the server-trusted
+    // account id bound at login (NOT the client-supplied roomPlayerId above —
+    // that would let anyone drain another account's joker inventory just by
+    // knowing their dbPlayerId, which room broadcasts expose). Guests have no
+    // account/session, so they skip DB validation entirely.
     let result = { success: true, player: null };
-    if (playerId) {
-      const dbResult = await db.useJoker(playerId, jokerType);
-      if (dbResult.error) {
-        return socket.emit('joker_error', { message: dbResult.error });
+    const accountPlayerId = socket.data.playerId;
+    if (accountPlayerId) {
+      try {
+        const dbResult = await db.useJoker(accountPlayerId, jokerType);
+        if (dbResult.error) {
+          return socket.emit('joker_error', { message: dbResult.error });
+        }
+        result = dbResult;
+      } catch (e) {
+        console.error('[use_joker] error:', e);
+        return socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
       }
-      result = dbResult;
     }
+
+    // Room-state effects are always keyed by the room-scoped id (guessingPlayerId),
+    // never the account id — keeps this consistent with how scores/activeShields
+    // are read elsewhere (e.g. guess_word), otherwise effects like Shield silently
+    // no-op because the lookup key never matches.
+    const effectKey = room.guessingPlayerId || roomPlayerId;
 
     // Apply joker effect PRIVATELY (socket.emit instead of io.to(roomId).emit)
     if (jokerType === 'extraTime') {
       room.guessTimeLeft += 5;
-      socket.emit('joker_used', { jokerType, playerId }); // no message = no popup
+      socket.emit('joker_used', { jokerType, playerId: roomPlayerId }); // no message = no popup
     } else if (jokerType === 'revealLetters') {
       const w = room.card.word;
       let privateHint = "";
@@ -760,7 +845,7 @@ io.on('connection', (socket) => {
       } else {
         privateHint = w;
       }
-      socket.emit('joker_used', { jokerType, playerId, hint: privateHint }); // no message = no popup
+      socket.emit('joker_used', { jokerType, playerId: roomPlayerId, hint: privateHint }); // no message = no popup
     } else if (jokerType === 'instantHints') {
       const card = room.card;
       if (card && card.forbidden) {
@@ -775,14 +860,14 @@ io.on('connection', (socket) => {
         hintsToReveal.forEach(hint => {
           socket.emit('hint_revealed', { hint, potentialScore: getPotentialScore(room) });
         });
-        socket.emit('joker_used', { jokerType, playerId }); // no message = no popup
+        socket.emit('joker_used', { jokerType, playerId: roomPlayerId }); // no message = no popup
       }
     } else if (jokerType === 'shield') {
       if (!room.activeShields) room.activeShields = {};
-      room.activeShields[playerId] = true;
-      socket.emit('joker_used', { jokerType, playerId });
+      room.activeShields[effectKey] = true;
+      socket.emit('joker_used', { jokerType, playerId: roomPlayerId });
     }
-    
+
     // Update player data on client side so joker count drops
     socket.emit('joker_used_success', { player: result.player, jokerType });
   });
@@ -1458,5 +1543,8 @@ cron.schedule('0 18 * * 5', async () => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
+  if (!process.env.ADMIN_SECRET) {
+    console.warn('[Startup] ADMIN_SECRET is not set — /seed-players, /debug-db, /api/logs, /api/fix-tournaments, /api/refresh-words, /health-legacy and /debug-tournament will refuse all requests until it is configured.');
+  }
 });
 
