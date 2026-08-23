@@ -34,8 +34,8 @@ if (isFirebaseAvailable) {
 }
 
 // AD UNIT IDs
-const BANNER_ID = __DEV__ ? (TestIds ? TestIds.BANNER : '') : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8571973167' : 'ca-app-pub-3816139413382983/4862946418');
-const INTERSTITIAL_ID = __DEV__ ? (TestIds ? TestIds.INTERSTITIAL : '') : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8076159463' : 'ca-app-pub-3816139413382983/5106634788');
+const BANNER_ID = TestIds ? TestIds.BANNER : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8571973167' : 'ca-app-pub-3816139413382983/4862946418');
+const INTERSTITIAL_ID = TestIds ? TestIds.INTERSTITIAL : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8076159463' : 'ca-app-pub-3816139413382983/5106634788');
 
 const REWARDED_IDS: Record<string, string> = {
   x2: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/4224649561' : 'ca-app-pub-3816139413382983/7273487336',
@@ -99,7 +99,7 @@ const loadInterstitial = () => {
 
 const loadRewarded = (type: 'x2' | 'tourney' | 'market') => {
   if (!isFirebaseAvailable || !RewardedAd) return;
-  const unitId = __DEV__ && TestIds ? TestIds.REWARDED : REWARDED_IDS[type];
+  const unitId = TestIds ? TestIds.REWARDED : REWARDED_IDS[type];
   if (!unitId) return;
 
   try {
