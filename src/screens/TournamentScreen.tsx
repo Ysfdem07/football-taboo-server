@@ -219,7 +219,13 @@ export default function TournamentScreen() {
   };
 
   const getStatusInfo = () => {
-    if (!tournamentData) return null;
+      if (!player || player.id === 'guest') {
+        return {
+          text: language === 'en' ? 'Log in to join tournaments!' : 'Turnuvaya katılmak için giriş yapmalısın!',
+          color: '#ff4444', canPlay: false, showAd: false, bestScore: undefined
+        };
+      }
+      if (!tournamentData) return null;
     if (tournamentData.error) return { text: tournamentData.error, color: '#ff4444', canPlay: false, showAd: false };
     if (tournamentData.blockedForWeek) return {
       text: language === 'en' ? '🏆 You completed this week! See you next week.' : '🏆 Bu haftayı tamamladın! Gelecek hafta görüşürüz.',
