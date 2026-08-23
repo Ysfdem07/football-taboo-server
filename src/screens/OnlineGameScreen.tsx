@@ -774,8 +774,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 disabled={jokerLoading}
                 activeOpacity={0.8}
               >
-                <Ionicons name="text" size={18} color={NEON_PURPLE} />
-                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>Harf Aç</Text>
+                <Ionicons name="text" size={16} color={NEON_PURPLE} />
+                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>Harf Aç</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.revealLetters || 0}</Text>
                 </View>
@@ -791,8 +791,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 disabled={jokerLoading || guessingPlayerId !== myOriginalId}
                 activeOpacity={0.8}
               >
-                <Ionicons name="time" size={18} color="#00BFFF" />
-                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>+5 Sn</Text>
+                <Ionicons name="time" size={16} color="#00BFFF" />
+                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>+5 Sn</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.extraTime || 0}</Text>
                 </View>
@@ -805,8 +805,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 disabled={jokerLoading}
                 activeOpacity={0.8}
               >
-                <Ionicons name="flash" size={18} color={NEON_GREEN} />
-                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>İpucu</Text>
+                <Ionicons name="flash" size={16} color={NEON_GREEN} />
+                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>İpucu</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.instantHints || 0}</Text>
                 </View>
@@ -822,8 +822,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 disabled={jokerLoading || guessingPlayerId !== myOriginalId}
                 activeOpacity={0.8}
               >
-                <Ionicons name="shield-checkmark" size={18} color="#FFD700" />
-                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>Kalkan</Text>
+                <Ionicons name="shield-checkmark" size={16} color="#FFD700" />
+                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>Kalkan</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.shield || 0}</Text>
                 </View>
@@ -1085,18 +1085,19 @@ const styles = StyleSheet.create({
   },
   jokersBar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 10,
+    gap: 6,
     paddingVertical: 4,
   },
   jokerBtnWide: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'center',
+    gap: 4,
     backgroundColor: 'rgba(255,255,255,0.07)',
     borderRadius: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     paddingVertical: 8,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.15)',
@@ -1104,7 +1105,8 @@ const styles = StyleSheet.create({
   jokerBtnLabel: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 12,
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
+    flexShrink: 1,
   },
   invisibleInput: {
     // Kept ON-screen (not shifted off with a large negative offset) — some
