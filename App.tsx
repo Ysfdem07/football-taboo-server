@@ -8,6 +8,7 @@ import { RemoteConfig } from './src/services/remoteConfig';
 import { initAds } from './src/services/ads';
 import { initCrashlytics } from './src/services/crashlytics';
 import { getSocket } from './src/services/socket';
+import * as Updates from 'expo-updates';
 import {
   useFonts,
   Poppins_400Regular,
@@ -37,6 +38,27 @@ export default function App() {
       await initAds();
     };
     initServices();
+  }, []);
+
+  useEffect(() => {
+    // expo-updates' default policy downloads a new OTA update on this launch
+    // but only applies it on the NEXT cold start — so a single close/reopen
+    // right after publishing still runs the old bundle. Check-fetch-reload
+    // here so a freshly published update is live within this same session
+    // instead of needing two restarts.
+    if (__DEV__ || !Updates.isEnabled) return;
+    const applyLatestUpdate = async () => {
+      try {
+        const result = await Updates.checkForUpdateAsync();
+        if (result.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (e) {
+        // Offline or update service unreachable — keep running the current bundle.
+      }
+    };
+    applyLatestUpdate();
   }, []);
 
   useEffect(() => {
