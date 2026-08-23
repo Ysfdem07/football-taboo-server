@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar, Keyboard } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -66,9 +66,35 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [player, setPlayer] = useState<any>(null);
   const [jokerLoading, setJokerLoading] = useState(false);
   const [rewardCollected, setRewardCollected] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const inputRef = React.useRef<TextInput>(null);
   const transitionAnim = React.useRef(new Animated.Value(0)).current;
+
+  // Track keyboard visibility so the bottom action area can reclaim the
+  // padding it reserves for the (Android) system nav bar once the keyboard
+  // is already occupying that space — otherwise the clue list above gets
+  // squeezed to a sliver whenever a guess turn opens the keyboard.
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  // Explicitly focus the hidden guess input whenever it becomes my turn.
+  // Relying on <TextInput autoFocus> alone is unreliable on Android (most
+  // visibly on some Samsung/One UI devices) when the input mounts inside a
+  // conditionally-rendered branch — a delayed retry after the initial paint
+  // reliably brings the keyboard up where a single autoFocus call did not.
+  useEffect(() => {
+    if (guessingPlayerId !== socket.id) return;
+    inputRef.current?.focus();
+    const retry = setTimeout(() => inputRef.current?.focus(), 150);
+    return () => clearTimeout(retry);
+  }, [guessingPlayerId]);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -571,9 +597,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         <View style={[styles.scoreBoard, { paddingTop: topPadding }]}>
           {players.map((p, index) => (
             <Text key={p.id} style={[
-              styles.scoreText, 
+              styles.scoreText,
               p.id === socket.id ? { borderColor: NEON_BLUE, color: '#fff' } : { borderColor: '#444', color: '#aaa' }
-            ]}>
+            ]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
               {p.id === socket.id ? p.name + " (Sen)" : p.name}: {scores[p.id] || 0}
             </Text>
           ))}
@@ -610,9 +636,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <Ionicons name="close" size={32} color="#fff" />
               </TouchableOpacity>
               <View style={{ alignItems: 'center' }}>
-                <Text style={styles.roundText}>TUR {currentRound} / {maxRounds}</Text>
+                <Text style={styles.roundText} maxFontSizeMultiplier={1.3}>TUR {currentRound} / {maxRounds}</Text>
                 <View style={styles.timerWrap}>
-                  <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>{timeLeft}</Text>
+                  <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]} maxFontSizeMultiplier={1.2}>{timeLeft}</Text>
                 </View>
               </View>
             </View>
@@ -708,7 +734,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               {/* Potential Score Badge */}
               <View style={styles.potentialScoreContainer}>
                 <Ionicons name="star" size={16} color={NEON_GOLD} />
-                <Text style={styles.potentialScoreText}>
+                <Text style={styles.potentialScoreText} numberOfLines={1} maxFontSizeMultiplier={1.3}>
                   {(() => {
                     if (serverPotentialScore !== null) {
                       return language === 'en' ? `Points to Win: +${serverPotentialScore}` : `Kazanılacak Puan: +${serverPotentialScore}`;
@@ -724,17 +750,17 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               {hints.map((h, i) => (
                 <View key={i} style={styles.clueRow}>
                   <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
-                  <Text style={styles.clueText}>{h}</Text>
+                  <Text style={styles.clueText} maxFontSizeMultiplier={1.3}>{h}</Text>
                 </View>
               ))}
               {hints.length === 0 && (
-                <Text style={styles.emptyCluesText}>Henüz ipucu verilmedi...</Text>
+                <Text style={styles.emptyCluesText} maxFontSizeMultiplier={1.3}>Henüz ipucu verilmedi...</Text>
               )}
             </View>
             </View>
           </ScrollView>
 
-          <View style={[styles.inputArea, { paddingBottom: Math.max(20, insets.bottom + 16) }]}>
+          <View style={[styles.inputArea, { paddingBottom: keyboardVisible ? 8 : Math.max(20, insets.bottom + 16) }]}>
 
             {/* ─── Always-visible Jokers Bar ─────────────────────────────── */}
             <View style={styles.jokersBar}>
@@ -746,9 +772,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="text" size={18} color={NEON_PURPLE} />
-                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]}>Harf Aç</Text>
+                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>Harf Aç</Text>
                 <View style={styles.jokerBadge}>
-                  <Text style={styles.jokerBadgeText}>{player?.jokers?.revealLetters || 0}</Text>
+                  <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.revealLetters || 0}</Text>
                 </View>
               </TouchableOpacity>
 
@@ -763,9 +789,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="time" size={18} color="#00BFFF" />
-                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]}>+5 Sn</Text>
+                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>+5 Sn</Text>
                 <View style={styles.jokerBadge}>
-                  <Text style={styles.jokerBadgeText}>{player?.jokers?.extraTime || 0}</Text>
+                  <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.extraTime || 0}</Text>
                 </View>
               </TouchableOpacity>
 
@@ -777,9 +803,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="flash" size={18} color={NEON_GREEN} />
-                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]}>İpucu</Text>
+                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>İpucu</Text>
                 <View style={styles.jokerBadge}>
-                  <Text style={styles.jokerBadgeText}>{player?.jokers?.instantHints || 0}</Text>
+                  <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.instantHints || 0}</Text>
                 </View>
               </TouchableOpacity>
 
@@ -794,9 +820,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="shield-checkmark" size={18} color="#FFD700" />
-                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]}>Kalkan</Text>
+                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>Kalkan</Text>
                 <View style={styles.jokerBadge}>
-                  <Text style={styles.jokerBadgeText}>{player?.jokers?.shield || 0}</Text>
+                  <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.shield || 0}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -811,7 +837,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   disabled={buzzerLocked}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.buzzerButtonText}>
+                  <Text style={styles.buzzerButtonText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                     {buzzerLocked ? 'BEKLEYİN (5)' : '⚡ TAHMİN ET!'}
                   </Text>
                 </TouchableOpacity>
@@ -822,7 +848,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   disabled={hasPassed}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.passBtnText}>
+                  <Text style={styles.passBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                     {hasPassed
                       ? `✓ PAS (${passVotesCount}/${players.length || 2})`
                       : `⏭ PAS (${passVotesCount}/${players.length || 2})`}
@@ -849,10 +875,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     underlineColorAndroid="transparent"
                   />
                   <View style={styles.inlineTimerWrap}>
-                    <Text style={styles.guessTimerText}>{guessTimeLeft}s</Text>
+                    <Text style={styles.guessTimerText} maxFontSizeMultiplier={1.2}>{guessTimeLeft}s</Text>
                   </View>
                   <TouchableOpacity style={[styles.guessBtn, { flex: 1 }]} onPress={sendGuess} activeOpacity={0.85}>
-                    <Text style={styles.guessBtnText}>GÖNDER ▶</Text>
+                    <Text style={styles.guessBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>GÖNDER ▶</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -862,7 +888,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   disabled={hasPassed}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.passBtnText}>
+                  <Text style={styles.passBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                     {hasPassed
                       ? `✓ PAS (${passVotesCount}/${players.length || 2})`
                       : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
@@ -873,7 +899,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               // Opponent's guess turn: waiting label + pass
               <View style={{ flexDirection: 'column', gap: 8, width: '100%' }}>
                 <View style={styles.waitingContainer}>
-                  <Text style={styles.waitingText}>
+                  <Text style={styles.waitingText} numberOfLines={2} maxFontSizeMultiplier={1.3}>
                     ⏳ {guessingPlayerName} {language === 'en' ? `is guessing... (${guessTimeLeft})` : `tahmin ediyor... (${guessTimeLeft})`}
                   </Text>
                 </View>
@@ -883,7 +909,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   disabled={hasPassed}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.passBtnText}>
+                  <Text style={styles.passBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                     {hasPassed
                       ? `✓ PAS (${passVotesCount}/${players.length || 2})`
                       : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
@@ -1083,12 +1109,16 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   invisibleInput: {
+    // Kept ON-screen (not shifted off with a large negative offset) — some
+    // Android IMEs (notably Samsung One UI) refuse to raise the soft
+    // keyboard for a focused view positioned outside the visible bounds.
     position: 'absolute',
-    left: -999,
     top: 0,
-    width: 40,
+    left: 0,
+    width: '100%',
     height: 40,
-    opacity: 0.01,
+    opacity: 0.001,
+    zIndex: -1,
   },
   inlineTimerWrap: {
     width: 50,
