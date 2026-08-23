@@ -586,7 +586,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
         >
           <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: 20 }}
+            contentContainerStyle={{ paddingBottom: 5, flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
@@ -922,7 +922,9 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
     justifyContent: 'space-between',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 5,
   },
   scoreBoard: {
     flexDirection: 'row',

@@ -101,7 +101,7 @@ export default function MarketScreen({ navigation }: any) {
     
     if ((p.coins || 0) < 50) return CustomAlert.show(t('insufficientFunds'), t('needMoreCoins'));
     
-    if (!p.id) {
+    if (!p.id || p.id === 'guest') {
       p.coins -= 50;
       if (!p.jokers) p.jokers = { revealLetters:0, extraTime:0, instantHints:0, shield:0 };
       p.jokers[jokerType] = (p.jokers[jokerType] || 0) + 1;

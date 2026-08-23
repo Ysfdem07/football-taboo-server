@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-// Use Atlas URI from env or fallback to hardcoded shard-based URI
-const ATLAS_URI = 'mongodb+srv://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush.sphwagn.mongodb.net/futtaboo?authSource=admin&retryWrites=true&w=majority';
+// Bypass SRV to avoid Windows DNS resolution issues (ECONNREFUSED)
+const ATLAS_URI = 'mongodb://wordrushtr_db_user:hsNIC3qKGwlYcz6T@wordrush-shard-00-00.sphwagn.mongodb.net:27017,wordrush-shard-00-01.sphwagn.mongodb.net:27017,wordrush-shard-00-02.sphwagn.mongodb.net:27017/futtaboo?ssl=true&replicaSet=atlas-h2vxtg-shard-0&authSource=admin&retryWrites=true&w=majority';
 // Never use internal Railway MongoDB - always use Atlas
 const MONGO_URI = ATLAS_URI;
 
