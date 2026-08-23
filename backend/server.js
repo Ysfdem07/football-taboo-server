@@ -885,11 +885,17 @@ io.on('connection', (socket) => {
       category 
     });
 
+    // Drop any queued entries whose socket has since disconnected/reconnected
+    // (gets a new socket.id) — matching against a dead id would leave the
+    // other player's client stuck waiting forever, since the dead socket
+    // can never actually join the matched room.
+    queue = queue.filter(u => io.sockets.sockets.get(u.id)?.connected);
+
     const categoryQueue = queue.filter(u => u.category === category);
     if (categoryQueue.length >= 2) {
       const p1 = queue.splice(queue.findIndex(u => u.id === categoryQueue[0].id), 1)[0];
       const p2 = queue.splice(queue.findIndex(u => u.id === categoryQueue[1].id), 1)[0];
-      
+
       const roomId = `room_${Date.now()}_${Math.random()}`;
       
       // Make them join socket room
@@ -937,6 +943,8 @@ io.on('connection', (socket) => {
       dbPlayerId: data.dbPlayerId || null,
       category
     });
+    friendlyQueue = friendlyQueue.filter(u => io.sockets.sockets.get(u.id)?.connected);
+
     const catQueue = friendlyQueue.filter(u => u.category === category);
     if (catQueue.length >= 2) {
       const p1 = friendlyQueue.splice(friendlyQueue.findIndex(u => u.id === catQueue[0].id), 1)[0];

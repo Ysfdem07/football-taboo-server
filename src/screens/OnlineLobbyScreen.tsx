@@ -138,12 +138,22 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     Analytics.logEvent('join_friendly_queue_start');
     setLobbyStatus('searching_match');
     ensureSocket((s) => {
-      s.emit('join_friendly_queue', { 
+      const joinPayload = {
         name: (playerName.trim() === 'Misafir' && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
         dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
-      });
+      };
+      s.emit('join_friendly_queue', joinPayload);
+
+      // If the socket drops and reconnects (backgrounding, brief network loss)
+      // while still waiting, the server's queue entry is tied to the old,
+      // now-dead socket.id — re-send the join so the fresh socket actually
+      // ends up in the matched room instead of being stuck here forever.
+      const rejoinOnReconnect = () => s.emit('join_friendly_queue', joinPayload);
+      s.on('connect', rejoinOnReconnect);
+
       s.on('match_found', (data: any) => {
+        s.off('connect', rejoinOnReconnect);
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
         navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId });
@@ -172,12 +182,18 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     Analytics.logEvent('join_queue_start');
     setLobbyStatus('searching_match');
     ensureSocket((s) => {
-      s.emit('join_queue', { 
+      const joinPayload = {
         name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
         dbPlayerId: profile?.id || profile?._id || null,
         category: categoryId
-      });
+      };
+      s.emit('join_queue', joinPayload);
+
+      const rejoinOnReconnect = () => s.emit('join_queue', joinPayload);
+      s.on('connect', rejoinOnReconnect);
+
       s.on('match_found', (data: any) => {
+        s.off('connect', rejoinOnReconnect);
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
         navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId });
