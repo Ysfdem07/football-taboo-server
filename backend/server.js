@@ -838,10 +838,12 @@ io.on('connection', (socket) => {
       const w = room.card.word;
       let privateHint = "";
       if (w.length > 2) {
-        let arr = room.wordHintArray.slice();
-        arr[0] = w[0];
-        arr[w.length - 1] = w[w.length - 1];
-        privateHint = arr.join('');
+        // Persist so this player's first/last letters stay visible across
+        // later word_hint_update ticks (random-letter reveals during the
+        // round) instead of being wiped by the next shared-array broadcast.
+        if (!room.privateLetterReveals) room.privateLetterReveals = {};
+        room.privateLetterReveals[roomPlayerId] = { first: true, last: true };
+        privateHint = getWordHintForPlayer(room, roomPlayerId);
       } else {
         privateHint = w;
       }
@@ -1297,6 +1299,34 @@ io.on('connection', (socket) => {
   });
 });
 
+// The "Harf Aç" (revealLetters) joker reveals the first/last letter only to
+// the player who used it — everyone else's word_hint_update must not show
+// it. Since that update is otherwise identical for every player in the
+// room, we can't just mutate the shared room.wordHintArray (that would leak
+// the letters to the opponent too). Instead we track each player's private
+// reveal separately and merge it back in whenever we send THEM a hint.
+function getWordHintForPlayer(room, playerId) {
+  const arr = room.wordHintArray.slice();
+  const reveal = room.privateLetterReveals && room.privateLetterReveals[playerId];
+  if (reveal) {
+    const w = room.card.word;
+    if (reveal.first) arr[0] = w[0];
+    if (reveal.last) arr[w.length - 1] = w[w.length - 1];
+  }
+  return arr.join('');
+}
+
+// Broadcast an event to every socket in the room, but with a wordHint that's
+// merged per-recipient via getWordHintForPlayer instead of the raw shared
+// array — use this instead of io.to(roomId).emit(...) for any event whose
+// payload includes wordHint.
+function emitWordHintUpdate(room, roomId, eventName, extraPayload) {
+  room.players.forEach(p => {
+    const s = io.sockets.sockets.get(p.id);
+    if (s) s.emit(eventName, { ...extraPayload, wordHint: getWordHintForPlayer(room, p.id) });
+  });
+}
+
 function getPotentialScore(room) {
   if (!room) return 10;
   const hintsPenalty = Math.max(0, (room.hintsShown || 1) - 1);
@@ -1446,6 +1476,7 @@ async function startRound(roomId) {
   // Create word hint replacing only non-space chars with underscore
   room.wordHintArray = card.word.split('').map(c => c === ' ' ? ' ' : '_');
   room.revealedIndices = [];
+  room.privateLetterReveals = {};
   room.finalCountdownStarted = false;
 
   // Initial emit
@@ -1488,7 +1519,7 @@ async function startRound(roomId) {
         const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
         room.revealedIndices.push(randomIndex);
         room.wordHintArray[randomIndex] = card.word[randomIndex];
-        io.to(roomId).emit('word_hint_update', { wordHint: room.wordHintArray.join(''), potentialScore: getPotentialScore(room) });
+        emitWordHintUpdate(room, roomId, 'word_hint_update', { potentialScore: getPotentialScore(room) });
       }
       
       // If we just revealed the 3rd letter, or no more letters can be revealed, give bonus time

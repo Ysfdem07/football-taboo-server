@@ -731,26 +731,26 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             
             {/* Clues Card style list */}
             <View style={styles.cluesCard}>
-              {/* Potential Score Badge */}
-              <View style={styles.potentialScoreContainer}>
-                <Ionicons name="star" size={16} color={NEON_GOLD} />
-                <Text style={styles.potentialScoreText} numberOfLines={1} maxFontSizeMultiplier={1.3}>
-                  {(() => {
-                    if (serverPotentialScore !== null) {
-                      return language === 'en' ? `Points to Win: +${serverPotentialScore}` : `Kazanılacak Puan: +${serverPotentialScore}`;
-                    }
-                    const hintsPenalty = Math.max(0, hints.length - 1);
-                    const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
-                    const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
-                    return language === 'en' ? `Points to Win: +${potentialScore}` : `Kazanılacak Puan: +${potentialScore}`;
-                  })()}
-                </Text>
-              </View>
-
               {hints.map((h, i) => (
                 <View key={i} style={styles.clueRow}>
                   <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
                   <Text style={styles.clueText} maxFontSizeMultiplier={1.3}>{h}</Text>
+
+                  {/* First clue row carries the compact potential-score badge on the right */}
+                  {i === 0 && (
+                    <View style={styles.compactScoreBadge}>
+                      <Ionicons name="star" size={10} color={NEON_GOLD} />
+                      <Text style={styles.compactScoreText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+                        {(() => {
+                          if (serverPotentialScore !== null) return `+${serverPotentialScore}`;
+                          const hintsPenalty = Math.max(0, hints.length - 1);
+                          const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
+                          const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
+                          return `+${potentialScore}`;
+                        })()}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               ))}
               {hints.length === 0 && (
@@ -1035,22 +1035,21 @@ const styles = StyleSheet.create({
     width: '90%',
     minHeight: 120,
   },
-  potentialScoreContainer: {
+  compactScoreBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: 'rgba(255, 215, 0, 0.15)',
     borderWidth: 1,
     borderColor: NEON_GOLD,
     borderRadius: 8,
-    paddingVertical: 6,
-    marginBottom: 10,
-    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    gap: 4,
   },
-  potentialScoreText: {
+  compactScoreText: {
     color: NEON_GOLD,
     fontFamily: 'Poppins_700Bold',
-    fontSize: 14,
+    fontSize: 12,
   },
   clueRow: {
     flexDirection: 'row',
