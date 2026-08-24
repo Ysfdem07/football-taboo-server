@@ -104,8 +104,8 @@ export default function HowToPlayScreen({ navigation }: Props) {
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>2</Text></View>
               <Text style={styles.stepText}>
                 {isEn
-                  ? 'Group Ranked: Create/join a private room with 3+ friends and play ranked together — pick 10 / 20 / 30 / 50 rounds, just like Friendly.'
-                  : 'Grup Ranked: 3+ arkadaşınla özel bir oda kurup/katılıp birlikte dereceli oynayabilirsin — Dostluk\'ta olduğu gibi 10 / 20 / 30 / 50 round seçebilirsin.'}
+                  ? 'Private Room: Create/join with friends and play ranked together — pick 10 / 20 / 30 / 50 rounds, just like Friendly. With exactly 2 players it uses the same rules as 1v1; with 3+ it\'s Group Ranked.'
+                  : 'Özel Oda: Arkadaşlarınla özel bir oda kurup/katılıp birlikte dereceli oynayabilirsin — Dostluk\'ta olduğu gibi 10 / 20 / 30 / 50 round seçebilirsin. Tam 2 kişiyle 1v1 kurallarıyla, 3+ kişiyle Grup Ranked kurallarıyla oynanır.'}
               </Text>
             </View>
 
@@ -113,8 +113,8 @@ export default function HowToPlayScreen({ navigation }: Props) {
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>3</Text></View>
               <Text style={styles.stepText}>
                 {isEn
-                  ? 'KP Rewards: 1v1 win +50 KP / loss -25 KP / draw +10 KP each. Group Ranked: 1st +125 KP, 2nd +50 KP, rest -25 KP.'
-                  : 'KP Kazanımı: 1v1 galibiyet +50 KP / mağlubiyet -25 KP / beraberlik +10 KP. Grup Ranked: 1. +125 KP, 2. +50 KP, diğerleri -25 KP.'}
+                  ? 'KP Rewards: 1v1 (or a 2-player private room) win +50 KP / loss -25 KP / draw +10 KP each. Group Ranked (3+): 1st +125 KP, 2nd +50 KP, rest -25 KP.'
+                  : 'KP Kazanımı: 1v1 (veya 2 kişilik özel oda) galibiyet +50 KP / mağlubiyet -25 KP / beraberlik +10 KP. Grup Ranked (3+): 1. +125 KP, 2. +50 KP, diğerleri -25 KP.'}
               </Text>
             </View>
           </View>

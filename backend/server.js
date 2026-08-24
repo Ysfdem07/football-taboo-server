@@ -1564,7 +1564,11 @@ async function resolveMatchForfeit(room, roomId, quitter) {
   const playerUpdates = {};
   const record = (updated) => { if (updated) playerUpdates[updated.id || updated._id] = updated; };
 
-  if (room.isRanked1v1) {
+  // Same reasoning as the normal game-over path above: a private "Ranked"
+  // room that was just a 2-player match (quitter already removed from
+  // `remaining`, so exactly 1 player left) gets treated identically to
+  // auto-matched 1v1 ranked, not the coins-only friendly fallback.
+  if (room.isRanked1v1 || (room.isGroupRanked && remaining.length === 1)) {
     kpChanges[quitter.id] = -35;
     if (quitter.dbPlayerId) record(await db.updatePlayerStats(quitter.dbPlayerId, -35, false, 0, 0, roomCat));
     for (const p of remaining) {
@@ -1648,7 +1652,12 @@ async function startRound(roomId) {
       if (playerSocket) playerSocket.emit('coins_updated', { player: updatedPlayer }); // early notification
     };
 
-    if (room.isRanked1v1 && room.players.length === 2) {
+    // A private "Ranked" room (isGroupRanked) that ends up with exactly 2
+    // players is functionally the same as auto-matched 1v1 ranked — two
+    // friends who wanted to play each other directly instead of queueing.
+    // Without this, it fell through to the friendly/coins-only branch below
+    // and silently paid no KP at all.
+    if ((room.isRanked1v1 || room.isGroupRanked) && room.players.length === 2) {
       // ── Ranked 1v1: KP + coins ───────────────────────────────────────────
       const p1 = room.players[0];
       const p2 = room.players[1];
