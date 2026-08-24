@@ -335,6 +335,28 @@ export default function ProfileScreen({ navigation }: Props) {
     });
   };
 
+  // Without an email on file, there is no password the user knows and no
+  // recovery path — logging out of an account like that means losing it
+  // for good. Warn before doing something that permanent instead of
+  // silently letting it happen.
+  const confirmLogout = () => {
+    if (player && !player.email) {
+      CustomAlert.show(
+        language === 'en' ? "You'll lose this account" : 'Bu hesabı kaybedeceksin',
+        language === 'en'
+          ? "This account has no email on file, so there's no way to get back in after logging out. Add an email first if you want to keep access."
+          : 'Bu hesapta kayıtlı e-posta yok, bu yüzden çıkış yaptıktan sonra tekrar giriş yapmanın hiçbir yolu olmayacak. Erişimini korumak istiyorsan önce e-posta ekle.',
+        [
+          { text: language === 'en' ? 'Cancel' : 'Vazgeç', style: 'cancel' },
+          { text: language === 'en' ? 'Add Email' : 'E-posta Ekle', onPress: () => setAddingEmail(true) },
+          { text: language === 'en' ? 'Log Out Anyway' : 'Yine de Çık', style: 'destructive', onPress: handleLogout }
+        ]
+      );
+    } else {
+      handleLogout();
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('@logged_in_profile');
@@ -499,7 +521,7 @@ export default function ProfileScreen({ navigation }: Props) {
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <TouchableOpacity style={styles.logoutButton} onPress={confirmLogout}>
                 <Ionicons name="log-out-outline" size={20} color={Colors.white} style={{ marginRight: 8 }} />
                 <Text style={styles.logoutButtonText}>{t('logout')}</Text>
               </TouchableOpacity>
