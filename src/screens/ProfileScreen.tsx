@@ -52,6 +52,14 @@ export default function ProfileScreen({ navigation }: Props) {
   const [addingEmail, setAddingEmail] = useState(false);
   const [emailInput, setEmailInput] = useState('');
 
+  // Quick username+password login — for players who actually know their
+  // password (pre-hidden-password accounts, or anyone who wrote theirs
+  // down): faster than the full email-recovery round trip for a routine
+  // logout/login on the same device.
+  const [showPasswordLogin, setShowPasswordLogin] = useState(false);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
   const isRegisterMode = authStep === 'register';
 
   // Player Profile State
@@ -268,6 +276,15 @@ export default function ProfileScreen({ navigation }: Props) {
       email: email.trim(),
       marketingConsent
     });
+  };
+
+  const handlePasswordLogin = () => {
+    if (!loginUsername.trim() || !loginPassword.trim()) {
+      CustomAlert.show('Hata', 'Lütfen kullanıcı adı ve şifrenizi girin.');
+      return;
+    }
+    setLoading(true);
+    socket.emit('login_profile', { username: loginUsername.trim(), password: loginPassword });
   };
 
   const handleForgotRequest = () => {
@@ -633,10 +650,11 @@ export default function ProfileScreen({ navigation }: Props) {
                 </TouchableOpacity>
               </View>
             ) : (
-              // RECOVER VIEW — this replaces the old username+password login
-              // form entirely: there's no password to type, so getting back
-              // into an existing account (new device, reinstall, cleared
-              // storage) only works through the email-based recovery flow.
+              // RECOVER VIEW — primary path is email recovery, since new
+              // accounts never see their auto-generated password. But
+              // accounts that DO know a password (pre-hidden-password
+              // accounts, or anyone who wrote theirs down) can skip the
+              // email round trip entirely via the toggle below.
               <View style={styles.authCard}>
                 <Text style={styles.authTitle}>
                   {language === 'en' ? 'Recover Your Account' : 'Hesabını Kurtar'}
@@ -655,6 +673,43 @@ export default function ProfileScreen({ navigation }: Props) {
                       {language === 'en' ? 'RECOVER WITH EMAIL' : 'E-POSTA İLE KURTAR'}
                     </Text>
                   </TouchableOpacity>
+                )}
+
+                {!showPasswordLogin ? (
+                  <TouchableOpacity onPress={() => setShowPasswordLogin(true)} style={styles.toggleLink}>
+                    <Text style={styles.toggleLinkText}>
+                      {language === 'en' ? 'Know your password? Sign in directly' : 'Şifreni biliyor musun? Doğrudan giriş yap'}
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={{ width: '100%', marginTop: 8 }}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder={language === 'en' ? 'Username or Email' : 'Kullanıcı Adı veya E-posta'}
+                      placeholderTextColor="#888"
+                      value={loginUsername}
+                      onChangeText={setLoginUsername}
+                      autoCapitalize="none"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder={language === 'en' ? 'Password' : 'Şifre'}
+                      placeholderTextColor="#888"
+                      secureTextEntry
+                      value={loginPassword}
+                      onChangeText={setLoginPassword}
+                      autoCapitalize="none"
+                    />
+                    {loading ? (
+                      <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
+                    ) : (
+                      <TouchableOpacity style={styles.authButton} onPress={handlePasswordLogin}>
+                        <Text style={styles.authButtonText}>
+                          {language === 'en' ? 'LOG IN' : 'GİRİŞ YAP'}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 )}
 
                 <TouchableOpacity onPress={() => setAuthStep('register')} style={styles.toggleLink}>
