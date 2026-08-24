@@ -462,6 +462,17 @@ export default function ProfileScreen({ navigation }: Props) {
   const getCategoryKp = (catId: string) => {
     return (player as any)?.categoryKp?.[catId] ?? 0;
   };
+
+  // Same hybrid format as the leaderboard ("68% (24G)"), including the
+  // same <5-match safeguard so a small sample doesn't show a misleading
+  // percentage (1 win out of 1 match reading as "100%").
+  const getCategoryWinRateText = (catId: string) => {
+    const won = (player as any)?.categoryWins?.[catId] ?? 0;
+    const played = (player as any)?.categoryMatchesPlayed?.[catId] ?? 0;
+    if (!played || played < 5) return `${won} ${t('wins')}`;
+    const pct = Math.round((won / played) * 100);
+    return language === 'en' ? `${pct}% (${won}W)` : `%${pct} (${won}G)`;
+  };
   
   const insets = useSafeAreaInsets();
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
@@ -609,6 +620,7 @@ export default function ProfileScreen({ navigation }: Props) {
                       </View>
                       <Text style={[styles.categoryLeagueName, { color: catLeague.color }]}>{catLeague.name}</Text>
                       <Text style={[styles.categoryKpText, { color: cat.color }]}>{catKp} KP</Text>
+                      <Text style={styles.categoryWinRateText}>{getCategoryWinRateText(cat.id)}</Text>
                     </View>
                   );
                 })}
@@ -1179,6 +1191,12 @@ const styles = StyleSheet.create({
   categoryKpText: {
     fontFamily: 'Poppins_900Black',
     fontSize: 11,
+    marginTop: 2,
+  },
+  categoryWinRateText: {
+    color: 'rgba(255,255,255,0.45)',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 9,
     marginTop: 2,
   },
   leagueIcon: {
