@@ -260,10 +260,11 @@ module.exports = {
     return { player: player.toObject() };
   },
 
-  // Same authenticated-session-only pattern as updatePlayerEmail. Note this
-  // only updates the live Player record — past WeeklyTournament leaderboard
-  // entries store their own denormalized username snapshot per week and
-  // won't retroactively rename (same as any other leaderboard/history).
+  // Same authenticated-session-only pattern as updatePlayerEmail. This just
+  // updates the live Player record — getTournamentLeaderboard and
+  // getLeaderboard both read the current username from here at request
+  // time, so a rename shows up immediately everywhere without needing to
+  // touch WeeklyTournament's own stored snapshot.
   updatePlayerUsername: async (playerId, newUsername) => {
     await connectDB();
     const trimmed = newUsername.trim();
@@ -605,10 +606,30 @@ module.exports = {
     const weekId = getWeekId(category);
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return [];
-    return [...tournament.scores]
+    const top = [...tournament.scores]
       .sort((a, b) => b.bestScore - a.bestScore)
-      .slice(0, 20)
-      .map((s, i) => ({ rank: i + 1, playerId: s.playerId, username: s.username, avatar: s.avatar, score: s.bestScore, correctCount: s.correctCount, completedPerfectly: s.completedPerfectly }));
+      .slice(0, 20);
+
+    // tournament.scores.username/avatar are snapshotted the moment a player
+    // first submits a score that week, so a rename/avatar change afterward
+    // wouldn't otherwise show up until next week. Overlay each entry with
+    // the player's CURRENT username/avatar so a rename reflects immediately;
+    // falls back to the stored snapshot only if the account is gone.
+    const players = await Player.find({ id: { $in: top.map(s => s.playerId) } }).select('id username avatar -_id');
+    const byId = new Map(players.map(p => [p.id, p]));
+
+    return top.map((s, i) => {
+      const live = byId.get(s.playerId);
+      return {
+        rank: i + 1,
+        playerId: s.playerId,
+        username: live?.username || s.username,
+        avatar: live?.avatar || s.avatar,
+        score: s.bestScore,
+        correctCount: s.correctCount,
+        completedPerfectly: s.completedPerfectly
+      };
+    });
   },
 
   giveWeeklyRewards: async () => {
