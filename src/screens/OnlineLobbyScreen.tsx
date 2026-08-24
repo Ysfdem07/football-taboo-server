@@ -41,6 +41,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [showRankedOptions, setShowRankedOptions] = useState(initialMode === 'ranked');
   const [showFriendlyOptions, setShowFriendlyOptions] = useState(initialMode === 'friendly');
   const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(false);
+  const [showRankedRoomSettings, setShowRankedRoomSettings] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -224,7 +225,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       s.emit('create_room', { 
         name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'), 
-        maxRounds: isRanked ? 10 : maxRounds,
+        maxRounds,
         isRanked,
         dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null),
         category: categoryId
@@ -330,7 +331,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                 {!initialMode && (
                   <TouchableOpacity
                     style={[styles.collapseHeader, { borderColor: 'rgba(168,85,247,0.4)' }]}
-                    onPress={() => setShowRankedOptions(false)}
+                    onPress={() => { setShowRankedOptions(false); setShowRankedRoomSettings(false); }}
                     activeOpacity={0.8}
                   >
                     <Ionicons name="trophy" size={24} color={NEON_PURPLE} style={{ marginRight: 14 }} />
@@ -339,46 +340,75 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                   </TouchableOpacity>
                 )}
 
-                <View style={styles.actionList}>
-                  <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
-                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                    <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                    <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
-                      <Ionicons name="flash" size={22} color="#00BFFF" />
-                    </View>
-                    <View style={styles.actionTextContainer}>
-                      <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>{language === 'en' ? '1v1 Quick Match' : '1v1 Hızlı Eşleşme'}</Text>
-                      <Text style={styles.actionSub}>{language === 'en' ? 'Play instantly with a random opponent' : 'Rastgele bir rakiple anında oyna'}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
-                  </TouchableOpacity>
+                {!showRankedRoomSettings ? (
+                  <View style={styles.actionList}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
+                        <Ionicons name="flash" size={22} color="#00BFFF" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>{language === 'en' ? '1v1 Quick Match' : '1v1 Hızlı Eşleşme'}</Text>
+                        <Text style={styles.actionSub}>{language === 'en' ? 'Play instantly with a random opponent' : 'Rastgele bir rakiple anında oyna'}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                    </TouchableOpacity>
 
-                  <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => createRoom(true)} activeOpacity={0.8}>
-                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                    <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                    <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)' }]}>
-                      <Ionicons name="add" size={26} color="#00FF88" />
-                    </View>
-                    <View style={styles.actionTextContainer}>
-                      <Text style={[styles.actionTitle, { color: '#00FF88' }]}>{language === 'en' ? 'Create Room (Ranked)' : 'Oda Kur (Dereceli)'}</Text>
-                      <Text style={styles.actionSub}>{language === 'en' ? 'Play with a friend, earn points' : 'Arkadaşınla oyna, puan kazan'}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
-                  </TouchableOpacity>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => setShowRankedRoomSettings(true)} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)' }]}>
+                        <Ionicons name="add" size={26} color="#00FF88" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#00FF88' }]}>{language === 'en' ? 'Create Room (Ranked)' : 'Oda Kur (Dereceli)'}</Text>
+                        <Text style={styles.actionSub}>{language === 'en' ? 'Play with a friend, earn points' : 'Arkadaşınla oyna, puan kazan'}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                    </TouchableOpacity>
 
-                  <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.3)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.8}>
-                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                    <LinearGradient colors={['rgba(168,85,247,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                    <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
-                      <Ionicons name="enter" size={22} color="#A855F7" />
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.3)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.8}>
+                      <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(168,85,247,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
+                        <Ionicons name="enter" size={22} color="#A855F7" />
+                      </View>
+                      <View style={styles.actionTextContainer}>
+                        <Text style={[styles.actionTitle, { color: '#A855F7' }]}>{language === 'en' ? 'Join Room' : 'Odaya Katıl'}</Text>
+                        <Text style={styles.actionSub}>{language === 'en' ? 'Enter room with a code' : 'Kod ile odaya gir'}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <>
+                    <View style={styles.roundsSelectionContainer}>
+                      <Text style={styles.roundsLabel}>{language === 'en' ? 'Private Room Rounds:' : 'Özel Oda Tur Sayısı:'}</Text>
+                      <View style={styles.roundsOptions}>
+                        {[10, 20, 30, 50].map(val => (
+                          <TouchableOpacity
+                            key={val}
+                            style={[styles.roundOptionBtn, maxRounds === val && styles.roundOptionBtnActive]}
+                            onPress={() => setMaxRounds(val)}
+                          >
+                            <Text style={[styles.roundOptionText, maxRounds === val && styles.roundOptionTextActive]}>
+                              {val}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
                     </View>
-                    <View style={styles.actionTextContainer}>
-                      <Text style={[styles.actionTitle, { color: '#A855F7' }]}>{language === 'en' ? 'Join Room' : 'Odaya Katıl'}</Text>
-                      <Text style={styles.actionSub}>{language === 'en' ? 'Enter room with a code' : 'Kod ile odaya gir'}</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
-                  </TouchableOpacity>
-                </View>
+
+                    <TouchableOpacity style={[styles.button, { marginTop: 10 }]} onPress={() => createRoom(true)}>
+                      <Text style={styles.buttonText}>{language === 'en' ? 'Create & Start' : 'Oluştur ve Başla'}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={[styles.button, styles.cancelButton, { marginTop: 10 }]} onPress={() => setShowRankedRoomSettings(false)}>
+                      <Text style={styles.buttonText}>{language === 'en' ? 'Go Back' : 'Geri Dön'}</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
               </>
             )}
 

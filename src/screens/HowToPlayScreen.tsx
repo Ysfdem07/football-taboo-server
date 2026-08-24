@@ -104,8 +104,8 @@ export default function HowToPlayScreen({ navigation }: Props) {
               <View style={[styles.stepNumber, { backgroundColor: '#8E44AD' }]}><Text style={styles.stepNumberText}>2</Text></View>
               <Text style={styles.stepText}>
                 {isEn
-                  ? 'Group Ranked: Create/join a private room with 3+ friends and play ranked together (also 10 rounds).'
-                  : 'Grup Ranked: 3+ arkadaşınla özel bir oda kurup/katılıp birlikte dereceli oynayabilirsin (o da 10 round).'}
+                  ? 'Group Ranked: Create/join a private room with 3+ friends and play ranked together — pick 10 / 20 / 30 / 50 rounds, just like Friendly.'
+                  : 'Grup Ranked: 3+ arkadaşınla özel bir oda kurup/katılıp birlikte dereceli oynayabilirsin — Dostluk\'ta olduğu gibi 10 / 20 / 30 / 50 round seçebilirsin.'}
               </Text>
             </View>
 
