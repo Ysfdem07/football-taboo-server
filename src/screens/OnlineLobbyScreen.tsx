@@ -354,43 +354,52 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
                 {!showRankedRoomSettings ? (
                   <View style={styles.actionList}>
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findMatch} activeOpacity={0.8}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.35)' }]} onPress={findMatch} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
+                      <LinearGradient colors={['rgba(0,191,255,0.16)', 'rgba(0,191,255,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.cardInnerGlow, { borderColor: 'rgba(0,191,255,0.25)' }]} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)', borderColor: 'rgba(0,191,255,0.4)' }]}>
                         <Ionicons name="flash" size={22} color="#00BFFF" />
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>{language === 'en' ? '1v1 Quick Match' : '1v1 Hızlı Eşleşme'}</Text>
                         <Text style={styles.actionSub}>{language === 'en' ? 'Play instantly with a random opponent' : 'Rastgele bir rakiple anında oyna'}</Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                      <View style={[styles.chevronPill, { backgroundColor: 'rgba(0,191,255,0.12)' }]}>
+                        <Ionicons name="chevron-forward" size={16} color="#00BFFF" />
+                      </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => setShowRankedRoomSettings(true)} activeOpacity={0.8}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.35)' }]} onPress={() => setShowRankedRoomSettings(true)} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)' }]}>
+                      <LinearGradient colors={['rgba(0,255,136,0.16)', 'rgba(0,255,136,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.cardInnerGlow, { borderColor: 'rgba(0,255,136,0.25)' }]} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)', borderColor: 'rgba(0,255,136,0.4)' }]}>
                         <Ionicons name="add" size={26} color="#00FF88" />
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#00FF88' }]}>{language === 'en' ? 'Create Room (Ranked)' : 'Oda Kur (Dereceli)'}</Text>
                         <Text style={styles.actionSub}>{language === 'en' ? 'Play with a friend, earn points' : 'Arkadaşınla oyna, puan kazan'}</Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                      <View style={[styles.chevronPill, { backgroundColor: 'rgba(0,255,136,0.12)' }]}>
+                        <Ionicons name="chevron-forward" size={16} color="#00FF88" />
+                      </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.3)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.8}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.35)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(168,85,247,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
+                      <LinearGradient colors={['rgba(168,85,247,0.16)', 'rgba(168,85,247,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.cardInnerGlow, { borderColor: 'rgba(168,85,247,0.25)' }]} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)', borderColor: 'rgba(168,85,247,0.4)' }]}>
                         <Ionicons name="enter" size={22} color="#A855F7" />
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#A855F7' }]}>{language === 'en' ? 'Join Room' : 'Odaya Katıl'}</Text>
                         <Text style={styles.actionSub}>{language === 'en' ? 'Enter room with a code' : 'Kod ile odaya gir'}</Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                      <View style={[styles.chevronPill, { backgroundColor: 'rgba(168,85,247,0.12)' }]}>
+                        <Ionicons name="chevron-forward" size={16} color="#A855F7" />
+                      </View>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -441,43 +450,52 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
                 {!showFriendlyRoomSettings ? (
                   <View style={styles.actionList}>
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.3)' }]} onPress={findFriendlyMatch} activeOpacity={0.8}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.35)' }]} onPress={findFriendlyMatch} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(0,191,255,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)' }]}>
+                      <LinearGradient colors={['rgba(0,191,255,0.16)', 'rgba(0,191,255,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.cardInnerGlow, { borderColor: 'rgba(0,191,255,0.25)' }]} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,191,255,0.15)', borderColor: 'rgba(0,191,255,0.4)' }]}>
                         <Ionicons name="flash" size={22} color="#00BFFF" />
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#00BFFF' }]}>{language === 'en' ? 'Quick Friendly Match' : 'Hızlı Dostluk Maçı'}</Text>
                         <Text style={styles.actionSub}>{language === 'en' ? 'Random opponent (Coins only)' : 'Rastgele rakip (Sadece Coin Kazandırır)'}</Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                      <View style={[styles.chevronPill, { backgroundColor: 'rgba(0,191,255,0.12)' }]}>
+                        <Ionicons name="chevron-forward" size={16} color="#00BFFF" />
+                      </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.3)' }]} onPress={() => setShowFriendlyRoomSettings(true)} activeOpacity={0.8}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,255,136,0.35)' }]} onPress={() => setShowFriendlyRoomSettings(true)} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(0,255,136,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)' }]}>
+                      <LinearGradient colors={['rgba(0,255,136,0.16)', 'rgba(0,255,136,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.cardInnerGlow, { borderColor: 'rgba(0,255,136,0.25)' }]} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(0,255,136,0.15)', borderColor: 'rgba(0,255,136,0.4)' }]}>
                         <Ionicons name="add" size={26} color="#00FF88" />
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#00FF88' }]}>{language === 'en' ? 'Create Room (Friendly)' : 'Oda Kur (Dostluk)'}</Text>
                         <Text style={styles.actionSub}>{language === 'en' ? 'Create an unranked room' : 'Sıralamayı etkilemeyen oda kur'}</Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                      <View style={[styles.chevronPill, { backgroundColor: 'rgba(0,255,136,0.12)' }]}>
+                        <Ionicons name="chevron-forward" size={16} color="#00FF88" />
+                      </View>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.3)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.8}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(168,85,247,0.35)' }]} onPress={() => setShowJoinInput(true)} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(168,85,247,0.12)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:0}} style={StyleSheet.absoluteFillObject} />
-                      <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
+                      <LinearGradient colors={['rgba(168,85,247,0.16)', 'rgba(168,85,247,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
+                      <View style={[styles.cardInnerGlow, { borderColor: 'rgba(168,85,247,0.25)' }]} />
+                      <View style={[styles.iconBox, { backgroundColor: 'rgba(168,85,247,0.15)', borderColor: 'rgba(168,85,247,0.4)' }]}>
                         <Ionicons name="enter" size={22} color="#A855F7" />
                       </View>
                       <View style={styles.actionTextContainer}>
                         <Text style={[styles.actionTitle, { color: '#A855F7' }]}>{language === 'en' ? 'Join Room' : 'Odaya Katıl'}</Text>
                         <Text style={styles.actionSub}>{language === 'en' ? 'Enter room with a code' : 'Kod ile odaya gir'}</Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.2)" />
+                      <View style={[styles.chevronPill, { backgroundColor: 'rgba(168,85,247,0.12)' }]}>
+                        <Ionicons name="chevron-forward" size={16} color="#A855F7" />
+                      </View>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -761,8 +779,13 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderRadius: 18,
     padding: 14,
-    paddingRight: 20,
+    paddingRight: 16,
     overflow: 'hidden',
+  },
+  cardInnerGlow: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 18,
+    borderWidth: 1,
   },
   iconBox: {
     width: 48,
@@ -771,6 +794,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    borderWidth: 1,
+  },
+  chevronPill: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionTextContainer: {
     flex: 1,
