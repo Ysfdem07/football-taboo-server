@@ -954,6 +954,17 @@ io.on('connection', (socket) => {
     if (!room) return socket.emit('joker_error', { message: 'Oda bulunamadı!' });
     if (!validJokers.includes(jokerType)) return socket.emit('joker_error', { message: 'Geçersiz joker türü' });
 
+    // Per-match cap: at most MAX_JOKERS_PER_MATCH uses total (any type combined)
+    // per player per room, checked before the DB deduction so a rejected use
+    // never costs the player an owned joker. Scales with round count (~30% of
+    // rounds) so longer group-room modes (20/30/50 rounds) aren't stuck with
+    // the same flat cap as a standard 10-round match — 10→3, 20→6, 30→9, 50→15.
+    const MAX_JOKERS_PER_MATCH = Math.round((room.maxRounds || 10) * 0.3);
+    if (!room.jokerUseCounts) room.jokerUseCounts = {};
+    if ((room.jokerUseCounts[roomPlayerId] || 0) >= MAX_JOKERS_PER_MATCH) {
+      return socket.emit('joker_error', { message: `Bu maçta joker hakkınız doldu (maç başına en fazla ${MAX_JOKERS_PER_MATCH} joker).` });
+    }
+
     // PRE-VALIDATION for game logic
     if (jokerType === 'extraTime' || jokerType === 'shield') {
       if (!room.isPaused || (room.guessingPlayerId !== roomPlayerId && room.guessingPlayerId !== socket.id)) {
@@ -980,6 +991,10 @@ io.on('connection', (socket) => {
         return socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
       }
     }
+
+    // Committed past this point (DB deduction, if any, already succeeded) —
+    // count this use against the match cap.
+    room.jokerUseCounts[roomPlayerId] = (room.jokerUseCounts[roomPlayerId] || 0) + 1;
 
     // Room-state effects are always keyed by the room-scoped id (guessingPlayerId),
     // never the account id — keeps this consistent with how scores/activeShields
