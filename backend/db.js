@@ -67,6 +67,10 @@ const playerSchema = new mongoose.Schema({
   correct_guesses: { type: Number, default: 0 },
   taboos: { type: Number, default: 0 },
   coins: { type: Number, default: 100 },
+  adCoinRewards: {
+    date: { type: String, default: '' },   // 'YYYY-MM-DD' of the last granted reward
+    count: { type: Number, default: 0 }    // rewards granted that day
+  },
   jokers: {
     revealLetters: { type: Number, default: 0 },
     extraTime: { type: Number, default: 0 },
@@ -359,6 +363,40 @@ module.exports = {
       : { _id: player._id };
     const updated = await Player.findOneAndUpdate(filter, { $inc: { coins: amount } }, { new: true });
     return updated ? updated.toObject() : null;
+  },
+
+  // Daily-capped "watch an ad for coins" reward (Market screen). The rollover
+  // write is a separate, idempotent step (only matches when the stored date
+  // isn't today, so a concurrent duplicate is a harmless no-op); the actual
+  // grant is a single atomic findOneAndUpdate gated on today's count still
+  // being under the limit, so concurrent requests can't grant more than
+  // DAILY_AD_COIN_LIMIT rewards even if they race.
+  grantAdCoinReward: async (playerId) => {
+    await connectDB();
+    const player = await findPlayerById(playerId);
+    if (!player) return { error: 'Oyuncu bulunamadı' };
+
+    const today = new Date().toISOString().slice(0, 10);
+    const DAILY_AD_COIN_LIMIT = 5;
+    const AD_COIN_REWARD = 50;
+
+    if (player.adCoinRewards?.date !== today) {
+      await Player.updateOne(
+        { _id: player._id, 'adCoinRewards.date': { $ne: today } },
+        { $set: { adCoinRewards: { date: today, count: 0 } } }
+      );
+    }
+
+    const updated = await Player.findOneAndUpdate(
+      { _id: player._id, 'adCoinRewards.date': today, 'adCoinRewards.count': { $lt: DAILY_AD_COIN_LIMIT } },
+      { $inc: { coins: AD_COIN_REWARD, 'adCoinRewards.count': 1 } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return { error: 'Günlük reklam ödülü limitine ulaştınız, yarın tekrar deneyin.', limitReached: true };
+    }
+    return { player: updated.toObject(), remaining: DAILY_AD_COIN_LIMIT - updated.adCoinRewards.count };
   },
 
   buyJoker: async (playerId, jokerType, price = 50) => {

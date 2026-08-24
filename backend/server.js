@@ -897,11 +897,11 @@ io.on('connection', (socket) => {
       return socket.emit('joker_error', { message: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
     }
     try {
-      const updatedUser = await db.updatePlayerCoins(playerId, 50);
-      if (updatedUser) {
-        socket.emit('joker_bought', { player: updatedUser, jokerType: 'freeCoins' });
+      const result = await db.grantAdCoinReward(playerId);
+      if (result.player) {
+        socket.emit('joker_bought', { player: result.player, jokerType: 'freeCoins' });
       } else {
-        socket.emit('joker_error', { message: 'Ödül eklenemedi, lütfen tekrar deneyin.' });
+        socket.emit('joker_error', { message: result.error || 'Ödül eklenemedi, lütfen tekrar deneyin.' });
       }
     } catch (e) {
       console.error('Error rewarding free coins:', e);
