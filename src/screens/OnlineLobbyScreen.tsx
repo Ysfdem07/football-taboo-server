@@ -283,8 +283,20 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       <View style={styles.cyberOverlay} />
       <SafeAreaView style={styles.container}>
         <View style={styles.mainWrapper}>
-          <Text style={styles.title}>{language === 'en' ? 'DUEL' : 'DÜELLO'}</Text>
-          <Text style={styles.subtitle}>{language === 'en' ? 'Real-Time Online Mode' : 'Gerçek Zamanlı Online Mod'}</Text>
+          <Text style={[styles.title, { color: showRankedOptions ? NEON_PURPLE : NEON_GREEN }]}>
+            {showRankedOptions
+              ? (language === 'en' ? 'RANKED' : 'DERECELİ')
+              : showFriendlyOptions
+                ? (language === 'en' ? 'FRIENDLY' : 'DOSTLUK')
+                : (language === 'en' ? 'DUEL' : 'DÜELLO')}
+          </Text>
+          <Text style={styles.subtitle}>
+            {showRankedOptions
+              ? (language === 'en' ? 'Earn KP, climb the league' : 'KP Kazan, Ligde Yüksel')
+              : showFriendlyOptions
+                ? (language === 'en' ? 'No rank, just coins & fun' : 'Rütbe Yok, Sadece Coin ve Eğlence')
+                : (language === 'en' ? 'Real-Time Online Mode' : 'Gerçek Zamanlı Online Mod')}
+          </Text>
           {lobbyStatus !== 'idle' ? (
           <View style={styles.searchingContainer}>
             <ActivityIndicator size="large" color="#00FF88" />
@@ -522,6 +534,10 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     />
                     <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>{language === 'en' ? 'RANKED' : 'DERECELİ'}</Text>
                     <Text style={[styles.modeSubLabel, { color: '#fff' }]}>{language === 'en' ? 'PLAY' : 'OYNA'}</Text>
+                    <View style={[styles.modeBadge, { borderColor: 'rgba(168,85,247,0.5)' }]}>
+                      <Ionicons name="analytics-outline" size={11} color="rgba(255,255,255,0.75)" />
+                      <Text style={styles.modeBadgeText}>{language === 'en' ? 'Earn KP' : 'KP Kazan'}</Text>
+                    </View>
                   </BlurView>
                 </TouchableOpacity>
 
@@ -545,6 +561,10 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
                     />
                     <Text style={[styles.modeLabel, { textShadowRadius: 10 }]}>{language === 'en' ? 'FRIENDLY' : 'DOSTLUK'}</Text>
                     <Text style={[styles.modeSubLabel, { color: '#fff' }]}>{language === 'en' ? 'MATCH' : 'MAÇI'}</Text>
+                    <View style={[styles.modeBadge, { borderColor: 'rgba(0,255,136,0.5)' }]}>
+                      <Ionicons name="game-controller-outline" size={11} color="rgba(255,255,255,0.75)" />
+                      <Text style={styles.modeBadgeText}>{language === 'en' ? 'No Rank, Just Fun' : 'Serbest Oda'}</Text>
+                    </View>
                   </BlurView>
                 </TouchableOpacity>
               </View>
@@ -685,6 +705,22 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1,
     marginTop: -4,
+  },
+  modeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+    borderRadius: 20,
+    borderWidth: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  modeBadgeText: {
+    color: 'rgba(255,255,255,0.75)',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 9,
   },
   // ── COLLAPSE HEADER (when sub-menu is open) ──
   collapseHeader: {
