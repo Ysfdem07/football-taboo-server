@@ -463,14 +463,11 @@ export default function ProfileScreen({ navigation }: Props) {
     return (player as any)?.categoryKp?.[catId] ?? 0;
   };
 
-  // Same hybrid format as the leaderboard ("68% (24G)"), including the
-  // same <5-match safeguard so a small sample doesn't show a misleading
-  // percentage (1 win out of 1 match reading as "100%").
+  // Same hybrid format as the leaderboard ("68% (24G)" / "68% (24W)").
   const getCategoryWinRateText = (catId: string) => {
     const won = (player as any)?.categoryWins?.[catId] ?? 0;
     const played = (player as any)?.categoryMatchesPlayed?.[catId] ?? 0;
-    if (!played || played < 5) return `${won} ${t('wins')}`;
-    const pct = Math.round((won / played) * 100);
+    const pct = played > 0 ? Math.round((won / played) * 100) : 0;
     return language === 'en' ? `${pct}% (${won}W)` : `%${pct} (${won}G)`;
   };
   

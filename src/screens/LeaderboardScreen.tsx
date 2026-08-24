@@ -142,12 +142,8 @@ export default function LeaderboardScreen() {
     ? getLeagueForKp(activeLeagueObj.minKp, language as 'tr'|'en') 
     : getLeagues(language as 'tr'|'en')[getLeagues(language as 'tr'|'en').length - 1];
 
-  // Below ~5 matches a win rate is noise (1 win out of 1 game reads as a
-  // misleading "100%"), so those players just show a plain win count —
-  // everyone else gets "68% (24G)" / "68% (24W)".
   const winRateText = (won: number, played: number) => {
-    if (!played || played < 5) return `${won} ${t('wins')}`;
-    const pct = Math.round((won / played) * 100);
+    const pct = played > 0 ? Math.round((won / played) * 100) : 0;
     return language === 'en' ? `${pct}% (${won}W)` : `%${pct} (${won}G)`;
   };
 
