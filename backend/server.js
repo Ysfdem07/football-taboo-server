@@ -422,6 +422,97 @@ app.get('/api/fix-tournaments', requireAdmin, async (req, res) => {
   }
 });
 
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Manual push-notification panel — same requireAdmin gate as the other
+// admin routes above (x-admin-key header or ?key= query param matching
+// ADMIN_SECRET). For a real-time opportunity that doesn't fit the Friday
+// 18:00 weekly-tournament cron (see below): open this URL with ?key=...,
+// fill in the form, it sends immediately to every currently-registered
+// push token via the same sendPushNotifications() the cron uses.
+app.get('/admin/notify', requireAdmin, (req, res) => {
+  const key = escapeHtml(req.query.key);
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.send(`<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wordico — Bildirim Gönder</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #0b1220; color: #eee; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+  h1 { font-size: 20px; }
+  label { display: block; margin-top: 16px; font-size: 14px; color: #aaa; }
+  input[type=text], textarea { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #161f33; color: #fff; font-size: 15px; margin-top: 4px; }
+  textarea { min-height: 80px; resize: vertical; }
+  .checks { display: flex; gap: 20px; margin-top: 16px; }
+  .checks label { display: flex; align-items: center; gap: 6px; margin-top: 0; color: #ddd; }
+  button { margin-top: 24px; width: 100%; padding: 14px; border-radius: 10px; border: none; background: #00c853; color: #05130a; font-weight: 700; font-size: 15px; }
+</style></head>
+<body>
+  <h1>🔔 Manuel Bildirim Gönder</h1>
+  <p style="color:#888;font-size:13px">Şu an kayıtlı olan tüm push token'lara anında gönderilir. Geri alınamaz.</p>
+  <form method="GET" action="/admin/notify/send">
+    <input type="hidden" name="key" value="${key}">
+    <label>Başlık<input type="text" name="title" required maxlength="100"></label>
+    <label>Mesaj<textarea name="body" required maxlength="200"></textarea></label>
+    <label>Dokununca gidilecek ekran (opsiyonel, örn. Tournament, Market)<input type="text" name="route" maxlength="40"></label>
+    <div class="checks">
+      <label><input type="checkbox" name="targetPlayers" value="1" checked> Kayıtlı oyunculara</label>
+      <label><input type="checkbox" name="targetGuests" value="1" checked> Misafirlere</label>
+    </div>
+    <button type="submit">Gönder</button>
+  </form>
+</body></html>`);
+});
+
+app.get('/admin/notify/send', requireAdmin, async (req, res) => {
+  const key = escapeHtml(req.query.key);
+  const title = (req.query.title || '').toString().trim();
+  const body = (req.query.body || '').toString().trim();
+  const route = (req.query.route || '').toString().trim();
+  const wantPlayers = !!req.query.targetPlayers;
+  const wantGuests = !!req.query.targetGuests;
+
+  if (!title || !body) {
+    return res.status(400).send('Başlık ve mesaj gerekli. <a href="javascript:history.back()">Geri</a>');
+  }
+
+  try {
+    let tokens = [];
+    if (wantPlayers) {
+      const players = await db.getPlayersWithPushTokens();
+      tokens.push(...players.map(p => p.pushToken));
+    }
+    if (wantGuests) {
+      tokens.push(...(await db.getGuestPushTokens()));
+    }
+    tokens = [...new Set(tokens)].filter(Boolean);
+
+    if (tokens.length === 0) {
+      return res.send('Gönderilecek kayıtlı token bulunamadı. <a href="javascript:history.back()">Geri</a>');
+    }
+
+    const messages = tokens.map(token => ({
+      pushToken: token,
+      title,
+      body,
+      data: route ? { route } : {}
+    }));
+    const tickets = await sendPushNotifications(messages);
+    console.log(`[AdminNotify] Sent "${title}" to ${tokens.length} tokens (players=${wantPlayers}, guests=${wantGuests}, route=${route || 'none'})`);
+
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    res.send(`<!doctype html><html><body style="font-family:sans-serif;background:#0b1220;color:#eee;max-width:480px;margin:40px auto;padding:0 16px">
+      <h2>✅ Gönderildi</h2>
+      <p>${escapeHtml(title)} — ${tokens.length} cihaza, ${tickets.length} bilet oluşturuldu.</p>
+      <p><a href="/admin/notify?key=${key}" style="color:#00c853">← Yeni bildirim gönder</a></p>
+    </body></html>`);
+  } catch (e) {
+    console.error('[AdminNotify] error:', e);
+    res.status(500).send('Sunucu hatası: ' + escapeHtml(e.message));
+  }
+});
+
 // ─── Tournament Init ─────────────────────────────────────────────────────────
 async function initTournament() {
   try {
