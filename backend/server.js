@@ -1469,22 +1469,26 @@ async function startRound(roomId) {
       console.log(`[FriendlyGame] Room ${roomId} ending. players=${room.players.length} highScore=${highScore} isTie=${isTie}`);
       for (const p of room.players) {
         const score = room.scores[p.id] || 0;
-        console.log(`  → player "${p.name}" dbPlayerId=${p.dbPlayerId} score=${score}`);
-        if (!p.dbPlayerId) {
-          console.log(`    SKIP: no dbPlayerId (not logged in)`);
-          continue;
-        }
         const isWinner = !isTie && score === highScore;
         const coinsEarned = isWinner ? 25 : 5;
+        // Always set, guest or not — coinChanges is what the client uses to
+        // credit the reward, whether that's a DB write (below) or a
+        // local-only guest balance (client has no DB record to look up).
+        coinChanges[p.id] = coinsEarned;
+        kpChanges[p.id] = 0;
+        console.log(`  → player "${p.name}" dbPlayerId=${p.dbPlayerId} score=${score} winner=${isWinner} coins=+${coinsEarned}`);
+
+        if (!p.dbPlayerId) {
+          console.log(`    GUEST: no DB record — client will credit ${coinsEarned} coins locally`);
+          continue;
+        }
         const updatedPlayer = await db.updatePlayerCoins(p.dbPlayerId, coinsEarned);
         if (updatedPlayer) {
-          console.log(`    OK: +${coinsEarned} coins → newBalance=${updatedPlayer.coins} (winner=${isWinner})`);
+          console.log(`    OK: +${coinsEarned} coins → newBalance=${updatedPlayer.coins}`);
           applyReward(p.id, updatedPlayer);
         } else {
           console.log(`    ERROR: Player not found in DB for dbPlayerId=${p.dbPlayerId}`);
         }
-        coinChanges[p.id] = coinsEarned;
-        kpChanges[p.id] = 0;
       }
     }
 

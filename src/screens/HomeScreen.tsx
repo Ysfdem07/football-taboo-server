@@ -74,12 +74,24 @@ export default function HomeScreen() {
             const parsed = JSON.parse(profileData);
             setPlayer(parsed);
             // Kayıtlı oyuncuysa ID'siyle kaydet
-            if (parsed.id && token) {
+            if (parsed.id && parsed.id !== 'guest' && token) {
               socket.emit('save_push_token', { playerId: parsed.id, token });
+            } else if (token) {
+              socket.emit('save_guest_push_token', { token });
             }
           } else {
-            setPlayer(null);
-            // Misafirse sadece token'ı kaydet
+            // İlk açılış, ne hesap ne misafir profili var — ismi (ve
+            // coins/jokers'ı) daha sonra rastgele üretmek yerine hemen
+            // burada kilitliyoruz, böylece login olmadığı sürece her
+            // ekranda ve her oturumda aynı "Guest_XXXX" ismiyle görünür.
+            const guest = {
+              id: 'guest',
+              username: `Guest_${Math.floor(1000 + Math.random() * 9000)}`,
+              coins: 0,
+              jokers: { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 },
+            };
+            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
+            setPlayer(guest);
             if (token) {
               socket.emit('save_guest_push_token', { token });
             }

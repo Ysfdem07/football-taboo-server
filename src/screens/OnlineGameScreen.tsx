@@ -288,16 +288,35 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.kpChanges) setKpChanges(data.kpChanges);
       if (data.coinChanges) setCoinChanges(data.coinChanges);
 
-      // Primary reliable path: server embeds updated profile directly in game_over, keyed by dbPlayerId
       try {
         const stored = await AsyncStorage.getItem('@logged_in_profile');
-        if (stored) {
-          const cached = JSON.parse(stored);
-          const cachedId = cached.id || cached._id;
+        const cached = stored ? JSON.parse(stored) : {};
+        const cachedId = cached.id || cached._id;
+
+        if (cachedId && cachedId !== 'guest') {
+          // Real account: server embeds the updated profile directly in
+          // game_over, keyed by dbPlayerId — this is the reliable path.
           const myUpdate = data.playerUpdates?.[cachedId];
           if (myUpdate) {
             setPlayer(myUpdate);
             await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
+          }
+        } else {
+          // Guests have no DB record for the server to credit — friendly
+          // match coins are applied to the local-only guest profile
+          // instead, same convention MarketScreen's ad-reward flow uses
+          // (@logged_in_profile with id:'guest').
+          const myCoins = data.coinChanges?.[myOriginalId];
+          if (myCoins) {
+            const guest = {
+              ...cached,
+              id: 'guest',
+              username: cached.username || data.players?.find((p: any) => p.id === myOriginalId)?.name || 'Misafir',
+              coins: (cached.coins || 0) + myCoins,
+              jokers: cached.jokers || { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 },
+            };
+            setPlayer(guest);
+            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
           }
         }
       } catch (e) {}
