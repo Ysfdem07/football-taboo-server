@@ -912,11 +912,19 @@ io.on('connection', (socket) => {
   socket.on('reward_double_coins', async (data) => {
     const playerId = socket.data.playerId;
     if (!playerId) return socket.emit('joker_error', { message: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    // Grants exactly what this socket earned in the match it just finished
+    // (stashed at game_over time) — a true x2, whatever the base reward for
+    // that game mode was, instead of a flat number tuned for one mode.
+    const bonusAmount = socket.data.lastMatchCoinReward;
+    if (!bonusAmount) {
+      return socket.emit('joker_error', { message: 'Katlanacak bir maç ödülü bulunamadı.' });
+    }
     if (!checkRewardCooldown(playerId, 'coins')) {
       return socket.emit('joker_error', { message: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
     }
     try {
-      const result = await db.updatePlayerCoins(playerId, 50);
+      const result = await db.updatePlayerCoins(playerId, bonusAmount);
+      socket.data.lastMatchCoinReward = null; // one-time use per match
       if (result) {
         socket.emit('coins_updated', { player: result });
       } else {
@@ -1578,6 +1586,13 @@ async function resolveMatchForfeit(room, roomId, quitter) {
     }
   }
 
+  for (const [playerSocketId, coinAmount] of Object.entries(coinChanges)) {
+    if (coinAmount > 0) {
+      const s = io.sockets.sockets.get(playerSocketId);
+      if (s) s.data.lastMatchCoinReward = coinAmount;
+    }
+  }
+
   io.to(roomId).emit('opponent_disconnected', { scores: room.scores, kpChanges, coinChanges, playerUpdates, quitterId: quitter.id });
   delete activeRooms[roomId];
 }
@@ -1709,6 +1724,17 @@ async function startRound(roomId) {
         } else {
           console.log(`    ERROR: Player not found in DB for dbPlayerId=${p.dbPlayerId}`);
         }
+      }
+    }
+
+    // Remember what each player actually earned this match, keyed on their
+    // socket — reward_double_coins reads this later (after they've watched
+    // an ad) to grant a TRUE x2 (this amount again) instead of a flat bonus
+    // that only happened to be correct for one game mode's base reward.
+    for (const [playerSocketId, coinAmount] of Object.entries(coinChanges)) {
+      if (coinAmount > 0) {
+        const s = io.sockets.sockets.get(playerSocketId);
+        if (s) s.data.lastMatchCoinReward = coinAmount;
       }
     }
 

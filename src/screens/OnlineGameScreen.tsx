@@ -621,14 +621,20 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
             {/* ── Action Buttons ── */}
             <View style={styles.gameOverActions}>
-              {winnerIds.includes(myOriginalId) && !rewardCollected && (
+              {winnerIds.includes(myOriginalId) && !rewardCollected && (coinChanges[myOriginalId] ?? 0) > 0 && (
                 <TouchableOpacity
                   style={styles.rewardButton}
                   onPress={() => {
+                    const bonus = coinChanges[myOriginalId] || 0;
                     showRewarded(() => {
                       socket.emit('reward_double_coins', { playerId: player?.id });
                       setRewardCollected(true);
-                      CustomAlert.show(t('rewardTitle'), t('rewardDoubled'));
+                      CustomAlert.show(
+                        t('rewardTitle'),
+                        language === 'en'
+                          ? `Your earnings doubled! (+${bonus} Coins added).`
+                          : `Kazancınız 2'ye katlandı (+${bonus} Jeton eklendi).`
+                      );
                     });
                   }}
                   activeOpacity={0.8}
