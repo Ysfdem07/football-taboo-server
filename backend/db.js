@@ -663,11 +663,14 @@ module.exports = {
       if (!tournament || tournament.rewardsGiven) continue;
 
       const sorted = [...tournament.scores].sort((a, b) => b.bestScore - a.bestScore);
-      const kpMap = { 0: 500, 1: 300, 2: 150 };
+      const kpMap = { 0: 400, 1: 200, 2: 100 };
+      const coinMap = { 0: 500, 1: 250, 2: 100 };
 
       for (let i = 0; i < sorted.length; i++) {
-        const kp = kpMap[i] ?? 50; // participation KP for rest
-        await Player.findOneAndUpdate({ id: sorted[i].playerId }, { $inc: { kp } });
+        const kp = kpMap[i] ?? 15; // participation KP for rest
+        const coins = coinMap[i]; // coin reward only for top 3
+        const inc = coins ? { kp, coins } : { kp };
+        await Player.findOneAndUpdate({ id: sorted[i].playerId }, { $inc: inc });
         sorted[i].kpRewarded = true;
       }
 
