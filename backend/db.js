@@ -62,6 +62,18 @@ const playerSchema = new mongoose.Schema({
     cinema_en:   { type: Number, default: 0 },
     music_en:    { type: Number, default: 0 }
   },
+  // Per-category match count, separate from categoryWins — needed so the
+  // per-category leaderboard can compute a real win rate (categoryWins /
+  // categoryMatchesPlayed) instead of dividing a category-specific win count
+  // by the player's ALL-categories matches_played, which understates it.
+  categoryMatchesPlayed: {
+    football: { type: Number, default: 0 },
+    cinema:   { type: Number, default: 0 },
+    music:    { type: Number, default: 0 },
+    football_en: { type: Number, default: 0 },
+    cinema_en:   { type: Number, default: 0 },
+    music_en:    { type: Number, default: 0 }
+  },
   matches_played: { type: Number, default: 0 },
   matches_won: { type: Number, default: 0 },
   correct_guesses: { type: Number, default: 0 },
@@ -322,6 +334,7 @@ module.exports = {
     const cat = validCats.includes(category) ? category : 'football';
     const catKpField = `categoryKp.${cat}`;
     const catWinsField = `categoryWins.${cat}`;
+    const catPlayedField = `categoryMatchesPlayed.${cat}`;
 
     const player = await findPlayerById(playerId);
     if (!player) {
@@ -333,6 +346,7 @@ module.exports = {
       kp: { $max: [0, { $add: [{ $ifNull: ['$kp', 0] }, kpChange] }] },
       [catKpField]: { $max: [0, { $add: [{ $ifNull: [`$${catKpField}`, 0] }, kpChange] }] },
       matches_played: { $add: [{ $ifNull: ['$matches_played', 0] }, 1] },
+      [catPlayedField]: { $add: [{ $ifNull: [`$${catPlayedField}`, 0] }, 1] },
       correct_guesses: { $add: [{ $ifNull: ['$correct_guesses', 0] }, correctGuesses] },
       taboos: { $add: [{ $ifNull: ['$taboos', 0] }, taboos] },
     };
@@ -442,13 +456,14 @@ module.exports = {
     if (category && ['football', 'cinema', 'music'].includes(category)) {
       const sortField = `categoryKp.${category}`;
       const players = await Player.find({})
-        .select(`id username avatar kp categoryKp categoryWins matches_won matches_played -_id`)
+        .select(`id username avatar kp categoryKp categoryWins categoryMatchesPlayed matches_won matches_played -_id`)
         .sort({ [sortField]: -1 })
         .limit(50);
       return players.map(p => {
         const obj = p.toObject();
         obj.displayKp = (obj.categoryKp && obj.categoryKp[category]) || 0;
         obj.matches_won = (obj.categoryWins && obj.categoryWins[category]) || 0;
+        obj.matches_played = (obj.categoryMatchesPlayed && obj.categoryMatchesPlayed[category]) || 0;
         return obj;
       });
     }
