@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator';
@@ -24,6 +23,21 @@ import { LanguageProvider } from './src/context/LanguageContext';
 
 import { CustomAlert } from './src/components/CustomAlert';
 
+// Safe dynamic require, not a static import: this native module may not be
+// compiled into whichever binary the current OTA-delivered JS bundle lands
+// on (e.g. a build shipped before this module was added as a dependency).
+// A static `import` would crash the app on launch in that case — this
+// degrades to a no-op instead, and starts working automatically once a
+// build that actually links the module ships.
+let requestTrackingPermissionsAsync: (() => Promise<any>) | null = null;
+if (Platform.OS === 'ios') {
+  try {
+    requestTrackingPermissionsAsync = require('expo-tracking-transparency').requestTrackingPermissionsAsync;
+  } catch (e) {
+    // Module not linked into this binary yet — ATT prompt just gets skipped.
+  }
+}
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -38,7 +52,7 @@ export default function App() {
       await initCrashlytics();   // First — so it captures crashes from other inits
       await Analytics.init();
       await RemoteConfig.init();
-      if (Platform.OS === 'ios') {
+      if (requestTrackingPermissionsAsync) {
         // Required before any tracking-capable SDK activity — the Facebook
         // SDK (advertiserIDCollectionEnabled/autoLogAppEventsEnabled) reads
         // IDFA for ad measurement, and app.json already declares
