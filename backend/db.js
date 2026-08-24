@@ -38,7 +38,10 @@ const playerSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  // Optional: username+password is enough to register and play ranked/
+  // tournament — email is only needed for password recovery. sparse so the
+  // unique index doesn't collide across the many accounts that omit it.
+  email: { type: String, required: false, unique: true, sparse: true },
   marketingConsent: { type: Boolean, default: false },
   pushToken: { type: String, default: null },
   avatar: { type: String, default: '⚽' },
@@ -170,16 +173,20 @@ module.exports = {
 
   registerPlayer: async (username, password, avatar, email, marketingConsent) => {
     await connectDB();
-    const existing = await Player.findOne({
-      $or: [{ username: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') }, { email: new RegExp(`^${escapeRegex(email.trim())}$`, 'i') }]
-    });
+    const trimmedEmail = email && email.trim() ? email.trim() : null;
+    const dupConditions = [{ username: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') }];
+    if (trimmedEmail) dupConditions.push({ email: new RegExp(`^${escapeRegex(trimmedEmail)}$`, 'i') });
+    const existing = await Player.findOne({ $or: dupConditions });
     if (existing) return { error: 'Kullanıcı adı veya e-posta zaten kullanımda!' };
 
     const newPlayer = {
       id: `player_${Math.random().toString(36).substr(2, 9)}`,
       username: username.trim(),
       password: password,
-      email: email.trim(),
+      // Omit the field entirely (not '') when no email was given, so the
+      // schema's sparse unique index doesn't collide across guest-style
+      // username-only accounts.
+      ...(trimmedEmail ? { email: trimmedEmail } : {}),
       marketingConsent: marketingConsent,
       avatar: avatar || '⚽',
       kp: 0,

@@ -80,7 +80,8 @@ export default function CategoryMenuScreen() {
   const checkWordsAndNavigate = async (destination: 'Game' | 'OnlineLobby' | 'Tournament', mode?: 'ranked' | 'friendly') => {
     if (destination === 'Tournament' || (destination === 'OnlineLobby' && mode === 'ranked')) {
       const profileData = await AsyncStorage.getItem('@logged_in_profile');
-      if (!profileData) {
+      const parsedProfile = profileData ? JSON.parse(profileData) : null;
+      if (!parsedProfile || !parsedProfile.id || parsedProfile.id === 'guest') {
         CustomAlert.show(
           t('error'),
           language === 'en' ? 'You need to log in to play ranked modes!' : 'Dereceli maç oynamak veya turnuvaya katılmak için giriş yapmalısınız!',

@@ -140,7 +140,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       const joinPayload = {
         name: (playerName.trim() === 'Misafir' && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
-        dbPlayerId: profile?.id || profile?._id || null,
+        dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null),
         category: categoryId
       };
       s.emit('join_friendly_queue', joinPayload);
@@ -166,12 +166,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   };
 
   const findMatch = () => {
-    if (!profile || !profile.email) {
+    if (!profile || !profile.id || profile.id === 'guest') {
       CustomAlert.show(
         t('error'),
         language === 'en'
-          ? 'You must sign in with email to play ranked and earn KP.'
-          : 'Dereceli düello oynamak ve KP kazanmak için e-posta ile giriş yapmalısınız.',
+          ? 'You must sign in to play ranked and earn KP.'
+          : 'Dereceli düello oynamak ve KP kazanmak için giriş yapmalısınız.',
         [
           { text: t('cancel'), style: 'cancel' },
           { text: language === 'en' ? 'Go to Profile' : 'Profile Git', onPress: () => navigation.navigate('Profile') }
@@ -184,7 +184,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       const joinPayload = {
         name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
-        dbPlayerId: profile?.id || profile?._id || null,
+        dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null),
         category: categoryId
       };
       s.emit('join_queue', joinPayload);
@@ -206,12 +206,12 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   };
 
   const createRoom = (isRanked = false) => {
-    if (isRanked && (!profile || !profile.email)) {
+    if (isRanked && (!profile || !profile.id || profile.id === 'guest')) {
       CustomAlert.show(
         t('error'),
         language === 'en'
-          ? 'You must sign in with email to play ranked and earn KP.'
-          : 'Dereceli düello oynamak ve KP kazanmak için e-posta ile giriş yapmalısınız.',
+          ? 'You must sign in to play ranked and earn KP.'
+          : 'Dereceli düello oynamak ve KP kazanmak için giriş yapmalısınız.',
         [
           { text: t('cancel'), style: 'cancel' },
           { text: language === 'en' ? 'Go to Profile' : 'Profile Git', onPress: () => navigation.navigate('Profile') }
@@ -226,7 +226,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
         name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'), 
         maxRounds: isRanked ? 10 : maxRounds,
         isRanked,
-        dbPlayerId: profile?.id || profile?._id || null,
+        dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null),
         category: categoryId
       });
       s.on('room_created', (data: any) => {
@@ -249,7 +249,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       s.emit('join_room', { 
         roomCode: roomCodeInput.trim(), 
         name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
-        dbPlayerId: profile?.id || profile?._id || null
+        dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null)
       });
       
       s.on('room_joined', (data: any) => {

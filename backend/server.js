@@ -567,7 +567,9 @@ io.on('connection', (socket) => {
   // Profile Registration
   socket.on('register_profile', async (data) => {
     const { username, password, avatar, email, marketingConsent } = data || {};
-    if (typeof username !== 'string' || typeof password !== 'string' || typeof email !== 'string') {
+    // email is optional — only needed for password recovery, not to
+    // register or to unlock ranked/tournament play.
+    if (typeof username !== 'string' || typeof password !== 'string' || (email !== undefined && email !== null && typeof email !== 'string')) {
       return socket.emit('register_response', { success: false, error: 'Eksik veya geçersiz bilgi.' });
     }
     try {

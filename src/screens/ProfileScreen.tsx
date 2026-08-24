@@ -201,14 +201,14 @@ export default function ProfileScreen({ navigation }: Props) {
     }
 
     if (isRegisterMode) {
-      if (!email.trim()) {
-        CustomAlert.show('Hata', 'E-posta adresi gereklidir.');
-        return;
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email.trim())) {
-        CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
-        return;
+      // Email is optional — only used for password recovery — but if they
+      // did type something, it has to actually look like an email.
+      if (email.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+          CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+          return;
+        }
       }
       if (!marketingConsent) {
         CustomAlert.show('Hata', 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
@@ -522,15 +522,22 @@ export default function ProfileScreen({ navigation }: Props) {
                 )}
 
                 {isRegisterMode && (
-                  <TextInput
-                    style={styles.input}
-                    placeholder={language === 'en' ? "Email Address" : "E-posta Adresi"}
-                    placeholderTextColor="#888"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
+                  <>
+                    <TextInput
+                      style={styles.input}
+                      placeholder={language === 'en' ? "Email Address (optional)" : "E-posta Adresi (opsiyonel)"}
+                      placeholderTextColor="#888"
+                      value={email}
+                      onChangeText={setEmail}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                    />
+                    <Text style={styles.emailHintText}>
+                      {language === 'en'
+                        ? 'Only needed to recover your account if you forget your password.'
+                        : 'Yalnızca şifrenizi unutursanız hesabınızı kurtarmak için gereklidir.'}
+                    </Text>
+                  </>
                 )}
 
                 {isRegisterMode && (
@@ -715,6 +722,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: 'rgba(0,255,136,0.25)',
+  },
+  emailHintText: {
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+    color: 'rgba(255,255,255,0.55)',
+    marginTop: -8,
+    marginBottom: 15,
   },
   avatarSelectionSection: {
     marginVertical: 10,
