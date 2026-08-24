@@ -628,6 +628,30 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Add/change email on an already-authenticated account (e.g. a
+  // username-only signup deciding later they want recovery to work).
+  // Trusts socket.data.playerId (session-bound), never a client-supplied
+  // id — otherwise anyone could attach an email to someone else's account.
+  socket.on('update_email', async (data) => {
+    const playerId = socket.data.playerId;
+    const email = data?.email;
+    if (!playerId) return socket.emit('update_email_response', { success: false, error: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    if (typeof email !== 'string' || !email.trim()) return socket.emit('update_email_response', { success: false, error: 'Eksik bilgi!' });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) return socket.emit('update_email_response', { success: false, error: 'Geçerli bir e-posta adresi girin.' });
+    try {
+      const result = await db.updatePlayerEmail(playerId, email);
+      if (result.error) {
+        socket.emit('update_email_response', { success: false, error: result.error });
+      } else {
+        socket.emit('update_email_response', { success: true, player: result.player });
+      }
+    } catch (e) {
+      console.error('[update_email] error:', e);
+      socket.emit('update_email_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
+    }
+  });
+
   // Forgot Password Code Request
   socket.on('forgot_password', async (data) => {
     const { email } = data;

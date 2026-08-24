@@ -79,6 +79,17 @@ const playerSchema = new mongoose.Schema({
   // bufferCommands: default true - allows queuing until connected
 });
 
+// autoIndex is off (see connectDB) — these are documentation of the actual
+// unique indexes already created directly on the collection (one-time
+// migration, not run through Mongoose), not something that gets applied
+// automatically. Collation makes username/email uniqueness case-insensitive,
+// matching the case-insensitive regex checks used elsewhere (registerPlayer,
+// loginPlayer, generateResetCode).
+const CASE_INSENSITIVE_COLLATION = { locale: 'en', strength: 2 };
+playerSchema.index({ id: 1 }, { unique: true, name: 'id_unique' });
+playerSchema.index({ username: 1 }, { unique: true, collation: CASE_INSENSITIVE_COLLATION, name: 'username_unique_ci' });
+playerSchema.index({ email: 1 }, { unique: true, sparse: true, collation: CASE_INSENSITIVE_COLLATION, name: 'email_unique_ci_sparse' });
+
 const Player = mongoose.model('Player', playerSchema);
 
 const systemLogSchema = new mongoose.Schema({
@@ -224,6 +235,29 @@ module.exports = {
     );
     if (!player) return null;
     return player.toObject();
+  },
+
+  // Lets an already-authenticated player add/change the email on their
+  // account (e.g. a guest-style username-only signup deciding later they
+  // want recovery to work). Only reachable while logged in — this is NOT
+  // the account-recovery path, so it must never be usable to claim
+  // someone else's username by attaching an email to it after the fact.
+  updatePlayerEmail: async (playerId, email) => {
+    await connectDB();
+    const trimmedEmail = email.trim();
+    const existing = await Player.findOne({
+      email: new RegExp(`^${escapeRegex(trimmedEmail)}$`, 'i'),
+      id: { $ne: playerId }
+    });
+    if (existing) return { error: 'Bu e-posta adresi başka bir hesapta kullanımda!' };
+
+    const player = await Player.findOneAndUpdate(
+      { id: playerId },
+      { $set: { email: trimmedEmail } },
+      { new: true }
+    );
+    if (!player) return { error: 'Oyuncu bulunamadı.' };
+    return { player: player.toObject() };
   },
 
   // Atomic, race-safe stat/coin update. Uses a MongoDB aggregation-pipeline

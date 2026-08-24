@@ -23,7 +23,7 @@ type Props = {
 export default function ProfileScreen({ navigation }: Props) {
   const { t, language } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authStep, setAuthStep] = useState<'login' | 'register' | 'forgot_request' | 'forgot_verify'>('login');
+  const [authStep, setAuthStep] = useState<'login' | 'register' | 'forgot_request' | 'forgot_verify'>('register');
   const [loading, setLoading] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   
@@ -47,6 +47,10 @@ export default function ProfileScreen({ navigation }: Props) {
   const [resetEmail, setResetEmail] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+
+  // "Add email" (logged-in players who signed up without one)
+  const [addingEmail, setAddingEmail] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
 
   const isRegisterMode = authStep === 'register';
 
@@ -130,13 +134,33 @@ export default function ProfileScreen({ navigation }: Props) {
     socket.on('reset_password_response', (res: any) => {
       setLoading(false);
       if (res.success) {
-        CustomAlert.show('Başarılı', res.message);
+        // Account recovered — log straight in on this device instead of
+        // sending them to a login form (there's no password to type there).
+        saveSession(res.player);
+        Analytics.logUserLogin(res.player.id, res.player.username);
         setResetEmail('');
         setResetCode('');
         setNewPassword('');
-        setAuthStep('login');
+        CustomAlert.show('Hesabın Geri Geldi! 🎉', 'Hesabına bu cihazdan giriş yapıldı.');
       } else {
-        CustomAlert.show('Sıfırlama Hatası', res.error || 'Şifre güncellenemedi.');
+        CustomAlert.show('Kurtarma Hatası', res.error || 'Hesap kurtarılamadı.');
+      }
+    });
+
+    socket.on('update_email_response', async (res: any) => {
+      setLoading(false);
+      if (res.success) {
+        setPlayer(res.player);
+        setAddingEmail(false);
+        setEmailInput('');
+        try {
+          const stored = await AsyncStorage.getItem('@logged_in_profile');
+          const cached = stored ? JSON.parse(stored) : {};
+          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...cached, ...res.player }));
+        } catch (e) {}
+        CustomAlert.show('Başarılı! 🎉', 'E-posta hesabına eklendi — artık bu cihazı kaybedersen hesabını kurtarabilirsin.');
+      } else {
+        CustomAlert.show('Hata', res.error || 'E-posta eklenemedi.');
       }
     });
 
@@ -145,6 +169,7 @@ export default function ProfileScreen({ navigation }: Props) {
       socket.off('login_response');
       socket.off('forgot_password_response');
       socket.off('reset_password_response');
+      socket.off('update_email_response');
     };
   }, []);
 
@@ -180,54 +205,69 @@ export default function ProfileScreen({ navigation }: Props) {
     CustomAlert.show('Başarılı! 🎉', 'Profil avatarın başarıyla güncellendi.');
   };
 
-  const handleAuth = () => {
-    if (!username.trim() || !password.trim()) {
-      CustomAlert.show('Hata', 'Lütfen tüm alanları doldurun.');
+  const handleAddEmail = () => {
+    if (!emailInput.trim()) {
+      CustomAlert.show('Hata', 'Lütfen e-posta adresinizi girin.');
       return;
     }
-    const isEmailInput = username.includes('@');
-    if (isRegisterMode || !isEmailInput) {
-      if (username.length < 3 || username.length > 30) {
-        CustomAlert.show('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
-        return;
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailInput.trim())) {
+      CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+      return;
     }
-
-    if (isRegisterMode) {
-      if (password.length < 6 || password.length > 20) {
-        CustomAlert.show('Hata', 'Şifre 6-20 karakter arasında olmalıdır.');
-        return;
-      }
-    }
-
-    if (isRegisterMode) {
-      // Email is optional — only used for password recovery — but if they
-      // did type something, it has to actually look like an email.
-      if (email.trim()) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email.trim())) {
-          CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
-          return;
-        }
-      }
-      if (!marketingConsent) {
-        CustomAlert.show('Hata', 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
-        return;
-      }
-    }
-
     setLoading(true);
-    if (isRegisterMode) {
-      socket.emit('register_profile', { 
-        username, 
-        password, 
-        avatar: selectedAvatar,
-        email: email.trim(),
-        marketingConsent
-      });
-    } else {
-      socket.emit('login_profile', { username, password });
+    socket.emit('update_email', { email: emailInput.trim() });
+  };
+
+  // The account still has a password server-side (login_profile needs one),
+  // but the user never sees or types it — this device just remembers it
+  // (saveSession) for silent auto-login. Recovering on a new device
+  // (handleForgotVerify) generates a fresh one the same way.
+  const generateHiddenPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let out = '';
+    for (let i = 0; i < 24; i++) out += chars.charAt(Math.floor(Math.random() * chars.length));
+    return out;
+  };
+
+  // Only the register flow remains here — there's no password for the user
+  // to type at login anymore. Returning to an already-set-up device happens
+  // silently (loadLocalSession's cached-credential login_profile call);
+  // returning to a NEW device happens via handleForgotVerify (account
+  // recovery), which also generates+submits a fresh hidden password.
+  const handleAuth = () => {
+    if (!username.trim()) {
+      CustomAlert.show('Hata', 'Lütfen kullanıcı adınızı girin.');
+      return;
     }
+    if (username.length < 3 || username.length > 30) {
+      CustomAlert.show('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
+      return;
+    }
+    // Email is optional — only used for account recovery — but if they did
+    // type something, it has to actually look like an email.
+    if (email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+        return;
+      }
+    }
+    if (!marketingConsent) {
+      CustomAlert.show('Hata', 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
+      return;
+    }
+
+    const generatedPassword = generateHiddenPassword();
+    setPassword(generatedPassword);
+    setLoading(true);
+    socket.emit('register_profile', {
+      username,
+      password: generatedPassword,
+      avatar: selectedAvatar,
+      email: email.trim(),
+      marketingConsent
+    });
   };
 
   const handleForgotRequest = () => {
@@ -257,23 +297,24 @@ export default function ProfileScreen({ navigation }: Props) {
   };
 
   const handleForgotVerify = () => {
-    if (!resetCode.trim() || !newPassword.trim()) {
-      CustomAlert.show('Hata', 'Lütfen tüm alanları doldurun.');
+    if (!resetCode.trim()) {
+      CustomAlert.show('Hata', 'Lütfen doğrulama kodunu girin.');
       return;
     }
     if (resetCode.trim().length !== 6) {
       CustomAlert.show('Hata', 'Doğrulama kodu 6 haneli olmalıdır.');
       return;
     }
-    if (newPassword.length < 6) {
-      CustomAlert.show('Hata', 'Yeni şifre en az 6 karakter olmalıdır.');
-      return;
-    }
+    // No password field to type here either — recovering the account on
+    // this device just needs a fresh hidden password generated and set,
+    // same as at registration.
+    const generatedPassword = generateHiddenPassword();
+    setNewPassword(generatedPassword);
     setLoading(true);
-    socket.emit('reset_password', { 
-      email: resetEmail.trim(), 
-      code: resetCode.trim(), 
-      newPassword 
+    socket.emit('reset_password', {
+      email: resetEmail.trim(),
+      code: resetCode.trim(),
+      newPassword: generatedPassword
     });
   };
 
@@ -284,6 +325,7 @@ export default function ProfileScreen({ navigation }: Props) {
       setPlayer(null);
       setUsername('');
       setPassword('');
+      setAuthStep('register');
       CustomAlert.show('Çıkış Yapıldı', 'Profil oturumu sonlandırıldı.');
     } catch (e) {
       console.error(e);
@@ -336,8 +378,42 @@ export default function ProfileScreen({ navigation }: Props) {
               </TouchableOpacity>
               
               <Text style={[styles.username, { marginTop: 8 }]}>{player.username}</Text>
-              {player.email && <Text style={styles.emailText}>{player.email}</Text>}
-              
+              {player.email ? (
+                <Text style={styles.emailText}>{player.email}</Text>
+              ) : addingEmail ? (
+                <View style={styles.addEmailForm}>
+                  <TextInput
+                    style={styles.addEmailInput}
+                    placeholder={language === 'en' ? 'Email Address' : 'E-posta Adresi'}
+                    placeholderTextColor="#888"
+                    value={emailInput}
+                    onChangeText={setEmailInput}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    autoFocus
+                  />
+                  {loading ? (
+                    <ActivityIndicator size="small" color={Colors.primary} />
+                  ) : (
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <TouchableOpacity style={styles.addEmailSaveBtn} onPress={handleAddEmail}>
+                        <Text style={styles.addEmailSaveBtnText}>{language === 'en' ? 'Save' : 'Kaydet'}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.addEmailCancelBtn} onPress={() => { setAddingEmail(false); setEmailInput(''); }}>
+                        <Text style={styles.addEmailCancelBtnText}>{language === 'en' ? 'Cancel' : 'Vazgeç'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              ) : (
+                <TouchableOpacity onPress={() => setAddingEmail(true)} style={styles.addEmailPrompt} activeOpacity={0.8}>
+                  <Ionicons name="mail-outline" size={13} color="#FFD700" style={{ marginRight: 5 }} />
+                  <Text style={styles.addEmailPromptText}>
+                    {language === 'en' ? 'Add email to protect your account' : 'Hesabını korumak için e-posta ekle'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               {/* Overall Level Card */}
               <View style={styles.leagueCard}>
                 <View style={{ marginBottom: 8, padding: 16, backgroundColor: 'rgba(0,255,136,0.1)', borderRadius: 40 }}>
@@ -412,11 +488,11 @@ export default function ProfileScreen({ navigation }: Props) {
               </TouchableOpacity>
             </View>
             ) : authStep === 'forgot_request' ? (
-              // FORGOT PASSWORD REQUEST VIEW
+              // ACCOUNT RECOVERY REQUEST VIEW
               <View style={styles.authCard}>
-                <Text style={styles.authTitle}>Şifremi Unuttum</Text>
+                <Text style={styles.authTitle}>Hesabımı Kurtar</Text>
                 <Text style={styles.authSubtitle}>
-                  Kayıtlı e-posta adresinizi girin, şifre sıfırlama kodunu gönderelim.
+                  Hesabına kayıtlı e-posta adresini gir, doğrulama kodunu gönderelim.
                 </Text>
 
                 <TextInput
@@ -442,11 +518,12 @@ export default function ProfileScreen({ navigation }: Props) {
                 </TouchableOpacity>
               </View>
             ) : authStep === 'forgot_verify' ? (
-              // FORGOT PASSWORD VERIFY/RESET VIEW
+              // ACCOUNT RECOVERY VERIFY VIEW — no password field here either;
+              // handleForgotVerify generates one behind the scenes.
               <View style={styles.authCard}>
-                <Text style={styles.authTitle}>Şifreyi Yenile</Text>
+                <Text style={styles.authTitle}>Kodu Doğrula</Text>
                 <Text style={styles.authSubtitle}>
-                  E-postanıza gönderilen 6 haneli kodu ve belirlemek istediğiniz yeni şifrenizi girin.
+                  E-postana gönderilen 6 haneli kodu gir, hesabın bu cihaza geri gelsin.
                 </Text>
 
                 <TextInput
@@ -460,21 +537,11 @@ export default function ProfileScreen({ navigation }: Props) {
                   maxLength={6}
                 />
 
-                <TextInput
-                  style={styles.input}
-                  placeholder="Yeni Şifre"
-                  placeholderTextColor="#888"
-                  secureTextEntry
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  autoCapitalize="none"
-                />
-
                 {loading ? (
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleForgotVerify}>
-                    <Text style={styles.authButtonText}>ŞİFREYİ GÜNCELLE</Text>
+                    <Text style={styles.authButtonText}>HESABIMI GERİ GETİR</Text>
                   </TouchableOpacity>
                 )}
 
@@ -482,23 +549,20 @@ export default function ProfileScreen({ navigation }: Props) {
                   <Text style={styles.toggleLinkText}>Yeniden Kod Gönder</Text>
                 </TouchableOpacity>
               </View>
-            ) : (
-              // AUTH LOGIN / REGISTER VIEW
+            ) : isRegisterMode ? (
+              // REGISTER VIEW — username + avatar only, no password to type;
+              // the app generates and remembers one silently.
               <View style={styles.authCard}>
                 <Text style={styles.authTitle}>
-                  {isRegisterMode 
-                    ? (language === 'en' ? 'Create New Profile' : 'Yeni Profil Oluştur') 
-                    : (language === 'en' ? 'Log In' : 'Profiline Giriş Yap')}
+                  {language === 'en' ? 'Create New Profile' : 'Yeni Profil Oluştur'}
                 </Text>
                 <Text style={styles.authSubtitle}>
-                  {isRegisterMode 
-                    ? (language === 'en' ? 'Register to join the league rankings and collect KP!' : 'Lig sıralamasına katılmak ve KP toplamak için kaydol!') 
-                    : (language === 'en' ? 'Log in to protect your career points and rank.' : 'Kariyer puanlarını ve rütbeni korumak için giriş yap.')}
+                  {language === 'en' ? 'Register to join the league rankings and collect KP!' : 'Lig sıralamasına katılmak ve KP toplamak için kaydol!'}
                 </Text>
 
                 <TextInput
                   style={styles.input}
-                  placeholder={isRegisterMode ? (language === 'en' ? "Username" : "Kullanıcı Adı") : (language === 'en' ? "Username or Email" : "Kullanıcı Adı veya E-posta")}
+                  placeholder={language === 'en' ? "Username" : "Kullanıcı Adı"}
                   placeholderTextColor="#888"
                   value={username}
                   onChangeText={setUsername}
@@ -507,95 +571,95 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 <TextInput
                   style={styles.input}
-                  placeholder={language === 'en' ? "Password" : "Şifre"}
+                  placeholder={language === 'en' ? "Email Address (optional)" : "E-posta Adresi (opsiyonel)"}
                   placeholderTextColor="#888"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
+                  value={email}
+                  onChangeText={setEmail}
                   autoCapitalize="none"
+                  keyboardType="email-address"
                 />
+                <Text style={styles.emailHintText}>
+                  {language === 'en'
+                    ? "Without this, your account can't be recovered if you lose this device — you'll never need to type a password otherwise."
+                    : 'Bunu eklemezseniz, bu cihazı kaybettiğinizde hesabınız kurtarılamaz — aksi halde hiçbir zaman şifre girmeniz gerekmeyecek.'}
+                </Text>
 
-                {!isRegisterMode && (
-                  <TouchableOpacity onPress={() => setAuthStep('forgot_request')} style={styles.forgotLink}>
-                    <Text style={styles.forgotLinkText}>{language === 'en' ? 'Forgot Password?' : 'Şifremi Unuttum'}</Text>
-                  </TouchableOpacity>
-                )}
+                <View style={styles.avatarSelectionSection}>
+                  <Text style={styles.avatarSelectLabel}>{language === 'en' ? 'Select Your Profile Avatar:' : 'Profil Avatarınızı Seçin:'}</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll} contentContainerStyle={{ gap: 10, paddingVertical: 4 }}>
+                    {AVATAR_OPTIONS.map(opt => (
+                      <TouchableOpacity
+                        key={opt.id}
+                        style={[
+                          styles.avatarSelectorCard,
+                          selectedAvatar === opt.id && { borderColor: opt.borderColor, backgroundColor: `${opt.borderColor}30` }
+                        ]}
+                        onPress={() => setSelectedAvatar(opt.id)}
+                        activeOpacity={0.8}
+                      >
+                        <UserAvatar avatar={opt.id} size={46} />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
 
-                {isRegisterMode && (
-                  <>
-                    <TextInput
-                      style={styles.input}
-                      placeholder={language === 'en' ? "Email Address (optional)" : "E-posta Adresi (opsiyonel)"}
-                      placeholderTextColor="#888"
-                      value={email}
-                      onChangeText={setEmail}
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                    />
-                    <Text style={styles.emailHintText}>
-                      {language === 'en'
-                        ? 'Only needed to recover your account if you forget your password.'
-                        : 'Yalnızca şifrenizi unutursanız hesabınızı kurtarmak için gereklidir.'}
-                    </Text>
-                  </>
-                )}
-
-                {isRegisterMode && (
-                  <View style={styles.avatarSelectionSection}>
-                    <Text style={styles.avatarSelectLabel}>{language === 'en' ? 'Select Your Profile Avatar:' : 'Profil Avatarınızı Seçin:'}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarScroll} contentContainerStyle={{ gap: 10, paddingVertical: 4 }}>
-                      {AVATAR_OPTIONS.map(opt => (
-                        <TouchableOpacity 
-                          key={opt.id} 
-                          style={[
-                            styles.avatarSelectorCard,
-                            selectedAvatar === opt.id && { borderColor: opt.borderColor, backgroundColor: `${opt.borderColor}30` }
-                          ]}
-                          onPress={() => setSelectedAvatar(opt.id)}
-                          activeOpacity={0.8}
-                        >
-                          <UserAvatar avatar={opt.id} size={46} />
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
+                <TouchableOpacity
+                  style={styles.consentRow}
+                  onPress={() => setMarketingConsent(!marketingConsent)}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.checkbox, marketingConsent && styles.checkboxChecked]}>
+                    {marketingConsent && <Ionicons name="checkmark" size={14} color={Colors.white} />}
                   </View>
-                )}
-
-                {isRegisterMode && (
-                  <TouchableOpacity 
-                    style={styles.consentRow} 
-                    onPress={() => setMarketingConsent(!marketingConsent)}
-                    activeOpacity={0.8}
-                  >
-                    <View style={[styles.checkbox, marketingConsent && styles.checkboxChecked]}>
-                      {marketingConsent && <Ionicons name="checkmark" size={14} color={Colors.white} />}
-                    </View>
-                    <Text style={styles.consentText}>
-                      Wordico gelişmelerinden ve özel fırsatlardan e-posta ile haberdar olmak istiyorum.
-                    </Text>
-                  </TouchableOpacity>
-                )}
+                  <Text style={styles.consentText}>
+                    Wordico gelişmelerinden ve özel fırsatlardan e-posta ile haberdar olmak istiyorum.
+                  </Text>
+                </TouchableOpacity>
 
                 {loading ? (
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleAuth}>
                     <Text style={styles.authButtonText}>
-                      {isRegisterMode 
-                        ? (language === 'en' ? 'CREATE PROFILE' : 'PROFİL YARAT') 
-                        : (language === 'en' ? 'LOG IN' : 'GİRİŞ YAP')}
+                      {language === 'en' ? 'CREATE PROFILE' : 'PROFİL YARAT'}
                     </Text>
                   </TouchableOpacity>
                 )}
 
-                <TouchableOpacity 
-                  onPress={() => setAuthStep(isRegisterMode ? 'login' : 'register')} 
-                  style={styles.toggleLink}
-                >
+                <TouchableOpacity onPress={() => setAuthStep('login')} style={styles.toggleLink}>
                   <Text style={styles.toggleLinkText}>
-                    {isRegisterMode 
-                      ? (language === 'en' ? 'Already have an account? Log In' : 'Zaten hesabın var mı? Giriş Yap') 
-                      : (language === 'en' ? "Don't have an account? Create Profile" : 'Henüz hesabın yok mu? Profil Yarat')}
+                    {language === 'en' ? 'Already have an account on another device? Recover it' : 'Başka bir cihazda hesabın mı var? Kurtar'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              // RECOVER VIEW — this replaces the old username+password login
+              // form entirely: there's no password to type, so getting back
+              // into an existing account (new device, reinstall, cleared
+              // storage) only works through the email-based recovery flow.
+              <View style={styles.authCard}>
+                <Text style={styles.authTitle}>
+                  {language === 'en' ? 'Recover Your Account' : 'Hesabını Kurtar'}
+                </Text>
+                <Text style={styles.authSubtitle}>
+                  {language === 'en'
+                    ? "If you added an email when you created your account, use it to recover your progress on this device."
+                    : 'Hesabını oluştururken bir e-posta eklediysen, bu cihazda ilerlemeni geri getirmek için onu kullanabilirsin.'}
+                </Text>
+
+                {loading ? (
+                  <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
+                ) : (
+                  <TouchableOpacity style={styles.authButton} onPress={() => setAuthStep('forgot_request')}>
+                    <Text style={styles.authButtonText}>
+                      {language === 'en' ? 'RECOVER WITH EMAIL' : 'E-POSTA İLE KURTAR'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+                <TouchableOpacity onPress={() => setAuthStep('register')} style={styles.toggleLink}>
+                  <Text style={styles.toggleLinkText}>
+                    {language === 'en' ? "Don't have an account? Create Profile" : 'Henüz hesabın yok mu? Profil Yarat'}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -816,6 +880,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     marginBottom: 20,
+  },
+  addEmailPrompt: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  addEmailPromptText: {
+    fontSize: 13,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#FFD700',
+  },
+  addEmailForm: {
+    width: '100%',
+    marginBottom: 20,
+    alignItems: 'center',
+    gap: 8,
+  },
+  addEmailInput: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    color: '#FFFFFF',
+    padding: 12,
+    borderRadius: 10,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,215,0,0.35)',
+    width: '100%',
+  },
+  addEmailSaveBtn: {
+    backgroundColor: 'rgba(0,255,136,0.15)',
+    borderWidth: 1,
+    borderColor: '#00FF88',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  addEmailSaveBtnText: {
+    color: '#00FF88',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 13,
+  },
+  addEmailCancelBtn: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  addEmailCancelBtnText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 13,
   },
   leagueCard: {
     backgroundColor: 'rgba(0,255,136,0.05)',
