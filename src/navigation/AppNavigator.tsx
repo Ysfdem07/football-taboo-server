@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -41,9 +41,13 @@ import RoomLobbyScreen from '../screens/RoomLobbyScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Lets code outside the navigator (a push-notification tap handler in
+// App.tsx) navigate without needing the ref passed down through props.
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator 
         initialRouteName="Home"
         screenOptions={{

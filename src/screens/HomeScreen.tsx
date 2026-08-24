@@ -75,7 +75,17 @@ export default function HomeScreen() {
             setPlayer(parsed);
             // Kayıtlı oyuncuysa ID'siyle kaydet
             if (parsed.id && parsed.id !== 'guest' && token) {
-              socket.emit('save_push_token', { playerId: parsed.id, token });
+              // save_push_token trusts socket.data.playerId (session-bound),
+              // not the playerId in this payload — and that only gets set
+              // once login_profile actually resolves. Home is the app's
+              // first screen, so on a fresh launch this socket usually
+              // hasn't authenticated yet; sending save_push_token straight
+              // away silently no-ops server-side. Re-login first (safe to
+              // call repeatedly) and only save the token once that's back.
+              const emitTokenSave = () => socket.emit('save_push_token', { playerId: parsed.id, token });
+              socket.once('login_response', emitTokenSave);
+              const emitLogin = () => socket.emit('login_profile', { username: parsed.username, password: parsed.password });
+              if (socket.connected) emitLogin(); else socket.once('connect', emitLogin);
             } else if (token) {
               socket.emit('save_guest_push_token', { token });
             }

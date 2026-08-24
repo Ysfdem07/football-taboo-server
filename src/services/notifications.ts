@@ -5,7 +5,11 @@ import { Platform } from 'react-native';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    // shouldShowAlert is deprecated — current expo-notifications needs
+    // shouldShowBanner/shouldShowList explicitly, or foreground
+    // notifications silently don't display at all.
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -15,7 +19,11 @@ export async function registerForPushNotificationsAsync() {
   let token;
 
   if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
+    // Must be awaited: on Android 13+, the OS won't show the permission
+    // prompt at all until a notification channel already exists, so
+    // requesting permissions before this actually finishes creating it is
+    // a race that can silently skip the prompt.
+    await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],

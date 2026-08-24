@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AppNavigator from './src/navigation/AppNavigator';
+import AppNavigator, { navigationRef } from './src/navigation/AppNavigator';
+import * as Notifications from 'expo-notifications';
 import { Analytics } from './src/services/analytics';
 import { RemoteConfig } from './src/services/remoteConfig';
 import { initAds } from './src/services/ads';
@@ -87,6 +88,44 @@ export default function App() {
     return () => {
       socket.off('connect', resyncSession);
     };
+  }, []);
+
+  useEffect(() => {
+    // Push notifications (e.g. the weekly tournament reminder) are sent
+    // with a data.route hint, but nothing was ever reading it — tapping
+    // one just opened the app to its default screen regardless. Handles
+    // both a tap while the app is already running/backgrounded, and the
+    // cold-start case where the app was fully closed and launched by
+    // tapping the notification.
+    const goToRoute = (data: any) => {
+      const route = data?.route;
+      if (!route) return;
+      const tryNavigate = () => {
+        if (navigationRef.isReady()) {
+          // route/params come from an untyped push-notification payload, so
+          // this can't line up with RootStackParamList's per-screen overloads.
+          (navigationRef.navigate as (name: string, params?: object) => void)(route, data?.params ?? {});
+        } else {
+          setTimeout(tryNavigate, 200);
+        }
+      };
+      tryNavigate();
+    };
+
+    Notifications.getLastNotificationResponseAsync().then(response => {
+      if (response) {
+        goToRoute(response.notification.request.content.data);
+        // Sticky across launches otherwise — without this, reopening the
+        // app completely normally after having tapped a notification once
+        // would keep re-triggering that same navigation every time.
+        Notifications.clearLastNotificationResponseAsync();
+      }
+    });
+
+    const sub = Notifications.addNotificationResponseReceivedListener(response => {
+      goToRoute(response.notification.request.content.data);
+    });
+    return () => sub.remove();
   }, []);
 
   if (!fontsLoaded) {
