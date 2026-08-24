@@ -1189,7 +1189,7 @@ io.on('connection', (socket) => {
   });
 
   // Called by the client right after its socket reconnects mid-match (see
-  // the disconnect handler's 15s grace window below). The new socket was
+  // the disconnect handler's 20s grace window below). The new socket was
   // never joined to the room, so without this it would just sit connected
   // but never receive another round/turn/score event for the rest of the
   // match. Deliberately does NOT rewrite any of the player's ids in
@@ -1207,6 +1207,12 @@ io.on('connection', (socket) => {
 
     socket.join(roomId);      // room-wide broadcasts (round_ended, game_over, hint_revealed...)
     socket.join(oldPlayerId); // targeted per-player sends keyed by the stable id (word_hint_update, joker_used)
+
+    // Remember this socket's stable identity for its NEXT disconnect — after
+    // this point socket.id no longer equals room.players[].id (we never
+    // remap that), so a later leave_room/disconnect can't just use socket.id
+    // to find this player in the room anymore.
+    socket.data.stablePlayerId = oldPlayerId;
 
     if (disconnectTimeouts[oldPlayerId]) {
       clearTimeout(disconnectTimeouts[oldPlayerId]);
@@ -1233,47 +1239,32 @@ io.on('connection', (socket) => {
   socket.on('leave_room', async (data) => {
     const { roomId } = data;
     if (!roomId) return;
-    
+
     socket.leave(roomId);
-    
+
     const room = activeRooms[roomId];
     if (!room) return;
 
-    const playerIndex = room.players.findIndex(p => p.id === socket.id);
+    const stableId = socket.data.stablePlayerId || socket.id;
+    const playerIndex = room.players.findIndex(p => p.id === stableId);
     if (playerIndex !== -1) {
       if (room.status === 'waiting') {
         room.players.splice(playerIndex, 1);
-        delete room.scores[socket.id];
+        delete room.scores[stableId];
         if (room.players.length === 0) {
           delete activeRooms[roomId];
         } else {
-          if (room.hostId === socket.id) {
+          if (room.hostId === stableId) {
             room.hostId = room.players[0].id;
           }
           io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
         }
       } else {
-        const disconnectedPlayer = room.players[playerIndex];
-        room.players.splice(playerIndex, 1);
-        io.to(roomId).emit('player_disconnected', { playerId: socket.id, players: room.players });
-        
+        const [quitter] = room.players.splice(playerIndex, 1);
+        io.to(roomId).emit('player_disconnected', { playerId: stableId, players: room.players });
+
         if (room.players.length <= 1) {
-          if (room.timer) clearInterval(room.timer);
-          if (room.guessTimer) clearInterval(room.guessTimer);
-          
-          if (room.isRanked1v1) {
-            const roomCat = room.category || 'football';
-            const remainingPlayer = room.players[0];
-            if (remainingPlayer && remainingPlayer.dbPlayerId) {
-              await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true, 0, 0, roomCat);
-            }
-            if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
-              await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false, 0, 0, roomCat);
-            }
-          }
-          
-          io.to(roomId).emit('opponent_disconnected'); 
-          delete activeRooms[roomId];
+          await resolveMatchForfeit(room, roomId, quitter);
         }
       }
     }
@@ -1284,57 +1275,41 @@ io.on('connection', (socket) => {
     queue = queue.filter(u => u.id !== socket.id);
     
     // If they were in an active room
+    const stableId = socket.data.stablePlayerId || socket.id;
     for (const roomId in activeRooms) {
       const room = activeRooms[roomId];
-      const playerIndex = room.players.findIndex(p => p.id === socket.id);
-      
+      const playerIndex = room.players.findIndex(p => p.id === stableId);
+
       if (playerIndex !== -1) {
         if (room.status === 'waiting') {
            // Remove from lobby immediately
            room.players.splice(playerIndex, 1);
-           delete room.scores[socket.id];
+           delete room.scores[stableId];
            if (room.players.length === 0) {
              delete activeRooms[roomId];
            } else {
-             if (room.hostId === socket.id) {
+             if (room.hostId === stableId) {
                room.hostId = room.players[0].id;
              }
              io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
            }
         } else {
            // Playing state: Delay removal to allow Socket.io auto-reconnect
-           io.to(roomId).emit('player_disconnected_warning', { playerId: socket.id });
-           
-           disconnectTimeouts[socket.id] = setTimeout(async () => {
+           io.to(roomId).emit('player_disconnected_warning', { playerId: stableId });
+
+           disconnectTimeouts[stableId] = setTimeout(async () => {
              if (!activeRooms[roomId]) return;
-             
-             const pIndex = room.players.findIndex(p => p.id === socket.id);
+
+             const pIndex = room.players.findIndex(p => p.id === stableId);
              if (pIndex !== -1) {
-               const disconnectedPlayer = room.players[pIndex];
-               room.players.splice(pIndex, 1);
-               io.to(roomId).emit('player_disconnected', { playerId: socket.id, players: room.players });
-               
+               const [quitter] = room.players.splice(pIndex, 1);
+               io.to(roomId).emit('player_disconnected', { playerId: stableId, players: room.players });
+
                if (room.players.length <= 1) {
-                 clearInterval(room.timer);
-                 if(room.guessTimer) clearInterval(room.guessTimer);
-                 
-                  // Apply rage quit penalty if ranked 1v1
-                  if (room.isRanked1v1) {
-                    const roomCat = room.category || 'football';
-                    const remainingPlayer = room.players[0];
-                    if (remainingPlayer && remainingPlayer.dbPlayerId) {
-                      await db.updatePlayerStats(remainingPlayer.dbPlayerId, 50, true, 0, 0, roomCat);
-                    }
-                    if (disconnectedPlayer && disconnectedPlayer.dbPlayerId) {
-                      await db.updatePlayerStats(disconnectedPlayer.dbPlayerId, -35, false, 0, 0, roomCat);
-                    }
-                  }
-                 
-                 io.to(roomId).emit('opponent_disconnected'); 
-                 delete activeRooms[roomId];
+                 await resolveMatchForfeit(room, roomId, quitter);
                }
              }
-           }, 15000); // Wait 15 seconds for reconnect before kicking
+           }, 20000); // Wait 20 seconds for reconnect before kicking
         }
       }
     }
@@ -1376,6 +1351,65 @@ function emitWordHintUpdate(room, eventName, extraPayload) {
   });
 }
 
+// Whether a player's stable room-scoped id currently has a live socket
+// behind it — either their original (never-reconnected) socket, still
+// sitting in the auto-room Socket.IO names after its own id, or a
+// reconnected socket that rejoin_room explicitly joined into a room named
+// after that stable id. Empty/missing room = nobody is currently connected
+// under that id.
+function isPlayerConnected(playerId) {
+  const r = io.sockets.adapter.rooms.get(playerId);
+  return !!(r && r.size > 0);
+}
+
+// Ends a match early because one player is gone for good (explicit leave,
+// or the 20s reconnect grace period expired) — used by both leave_room and
+// the disconnect handler's timeout, plus a safety net at the natural
+// round-conclusion check in startRound (see there) for the rare case where
+// all 10 rounds finish before a pending disconnect's grace period expires,
+// which previously let a genuinely-forfeited match resolve as a tie/win off
+// stale frozen scores instead. Ranked keeps its existing KP penalty; the
+// coin forfeit here is new (Friendly/private matches had no penalty/reward
+// at all for a forfeit-quit before this).
+// `quitter` must already be spliced out of room.players by the caller —
+// room.players is treated as "everyone who remains".
+async function resolveMatchForfeit(room, roomId, quitter) {
+  if (room.timer) clearInterval(room.timer);
+  if (room.guessTimer) clearInterval(room.guessTimer);
+
+  const remaining = room.players;
+  const roomCat = room.category || 'football';
+  const kpChanges = {};
+  const coinChanges = {};
+  const playerUpdates = {};
+  const record = (updated) => { if (updated) playerUpdates[updated.id || updated._id] = updated; };
+
+  if (room.isRanked1v1) {
+    kpChanges[quitter.id] = -35;
+    if (quitter.dbPlayerId) record(await db.updatePlayerStats(quitter.dbPlayerId, -35, false, 0, 0, roomCat));
+    for (const p of remaining) {
+      kpChanges[p.id] = 50;
+      if (p.dbPlayerId) record(await db.updatePlayerStats(p.dbPlayerId, 50, true, 0, 0, roomCat));
+    }
+  } else {
+    // Friendly / private: coins only, no KP — quitter loses 25 (only if
+    // they actually have 25+; updatePlayerCoins' own $gte guard makes this
+    // a no-op rather than going negative), remaining player(s) earn 25 each,
+    // same amount as a normal win.
+    kpChanges[quitter.id] = 0;
+    coinChanges[quitter.id] = -25;
+    if (quitter.dbPlayerId) record(await db.updatePlayerCoins(quitter.dbPlayerId, -25));
+    for (const p of remaining) {
+      kpChanges[p.id] = 0;
+      coinChanges[p.id] = 25;
+      if (p.dbPlayerId) record(await db.updatePlayerCoins(p.dbPlayerId, 25));
+    }
+  }
+
+  io.to(roomId).emit('opponent_disconnected', { scores: room.scores, kpChanges, coinChanges, playerUpdates, quitterId: quitter.id });
+  delete activeRooms[roomId];
+}
+
 function getPotentialScore(room) {
   if (!room) return 10;
   const hintsPenalty = Math.max(0, (room.hintsShown || 1) - 1);
@@ -1399,6 +1433,20 @@ async function startRound(roomId) {
 
   room.currentRound++;
   if (room.currentRound > room.maxRounds) {
+    // Safety net: the round timer keeps running through a pending 20s
+    // reconnect grace window (a brief drop shouldn't itself pause the
+    // match), so it's possible for the match to reach its natural end while
+    // one player is mid-disconnect and hasn't been formally removed yet.
+    // Without this, that resolved as a normal win/tie off their stale
+    // frozen score instead of the forfeit it actually is.
+    const goneIndex = room.players.findIndex(p => !isPlayerConnected(p.id));
+    if (goneIndex !== -1 && room.players.length > 1) {
+      const [quitter] = room.players.splice(goneIndex, 1);
+      io.to(roomId).emit('player_disconnected', { playerId: quitter.id, players: room.players });
+      await resolveMatchForfeit(room, roomId, quitter);
+      return;
+    }
+
     const kpChanges = {};
     const coinChanges = {};
     const playerUpdates = {};  // socketId → updatedPlayerObj (included in game_over)

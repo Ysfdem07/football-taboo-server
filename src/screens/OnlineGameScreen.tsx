@@ -62,6 +62,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [coinChanges, setCoinChanges] = useState<Record<string, number>>({});
   const [serverPotentialScore, setServerPotentialScore] = useState<number | null>(null);
   const [lastPenalty, setLastPenalty] = useState<number>(10);
+  const [forfeitQuitterId, setForfeitQuitterId] = useState<string | null>(null);
   
   const [player, setPlayer] = useState<any>(null);
   const [jokerLoading, setJokerLoading] = useState(false);
@@ -119,6 +120,42 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     // NOT the account id. The server separately trusts socket.data.playerId
     // (session-bound) for the actual DB joker-inventory check.
     socket.emit('use_joker', { roomId, playerId: myOriginalId, jokerType });
+  };
+
+  // Shared by game_over and opponent_disconnected (forfeit) — both carry the
+  // same coinChanges/playerUpdates shape and need the same credit logic.
+  const applyRewardData = async (data: any) => {
+    try {
+      const stored = await AsyncStorage.getItem('@logged_in_profile');
+      const cached = stored ? JSON.parse(stored) : {};
+      const cachedId = cached.id || cached._id;
+
+      if (cachedId && cachedId !== 'guest') {
+        // Real account: server embeds the updated profile directly, keyed
+        // by dbPlayerId — this is the reliable path.
+        const myUpdate = data.playerUpdates?.[cachedId];
+        if (myUpdate) {
+          setPlayer(myUpdate);
+          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
+        }
+      } else {
+        // Guests have no DB record for the server to credit — coins are
+        // applied to the local-only guest profile instead, same convention
+        // MarketScreen's ad-reward flow uses (@logged_in_profile, id:'guest').
+        const myCoins = data.coinChanges?.[myOriginalId];
+        if (myCoins) {
+          const guest = {
+            ...cached,
+            id: 'guest',
+            username: cached.username || data.players?.find((p: any) => p.id === myOriginalId)?.name || 'Misafir',
+            coins: (cached.coins || 0) + myCoins,
+            jokers: cached.jokers || { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 },
+          };
+          setPlayer(guest);
+          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
+        }
+      }
+    } catch (e) {}
   };
 
   // Smooth fade-in for round transition screens
@@ -275,11 +312,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     socket.on('game_over', async (data: any) => {
-      Analytics.logEvent('online_game_over', { 
-        roomId, 
-        scores: data.scores, 
+      Analytics.logEvent('online_game_over', {
+        roomId,
+        scores: data.scores,
         winnerId: data.winnerId,
-        kpChanges: data.kpChanges 
+        kpChanges: data.kpChanges
       });
       setGameOver(true);
       setIsFinal(true);
@@ -287,50 +324,28 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.players) setPlayers(data.players);
       if (data.kpChanges) setKpChanges(data.kpChanges);
       if (data.coinChanges) setCoinChanges(data.coinChanges);
-
-      try {
-        const stored = await AsyncStorage.getItem('@logged_in_profile');
-        const cached = stored ? JSON.parse(stored) : {};
-        const cachedId = cached.id || cached._id;
-
-        if (cachedId && cachedId !== 'guest') {
-          // Real account: server embeds the updated profile directly in
-          // game_over, keyed by dbPlayerId — this is the reliable path.
-          const myUpdate = data.playerUpdates?.[cachedId];
-          if (myUpdate) {
-            setPlayer(myUpdate);
-            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...myUpdate, password: cached.password }));
-          }
-        } else {
-          // Guests have no DB record for the server to credit — friendly
-          // match coins are applied to the local-only guest profile
-          // instead, same convention MarketScreen's ad-reward flow uses
-          // (@logged_in_profile with id:'guest').
-          const myCoins = data.coinChanges?.[myOriginalId];
-          if (myCoins) {
-            const guest = {
-              ...cached,
-              id: 'guest',
-              username: cached.username || data.players?.find((p: any) => p.id === myOriginalId)?.name || 'Misafir',
-              coins: (cached.coins || 0) + myCoins,
-              jokers: cached.jokers || { revealLetters: 0, extraTime: 0, instantHints: 0, shield: 0 },
-            };
-            setPlayer(guest);
-            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
-          }
-        }
-      } catch (e) {}
+      await applyRewardData(data);
     });
 
     socket.on('player_disconnected', (data: any) => {
       if (data.players) setPlayers(data.players);
     });
 
-    socket.on('opponent_disconnected', () => {
-      Analytics.logEvent('online_opponent_disconnected', { roomId });
+    socket.on('opponent_disconnected', async (data: any) => {
+      Analytics.logEvent('online_opponent_disconnected', { roomId, quitterId: data?.quitterId });
       setGameOver(true);
       setIsFinal(true);
       setWinnerMessage(language === 'en' ? 'Opponent left! You won by forfeit.' : 'Rakip oyundan ayrıldı! Hükmen kazandınız.');
+      if (data?.quitterId) {
+        // Marks the winner directly instead of leaving the final screen to
+        // compare frozen scores from the moment they left — which could
+        // easily show a tie/loss for the player who actually should win.
+        setForfeitQuitterId(data.quitterId);
+      }
+      if (data?.scores) setScores(data.scores);
+      if (data?.kpChanges) setKpChanges(data.kpChanges);
+      if (data?.coinChanges) setCoinChanges(data.coinChanges);
+      if (data) await applyRewardData(data);
     });
 
     // If the transport drops mid-match (backgrounding, brief network loss —
@@ -494,16 +509,22 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
     const myScore = scores[myOriginalId] || 0;
     
-    let highestScore = -Infinity;
     let winnerIds: string[] = [];
-    Object.keys(scores).forEach(id => {
-      if (scores[id] > highestScore) {
-        highestScore = scores[id];
-        winnerIds = [id];
-      } else if (scores[id] === highestScore) {
-        winnerIds.push(id);
-      }
-    });
+    if (forfeitQuitterId) {
+      // Forfeit: whoever's left wins outright, regardless of whatever the
+      // scores happened to be frozen at the moment the other player left.
+      winnerIds = players.map(p => p.id).filter(id => id !== forfeitQuitterId);
+    } else {
+      let highestScore = -Infinity;
+      Object.keys(scores).forEach(id => {
+        if (scores[id] > highestScore) {
+          highestScore = scores[id];
+          winnerIds = [id];
+        } else if (scores[id] === highestScore) {
+          winnerIds.push(id);
+        }
+      });
+    }
 
     let resultText = '';
     if (winnerIds.length === 1 && winnerIds[0] === myOriginalId) {
@@ -533,6 +554,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                        : '#FF4444',
                 }
               ]}>{resultText}</Text>
+              {forfeitQuitterId && (
+                <Text style={styles.forfeitSubtitle} numberOfLines={2} maxFontSizeMultiplier={1.2}>{winnerMessage}</Text>
+              )}
             </View>
 
             {/* ── Scores ── */}
@@ -1349,6 +1373,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
     letterSpacing: 1,
+  },
+  forfeitSubtitle: {
+    fontSize: 13,
+    fontFamily: 'Poppins_600SemiBold',
+    color: 'rgba(255,255,255,0.7)',
+    marginTop: 6,
+    textAlign: 'center',
   },
   finalScoreContainer: {
     backgroundColor: 'rgba(5, 12, 22, 0.92)',
