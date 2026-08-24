@@ -52,6 +52,10 @@ export default function ProfileScreen({ navigation }: Props) {
   const [addingEmail, setAddingEmail] = useState(false);
   const [emailInput, setEmailInput] = useState('');
 
+  // "Change username" (logged-in players)
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [usernameInput, setUsernameInput] = useState('');
+
   // Quick username+password login — for players who actually know their
   // password (pre-hidden-password accounts, or anyone who wrote theirs
   // down): faster than the full email-recovery round trip for a routine
@@ -172,12 +176,30 @@ export default function ProfileScreen({ navigation }: Props) {
       }
     });
 
+    socket.on('update_username_response', async (res: any) => {
+      setLoading(false);
+      if (res.success) {
+        setPlayer(res.player);
+        setEditingUsername(false);
+        setUsernameInput('');
+        try {
+          const stored = await AsyncStorage.getItem('@logged_in_profile');
+          const cached = stored ? JSON.parse(stored) : {};
+          await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...cached, ...res.player }));
+        } catch (e) {}
+        CustomAlert.show('Başarılı! 🎉', 'Kullanıcı adın güncellendi.');
+      } else {
+        CustomAlert.show('Hata', res.error || 'Kullanıcı adı güncellenemedi.');
+      }
+    });
+
     return () => {
       socket.off('register_response');
       socket.off('login_response');
       socket.off('forgot_password_response');
       socket.off('reset_password_response');
       socket.off('update_email_response');
+      socket.off('update_username_response');
     };
   }, []);
 
@@ -225,6 +247,15 @@ export default function ProfileScreen({ navigation }: Props) {
     }
     setLoading(true);
     socket.emit('update_email', { email: emailInput.trim() });
+  };
+
+  const handleChangeUsername = () => {
+    if (usernameInput.trim().length < 3 || usernameInput.trim().length > 30) {
+      CustomAlert.show('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
+      return;
+    }
+    setLoading(true);
+    socket.emit('update_username', { username: usernameInput.trim() });
   };
 
   // The account still has a password server-side (login_profile needs one),
@@ -416,7 +447,40 @@ export default function ProfileScreen({ navigation }: Props) {
                 <Text style={styles.changeAvatarText}>{t('changeAvatar')}</Text>
               </TouchableOpacity>
               
-              <Text style={[styles.username, { marginTop: 8 }]}>{player.username}</Text>
+              {editingUsername ? (
+                <View style={[styles.addEmailForm, { marginTop: 8 }]}>
+                  <TextInput
+                    style={styles.addEmailInput}
+                    placeholder={language === 'en' ? 'Username' : 'Kullanıcı Adı'}
+                    placeholderTextColor="#888"
+                    value={usernameInput}
+                    onChangeText={setUsernameInput}
+                    autoCapitalize="none"
+                    autoFocus
+                  />
+                  {loading ? (
+                    <ActivityIndicator size="small" color={Colors.primary} />
+                  ) : (
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <TouchableOpacity style={styles.addEmailSaveBtn} onPress={handleChangeUsername}>
+                        <Text style={styles.addEmailSaveBtnText}>{language === 'en' ? 'Save' : 'Kaydet'}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.addEmailCancelBtn} onPress={() => { setEditingUsername(false); setUsernameInput(''); }}>
+                        <Text style={styles.addEmailCancelBtnText}>{language === 'en' ? 'Cancel' : 'Vazgeç'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}
+                  onPress={() => { setUsernameInput(player.username); setEditingUsername(true); }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.username}>{player.username}</Text>
+                  <Ionicons name="pencil-sharp" size={13} color="#00FF88" style={{ marginLeft: 8 }} />
+                </TouchableOpacity>
+              )}
               {player.email ? (
                 <Text style={styles.emailText}>{player.email}</Text>
               ) : addingEmail ? (

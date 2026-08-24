@@ -260,6 +260,31 @@ module.exports = {
     return { player: player.toObject() };
   },
 
+  // Same authenticated-session-only pattern as updatePlayerEmail. Note this
+  // only updates the live Player record — past WeeklyTournament leaderboard
+  // entries store their own denormalized username snapshot per week and
+  // won't retroactively rename (same as any other leaderboard/history).
+  updatePlayerUsername: async (playerId, newUsername) => {
+    await connectDB();
+    const trimmed = newUsername.trim();
+    if (trimmed.length < 3 || trimmed.length > 30) {
+      return { error: 'Kullanıcı adı 3-30 karakter arasında olmalıdır.' };
+    }
+    const existing = await Player.findOne({
+      username: new RegExp(`^${escapeRegex(trimmed)}$`, 'i'),
+      id: { $ne: playerId }
+    });
+    if (existing) return { error: 'Bu kullanıcı adı zaten kullanımda!' };
+
+    const player = await Player.findOneAndUpdate(
+      { id: playerId },
+      { $set: { username: trimmed } },
+      { new: true }
+    );
+    if (!player) return { error: 'Oyuncu bulunamadı.' };
+    return { player: player.toObject() };
+  },
+
   // Atomic, race-safe stat/coin update. Uses a MongoDB aggregation-pipeline
   // update so the kp/categoryKp floor-at-0 clamp is computed by the DB in the
   // same operation as the increment — no read-modify-write gap for concurrent

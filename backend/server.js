@@ -652,6 +652,26 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Change username on an already-authenticated account. Same trust model
+  // as update_email — always socket.data.playerId, never client-supplied.
+  socket.on('update_username', async (data) => {
+    const playerId = socket.data.playerId;
+    const username = data?.username;
+    if (!playerId) return socket.emit('update_username_response', { success: false, error: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    if (typeof username !== 'string' || !username.trim()) return socket.emit('update_username_response', { success: false, error: 'Eksik bilgi!' });
+    try {
+      const result = await db.updatePlayerUsername(playerId, username);
+      if (result.error) {
+        socket.emit('update_username_response', { success: false, error: result.error });
+      } else {
+        socket.emit('update_username_response', { success: true, player: result.player });
+      }
+    } catch (e) {
+      console.error('[update_username] error:', e);
+      socket.emit('update_username_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
+    }
+  });
+
   // Forgot Password Code Request
   socket.on('forgot_password', async (data) => {
     const { email } = data;
