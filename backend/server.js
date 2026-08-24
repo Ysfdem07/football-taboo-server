@@ -1188,6 +1188,48 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Called by the client right after its socket reconnects mid-match (see
+  // the disconnect handler's 15s grace window below). The new socket was
+  // never joined to the room, so without this it would just sit connected
+  // but never receive another round/turn/score event for the rest of the
+  // match. Deliberately does NOT rewrite any of the player's ids in
+  // room.players/scores/guessingPlayerId/activeShields/privateLetterReveals
+  // — those all stay keyed by the original room-scoped id forever (the
+  // same id the client calls myOriginalId and already sends as playerId on
+  // every guess_word/pass_round/request_guess_turn/use_joker), so nothing
+  // else needs to change. We just need this socket to (re)join the rooms
+  // that make it reachable under that id again.
+  socket.on('rejoin_room', (data) => {
+    const { roomId, oldPlayerId } = data || {};
+    const room = activeRooms[roomId];
+    if (!room || !oldPlayerId) return;
+    if (!room.players.some(p => p.id === oldPlayerId)) return; // already timed out / removed
+
+    socket.join(roomId);      // room-wide broadcasts (round_ended, game_over, hint_revealed...)
+    socket.join(oldPlayerId); // targeted per-player sends keyed by the stable id (word_hint_update, joker_used)
+
+    if (disconnectTimeouts[oldPlayerId]) {
+      clearTimeout(disconnectTimeouts[oldPlayerId]);
+      delete disconnectTimeouts[oldPlayerId];
+    }
+
+    socket.emit('room_synced', {
+      roomId,
+      players: room.players,
+      scores: room.scores,
+      currentRound: room.currentRound,
+      maxRounds: room.maxRounds,
+      timeLeft: room.timeLeft,
+      wordHint: room.card ? getWordHintForPlayer(room, oldPlayerId) : undefined,
+      hints: (room.card && room.card.forbidden) ? room.card.forbidden.slice(0, room.hintsShown || 0) : [],
+      potentialScore: getPotentialScore(room),
+      guessingPlayerId: room.guessingPlayerId || null,
+      guessTimeLeft: room.guessTimeLeft,
+      passVotesCount: room.passVotes ? room.passVotes.size : 0,
+      hasPassed: room.passVotes ? room.passVotes.has(oldPlayerId) : false,
+    });
+  });
+
   socket.on('leave_room', async (data) => {
     const { roomId } = data;
     if (!roomId) return;
@@ -1316,14 +1358,21 @@ function getWordHintForPlayer(room, playerId) {
   return arr.join('');
 }
 
-// Broadcast an event to every socket in the room, but with a wordHint that's
+// Broadcast an event to every player in the room, but with a wordHint that's
 // merged per-recipient via getWordHintForPlayer instead of the raw shared
 // array — use this instead of io.to(roomId).emit(...) for any event whose
 // payload includes wordHint.
-function emitWordHintUpdate(room, roomId, eventName, extraPayload) {
+//
+// Targets io.to(p.id) rather than looking up a live socket by p.id directly:
+// p.id is the player's STABLE room-scoped id, which never changes even
+// after a reconnect (see rejoin_room), while a raw socket lookup by that id
+// would return nothing once the original socket died. Every socket already
+// sits in a room named after its own id by default; rejoin_room additionally
+// joins a reconnected socket into a room named after its old id, so io.to
+// keeps resolving to whichever socket currently represents that player.
+function emitWordHintUpdate(room, eventName, extraPayload) {
   room.players.forEach(p => {
-    const s = io.sockets.sockets.get(p.id);
-    if (s) s.emit(eventName, { ...extraPayload, wordHint: getWordHintForPlayer(room, p.id) });
+    io.to(p.id).emit(eventName, { ...extraPayload, wordHint: getWordHintForPlayer(room, p.id) });
   });
 }
 
@@ -1519,7 +1568,7 @@ async function startRound(roomId) {
         const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
         room.revealedIndices.push(randomIndex);
         room.wordHintArray[randomIndex] = card.word[randomIndex];
-        emitWordHintUpdate(room, roomId, 'word_hint_update', { potentialScore: getPotentialScore(room) });
+        emitWordHintUpdate(room, 'word_hint_update', { potentialScore: getPotentialScore(room) });
       }
       
       // If we just revealed the 3rd letter, or no more letters can be revealed, give bonus time

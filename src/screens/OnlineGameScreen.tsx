@@ -114,7 +114,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       return;
     }
     setJokerLoading(true);
-    socket.emit('use_joker', { roomId, playerId: player.id, jokerType });
+    // playerId here is the room-scoped participant id (matches scores/
+    // guessingPlayerId, same as guess_word/pass_round/request_guess_turn) —
+    // NOT the account id. The server separately trusts socket.data.playerId
+    // (session-bound) for the actual DB joker-inventory check.
+    socket.emit('use_joker', { roomId, playerId: myOriginalId, jokerType });
   };
 
   // Smooth fade-in for round transition screens
@@ -310,12 +314,39 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setWinnerMessage(language === 'en' ? 'Opponent left! You won by forfeit.' : 'Rakip oyundan ayrıldı! Hükmen kazandınız.');
     });
 
+    // If the transport drops mid-match (backgrounding, brief network loss —
+    // common enough on iOS that we already had to work around it for OTA
+    // updates) socket.io reconnects with a NEW socket.id. That new socket
+    // was never joined to this room, so it would silently stop receiving
+    // any further round/turn/score events for the rest of the match. This
+    // asks the server to put it back in the room and hand back a full
+    // state snapshot so the screen can resume exactly where it left off.
+    const rejoinOnReconnect = () => {
+      socket.emit('rejoin_room', { roomId, oldPlayerId: myOriginalId });
+    };
+    socket.on('connect', rejoinOnReconnect);
+
+    socket.on('room_synced', (data: any) => {
+      if (data.players) setPlayers(data.players);
+      if (data.scores) setScores(data.scores);
+      if (data.currentRound !== undefined) setCurrentRound(data.currentRound);
+      if (data.maxRounds) setMaxRounds(data.maxRounds);
+      if (data.timeLeft !== undefined) setTimeLeft(data.timeLeft);
+      if (data.wordHint) setWordHint(data.wordHint);
+      if (data.hints) setHints(data.hints);
+      if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
+      setGuessingPlayerId(data.guessingPlayerId || null);
+      if (data.guessTimeLeft !== undefined) setGuessTimeLeft(data.guessTimeLeft);
+      if (data.passVotesCount !== undefined) setPassVotesCount(data.passVotesCount);
+      if (data.hasPassed !== undefined) setHasPassed(data.hasPassed);
+    });
+
     return () => {
       if (buzzerTimerRef.current) clearTimeout(buzzerTimerRef.current);
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-      
+
       socket.emit('leave_room', { roomId });
-      
+
       socket.off('game_start');
       socket.off('time_tick');
       socket.off('pass_update');
@@ -333,6 +364,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       socket.off('game_over');
       socket.off('player_disconnected');
       socket.off('opponent_disconnected');
+      socket.off('connect', rejoinOnReconnect);
+      socket.off('room_synced');
     };
   }, []);
 
