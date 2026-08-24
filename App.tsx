@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator';
@@ -36,6 +38,20 @@ export default function App() {
       await initCrashlytics();   // First — so it captures crashes from other inits
       await Analytics.init();
       await RemoteConfig.init();
+      if (Platform.OS === 'ios') {
+        // Required before any tracking-capable SDK activity — the Facebook
+        // SDK (advertiserIDCollectionEnabled/autoLogAppEventsEnabled) reads
+        // IDFA for ad measurement, and app.json already declares
+        // NSUserTrackingUsageDescription, but nothing was ever calling this
+        // to actually show the prompt. AdMob itself requests non-personalized
+        // ads only, so it doesn't need this, but Apple's review checks for
+        // the prompt existing at all whenever that Info.plist key is present.
+        try {
+          await requestTrackingPermissionsAsync();
+        } catch (e) {
+          // Ignore — ads still work in non-personalized mode either way.
+        }
+      }
       await initAds();
     };
     initServices();

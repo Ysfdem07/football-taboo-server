@@ -193,6 +193,22 @@ export default function ProfileScreen({ navigation }: Props) {
       }
     });
 
+    socket.on('delete_account_response', async (res: any) => {
+      setLoading(false);
+      if (res.success) {
+        await AsyncStorage.removeItem('@logged_in_profile');
+        setIsLoggedIn(false);
+        setPlayer(null);
+        setAuthStep('register');
+        CustomAlert.show(
+          language === 'en' ? 'Account Deleted' : 'Hesap Silindi',
+          language === 'en' ? 'Your account has been permanently deleted.' : 'Hesabın kalıcı olarak silindi.'
+        );
+      } else {
+        CustomAlert.show('Hata', res.error || 'Hesap silinemedi.');
+      }
+    });
+
     return () => {
       socket.off('register_response');
       socket.off('login_response');
@@ -200,6 +216,7 @@ export default function ProfileScreen({ navigation }: Props) {
       socket.off('reset_password_response');
       socket.off('update_email_response');
       socket.off('update_username_response');
+      socket.off('delete_account_response');
     };
   }, []);
 
@@ -402,6 +419,40 @@ export default function ProfileScreen({ navigation }: Props) {
     }
   };
 
+  // Two-step confirm — this is irreversible (App Store / Play Store both
+  // require account deletion to be offered in-app, but nothing requires it
+  // to be easy to trigger by accident).
+  const confirmDeleteAccount = () => {
+    CustomAlert.show(
+      language === 'en' ? 'Delete your account?' : 'Hesabını sil?',
+      language === 'en'
+        ? 'This permanently deletes your account, stats, coins and jokers. This cannot be undone.'
+        : 'Bu işlem hesabını, istatistiklerini, jetonlarını ve jokerlerini kalıcı olarak siler. Geri alınamaz.',
+      [
+        { text: language === 'en' ? 'Cancel' : 'Vazgeç', style: 'cancel' },
+        {
+          text: language === 'en' ? 'Delete' : 'Sil',
+          style: 'destructive',
+          onPress: () => {
+            CustomAlert.show(
+              language === 'en' ? 'Are you sure?' : 'Emin misin?',
+              language === 'en' ? 'Last chance — this really can\'t be undone.' : 'Son kez soruyoruz — bu gerçekten geri alınamaz.',
+              [
+                { text: language === 'en' ? 'Cancel' : 'Vazgeç', style: 'cancel' },
+                { text: language === 'en' ? 'Yes, delete it' : 'Evet, sil', style: 'destructive', onPress: handleDeleteAccount }
+              ]
+            );
+          }
+        }
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    setLoading(true);
+    socket.emit('delete_account', {});
+  };
+
   // Overall Profile Level computation
   const kp = player ? player.kp : 0;
   const overallLevel = Math.floor(kp / 500) + 1;
@@ -588,6 +639,12 @@ export default function ProfileScreen({ navigation }: Props) {
               <TouchableOpacity style={styles.logoutButton} onPress={confirmLogout}>
                 <Ionicons name="log-out-outline" size={20} color={Colors.white} style={{ marginRight: 8 }} />
                 <Text style={styles.logoutButtonText}>{t('logout')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={confirmDeleteAccount} style={styles.deleteAccountLink}>
+                <Text style={styles.deleteAccountLinkText}>
+                  {language === 'en' ? 'Delete Account' : 'Hesabımı Sil'}
+                </Text>
               </TouchableOpacity>
             </View>
             ) : authStep === 'forgot_request' ? (
@@ -1228,6 +1285,16 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 15,
     fontFamily: 'Poppins_700Bold',
+  },
+  deleteAccountLink: {
+    marginTop: 14,
+    alignItems: 'center',
+  },
+  deleteAccountLinkText: {
+    color: 'rgba(255,80,80,0.85)',
+    fontSize: 13,
+    fontFamily: 'Poppins_600SemiBold',
+    textDecorationLine: 'underline',
   },
   consentRow: {
     flexDirection: 'row',

@@ -93,7 +93,8 @@
           }
         }
       ],
-      "./withDisableNonModularHeader.js"
+      "./withDisableNonModularHeader.js",
+      "expo-tracking-transparency"
     ]
   }
 }

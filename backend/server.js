@@ -763,6 +763,26 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Account deletion (Apple 5.1.1(v) / Google Play both require this for
+  // any app that lets users create an account). Same trust model as
+  // update_email/update_username — always socket.data.playerId.
+  socket.on('delete_account', async (data) => {
+    const playerId = socket.data.playerId;
+    if (!playerId) return socket.emit('delete_account_response', { success: false, error: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
+    try {
+      const result = await db.deletePlayer(playerId);
+      if (result.error) {
+        socket.emit('delete_account_response', { success: false, error: result.error });
+      } else {
+        socket.data.playerId = null;
+        socket.emit('delete_account_response', { success: true });
+      }
+    } catch (e) {
+      console.error('[delete_account] error:', e);
+      socket.emit('delete_account_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
+    }
+  });
+
   // Forgot Password Code Request
   socket.on('forgot_password', async (data) => {
     const { email } = data;

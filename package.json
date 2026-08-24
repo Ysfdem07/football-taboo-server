@@ -25,6 +25,7 @@
     "expo-linear-gradient": "~15.0.8",
     "expo-notifications": "~0.32.17",
     "expo-status-bar": "~3.0.9",
+    "expo-tracking-transparency": "~6.0.8",
     "expo-updates": "~29.0.19",
     "jimp": "^1.6.1",
     "papaparse": "^5.5.4",

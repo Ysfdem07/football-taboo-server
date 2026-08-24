@@ -286,6 +286,28 @@ module.exports = {
     return { player: player.toObject() };
   },
 
+  // Apple (Guideline 5.1.1(v)) and Google both require any app that lets
+  // users create an account to also let them delete it, in-app, not just
+  // log out. Removes the account outright plus their name/avatar from this
+  // week's tournament leaderboards (each category's own current week only —
+  // getTournamentLeaderboard already keys off getWeekId, so there's no
+  // "past weeks" view to worry about here either).
+  deletePlayer: async (playerId) => {
+    await connectDB();
+    const result = await Player.deleteOne({ id: playerId });
+    if (result.deletedCount === 0) return { error: 'Oyuncu bulunamadı.' };
+
+    for (const category of ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en']) {
+      const weekId = getWeekId(category);
+      await WeeklyTournament.updateOne(
+        { weekId },
+        { $pull: { scores: { playerId } } }
+      );
+    }
+
+    return { success: true };
+  },
+
   // Atomic, race-safe stat/coin update. Uses a MongoDB aggregation-pipeline
   // update so the kp/categoryKp floor-at-0 clamp is computed by the DB in the
   // same operation as the increment — no read-modify-write gap for concurrent
