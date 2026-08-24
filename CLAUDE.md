@@ -13,10 +13,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **App root** — Expo Router-less RN app (`App.tsx` → `src/navigation/AppNavigator.tsx`, a single React Navigation native stack; see `RootStackParamList` in that file for every screen and its params).
 - **`backend/`** — standalone Express + Socket.IO server (`server.js`) with a Mongoose/MongoDB layer (`db.js`). It has its own `package.json`/`node_modules` and an empty, uninitialized nested `.git` (not a submodule — files under `backend/` are tracked normally by the root repo).
 - **`src/screens/`** — one file per app screen (Home, Game, OnlineGame, RoomLobby, Tournament, Market, Profile, Leaderboard, PitchBattle, CardAlbum, etc.).
-- **`src/services/`** — cross-cutting singletons: `socket.ts` (Socket.IO client + `SOCKET_URL`), `ads.tsx` (AdMob), `analytics.ts` / `crashlytics.ts` (Firebase), `remoteConfig.ts` (Firebase Remote Config with local fallback defaults), `notifications.ts`, `clueRouter.ts`.
-- **`src/utils/`** — game logic: `ClueService.ts` (loads `assets/data/cards.json` + `clues.json`, per-card clue selection), `ClueHistory.ts` (AsyncStorage-backed recent-clue tracking to avoid repeats), `LeagueHelper.ts`, `WordSync.ts`.
+- **`src/services/`** — cross-cutting singletons: `socket.ts` (Socket.IO client + `SOCKET_URL`), `ads.tsx` (AdMob), `analytics.ts` / `crashlytics.ts` (Firebase), `remoteConfig.ts` (Firebase Remote Config with local fallback defaults), `notifications.ts`.
+- **`src/utils/`** — game logic: `LeagueHelper.ts`, `WordSync.ts`.
 - **`src/context/LanguageContext.tsx`** — app-wide i18n context; strings live in `src/constants/translations.ts`.
-- **`src/constants/FeatureFlags.ts`** — hand-edited compile-time flags (e.g. `ENABLE_DYNAMIC_CLUES`).
+- **`src/constants/FeatureFlags.ts`** — hand-edited compile-time flags (currently empty; no flags are read anywhere yet).
 - **`patches/`** — `patch-package` patches for `@react-native-firebase/*` packages, applied automatically via the `postinstall` script.
 - **Root-level `.js`/`.py` scripts and `.xlsx`/`.csv` files** — one-off data-generation/migration tooling for card/clue word lists (football, cinema, music, date categories) and Excel↔JSON/CSV conversion. Not part of the runtime app; only touch these if the task is specifically about word/clue data.
 - **`scripts/`** — image-processing utilities (avatar/logo cropping, checkerboard-artifact cleanup).
