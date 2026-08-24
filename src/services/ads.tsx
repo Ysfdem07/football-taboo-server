@@ -13,7 +13,6 @@ let InterstitialAd: any = null;
 let BannerAd: any = null;
 let RewardedAd: any = null;
 let BannerAdSize: any = null;
-let TestIds: any = null;
 let AdEventType: any = null;
 let RewardedAdEventType: any = null;
 
@@ -25,7 +24,6 @@ if (isFirebaseAvailable) {
     BannerAd = googleAds.BannerAd;
     RewardedAd = googleAds.RewardedAd;
     BannerAdSize = googleAds.BannerAdSize;
-    TestIds = googleAds.TestIds;
     AdEventType = googleAds.AdEventType;
     RewardedAdEventType = googleAds.RewardedAdEventType;
   } catch (err) {
@@ -33,9 +31,15 @@ if (isFirebaseAvailable) {
   }
 }
 
-// AD UNIT IDs
-const BANNER_ID = TestIds ? TestIds.BANNER : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8571973167' : 'ca-app-pub-3816139413382983/4862946418');
-const INTERSTITIAL_ID = TestIds ? TestIds.INTERSTITIAL : (Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8076159463' : 'ca-app-pub-3816139413382983/5106634788');
+// AD UNIT IDs — always the real production units. Safety during testing
+// comes from registering test devices in the AdMob console (they
+// automatically get served clearly-labeled test creatives regardless of
+// which ad unit ID is requested), not from swapping in TestIds here — that
+// used Google's globally-shared test units, which aren't tied to this
+// AdMob account at all and can't actually verify a real ad unit/mediation
+// setup works.
+const BANNER_ID = Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8571973167' : 'ca-app-pub-3816139413382983/4862946418';
+const INTERSTITIAL_ID = Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8076159463' : 'ca-app-pub-3816139413382983/5106634788';
 
 const REWARDED_IDS: Record<string, string> = {
   x2: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/4224649561' : 'ca-app-pub-3816139413382983/7273487336',
@@ -99,7 +103,7 @@ const loadInterstitial = () => {
 
 const loadRewarded = (type: 'x2' | 'tourney' | 'market') => {
   if (!isFirebaseAvailable || !RewardedAd) return;
-  const unitId = TestIds ? TestIds.REWARDED : REWARDED_IDS[type];
+  const unitId = REWARDED_IDS[type];
   if (!unitId) return;
 
   try {
