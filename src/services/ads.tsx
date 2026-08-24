@@ -53,6 +53,10 @@ let isInterstitialLoaded = false;
 
 const rewardedInstances: Record<string, any> = { x2: null, tourney: null, market: null };
 const rewardedLoaded: Record<string, boolean> = { x2: false, tourney: false, market: false };
+// Last load failure per type — showRewarded had no way to surface *why* an
+// ad wasn't ready (wrong/disabled ad unit, no fill, network) beyond a
+// silent no-op, which is indistinguishable from "just hasn't loaded yet".
+const rewardedLoadErrors: Record<string, string | null> = { x2: null, tourney: null, market: null };
 
 export const initAds = async (): Promise<void> => {
   if (!isFirebaseAvailable || !MobileAds) {
@@ -113,7 +117,14 @@ const loadRewarded = (type: 'x2' | 'tourney' | 'market') => {
 
     instance.addAdEventListener(RewardedAdEventType.LOADED, () => {
       rewardedLoaded[type] = true;
+      rewardedLoadErrors[type] = null;
       if (__DEV__) console.log(`[Ads] Rewarded Ad loaded for type: ${type}`);
+    });
+
+    instance.addAdEventListener(AdEventType.ERROR, (error: any) => {
+      rewardedLoaded[type] = false;
+      rewardedLoadErrors[type] = error?.message || error?.code || String(error);
+      console.warn(`[Ads] Rewarded Ad (${type}) failed to load:`, error);
     });
 
     instance.addAdEventListener(AdEventType.CLOSED, () => {
@@ -149,12 +160,14 @@ export const showInterstitial = (): void => {
   }
 };
 
-export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: () => void, type: 'x2' | 'tourney' | 'market' = 'x2'): void => {
+export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: () => void, type: 'x2' | 'tourney' | 'market' = 'x2', onError?: (message: string) => void): void => {
   if (!isFirebaseAvailable || !rewardedInstances[type]) {
     if (__DEV__) {
       console.log(`[Ads Mock] [Expo Go] Rewarded Ad Triggered! Type: ${type}`);
       onRewardEarned({ type: 'gold', amount: 100 });
       if (onClose) onClose();
+    } else if (onError) {
+      onError('Reklam SDK\'sı yüklenemedi (Ads unavailable).');
     }
     return;
   }
@@ -187,11 +200,16 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
       instance.show();
     } else {
       if (__DEV__) console.log('[Ads] Rewarded Ad not loaded yet. Retrying load...');
+      const lastError = rewardedLoadErrors[type];
+      if (onError) {
+        onError(lastError ? `Reklam yüklenemedi: ${lastError}` : 'Reklam henüz hazır değil, birkaç saniye sonra tekrar deneyin.');
+      }
       instance.load();
       if (onClose) onClose();
     }
-  } catch (err) {
+  } catch (err: any) {
     console.warn('[Ads] Failed to show rewarded ad:', err);
+    if (onError) onError(`Reklam gösterilemedi: ${err?.message || err}`);
     if (onClose) onClose();
   }
 };

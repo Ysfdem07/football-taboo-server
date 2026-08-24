@@ -71,7 +71,8 @@ export default function MarketScreen({ navigation }: any) {
         }
       },
       () => setWatchingAd(false),
-      'market'
+      'market',
+      (message) => CustomAlert.show(t('error'), message)
     );
   };
 
