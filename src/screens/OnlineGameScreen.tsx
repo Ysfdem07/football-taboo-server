@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Animated, ScrollView, StatusBar, Keyboard, AppState } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -370,6 +370,20 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     };
     socket.on('connect', rejoinOnReconnect);
 
+    // Socket.IO reconnecting (above) only covers a transport-level drop. If
+    // both phones just sit idle for a while, the app can be backgrounded
+    // without the connection ever actually breaking — the JS timers just
+    // get throttled by the OS, so events keep arriving but aren't processed
+    // until the app resumes, and can be missed/reordered along the way
+    // (e.g. a round's game_start reset gets skipped, so hint_revealed
+    // events for a later round keep appending onto a stale hints list
+    // instead of replacing it). Explicitly resyncing on every foreground
+    // transition, regardless of what socket.connected reports, catches
+    // that case too.
+    const appStateSub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') rejoinOnReconnect();
+    });
+
     socket.on('room_synced', (data: any) => {
       if (data.players) setPlayers(data.players);
       if (data.scores) setScores(data.scores);
@@ -386,6 +400,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     return () => {
+      appStateSub.remove();
       if (buzzerTimerRef.current) clearTimeout(buzzerTimerRef.current);
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 
