@@ -227,6 +227,24 @@ app.get('/privacy-policy.html', sendPrivacyHtml);
 app.get('/gizlilik', sendPrivacyHtml);
 app.get('/gizlilik.html', sendPrivacyHtml);
 
+// Support page — required by App Store Connect's "Support URL" field.
+const getSupportHtmlContent = () => {
+  const p1 = path.resolve(__dirname, 'backend', 'public', 'destek.html');
+  if (fs.existsSync(p1)) return fs.readFileSync(p1, 'utf-8');
+  const p2 = path.resolve(__dirname, 'public', 'destek.html');
+  if (fs.existsSync(p2)) return fs.readFileSync(p2, 'utf-8');
+  const p3 = path.resolve(process.cwd(), 'backend', 'public', 'destek.html');
+  if (fs.existsSync(p3)) return fs.readFileSync(p3, 'utf-8');
+  return `<!DOCTYPE html><html><head><title>Wordico Support</title></head><body><h1>Wordico Support</h1><p>wordrushtr@gmail.com</p></body></html>`;
+};
+const sendSupportHtml = (req, res) => {
+  res.type('html').send(getSupportHtmlContent());
+};
+app.get('/support', sendSupportHtml);
+app.get('/support.html', sendSupportHtml);
+app.get('/destek', sendSupportHtml);
+app.get('/destek.html', sendSupportHtml);
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'backend', 'public')));
 
