@@ -478,6 +478,11 @@ app.get('/admin/notify', requireAdmin, (req, res) => {
       <label><input type="checkbox" name="targetPlayers" value="1" checked> Kayıtlı oyunculara</label>
       <label><input type="checkbox" name="targetGuests" value="1" checked> Misafirlere</label>
     </div>
+    <label>Dil<select name="language" style="width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #333;background:#161f33;color:#fff;font-size:15px;margin-top:4px;">
+      <option value="all">Tümü (dil fark etmeksizin)</option>
+      <option value="tr">Sadece Türkçe kullanıcılar</option>
+      <option value="en">Sadece İngilizce kullanıcılar</option>
+    </select></label>
     <button type="submit">Gönder</button>
   </form>
 </body></html>`);
@@ -490,6 +495,8 @@ app.get('/admin/notify/send', requireAdmin, async (req, res) => {
   const route = (req.query.route || '').toString().trim();
   const wantPlayers = !!req.query.targetPlayers;
   const wantGuests = !!req.query.targetGuests;
+  const languageRaw = (req.query.language || 'all').toString().trim();
+  const language = ['tr', 'en'].includes(languageRaw) ? languageRaw : 'all';
 
   if (!title || !body) {
     return res.status(400).send('Başlık ve mesaj gerekli. <a href="javascript:history.back()">Geri</a>');
@@ -498,16 +505,16 @@ app.get('/admin/notify/send', requireAdmin, async (req, res) => {
   try {
     let tokens = [];
     if (wantPlayers) {
-      const players = await db.getPlayersWithPushTokens();
+      const players = await db.getPlayersWithPushTokens(language);
       tokens.push(...players.map(p => p.pushToken));
     }
     if (wantGuests) {
-      tokens.push(...(await db.getGuestPushTokens()));
+      tokens.push(...(await db.getGuestPushTokens(language)));
     }
     tokens = [...new Set(tokens)].filter(Boolean);
 
     if (tokens.length === 0) {
-      return res.send('Gönderilecek kayıtlı token bulunamadı. <a href="javascript:history.back()">Geri</a>');
+      return res.send('Gönderilecek kayıtlı token bulunamadı (bu dil filtresiyle eşleşen kimse yok olabilir). <a href="javascript:history.back()">Geri</a>');
     }
 
     const messages = tokens.map(token => ({
@@ -517,12 +524,12 @@ app.get('/admin/notify/send', requireAdmin, async (req, res) => {
       data: route ? { route } : {}
     }));
     const tickets = await sendPushNotifications(messages);
-    console.log(`[AdminNotify] Sent "${title}" to ${tokens.length} tokens (players=${wantPlayers}, guests=${wantGuests}, route=${route || 'none'})`);
+    console.log(`[AdminNotify] Sent "${title}" to ${tokens.length} tokens (players=${wantPlayers}, guests=${wantGuests}, language=${language}, route=${route || 'none'})`);
 
     res.set('Content-Type', 'text/html; charset=utf-8');
     res.send(`<!doctype html><html><body style="font-family:sans-serif;background:#0b1220;color:#eee;max-width:480px;margin:40px auto;padding:0 16px">
       <h2>✅ Gönderildi</h2>
-      <p>${escapeHtml(title)} — ${tokens.length} cihaza, ${tickets.length} bilet oluşturuldu.</p>
+      <p>${escapeHtml(title)} — ${tokens.length} cihaza (dil: ${language === 'all' ? 'tümü' : language}), ${tickets.length} bilet oluşturuldu.</p>
       <p><a href="/admin/notify?key=${key}" style="color:#00c853">← Yeni bildirim gönder</a></p>
     </body></html>`);
   } catch (e) {
@@ -855,12 +862,28 @@ io.on('connection', (socket) => {
   socket.on('save_push_token', async (data) => {
     const playerId = socket.data.playerId;
     const token = data?.token;
+    const language = data?.language === 'en' ? 'en' : (data?.language === 'tr' ? 'tr' : null);
     if (!playerId || typeof token !== 'string' || !token) return;
     try {
-      await db.updatePushToken(playerId, token);
-      console.log(`[PushToken] Saved for player ${playerId}`);
+      await db.updatePushToken(playerId, token, language);
+      console.log(`[PushToken] Saved for player ${playerId} (lang=${language || 'unknown'})`);
     } catch (e) {
       console.error('[PushToken] Error saving token:', e);
+    }
+  });
+
+  // Was emitted by the client (HomeScreen) but had no listener at all — guest
+  // push tokens were silently never saved, so guests never received admin
+  // notifications despite db.saveGuestPushToken/getGuestPushTokens existing.
+  socket.on('save_guest_push_token', async (data) => {
+    const token = data?.token;
+    const language = data?.language === 'en' ? 'en' : (data?.language === 'tr' ? 'tr' : null);
+    if (typeof token !== 'string' || !token) return;
+    try {
+      await db.saveGuestPushToken(token, language);
+      console.log(`[PushToken] Saved guest token (lang=${language || 'unknown'})`);
+    } catch (e) {
+      console.error('[PushToken] Error saving guest token:', e);
     }
   });
 

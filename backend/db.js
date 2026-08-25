@@ -30,6 +30,7 @@ async function connectDB() {
 
 const guestTokenSchema = new mongoose.Schema({
   token: { type: String, required: true, unique: true },
+  language: { type: String, default: null }, // 'tr' | 'en'
   createdAt: { type: Date, default: Date.now }
 });
 const GuestToken = mongoose.model('GuestToken', guestTokenSchema);
@@ -44,6 +45,7 @@ const playerSchema = new mongoose.Schema({
   email: { type: String, required: false, unique: true, sparse: true },
   marketingConsent: { type: Boolean, default: false },
   pushToken: { type: String, default: null },
+  pushLanguage: { type: String, default: null }, // 'tr' | 'en', as of the last save_push_token call
   avatar: { type: String, default: '⚽' },
   kp: { type: Number, default: 0 },
   categoryKp: {
@@ -738,28 +740,36 @@ module.exports = {
     return isConnected;
   },
 
-  getPlayersWithPushTokens: async () => {
+  // language: null/undefined/'all' = no filter (everyone with a token).
+  // Accounts saved before pushLanguage existed have it as null and are only
+  // included in the unfiltered case, not in either TR/EN-specific send.
+  getPlayersWithPushTokens: async (language) => {
     await connectDB();
-    return await Player.find({ pushToken: { $ne: null } }, 'id username pushToken');
+    const filter = { pushToken: { $ne: null } };
+    if (language && language !== 'all') filter.pushLanguage = language;
+    return await Player.find(filter, 'id username pushToken');
   },
 
-  getGuestPushTokens: async () => {
+  getGuestPushTokens: async (language) => {
     await connectDB();
-    const guests = await GuestToken.find({}, 'token');
+    const filter = (language && language !== 'all') ? { language } : {};
+    const guests = await GuestToken.find(filter, 'token');
     return guests.map(g => g.token);
   },
 
-  updatePushToken: async (playerId, token) => {
+  updatePushToken: async (playerId, token, language) => {
     await connectDB();
-    await Player.findOneAndUpdate({ id: playerId }, { pushToken: token });
+    const update = { pushToken: token };
+    if (language) update.pushLanguage = language;
+    await Player.findOneAndUpdate({ id: playerId }, update);
   },
 
-  saveGuestPushToken: async (token) => {
+  saveGuestPushToken: async (token, language) => {
     await connectDB();
     try {
       await GuestToken.findOneAndUpdate(
         { token },
-        { token },
+        { token, ...(language ? { language } : {}) },
         { upsert: true }
       );
     } catch (e) {

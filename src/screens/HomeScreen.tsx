@@ -82,12 +82,12 @@ export default function HomeScreen() {
               // hasn't authenticated yet; sending save_push_token straight
               // away silently no-ops server-side. Re-login first (safe to
               // call repeatedly) and only save the token once that's back.
-              const emitTokenSave = () => socket.emit('save_push_token', { playerId: parsed.id, token });
+              const emitTokenSave = () => socket.emit('save_push_token', { playerId: parsed.id, token, language });
               socket.once('login_response', emitTokenSave);
               const emitLogin = () => socket.emit('login_profile', { username: parsed.username, password: parsed.password });
               if (socket.connected) emitLogin(); else socket.once('connect', emitLogin);
             } else if (token) {
-              socket.emit('save_guest_push_token', { token });
+              socket.emit('save_guest_push_token', { token, language });
             }
           } else {
             // İlk açılış, ne hesap ne misafir profili var — ismi (ve
@@ -103,7 +103,7 @@ export default function HomeScreen() {
             await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
             setPlayer(guest);
             if (token) {
-              socket.emit('save_guest_push_token', { token });
+              socket.emit('save_guest_push_token', { token, language });
             }
           }
         } catch (error) {
