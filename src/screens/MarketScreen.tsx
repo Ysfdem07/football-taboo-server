@@ -57,14 +57,35 @@ export default function MarketScreen({ navigation }: any) {
            CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
         } else {
           let s = getSocket();
-          if (s && s.connected) {
-            // Don't update local coins optimistically — wait for the server's
-            // 'joker_bought' (success) or 'joker_error' (failure/cooldown)
-            // response, handled in setupSocket(). Applying the +50 here
-            // unconditionally let the client's displayed balance drift out of
-            // sync with the DB whenever the server call silently failed.
+          // Don't update local coins optimistically — wait for the server's
+          // 'joker_bought' (success) or 'joker_error' (failure/cooldown)
+          // response, handled in setupSocket(). Applying the +50 here
+          // unconditionally let the client's displayed balance drift out of
+          // sync with the DB whenever the server call silently failed.
+          const grantReward = () => {
             setLoading(true);
-            s.emit('reward_free_coins', { playerId: player.id });
+            s!.emit('reward_free_coins', { playerId: player.id });
+          };
+          if (s && s.connected) {
+            grantReward();
+          } else if (s) {
+            // Watching a rewarded ad takes real time (15-30s+), and the
+            // socket can drop during that window (backgrounding behind the
+            // ad overlay, brief network hiccup) — giving up immediately
+            // meant a user who genuinely watched the whole ad got nothing.
+            // Wait briefly for the socket's own auto-reconnect before
+            // treating it as a real failure.
+            setLoading(true);
+            const timeout = setTimeout(() => {
+              s!.off('connect', onReconnect);
+              setLoading(false);
+              CustomAlert.show(t('error'), t('serverError'));
+            }, 8000);
+            const onReconnect = () => {
+              clearTimeout(timeout);
+              grantReward();
+            };
+            s.once('connect', onReconnect);
           } else {
             CustomAlert.show(t('error'), t('serverError'));
           }
