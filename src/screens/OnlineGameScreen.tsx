@@ -1358,7 +1358,7 @@ const styles = StyleSheet.create({
     height: 52,
   },
   waitingText: {
-    color: '#aaa',
+    color: '#FFFFFF',
     fontSize: 14,
     fontFamily: 'Poppins_600SemiBold',
   },
