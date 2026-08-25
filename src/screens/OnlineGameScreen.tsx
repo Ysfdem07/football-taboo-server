@@ -811,7 +811,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               );
             })()}
             
-            {/* Clues Card style list */}
+            {/* Clues Card style list — hidden during your own guess turn so
+                large font scales / the Android keyboard don't crowd the
+                keyword boxes, jokers, and input into a cramped scroll. */}
+            {guessingPlayerId !== myOriginalId && (
             <View style={styles.cluesCard}>
               {hints.map((h, i) => (
                 <View key={i} style={styles.clueRow}>
@@ -839,13 +842,37 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <Text style={styles.emptyCluesText} maxFontSizeMultiplier={1.3}>Henüz ipucu verilmedi...</Text>
               )}
             </View>
+            )}
             </View>
 
           {showWrongGuess && (
             <Text style={styles.wrongGuessText} maxFontSizeMultiplier={1.3}>{language === 'en' ? `❌ Wrong Guess! (-${lastPenalty} Pts)` : `❌ Yanlış Tahmin! (-${lastPenalty} Puan)`}</Text>
           )}
+          </ScrollView>
 
+          {/* Pinned below the scrollable content (not inside the ScrollView)
+              so jokers + the guess input/send button are always reachable
+              without scrolling, even with the Android keyboard open and a
+              2-3 line answer above it. */}
           <View style={[styles.inputArea, { paddingBottom: keyboardVisible ? 8 : Math.max(20, insets.bottom + 16) }]}>
+
+            {/* Compact potential-score indicator — the clues card (which
+                normally carries this) is hidden during your own guess turn,
+                so this keeps that feedback visible while you're typing. */}
+            {guessingPlayerId === myOriginalId && (
+              <View style={styles.guessScoreRow}>
+                <Ionicons name="star" size={12} color={NEON_GOLD} />
+                <Text style={styles.guessScoreRowText} maxFontSizeMultiplier={1.2}>
+                  {(() => {
+                    if (serverPotentialScore !== null) return `+${serverPotentialScore}`;
+                    const hintsPenalty = Math.max(0, hints.length - 1);
+                    const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
+                    const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
+                    return `+${potentialScore}`;
+                  })()}
+                </Text>
+              </View>
+            )}
 
             {/* ─── Always-visible Jokers Bar ─────────────────────────────── */}
             <View style={styles.jokersBar}>
@@ -988,7 +1015,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               </View>
             )}
           </View>
-          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ImageBackground>
@@ -1149,6 +1175,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,8,20,0.95)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  guessScoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  guessScoreRowText: {
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 12,
   },
   jokersBar: {
     flexDirection: 'row',
