@@ -1342,13 +1342,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   waitingContainer: {
-    flex: 1,
+    // Was flex:1 + a fixed height at the same time — harmless while this
+    // sat inside the old ScrollView's generously-sized flexGrow area, but
+    // now that it's inside the pinned, content-sized inputArea (no longer
+    // in the ScrollView), flex:1 has no real "available space" to resolve
+    // against and was collapsing this box to zero height, hiding the
+    // waiting label entirely. The explicit height already fully sizes it.
     backgroundColor: 'rgba(0,8,20,0.85)',
     borderRadius: 16,
     borderWidth: 1.5,
     borderColor: '#444',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
     height: 52,
   },
   waitingText: {
