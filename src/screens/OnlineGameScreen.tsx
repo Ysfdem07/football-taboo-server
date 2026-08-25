@@ -665,7 +665,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   activeOpacity={0.8}
                 >
                   <Ionicons name="videocam" size={20} color="#000" style={{ marginRight: 8 }} />
-                  <Text style={styles.rewardButtonText}>REKLAM İZLE — JETONu 2x KAT!</Text>
+                  <Text style={styles.rewardButtonText}>Reklam İzle - Jetonu 2'ye Katla</Text>
                 </TouchableOpacity>
               )}
 
