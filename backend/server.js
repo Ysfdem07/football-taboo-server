@@ -235,7 +235,7 @@ const getSupportHtmlContent = () => {
   if (fs.existsSync(p2)) return fs.readFileSync(p2, 'utf-8');
   const p3 = path.resolve(process.cwd(), 'backend', 'public', 'destek.html');
   if (fs.existsSync(p3)) return fs.readFileSync(p3, 'utf-8');
-  return `<!DOCTYPE html><html><head><title>Wordico Support</title></head><body><h1>Wordico Support</h1><p>wordrushtr@gmail.com</p></body></html>`;
+  return `<!DOCTYPE html><html><head><title>Wordico Support</title></head><body><h1>Wordico Support</h1><p>info@wordico.net</p></body></html>`;
 };
 const sendSupportHtml = (req, res) => {
   res.type('html').send(getSupportHtmlContent());
