@@ -38,13 +38,33 @@ if (isFirebaseAvailable) {
 // used Google's globally-shared test units, which aren't tied to this
 // AdMob account at all and can't actually verify a real ad unit/mediation
 // setup works.
-const BANNER_ID = Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8571973167' : 'ca-app-pub-3816139413382983/4862946418';
-const INTERSTITIAL_ID = Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/8076159463' : 'ca-app-pub-3816139413382983/5106634788';
+//
+// TEMPORARY DIAGNOSTIC (2026-08-25): iOS shows zero ad activity, not even
+// in the AdMob dashboard's request count, and we have no Mac to register a
+// formal AdMob test device. Flipping this to true swaps iOS to Google's
+// public test units (guaranteed fill, independent of this AdMob account)
+// purely to tell apart "SDK/Info.plist integration broken" from "no fill
+// yet on a brand new unverified iOS app". Flip back to false and remove
+// once diagnosed — do not ship to production with this on.
+const IOS_DIAGNOSTIC_TEST_IDS = false;
+
+const BANNER_ID = Platform.OS === 'ios'
+  ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/2934735716' : 'ca-app-pub-3816139413382983/8571973167')
+  : 'ca-app-pub-3816139413382983/4862946418';
+const INTERSTITIAL_ID = Platform.OS === 'ios'
+  ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/4411468910' : 'ca-app-pub-3816139413382983/8076159463')
+  : 'ca-app-pub-3816139413382983/5106634788';
 
 const REWARDED_IDS: Record<string, string> = {
-  x2: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/4224649561' : 'ca-app-pub-3816139413382983/7273487336',
-  tourney: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/5537731236' : 'ca-app-pub-3816139413382983/7273487336',
-  market: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/7314731817' : 'ca-app-pub-3816139413382983/4136914456'
+  x2: Platform.OS === 'ios'
+    ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3816139413382983/4224649561')
+    : 'ca-app-pub-3816139413382983/7273487336',
+  tourney: Platform.OS === 'ios'
+    ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3816139413382983/5537731236')
+    : 'ca-app-pub-3816139413382983/7273487336',
+  market: Platform.OS === 'ios'
+    ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3816139413382983/7314731817')
+    : 'ca-app-pub-3816139413382983/4136914456'
 };
 
 // Keep track of ad instances

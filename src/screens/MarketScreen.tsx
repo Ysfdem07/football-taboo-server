@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ImageBackground, Alert, StatusBar, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ImageBackground, Alert, StatusBar, Platform, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BottomNavBar } from '../components/BottomNavBar';
@@ -168,7 +168,7 @@ export default function MarketScreen({ navigation }: any) {
           </View>
         </View>
 
-        <View style={styles.content}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={styles.subtitle}>{t('marketSubtitle')}</Text>
           
           <View style={styles.jokerCard}>
@@ -261,7 +261,7 @@ export default function MarketScreen({ navigation }: any) {
               <Text style={[styles.buyBtnText, { color: '#000' }]}>+50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
 
         <BottomNavBar activeTab="market" navigation={navigation} />
       </SafeAreaView>
@@ -302,8 +302,8 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   content: {
-    flex: 1,
     paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   subtitle: {
     color: 'rgba(255,255,255,0.7)',
