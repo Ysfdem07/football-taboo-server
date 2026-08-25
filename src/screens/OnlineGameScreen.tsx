@@ -78,7 +78,17 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   // squeezed to a sliver whenever a guess turn opens the keyboard.
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+      // On Android, dismissing the keyboard via the hardware/gesture back
+      // button doesn't clear the TextInput's own focus state — it just
+      // hides the soft keyboard while the input still reports itself
+      // focused. Calling .focus() again on an already-"focused" input is a
+      // no-op, so tapping the keyword boxes afterward silently did nothing.
+      // Blurring here resets that state so the next tap's focus() call
+      // actually re-triggers the keyboard.
+      inputRef.current?.blur();
+    });
     return () => {
       showSub.remove();
       hideSub.remove();
@@ -1169,6 +1179,12 @@ const styles = StyleSheet.create({
   },
   inputArea: {
     flexDirection: 'column',
+    // Default flexShrink is 1 for every flex child — without this, the
+    // sibling ScrollView's flex:1 can squeeze this pinned bar below its own
+    // content height, silently clipping whichever row (buzzer/pass, guess
+    // input, or the waiting label) comes after the jokers row. This forces
+    // it to always render at its full natural height instead.
+    flexShrink: 0,
     paddingTop: 10,
     paddingHorizontal: 16,
     gap: 8,
