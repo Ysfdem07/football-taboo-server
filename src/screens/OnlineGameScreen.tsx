@@ -345,7 +345,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       Analytics.logEvent('online_opponent_disconnected', { roomId, quitterId: data?.quitterId });
       setGameOver(true);
       setIsFinal(true);
-      setWinnerMessage(language === 'en' ? 'Opponent left! You won by forfeit.' : 'Rakip oyundan ayrıldı! Hükmen kazandınız.');
+      const iQuit = data?.quitterId === myOriginalId;
+      setWinnerMessage(
+        iQuit
+          ? (language === 'en' ? 'You left the match — forfeited.' : 'Maçtan ayrıldınız, hükmen kaybettiniz.')
+          : (language === 'en' ? 'Opponent left! You won by forfeit.' : 'Rakip oyundan ayrıldı! Hükmen kazandınız.')
+      );
       if (data?.quitterId) {
         // Marks the winner directly instead of leaving the final screen to
         // compare frozen scores from the moment they left — which could
