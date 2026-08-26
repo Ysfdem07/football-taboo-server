@@ -7,6 +7,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
 import { getWords, Word } from '../utils/WordSync';
 import { showInterstitial } from '../services/ads';
+import { useLanguage } from '../context/LanguageContext';
 
 type GameScreenRouteProp = RouteProp<RootStackParamList, 'Game'>;
 type GameScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Game'>;
@@ -18,6 +19,7 @@ type Props = {
 
 export default function GameScreen({ route, navigation }: Props) {
   const { timeLimit, winScore, teamA, teamB } = route.params;
+  const { language } = useLanguage();
 
   const [currentTeam, setCurrentTeam] = useState<'A' | 'B'>('A');
   const [teamAScore, setTeamAScore] = useState(0);
@@ -154,7 +156,7 @@ export default function GameScreen({ route, navigation }: Props) {
           </TouchableOpacity>
           
           <View style={styles.glassCardMenu}>
-            <Text style={styles.readyText}>Sıra: {currentTeam === 'A' ? teamA : teamB}</Text>
+            <Text style={styles.readyText}>{language === 'en' ? 'Turn: ' : 'Sıra: '}{currentTeam === 'A' ? teamA : teamB}</Text>
             <View style={styles.scoreBoard}>
               <Text style={styles.scoreText}>{teamA}: {teamAScore}</Text>
               <Text style={styles.scoreText}>{teamB}: {teamBScore}</Text>
@@ -162,7 +164,7 @@ export default function GameScreen({ route, navigation }: Props) {
           </View>
 
           <TouchableOpacity style={styles.startRoundBtn} onPress={startRound}>
-            <Text style={styles.startRoundText}>TURU BAŞLAT</Text>
+            <Text style={styles.startRoundText}>{language === 'en' ? 'START ROUND' : 'TURU BAŞLAT'}</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </ImageBackground>
@@ -201,12 +203,12 @@ export default function GameScreen({ route, navigation }: Props) {
       {isPaused ? (
         <View style={styles.pausedContainer}>
           <View style={styles.glassCardMenu}>
-            <Text style={styles.pausedText}>MOLA</Text>
+            <Text style={styles.pausedText}>{language === 'en' ? 'PAUSED' : 'MOLA'}</Text>
             <TouchableOpacity style={styles.startRoundBtn} onPress={handleResume}>
-              <Text style={styles.startRoundText}>DEVAM ET</Text>
+              <Text style={styles.startRoundText}>{language === 'en' ? 'RESUME' : 'DEVAM ET'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.startRoundBtn, styles.endGameBtn]} onPress={handleEndGame}>
-              <Text style={[styles.startRoundText, { color: '#FFF' }]}>OYUNU BİTİR</Text>
+              <Text style={[styles.startRoundText, { color: '#FFF' }]}>{language === 'en' ? 'END GAME' : 'OYUNU BİTİR'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -224,13 +226,13 @@ export default function GameScreen({ route, navigation }: Props) {
 
           <View style={styles.controls}>
             <TouchableOpacity style={[styles.actionBtn, styles.btnTaboo]} onPress={handleTaboo}>
-              <Text style={styles.actionText}>TABU (-1)</Text>
+              <Text style={styles.actionText}>{language === 'en' ? 'TABOO (-1)' : 'TABU (-1)'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionBtn, styles.btnPass]} onPress={handlePass}>
-              <Text style={[styles.actionText, { color: '#000' }]}>PAS</Text>
+              <Text style={[styles.actionText, { color: '#000' }]}>{language === 'en' ? 'PASS' : 'PAS'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionBtn, styles.btnCorrect]} onPress={handleCorrect}>
-              <Text style={[styles.actionText, { color: '#000' }]}>DOĞRU (+1)</Text>
+              <Text style={[styles.actionText, { color: '#000' }]}>{language === 'en' ? 'CORRECT (+1)' : 'DOĞRU (+1)'}</Text>
             </TouchableOpacity>
           </View>
         </>

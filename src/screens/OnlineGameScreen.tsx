@@ -47,6 +47,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
   const [gameOver, setGameOver] = useState(false);
   const [winnerMessage, setWinnerMessage] = useState('');
+  const [roundEndReason, setRoundEndReason] = useState<'correct_guess' | 'pass' | 'timeout' | null>(null);
   const [currentRound, setCurrentRound] = useState(1);
   const [maxRounds, setMaxRounds] = useState(10);
   const [scores, setScores] = useState<Record<string, number>>({});
@@ -308,15 +309,18 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setGameOver(true);
       setScores(data.scores);
       if (data.reason === 'correct_guess') {
+        setRoundEndReason('correct_guess');
         if (data.winnerId === myOriginalId) {
-          setWinnerMessage(t('correctWin') + ' KELİMEYİ BİLDİNİZ!\n\nKelime: ' + data.word);
+          setWinnerMessage(t('correctWin') + t('guessedWordSelfSuffix') + data.word);
         } else {
-          const winnerName = data.winnerName || 'RAKİBİNİZ';
-          setWinnerMessage(winnerName.toUpperCase() + ' KELİMEYİ BİLDİ!\n\nKelime: ' + data.word);
+          const winnerName = data.winnerName || t('opponentFallbackName');
+          setWinnerMessage(winnerName.toUpperCase() + t('guessedWordOtherSuffix') + data.word);
         }
       } else if (data.reason === 'pass') {
-        setWinnerMessage(t('passDone') + '\n\nKelime: ' + data.word);
+        setRoundEndReason('pass');
+        setWinnerMessage(t('passDone') + '\n\n' + t('wordLabel') + data.word);
       } else {
+        setRoundEndReason('timeout');
         setWinnerMessage(t('timeUp') + data.word);
       }
     });
@@ -483,9 +487,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
 
   if (gameOver) {
     if (!isFinal) {
-      const isTimeout = winnerMessage.includes('SÜRE');
-      const isPass = winnerMessage.includes('PAS');
-      const isCorrectWin = winnerMessage.includes('TEBRİKLER');
+      const isTimeout = roundEndReason === 'timeout';
+      const isPass = roundEndReason === 'pass';
+      const isCorrectWin = roundEndReason === 'correct_guess';
 
       // Renk ve ikon seçimi
       let cardBorderColor = NEON_GOLD;
@@ -518,7 +522,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <Ionicons name={statusIcon as any} size={48} color={titleColor} style={{ marginBottom: 12 }} />
               
               <Text style={[styles.transitionTitle, { color: titleColor }]}>
-                {isCorrectWin ? 'TEBRİKLER!' : isPass ? 'PAS GEÇİLDİ!' : isTimeout ? 'SÜRE DOLDU!' : 'TUR SONU!'}
+                {isCorrectWin ? t('correctWin') : isPass ? t('passDone') : isTimeout ? t('timeUpTitle') : t('roundEnd')}
               </Text>
               
               <Text style={styles.transitionDetail}>
@@ -670,7 +674,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   activeOpacity={0.8}
                 >
                   <Ionicons name="videocam" size={20} color="#000" style={{ marginRight: 8 }} />
-                  <Text style={styles.rewardButtonText}>Reklam İzle - Jetonu 2'ye Katla</Text>
+                  <Text style={styles.rewardButtonText}>{language === 'en' ? 'Watch Ad - Double Your Coins' : 'Reklam İzle - Jetonu 2\'ye Katla'}</Text>
                 </TouchableOpacity>
               )}
 
@@ -869,7 +873,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 </View>
               ))}
               {hints.length === 0 && (
-                <Text style={styles.emptyCluesText} maxFontSizeMultiplier={1.3}>Henüz ipucu verilmedi...</Text>
+                <Text style={styles.emptyCluesText} maxFontSizeMultiplier={1.3}>{language === 'en' ? 'No clues given yet...' : 'Henüz ipucu verilmedi...'}</Text>
               )}
             </View>
             )}
@@ -914,7 +918,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="text" size={16} color={NEON_PURPLE} />
-                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>Harf Aç</Text>
+                <Text style={[styles.jokerBtnLabel, { color: NEON_PURPLE }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>{t('jokerShortReveal')}</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.revealLetters || 0}</Text>
                 </View>
@@ -931,7 +935,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="time" size={16} color="#00BFFF" />
-                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>+5 Sn</Text>
+                <Text style={[styles.jokerBtnLabel, { color: '#00BFFF' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>{t('jokerShortExtraTime')}</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.extraTime || 0}</Text>
                 </View>
@@ -945,7 +949,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="flash" size={16} color={NEON_GREEN} />
-                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>İpucu</Text>
+                <Text style={[styles.jokerBtnLabel, { color: NEON_GREEN }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>{t('jokerShortHint')}</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.instantHints || 0}</Text>
                 </View>
@@ -962,7 +966,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 activeOpacity={0.8}
               >
                 <Ionicons name="shield-checkmark" size={16} color="#FFD700" />
-                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>Kalkan</Text>
+                <Text style={[styles.jokerBtnLabel, { color: '#FFD700' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.2}>{t('jokerShortShield')}</Text>
                 <View style={styles.jokerBadge}>
                   <Text style={styles.jokerBadgeText} maxFontSizeMultiplier={1.2}>{player?.jokers?.shield || 0}</Text>
                 </View>
@@ -980,7 +984,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   activeOpacity={0.85}
                 >
                   <Text style={styles.buzzerButtonText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
-                    {buzzerLocked ? 'BEKLEYİN (5)' : '⚡ TAHMİN ET!'}
+                    {buzzerLocked ? (language === 'en' ? 'WAIT (5)' : 'BEKLEYİN (5)') : (language === 'en' ? '⚡ GUESS!' : '⚡ TAHMİN ET!')}
                   </Text>
                 </TouchableOpacity>
 
@@ -992,8 +996,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 >
                   <Text style={styles.passBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                     {hasPassed
-                      ? `✓ PAS (${passVotesCount}/${players.length || 2})`
-                      : `⏭ PAS (${passVotesCount}/${players.length || 2})`}
+                      ? `✓ ${language === 'en' ? 'PASS' : 'PAS'} (${passVotesCount}/${players.length || 2})`
+                      : `⏭ ${language === 'en' ? 'PASS' : 'PAS'} (${passVotesCount}/${players.length || 2})`}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1019,7 +1023,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   <Text style={styles.guessTimerText} maxFontSizeMultiplier={1.2}>{guessTimeLeft}s</Text>
                 </View>
                 <TouchableOpacity style={[styles.guessBtn, { flex: 1 }]} onPress={sendGuess} activeOpacity={0.85}>
-                  <Text style={styles.guessBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>GÖNDER ▶</Text>
+                  <Text style={styles.guessBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>{language === 'en' ? 'SEND ▶' : 'GÖNDER ▶'}</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -1038,8 +1042,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 >
                   <Text style={styles.passBtnText} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                     {hasPassed
-                      ? `✓ PAS (${passVotesCount}/${players.length || 2})`
-                      : `⏭ PAS GEÇ (${passVotesCount}/${players.length || 2})`}
+                      ? `✓ ${language === 'en' ? 'PASS' : 'PAS'} (${passVotesCount}/${players.length || 2})`
+                      : `⏭ ${language === 'en' ? 'PASS' : 'PAS GEÇ'} (${passVotesCount}/${players.length || 2})`}
                   </Text>
                 </TouchableOpacity>
               </View>

@@ -107,9 +107,9 @@ export default function ProfileScreen({ navigation }: Props) {
       if (res.success) {
         Analytics.logUserRegister(res.player.id, res.player.username);
         saveSession(res.player);
-        CustomAlert.show('Başarılı', 'Profiliniz başarıyla oluşturuldu!');
+        CustomAlert.show(language === 'en' ? 'Success' : 'Başarılı', language === 'en' ? 'Your profile has been created successfully!' : 'Profiliniz başarıyla oluşturuldu!');
       } else {
-        CustomAlert.show('Kayıt Hatası', res.error || 'Bilinmeyen hata.');
+        CustomAlert.show(language === 'en' ? 'Registration Error' : 'Kayıt Hatası', res.error || (language === 'en' ? 'Unknown error.' : 'Bilinmeyen hata.'));
       }
     });
 
@@ -124,7 +124,7 @@ export default function ProfileScreen({ navigation }: Props) {
         setIsLoggedIn(false);
         setPlayer(null);
         if (!loading) {
-          CustomAlert.show('Giriş Hatası', res.error || 'Şifre hatalı.');
+          CustomAlert.show(language === 'en' ? 'Login Error' : 'Giriş Hatası', res.error || (language === 'en' ? 'Incorrect password.' : 'Şifre hatalı.'));
         }
       }
     });
@@ -133,13 +133,18 @@ export default function ProfileScreen({ navigation }: Props) {
       setLoading(false);
       if (res.success) {
         if (res.devMode) {
-          CustomAlert.show('Geliştirici Modu (Test)', `SMTP kurulu olmadığı için üretilen kod ekrana yansıtıldı:\n\nKOD: ${res.code}`);
+          CustomAlert.show(
+            language === 'en' ? 'Developer Mode (Test)' : 'Geliştirici Modu (Test)',
+            language === 'en'
+              ? `SMTP is not set up, so the generated code is shown here instead:\n\nCODE: ${res.code}`
+              : `SMTP kurulu olmadığı için üretilen kod ekrana yansıtıldı:\n\nKOD: ${res.code}`
+          );
         } else {
-          CustomAlert.show('Başarılı', res.message);
+          CustomAlert.show(language === 'en' ? 'Success' : 'Başarılı', res.message);
         }
         setAuthStep('forgot_verify');
       } else {
-        CustomAlert.show('Hata', res.error || 'Sıfırlama kodu gönderilemedi.');
+        CustomAlert.show(language === 'en' ? 'Error' : 'Hata', res.error || (language === 'en' ? 'Could not send reset code.' : 'Sıfırlama kodu gönderilemedi.'));
       }
     });
 
@@ -153,9 +158,12 @@ export default function ProfileScreen({ navigation }: Props) {
         setResetEmail('');
         setResetCode('');
         setNewPassword('');
-        CustomAlert.show('Hesabın Geri Geldi! 🎉', 'Hesabına bu cihazdan giriş yapıldı.');
+        CustomAlert.show(
+          language === 'en' ? 'Your Account Is Back! 🎉' : 'Hesabın Geri Geldi! 🎉',
+          language === 'en' ? 'You are now signed in on this device.' : 'Hesabına bu cihazdan giriş yapıldı.'
+        );
       } else {
-        CustomAlert.show('Kurtarma Hatası', res.error || 'Hesap kurtarılamadı.');
+        CustomAlert.show(language === 'en' ? 'Recovery Error' : 'Kurtarma Hatası', res.error || (language === 'en' ? 'Could not recover account.' : 'Hesap kurtarılamadı.'));
       }
     });
 
@@ -170,9 +178,12 @@ export default function ProfileScreen({ navigation }: Props) {
           const cached = stored ? JSON.parse(stored) : {};
           await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...cached, ...res.player }));
         } catch (e) {}
-        CustomAlert.show('Başarılı! 🎉', 'E-posta hesabına eklendi — artık bu cihazı kaybedersen hesabını kurtarabilirsin.');
+        CustomAlert.show(
+          language === 'en' ? 'Success! 🎉' : 'Başarılı! 🎉',
+          language === 'en' ? "Email added to your account — now you can recover it if you lose this device." : 'E-posta hesabına eklendi — artık bu cihazı kaybedersen hesabını kurtarabilirsin.'
+        );
       } else {
-        CustomAlert.show('Hata', res.error || 'E-posta eklenemedi.');
+        CustomAlert.show(language === 'en' ? 'Error' : 'Hata', res.error || (language === 'en' ? 'Could not add email.' : 'E-posta eklenemedi.'));
       }
     });
 
@@ -187,9 +198,9 @@ export default function ProfileScreen({ navigation }: Props) {
           const cached = stored ? JSON.parse(stored) : {};
           await AsyncStorage.setItem('@logged_in_profile', JSON.stringify({ ...cached, ...res.player }));
         } catch (e) {}
-        CustomAlert.show('Başarılı! 🎉', 'Kullanıcı adın güncellendi.');
+        CustomAlert.show(language === 'en' ? 'Success! 🎉' : 'Başarılı! 🎉', language === 'en' ? 'Your username has been updated.' : 'Kullanıcı adın güncellendi.');
       } else {
-        CustomAlert.show('Hata', res.error || 'Kullanıcı adı güncellenemedi.');
+        CustomAlert.show(language === 'en' ? 'Error' : 'Hata', res.error || (language === 'en' ? 'Could not update username.' : 'Kullanıcı adı güncellenemedi.'));
       }
     });
 
@@ -205,7 +216,7 @@ export default function ProfileScreen({ navigation }: Props) {
           language === 'en' ? 'Your account has been permanently deleted.' : 'Hesabın kalıcı olarak silindi.'
         );
       } else {
-        CustomAlert.show('Hata', res.error || 'Hesap silinemedi.');
+        CustomAlert.show(language === 'en' ? 'Error' : 'Hata', res.error || (language === 'en' ? 'Could not delete account.' : 'Hesap silinemedi.'));
       }
     });
 
@@ -249,17 +260,17 @@ export default function ProfileScreen({ navigation }: Props) {
       socket.emit('update_avatar', { playerId: player.id, avatar: avatarId });
     }
 
-    CustomAlert.show('Başarılı! 🎉', 'Profil avatarın başarıyla güncellendi.');
+    CustomAlert.show(language === 'en' ? 'Success! 🎉' : 'Başarılı! 🎉', language === 'en' ? 'Your profile avatar has been updated.' : 'Profil avatarın başarıyla güncellendi.');
   };
 
   const handleAddEmail = () => {
     if (!emailInput.trim()) {
-      CustomAlert.show('Hata', 'Lütfen e-posta adresinizi girin.');
+      CustomAlert.show(language === 'en' ? 'Error' : 'Hata', language === 'en' ? 'Please enter your email address.' : 'Lütfen e-posta adresinizi girin.');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailInput.trim())) {
-      CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Please enter a valid email address.' : 'Lütfen geçerli bir e-posta adresi girin.');
       return;
     }
     setLoading(true);
@@ -268,7 +279,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
   const handleChangeUsername = () => {
     if (usernameInput.trim().length < 3 || usernameInput.trim().length > 30) {
-      CustomAlert.show('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Username must be between 3 and 30 characters.' : 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
       return;
     }
     setLoading(true);
@@ -293,11 +304,11 @@ export default function ProfileScreen({ navigation }: Props) {
   // recovery), which also generates+submits a fresh hidden password.
   const handleAuth = () => {
     if (!username.trim()) {
-      CustomAlert.show('Hata', 'Lütfen kullanıcı adınızı girin.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Please enter your username.' : 'Lütfen kullanıcı adınızı girin.');
       return;
     }
     if (username.length < 3 || username.length > 30) {
-      CustomAlert.show('Hata', 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Username must be between 3 and 30 characters.' : 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
       return;
     }
     // Email is optional — only used for account recovery — but if they did
@@ -305,12 +316,12 @@ export default function ProfileScreen({ navigation }: Props) {
     if (email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.trim())) {
-        CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+        CustomAlert.show(t('error'), language === 'en' ? 'Please enter a valid email address.' : 'Lütfen geçerli bir e-posta adresi girin.');
         return;
       }
     }
     if (!marketingConsent) {
-      CustomAlert.show('Hata', 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
+      CustomAlert.show(t('error'), language === 'en' ? 'You must accept the Privacy Policy and data processing terms to continue.' : 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
       return;
     }
 
@@ -328,7 +339,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
   const handlePasswordLogin = () => {
     if (!loginUsername.trim() || !loginPassword.trim()) {
-      CustomAlert.show('Hata', 'Lütfen kullanıcı adı ve şifrenizi girin.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Please enter your username and password.' : 'Lütfen kullanıcı adı ve şifrenizi girin.');
       return;
     }
     setLoading(true);
@@ -337,12 +348,12 @@ export default function ProfileScreen({ navigation }: Props) {
 
   const handleForgotRequest = () => {
     if (!resetEmail.trim()) {
-      CustomAlert.show('Hata', 'Lütfen e-posta adresinizi girin.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Please enter your email address.' : 'Lütfen e-posta adresinizi girin.');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(resetEmail.trim())) {
-      CustomAlert.show('Hata', 'Lütfen geçerli bir e-posta adresi girin.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Please enter a valid email address.' : 'Lütfen geçerli bir e-posta adresi girin.');
       return;
     }
     setLoading(true);
@@ -350,7 +361,10 @@ export default function ProfileScreen({ navigation }: Props) {
     // Safety timeout: If socket fails to respond in 15 seconds, close spinner and show alert
     const safetyTimeout = setTimeout(() => {
       setLoading(false);
-      CustomAlert.show('Bağlantı Hatası', 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+      CustomAlert.show(
+        language === 'en' ? 'Connection Error' : 'Bağlantı Hatası',
+        language === 'en' ? 'Could not connect to the server. Please check your internet connection and try again.' : 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.'
+      );
     }, 15000);
 
     socket.emit('forgot_password', { email: resetEmail.trim() });
@@ -363,11 +377,11 @@ export default function ProfileScreen({ navigation }: Props) {
 
   const handleForgotVerify = () => {
     if (!resetCode.trim()) {
-      CustomAlert.show('Hata', 'Lütfen doğrulama kodunu girin.');
+      CustomAlert.show(t('error'), language === 'en' ? 'Please enter the verification code.' : 'Lütfen doğrulama kodunu girin.');
       return;
     }
     if (resetCode.trim().length !== 6) {
-      CustomAlert.show('Hata', 'Doğrulama kodu 6 haneli olmalıdır.');
+      CustomAlert.show(t('error'), language === 'en' ? 'The verification code must be 6 digits.' : 'Doğrulama kodu 6 haneli olmalıdır.');
       return;
     }
     // No password field to type here either — recovering the account on
@@ -413,7 +427,7 @@ export default function ProfileScreen({ navigation }: Props) {
       setUsername('');
       setPassword('');
       setAuthStep('register');
-      CustomAlert.show('Çıkış Yapıldı', 'Profil oturumu sonlandırıldı.');
+      CustomAlert.show(language === 'en' ? 'Logged Out' : 'Çıkış Yapıldı', language === 'en' ? 'Your profile session has ended.' : 'Profil oturumu sonlandırıldı.');
     } catch (e) {
       console.error(e);
     }
@@ -659,14 +673,14 @@ export default function ProfileScreen({ navigation }: Props) {
             ) : authStep === 'forgot_request' ? (
               // ACCOUNT RECOVERY REQUEST VIEW
               <View style={styles.authCard}>
-                <Text style={styles.authTitle}>Hesabımı Kurtar</Text>
+                <Text style={styles.authTitle}>{language === 'en' ? 'Recover My Account' : 'Hesabımı Kurtar'}</Text>
                 <Text style={styles.authSubtitle}>
-                  Hesabına kayıtlı e-posta adresini gir, doğrulama kodunu gönderelim.
+                  {language === 'en' ? "Enter the email address on your account and we'll send you a verification code." : 'Hesabına kayıtlı e-posta adresini gir, doğrulama kodunu gönderelim.'}
                 </Text>
 
                 <TextInput
                   style={styles.input}
-                  placeholder="E-posta Adresi"
+                  placeholder={language === 'en' ? 'Email Address' : 'E-posta Adresi'}
                   placeholderTextColor="#888"
                   value={resetEmail}
                   onChangeText={setResetEmail}
@@ -678,26 +692,26 @@ export default function ProfileScreen({ navigation }: Props) {
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleForgotRequest}>
-                    <Text style={styles.authButtonText}>KOD GÖNDER</Text>
+                    <Text style={styles.authButtonText}>{language === 'en' ? 'SEND CODE' : 'KOD GÖNDER'}</Text>
                   </TouchableOpacity>
                 )}
 
                 <TouchableOpacity onPress={() => setAuthStep('login')} style={styles.toggleLink}>
-                  <Text style={styles.toggleLinkText}>Geri Dön</Text>
+                  <Text style={styles.toggleLinkText}>{language === 'en' ? 'Go Back' : 'Geri Dön'}</Text>
                 </TouchableOpacity>
               </View>
             ) : authStep === 'forgot_verify' ? (
               // ACCOUNT RECOVERY VERIFY VIEW — no password field here either;
               // handleForgotVerify generates one behind the scenes.
               <View style={styles.authCard}>
-                <Text style={styles.authTitle}>Kodu Doğrula</Text>
+                <Text style={styles.authTitle}>{language === 'en' ? 'Verify Code' : 'Kodu Doğrula'}</Text>
                 <Text style={styles.authSubtitle}>
-                  E-postana gönderilen 6 haneli kodu gir, hesabın bu cihaza geri gelsin.
+                  {language === 'en' ? 'Enter the 6-digit code sent to your email to get your account back on this device.' : 'E-postana gönderilen 6 haneli kodu gir, hesabın bu cihaza geri gelsin.'}
                 </Text>
 
                 <TextInput
                   style={styles.input}
-                  placeholder="6 Haneli Doğrulama Kodu"
+                  placeholder={language === 'en' ? '6-Digit Verification Code' : '6 Haneli Doğrulama Kodu'}
                   placeholderTextColor="#888"
                   value={resetCode}
                   onChangeText={setResetCode}
@@ -710,12 +724,12 @@ export default function ProfileScreen({ navigation }: Props) {
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleForgotVerify}>
-                    <Text style={styles.authButtonText}>HESABIMI GERİ GETİR</Text>
+                    <Text style={styles.authButtonText}>{language === 'en' ? 'RECOVER MY ACCOUNT' : 'HESABIMI GERİ GETİR'}</Text>
                   </TouchableOpacity>
                 )}
 
                 <TouchableOpacity onPress={() => setAuthStep('forgot_request')} style={styles.toggleLink}>
-                  <Text style={styles.toggleLinkText}>Yeniden Kod Gönder</Text>
+                  <Text style={styles.toggleLinkText}>{language === 'en' ? 'Resend Code' : 'Yeniden Kod Gönder'}</Text>
                 </TouchableOpacity>
               </View>
             ) : isRegisterMode ? (
@@ -781,7 +795,7 @@ export default function ProfileScreen({ navigation }: Props) {
                     {marketingConsent && <Ionicons name="checkmark" size={14} color={Colors.white} />}
                   </View>
                   <Text style={styles.consentText}>
-                    Wordico gelişmelerinden ve özel fırsatlardan e-posta ile haberdar olmak istiyorum.
+                    {language === 'en' ? 'I want to be notified by email about Wordico updates and special offers.' : 'Wordico gelişmelerinden ve özel fırsatlardan e-posta ile haberdar olmak istiyorum.'}
                   </Text>
                 </TouchableOpacity>
 
@@ -886,14 +900,14 @@ export default function ProfileScreen({ navigation }: Props) {
               <View style={styles.modalHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Ionicons name="sparkles" size={20} color="#00FF88" style={{ marginRight: 8 }} />
-                  <Text style={styles.modalTitle}>AVATAR SEÇ</Text>
+                  <Text style={styles.modalTitle}>{language === 'en' ? 'SELECT AVATAR' : 'AVATAR SEÇ'}</Text>
                 </View>
                 <TouchableOpacity onPress={() => setShowAvatarModal(false)} style={styles.modalCloseBtn}>
                   <Ionicons name="close" size={22} color="#FFF" />
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.modalSubtitle}>Profilinizde gösterilecek avatar görselinizi seçin:</Text>
+              <Text style={styles.modalSubtitle}>{language === 'en' ? 'Select the avatar image to show on your profile:' : 'Profilinizde gösterilecek avatar görselinizi seçin:'}</Text>
 
               <ScrollView contentContainerStyle={styles.avatarGridContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.avatarGrid}>
