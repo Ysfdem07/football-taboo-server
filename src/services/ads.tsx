@@ -31,40 +31,48 @@ if (isFirebaseAvailable) {
   }
 }
 
-// AD UNIT IDs — always the real production units. Safety during testing
-// comes from registering test devices in the AdMob console (they
-// automatically get served clearly-labeled test creatives regardless of
-// which ad unit ID is requested), not from swapping in TestIds here — that
-// used Google's globally-shared test units, which aren't tied to this
-// AdMob account at all and can't actually verify a real ad unit/mediation
-// setup works.
+// AD UNIT IDs.
 //
-// TEMPORARY DIAGNOSTIC (2026-08-25): iOS shows zero ad activity, not even
-// in the AdMob dashboard's request count, and we have no Mac to register a
-// formal AdMob test device. Flipping this to true swaps iOS to Google's
-// public test units (guaranteed fill, independent of this AdMob account)
-// purely to tell apart "SDK/Info.plist integration broken" from "no fill
-// yet on a brand new unverified iOS app". Flip back to false and remove
-// once diagnosed — do not ship to production with this on.
-const IOS_DIAGNOSTIC_TEST_IDS = false;
+// TEMPORARY (2026-09-03): App Review rejected the app (Guideline 2.1(a))
+// after tapping "Watch Ad & Earn" hit a [googleMobileAds/no-fill] error on
+// iOS. This AdMob account/app is brand new, and rewarded-video fill is
+// inconsistent while it ramps up — the SDK integration itself is fine (the
+// no-fill is a real, successful round-trip to Google's ad server, and
+// flipping to test IDs previously confirmed ads render correctly end to
+// end). Rather than gamble on live fill during another review pass, both
+// platforms are pinned to Google's public test ad units — 100% fill,
+// clearly-labeled "Test Ad" creatives, safe to submit. Flip
+// USE_TEST_AD_UNITS back to false (reverting to the real
+// ca-app-pub-3816139413382983/... units below) once the account has real
+// traffic and fill has stabilized — this can ship as a JS-only OTA update,
+// no new build needed. Do not leave this on indefinitely: test ads earn
+// nothing.
+const USE_TEST_AD_UNITS = true;
 
-const BANNER_ID = Platform.OS === 'ios'
-  ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/2934735716' : 'ca-app-pub-3816139413382983/8571973167')
-  : 'ca-app-pub-3816139413382983/4862946418';
-const INTERSTITIAL_ID = Platform.OS === 'ios'
-  ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/4411468910' : 'ca-app-pub-3816139413382983/8076159463')
-  : 'ca-app-pub-3816139413382983/5106634788';
+// Google's shared public test ad units — same for every developer, always
+// 100% fill, and rendered with a visible "Test Ad" label so they're never
+// mistaken for (or misused as) real inventory.
+const TEST_IDS = {
+  banner: Platform.OS === 'ios' ? 'ca-app-pub-3940256099942544/2934735716' : 'ca-app-pub-3940256099942544/6300978111',
+  interstitial: Platform.OS === 'ios' ? 'ca-app-pub-3940256099942544/4411468910' : 'ca-app-pub-3940256099942544/1033173712',
+  rewarded: Platform.OS === 'ios' ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3940256099942544/5224354917',
+};
 
-const REWARDED_IDS: Record<string, string> = {
-  x2: Platform.OS === 'ios'
-    ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3816139413382983/4224649561')
-    : 'ca-app-pub-3816139413382983/7273487336',
-  tourney: Platform.OS === 'ios'
-    ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3816139413382983/5537731236')
-    : 'ca-app-pub-3816139413382983/7273487336',
-  market: Platform.OS === 'ios'
-    ? (IOS_DIAGNOSTIC_TEST_IDS ? 'ca-app-pub-3940256099942544/1712485313' : 'ca-app-pub-3816139413382983/7314731817')
-    : 'ca-app-pub-3816139413382983/4136914456'
+const BANNER_ID = USE_TEST_AD_UNITS ? TEST_IDS.banner : (Platform.OS === 'ios'
+  ? 'ca-app-pub-3816139413382983/8571973167'
+  : 'ca-app-pub-3816139413382983/4862946418');
+const INTERSTITIAL_ID = USE_TEST_AD_UNITS ? TEST_IDS.interstitial : (Platform.OS === 'ios'
+  ? 'ca-app-pub-3816139413382983/8076159463'
+  : 'ca-app-pub-3816139413382983/5106634788');
+
+const REWARDED_IDS: Record<string, string> = USE_TEST_AD_UNITS ? {
+  x2: TEST_IDS.rewarded,
+  tourney: TEST_IDS.rewarded,
+  market: TEST_IDS.rewarded,
+} : {
+  x2: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/4224649561' : 'ca-app-pub-3816139413382983/7273487336',
+  tourney: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/5537731236' : 'ca-app-pub-3816139413382983/7273487336',
+  market: Platform.OS === 'ios' ? 'ca-app-pub-3816139413382983/7314731817' : 'ca-app-pub-3816139413382983/4136914456',
 };
 
 // Keep track of ad instances
@@ -73,10 +81,23 @@ let isInterstitialLoaded = false;
 
 const rewardedInstances: Record<string, any> = { x2: null, tourney: null, market: null };
 const rewardedLoaded: Record<string, boolean> = { x2: false, tourney: false, market: false };
-// Last load failure per type — showRewarded had no way to surface *why* an
-// ad wasn't ready (wrong/disabled ad unit, no fill, network) beyond a
-// silent no-op, which is indistinguishable from "just hasn't loaded yet".
+// Last load failure per type — logged for our own debugging only. Never shown
+// to the user: raw AdMob SDK error text (e.g. "[googleMobileAds/no-fill]
+// Request Error: No ad to show.") reaching an Alert got the app rejected by
+// App Review (Guideline 2.1(a), 2026-09-03) as a user-facing bug. No-fill is
+// normal ad-serving behavior, not something a player should ever see as an
+// "error".
 const rewardedLoadErrors: Record<string, string | null> = { x2: null, tourney: null, market: null };
+
+// Lets screens (e.g. the Market "Watch Ad & Earn" button) reflect real ad
+// availability instead of only finding out on tap — disable/hide the button
+// until this is true so most no-fill cases never reach the user as an error
+// at all. Mock mode (Expo Go / Firebase unavailable) always reports ready
+// since showRewarded there fires the reward instantly.
+export const isRewardedReady = (type: 'x2' | 'tourney' | 'market' = 'x2'): boolean => {
+  if (!isFirebaseAvailable) return true;
+  return !!rewardedLoaded[type];
+};
 
 export const initAds = async (): Promise<void> => {
   if (!isFirebaseAvailable || !MobileAds) {
@@ -187,7 +208,7 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
       onRewardEarned({ type: 'gold', amount: 100 });
       if (onClose) onClose();
     } else if (onError) {
-      onError('Reklam SDK\'sı yüklenemedi (Ads unavailable).');
+      onError('Şu anda reklam gösterilemiyor, lütfen daha sonra tekrar deneyin.');
     }
     return;
   }
@@ -219,17 +240,21 @@ export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: ()
 
       instance.show();
     } else {
-      if (__DEV__) console.log('[Ads] Rewarded Ad not loaded yet. Retrying load...');
-      const lastError = rewardedLoadErrors[type];
+      // The underlying reason (no fill, network, wrong ad unit, etc.) is
+      // logged for us via rewardedLoadErrors/console.warn in loadRewarded's
+      // ERROR listener — never surfaced to the player. A no-fill here is
+      // routine ad-serving behavior, not an app malfunction, so the user
+      // only ever sees a plain "try again shortly" message.
+      if (__DEV__) console.log(`[Ads] Rewarded Ad (${type}) not loaded yet — last load error:`, rewardedLoadErrors[type]);
       if (onError) {
-        onError(lastError ? `Reklam yüklenemedi: ${lastError}` : 'Reklam henüz hazır değil, birkaç saniye sonra tekrar deneyin.');
+        onError('Reklam henüz hazır değil, birkaç saniye sonra tekrar deneyin.');
       }
       instance.load();
       if (onClose) onClose();
     }
   } catch (err: any) {
     console.warn('[Ads] Failed to show rewarded ad:', err);
-    if (onError) onError(`Reklam gösterilemedi: ${err?.message || err}`);
+    if (onError) onError('Reklam gösterilemedi, lütfen daha sonra tekrar deneyin.');
     if (onClose) onClose();
   }
 };

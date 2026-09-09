@@ -48,6 +48,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [gameOver, setGameOver] = useState(false);
   const [winnerMessage, setWinnerMessage] = useState('');
   const [roundEndReason, setRoundEndReason] = useState<'correct_guess' | 'pass' | 'timeout' | null>(null);
+  const [amIWinner, setAmIWinner] = useState(false);
   const [currentRound, setCurrentRound] = useState(1);
   const [maxRounds, setMaxRounds] = useState(10);
   const [scores, setScores] = useState<Record<string, number>>({});
@@ -310,6 +311,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setScores(data.scores);
       if (data.reason === 'correct_guess') {
         setRoundEndReason('correct_guess');
+        setAmIWinner(data.winnerId === myOriginalId);
         if (data.winnerId === myOriginalId) {
           setWinnerMessage(t('correctWin') + t('guessedWordSelfSuffix') + data.word);
         } else {
@@ -497,9 +499,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       let statusIcon = 'information-circle-outline';
 
       if (isCorrectWin) {
-        cardBorderColor = NEON_GREEN;
-        titleColor = NEON_GREEN;
-        statusIcon = 'checkmark-circle-outline';
+        cardBorderColor = amIWinner ? NEON_GREEN : '#ff4444';
+        titleColor = amIWinner ? NEON_GREEN : '#ff4444';
+        statusIcon = amIWinner ? 'checkmark-circle-outline' : 'close-circle-outline';
       } else if (isPass) {
         cardBorderColor = NEON_BLUE;
         titleColor = NEON_BLUE;
@@ -522,7 +524,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <Ionicons name={statusIcon as any} size={48} color={titleColor} style={{ marginBottom: 12 }} />
               
               <Text style={[styles.transitionTitle, { color: titleColor }]}>
-                {isCorrectWin ? t('correctWin') : isPass ? t('passDone') : isTimeout ? t('timeUpTitle') : t('roundEnd')}
+                {isCorrectWin ? (amIWinner ? t('correctWin') : t('roundEnd')) : isPass ? t('passDone') : isTimeout ? t('timeUpTitle') : t('roundEnd')}
               </Text>
               
               <Text style={styles.transitionDetail}>

@@ -5,7 +5,7 @@
     "name": "Wordico",
     "slug": "wordico",
     "owner": "ysfdem",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -17,11 +17,11 @@
     "userInterfaceStyle": "light",
     "ios": {
       "buildNumber": "2",
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.ysfdem.footballtaboo",
       "googleServicesFile": "GoogleService-Info.plist",
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir.",
+        "NSUserTrackingUsageDescription": "Bu izin, size daha ilgili oyun ici reklamlar sunmamiz icin kullanilir. / This permission lets us show you more relevant in-game ads.",
         "ITSAppUsesNonExemptEncryption": false,
         "SKAdNetworkItems": [
           {
@@ -80,7 +80,7 @@
           "advertiserIDCollectionEnabled": true,
           "autoLogAppEventsEnabled": true,
           "isAutoInitEnabled": true,
-          "iosUserTrackingPermission": "Bu izin, size daha ilgili ve kisisellestirilmis oyun ici reklamlar ve teklifler sunabilmemiz icin kullanilmaktadir."
+          "iosUserTrackingPermission": "Bu izin, size daha ilgili oyun ici reklamlar sunmamiz icin kullanilir. / This permission lets us show you more relevant in-game ads."
         }
       ],
       "expo-font",

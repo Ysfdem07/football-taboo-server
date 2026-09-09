@@ -7,7 +7,7 @@ import { getSocket, initSocketWithUrl, fetchTunnelUrl } from '../services/socket
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
 import { CustomAlert } from '../components/CustomAlert';
-import { showRewarded } from '../services/ads';
+import { showRewarded, isRewardedReady } from '../services/ads';
 
 const THEMES = {
   football: require('../../assets/images/home_bg.jpg')
@@ -25,11 +25,28 @@ export default function MarketScreen({ navigation }: any) {
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [watchingAd, setWatchingAd] = useState(false);
-  
+  const [adReady, setAdReady] = useState(isRewardedReady('market'));
+
   useEffect(() => {
     loadPlayer();
     setupSocket();
   }, []);
+
+  // The rewarded ad loads asynchronously in the background (services/ads.tsx),
+  // so it isn't ready the instant this screen mounts. Poll readiness instead
+  // of only finding out on tap — this lets the button stay disabled until an
+  // ad has actually loaded, so a no-fill (routine, e.g. on a brand-new device
+  // or region) never surfaces to the user as a tap-triggered error at all.
+  useEffect(() => {
+    if (adReady) return;
+    const interval = setInterval(() => {
+      if (isRewardedReady('market')) {
+        setAdReady(true);
+        clearInterval(interval);
+      }
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [adReady]);
 
   const loadPlayer = async () => {
     try {
@@ -91,7 +108,12 @@ export default function MarketScreen({ navigation }: any) {
           }
         }
       },
-      () => setWatchingAd(false),
+      () => {
+        setWatchingAd(false);
+        // The ad just shown/attempted is consumed; a fresh one loads in the
+        // background, so re-arm the readiness poll rather than assume ready.
+        setAdReady(isRewardedReady('market'));
+      },
       'market',
       (message) => CustomAlert.show(t('error'), message)
     );
@@ -250,13 +272,17 @@ export default function MarketScreen({ navigation }: any) {
               <Ionicons name="play-circle" size={32} color={NEON_GOLD} />
               <View style={styles.jokerTexts}>
                 <Text style={styles.jokerName}>{language === 'en' ? 'Watch Ad & Earn' : 'İzle ve Kazan'}</Text>
-                <Text style={styles.jokerDesc}>{language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.'}</Text>
+                <Text style={styles.jokerDesc}>
+                  {adReady
+                    ? (language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.')
+                    : (language === 'en' ? 'Ad is preparing, please wait…' : 'Reklam hazırlanıyor, lütfen bekleyin…')}
+                </Text>
               </View>
             </View>
-            <TouchableOpacity 
-              style={[styles.buyBtn, { backgroundColor: NEON_GOLD }, watchingAd && { opacity: 0.5 }]} 
+            <TouchableOpacity
+              style={[styles.buyBtn, { backgroundColor: NEON_GOLD }, (watchingAd || !adReady) && { opacity: 0.5 }]}
               onPress={watchAdForCoins}
-              disabled={watchingAd}
+              disabled={watchingAd || !adReady}
             >
               <Text style={[styles.buyBtnText, { color: '#000' }]}>+50 {language === 'en' ? 'Coins' : 'Jeton'}</Text>
             </TouchableOpacity>
