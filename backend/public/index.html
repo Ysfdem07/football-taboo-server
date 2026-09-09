@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wordico - Kelime Tahmin Oyunu</title>
+    <title>Wordico - Kelime Tahmin Oyunu / Word Guessing Game</title>
     <style>
         :root {
             --primary: #4CAF50;
@@ -20,6 +20,7 @@
             text-align: center;
         }
         header {
+            position: relative;
             padding: 50px 20px;
             background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
             border-bottom: 3px solid var(--primary);
@@ -35,6 +36,28 @@
             font-size: 1.2em;
             color: #aaa;
             margin-top: 10px;
+        }
+        .lang-switch {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            display: flex;
+            gap: 6px;
+        }
+        .lang-switch button {
+            background: transparent;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        .lang-switch button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #111;
+            font-weight: bold;
         }
         .container {
             max-width: 800px;
@@ -84,39 +107,63 @@
 <body>
 
     <header>
+        <div class="lang-switch">
+            <button id="btn-tr" onclick="setLang('tr')">TR</button>
+            <button id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
         <h1>Wordico</h1>
-        <p class="subtitle">Yeni Nesil Kelime Tahmin Oyunu</p>
+        <p class="subtitle" data-tr="Yeni Nesil Kelime Tahmin Oyunu" data-en="The Next-Gen Word Guessing Game"></p>
     </header>
 
     <div class="container">
-        <p>Wordico ile arkadaşlarınızla veya dünyanın dört bir yanından oyuncularla rekabet edin. Kelime bilginizi sınayın, ipuçlarını kullanın ve zirveye çıkın!</p>
+        <p data-tr="Wordico ile arkadaşlarınızla veya dünyanın dört bir yanından oyuncularla rekabet edin. Kelime bilginizi sınayın, ipuçlarını kullanın ve zirveye çıkın!"
+           data-en="Compete with your friends or players from around the world on Wordico. Test your word knowledge, use the hints, and climb to the top!"></p>
 
         <div class="features">
             <div class="feature-box">
-                <h3>Çok Oyunculu</h3>
-                <p>Arkadaşlarınızla odalar kurun ve eş zamanlı oynayın.</p>
+                <h3 data-tr="Çok Oyunculu" data-en="Multiplayer"></h3>
+                <p data-tr="Arkadaşlarınızla odalar kurun ve eş zamanlı oynayın." data-en="Create rooms and play in real time with your friends."></p>
             </div>
             <div class="feature-box">
-                <h3>Zengin İçerik</h3>
-                <p>Sürekli güncellenen binlerce kelime ve futbol konsepti.</p>
+                <h3 data-tr="Zengin İçerik" data-en="Rich Content"></h3>
+                <p data-tr="Sürekli güncellenen binlerce kelime ve futbol konsepti." data-en="Thousands of constantly updated words and football concepts."></p>
             </div>
             <div class="feature-box">
-                <h3>Hızlı ve Eğlenceli</h3>
-                <p>Sadece 5 saniyelik ipuçlarıyla hızlı düşünme pratiği.</p>
+                <h3 data-tr="Hızlı ve Eğlenceli" data-en="Fast and Fun"></h3>
+                <p data-tr="Sadece 5 saniyelik ipuçlarıyla hızlı düşünme pratiği." data-en="Quick-thinking fun with hints revealed every 5 seconds."></p>
             </div>
         </div>
 
         <div class="links">
-            <a href="/gizlilik.html">Gizlilik Politikası</a>
-            <a href="/sartlar.html">Kullanım Koşulları</a>
-            <a href="/destek.html">Destek</a>
+            <a href="/gizlilik.html" data-tr="Gizlilik Politikası" data-en="Privacy Policy"></a>
+            <a href="/sartlar.html" data-tr="Kullanım Koşulları" data-en="Terms of Use"></a>
+            <a href="/destek.html" data-tr="Destek" data-en="Support"></a>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2026 Wordico. Tüm hakları saklıdır.</p>
-        <p>İletişim: <a href="mailto:info@wordico.net">info@wordico.net</a></p>
+        <p>&copy; 2026 Wordico. <span data-tr="Tüm hakları saklıdır." data-en="All rights reserved."></span></p>
+        <p><span data-tr="İletişim" data-en="Contact"></span>: <a href="mailto:info@wordico.net">info@wordico.net</a></p>
     </footer>
+
+    <script>
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+            document.querySelectorAll('[data-' + lang + ']').forEach(function (el) {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            document.getElementById('btn-tr').classList.toggle('active', lang === 'tr');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            try { localStorage.setItem('wordico_lang', lang); } catch (e) {}
+        }
+
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('wordico_lang'); } catch (e) {}
+            var browserLang = (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en';
+            setLang(saved || browserLang);
+        })();
+    </script>
 
 </body>
 </html>
