@@ -99,16 +99,39 @@ export const isRewardedReady = (type: 'x2' | 'tourney' | 'market' = 'x2'): boole
   return !!rewardedLoaded[type];
 };
 
+// TEMP diagnostic (2026-09-10): surfaces the real reason a rewarded ad won't
+// load, so we can see it without a Mac/Console.app while chasing the iOS
+// "even test ads don't load" report. Remove once resolved.
+let sdkInitError: string | null = null;
+let sdkInitStarted = false;
+let sdkInitDone = false;
+
+export const getAdsDebugInfo = (type: 'x2' | 'tourney' | 'market' = 'x2') => ({
+  isExpoGo,
+  isFirebaseAvailable,
+  hasMobileAdsModule: !!MobileAds,
+  useTestAdUnits: USE_TEST_AD_UNITS,
+  unitId: REWARDED_IDS[type],
+  loaded: rewardedLoaded[type],
+  lastError: rewardedLoadErrors[type],
+  sdkInitStarted,
+  sdkInitDone,
+  sdkInitError,
+});
+
 export const initAds = async (): Promise<void> => {
   if (!isFirebaseAvailable || !MobileAds) {
     if (__DEV__) {
       console.log('[Ads] Google Mobile Ads is disabled (Expected in Expo Go).');
     }
+    sdkInitError = !MobileAds ? 'MobileAds module failed to require() — native module not linked in this binary.' : 'isFirebaseAvailable is false (Expo Go).';
     return;
   }
 
+  sdkInitStarted = true;
   try {
     const adapterStatuses = await MobileAds().initialize();
+    sdkInitDone = true;
     if (__DEV__) {
       console.log('[Ads] Google Mobile Ads SDK initialized:', adapterStatuses);
     }
@@ -116,7 +139,8 @@ export const initAds = async (): Promise<void> => {
     loadRewarded('x2');
     loadRewarded('tourney');
     loadRewarded('market');
-  } catch (err) {
+  } catch (err: any) {
+    sdkInitError = err?.message || String(err);
     console.warn('[Ads] Initialization failed:', err);
   }
 };

@@ -7,7 +7,7 @@ import { getSocket, initSocketWithUrl, fetchTunnelUrl } from '../services/socket
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
 import { CustomAlert } from '../components/CustomAlert';
-import { showRewarded, isRewardedReady } from '../services/ads';
+import { showRewarded, isRewardedReady, getAdsDebugInfo } from '../services/ads';
 
 const THEMES = {
   football: require('../../assets/images/home_bg.jpg')
@@ -277,6 +277,12 @@ export default function MarketScreen({ navigation }: any) {
                     ? (language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.')
                     : (language === 'en' ? 'Ad is preparing, please wait…' : 'Reklam hazırlanıyor, lütfen bekleyin…')}
                 </Text>
+                {/* TEMP diagnostic (2026-09-10) — remove once the iOS no-ad-load report is resolved */}
+                {!adReady && (
+                  <Text style={{ color: '#888', fontSize: 10, marginTop: 4 }} selectable>
+                    debug: {JSON.stringify(getAdsDebugInfo('market'))}
+                  </Text>
+                )}
               </View>
             </View>
             <TouchableOpacity
