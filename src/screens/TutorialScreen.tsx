@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,36 +10,45 @@ type Props = {
 };
 
 const GREEN = '#00FF88';
+const RED = '#ff5a5a';
 
-type Round = { tiles: number; answer: string; hints: string[]; hintsEn: string[] };
+type Round = { answer: string; hints: string[]; hintsEn: string[] };
 
 // Five scripted rounds — no server, no real opponent. Just enough to teach
-// the rhythm (hints reveal one by one, buzz in the moment you know it,
-// fewer hints shown = more points) before dropping a first-time player into
-// a real match.
+// the rhythm (hints reveal one by one, buzz in and type the word the moment
+// you know it, fewer hints shown = more points) before dropping a
+// first-time player into a real match.
 const ROUNDS: Round[] = [
-  { tiles: 4, answer: 'PELE', hints: ['Brezilyalı', '3 kez Dünya Kupası kazandı', "'Kral' lakaplı", 'Santos efsanesi', '10 numara'], hintsEn: ['Brazilian', 'Won the World Cup 3 times', "Nicknamed 'The King'", 'Santos legend', 'Wore number 10'] },
-  { tiles: 8, answer: 'MESSİ', hints: ['Arjantinli', 'Barcelona efsanesi', '8 Ballon d\'Or', 'Sol ayak ustası', '2022 Dünya Kupası şampiyonu'], hintsEn: ['Argentinian', 'Barcelona legend', '8 Ballon d\'Ors', 'Left-footed magician', '2022 World Cup champion'] },
-  { tiles: 8, answer: 'RONALDO', hints: ['Portekizli', 'Al Nassr forması giyiyor', 'CR7 lakaplı', 'Manchester United efsanesi', 'Kariyer gol rekortmeni'], hintsEn: ['Portuguese', 'Plays for Al Nassr', "Nicknamed 'CR7'", 'Manchester United legend', 'All-time top scorer'] },
-  { tiles: 6, answer: 'NEYMAR', hints: ['Brezilyalı', 'PSG\'de oynadı', 'Santos\'tan yetişti', 'Numara 10', 'Şov futbolu ile bilinir'], hintsEn: ['Brazilian', 'Played for PSG', 'Came up through Santos', 'Wears number 10', 'Known for flair'] },
-  { tiles: 9, answer: 'MBAPPE', hints: ['Fransız', 'Real Madrid\'de oynuyor', '2018 Dünya Kupası şampiyonu', 'Çok hızlı', 'PSG\'den transfer oldu'], hintsEn: ['French', 'Plays for Real Madrid', '2018 World Cup champion', 'Extremely fast', 'Transferred from PSG'] },
+  { answer: 'PELE', hints: ['Brezilyalı', '3 kez Dünya Kupası kazandı', "'Kral' lakaplı", 'Santos efsanesi', '10 numara'], hintsEn: ['Brazilian', 'Won the World Cup 3 times', "Nicknamed 'The King'", 'Santos legend', 'Wore number 10'] },
+  { answer: 'MESSI', hints: ['Arjantinli', 'Barcelona efsanesi', "8 Ballon d'Or", 'Sol ayak ustası', '2022 Dünya Kupası şampiyonu'], hintsEn: ['Argentinian', 'Barcelona legend', '8 Ballon d\'Ors', 'Left-footed magician', '2022 World Cup champion'] },
+  { answer: 'RONALDO', hints: ['Portekizli', 'Al Nassr forması giyiyor', 'CR7 lakaplı', 'Manchester United efsanesi', 'Kariyer gol rekortmeni'], hintsEn: ['Portuguese', 'Plays for Al Nassr', "Nicknamed 'CR7'", 'Manchester United legend', 'All-time top scorer'] },
+  { answer: 'NEYMAR', hints: ['Brezilyalı', "PSG'de oynadı", "Santos'tan yetişti", 'Numara 10', 'Şov futbolu ile bilinir'], hintsEn: ['Brazilian', 'Played for PSG', 'Came up through Santos', 'Wears number 10', 'Known for flair'] },
+  { answer: 'MBAPPE', hints: ['Fransız', "Real Madrid'de oynuyor", '2018 Dünya Kupası şampiyonu', 'Çok hızlı', "PSG'den transfer oldu"], hintsEn: ['French', 'Plays for Real Madrid', '2018 World Cup champion', 'Extremely fast', 'Transferred from PSG'] },
 ];
 
 const HINT_INTERVAL_MS = 2200;
 const SCORE_PER_HINT_LEFT = 20;
 
+const normalize = (s: string) =>
+  s.toLocaleUpperCase('tr-TR').replace(/İ/g, 'I').replace(/[^A-ZÇĞÖŞÜ]/g, '');
+
 export default function TutorialScreen({ navigation }: Props) {
   const { language } = useLanguage();
   const [roundIndex, setRoundIndex] = useState(0);
   const [hintsShown, setHintsShown] = useState(1);
-  const [phase, setPhase] = useState<'revealing' | 'answered'>('revealing');
+  const [hintsAtBuzz, setHintsAtBuzz] = useState(1);
+  const [phase, setPhase] = useState<'revealing' | 'guessing' | 'answered'>('revealing');
+  const [guessInput, setGuessInput] = useState('');
+  const [wasCorrect, setWasCorrect] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   const [lastScore, setLastScore] = useState(0);
   const [done, setDone] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const round = ROUNDS[roundIndex];
   const hints = language === 'en' ? round.hintsEn : round.hints;
+  const answerLength = normalize(round.answer).length;
 
   useEffect(() => {
     if (phase !== 'revealing') return;
@@ -58,7 +67,17 @@ export default function TutorialScreen({ navigation }: Props) {
   const handleBuzz = () => {
     if (phase !== 'revealing') return;
     if (timerRef.current) clearInterval(timerRef.current);
-    const score = Math.max(10, (hints.length - hintsShown + 1) * SCORE_PER_HINT_LEFT);
+    setHintsAtBuzz(hintsShown);
+    setGuessInput('');
+    setPhase('guessing');
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const handleSubmitGuess = () => {
+    if (phase !== 'guessing') return;
+    const correct = normalize(guessInput) === normalize(round.answer) && guessInput.trim().length > 0;
+    const score = correct ? Math.max(10, (hints.length - hintsAtBuzz + 1) * SCORE_PER_HINT_LEFT) : 0;
+    setWasCorrect(correct);
     setLastScore(score);
     setTotalScore(s => s + score);
     setPhase('answered');
@@ -71,6 +90,7 @@ export default function TutorialScreen({ navigation }: Props) {
     }
     setRoundIndex(i => i + 1);
     setHintsShown(1);
+    setGuessInput('');
     setPhase('revealing');
   };
 
@@ -87,8 +107,8 @@ export default function TutorialScreen({ navigation }: Props) {
         </Text>
         <Text style={styles.doneSubtitle}>
           {language === 'en'
-            ? 'Read the clues, buzz in fast, score big. Time to play for real.'
-            : 'İpuçlarını oku, hızlı tahmin et, çok puan kazan. Şimdi gerçek oyuna geç.'}
+            ? 'Read the clues, buzz in fast, type the word, score big. Time to play for real.'
+            : 'İpuçlarını oku, hızlı tahmin et, kelimeyi yaz, çok puan kazan. Şimdi gerçek oyuna geç.'}
         </Text>
         <Text style={styles.doneScore}>
           {language === 'en' ? `Demo score: ${totalScore}` : `Demo puanın: ${totalScore}`}
@@ -100,65 +120,101 @@ export default function TutorialScreen({ navigation }: Props) {
     );
   }
 
+  const normalizedInput = normalize(guessInput);
+
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.topBar}>
-        <Text style={styles.roundLabel}>
-          {language === 'en' ? `DEMO ${roundIndex + 1} / ${ROUNDS.length}` : `DENEME ${roundIndex + 1} / ${ROUNDS.length}`}
-        </Text>
-        <TouchableOpacity onPress={finishTutorial}>
-          <Text style={styles.skip}>{language === 'en' ? 'Skip' : 'Atla'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {roundIndex === 0 && phase === 'revealing' && (
-        <View style={styles.coachBubble}>
-          <Text style={styles.coachText}>
-            {language === 'en'
-              ? 'Clues appear one by one. The moment you know the word, tap BUZZ IN — fewer clues shown means more points!'
-              : 'İpuçları sırayla açılır. Kelimeyi tahmin ettiğin an TAHMİN ET\'e bas — ne kadar az ipucuyla bilirsen o kadar çok puan kazanırsın!'}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.topBar}>
+          <Text style={styles.roundLabel}>
+            {language === 'en' ? `DEMO ${roundIndex + 1} / ${ROUNDS.length}` : `DENEME ${roundIndex + 1} / ${ROUNDS.length}`}
           </Text>
+          <TouchableOpacity onPress={finishTutorial}>
+            <Text style={styles.skip}>{language === 'en' ? 'Skip' : 'Atla'}</Text>
+          </TouchableOpacity>
         </View>
-      )}
 
-      <View style={styles.tiles}>
-        {Array.from({ length: round.tiles }).map((_, i) => (
-          <View key={i} style={styles.tile} />
-        ))}
-      </View>
+        {roundIndex === 0 && phase === 'revealing' && (
+          <View style={styles.coachBubble}>
+            <Text style={styles.coachText}>
+              {language === 'en'
+                ? 'Clues appear one by one. The moment you know the word, tap BUZZ IN, then type it — fewer clues shown means more points!'
+                : 'İpuçları sırayla açılır. Kelimeyi tahmin ettiğin an TAHMİN ET\'e bas, sonra yaz — ne kadar az ipucuyla bilirsen o kadar çok puan kazanırsın!'}
+            </Text>
+          </View>
+        )}
 
-      {phase === 'answered' ? (
-        <View style={styles.answerCard}>
-          <Ionicons name="checkmark-circle" size={48} color={GREEN} />
-          <Text style={styles.answerWord}>{round.answer}</Text>
-          <Text style={styles.answerScore}>+{lastScore} {language === 'en' ? 'points' : 'puan'}</Text>
-        </View>
-      ) : (
-        <View style={styles.hintCard}>
-          {hints.slice(0, hintsShown).map((h, i) => (
-            <View key={i} style={styles.hintRow}>
-              <Ionicons name="eye" size={16} color={GREEN} />
-              <Text style={styles.hintText}>{h}</Text>
+        <View style={styles.tiles}>
+          {Array.from({ length: answerLength }).map((_, i) => (
+            <View key={i} style={[styles.tile, phase === 'answered' && (wasCorrect ? styles.tileCorrect : styles.tileWrong)]}>
+              <Text style={styles.tileLetter}>
+                {phase === 'answered' ? normalize(round.answer)[i] : (normalizedInput[i] || '')}
+              </Text>
             </View>
           ))}
         </View>
-      )}
 
-      <View style={styles.bottom}>
-        {phase === 'revealing' ? (
-          <TouchableOpacity style={styles.buzzBtn} onPress={handleBuzz} activeOpacity={0.85}>
-            <Text style={styles.buzzBtnText}>⚡ {language === 'en' ? 'BUZZ IN!' : 'TAHMİN ET!'}</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.buzzBtn} onPress={handleNext} activeOpacity={0.85}>
-            <Text style={styles.buzzBtnText}>
-              {roundIndex + 1 >= ROUNDS.length
-                ? (language === 'en' ? 'FINISH' : 'BİTİR')
-                : (language === 'en' ? 'NEXT →' : 'SIRADAKİ →')}
+        {phase === 'answered' ? (
+          <View style={styles.answerCard}>
+            <Ionicons
+              name={wasCorrect ? 'checkmark-circle' : 'close-circle'}
+              size={48}
+              color={wasCorrect ? GREEN : RED}
+            />
+            <Text style={styles.answerWord}>{round.answer}</Text>
+            <Text style={[styles.answerScore, !wasCorrect && { color: RED }]}>
+              {wasCorrect
+                ? `+${lastScore} ${language === 'en' ? 'points' : 'puan'}`
+                : (language === 'en' ? 'Not quite — here\'s the word' : 'Tam olmadı — kelime buydu')}
             </Text>
-          </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.hintCard}>
+            {hints.slice(0, hintsShown).map((h, i) => (
+              <View key={i} style={styles.hintRow}>
+                <Ionicons name="eye" size={16} color={GREEN} />
+                <Text style={styles.hintText}>{h}</Text>
+              </View>
+            ))}
+          </View>
         )}
-      </View>
+
+        {phase === 'guessing' && (
+          <TextInput
+            ref={inputRef}
+            style={styles.hiddenInput}
+            value={guessInput}
+            onChangeText={setGuessInput}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={handleSubmitGuess}
+            maxLength={answerLength + 5}
+          />
+        )}
+
+        <View style={styles.bottom}>
+          {phase === 'revealing' && (
+            <TouchableOpacity style={styles.buzzBtn} onPress={handleBuzz} activeOpacity={0.85}>
+              <Text style={styles.buzzBtnText}>⚡ {language === 'en' ? 'BUZZ IN!' : 'TAHMİN ET!'}</Text>
+            </TouchableOpacity>
+          )}
+          {phase === 'guessing' && (
+            <TouchableOpacity style={styles.buzzBtn} onPress={handleSubmitGuess} activeOpacity={0.85}>
+              <Text style={styles.buzzBtnText}>{language === 'en' ? 'SUBMIT →' : 'GÖNDER →'}</Text>
+            </TouchableOpacity>
+          )}
+          {phase === 'answered' && (
+            <TouchableOpacity style={styles.buzzBtn} onPress={handleNext} activeOpacity={0.85}>
+              <Text style={styles.buzzBtnText}>
+                {roundIndex + 1 >= ROUNDS.length
+                  ? (language === 'en' ? 'FINISH' : 'BİTİR')
+                  : (language === 'en' ? 'NEXT →' : 'SIRADAKİ →')}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -178,7 +234,10 @@ const styles = StyleSheet.create({
   },
   coachText: { color: '#eafff2', fontSize: 13, lineHeight: 19, fontWeight: '600' },
   tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center', marginBottom: 22 },
-  tile: { width: 28, height: 34, borderWidth: 2, borderColor: '#1f6b3f', borderRadius: 6, backgroundColor: 'rgba(20,45,28,0.5)' },
+  tile: { width: 30, height: 36, borderWidth: 2, borderColor: '#1f6b3f', borderRadius: 6, backgroundColor: 'rgba(20,45,28,0.5)', alignItems: 'center', justifyContent: 'center' },
+  tileCorrect: { borderColor: GREEN, backgroundColor: 'rgba(0,255,136,0.15)' },
+  tileWrong: { borderColor: RED, backgroundColor: 'rgba(255,90,90,0.12)' },
+  tileLetter: { color: '#fff', fontWeight: '900', fontSize: 16 },
   hintCard: {
     flex: 1,
     backgroundColor: 'rgba(9,20,14,0.9)',
@@ -193,6 +252,12 @@ const styles = StyleSheet.create({
   answerCard: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   answerWord: { color: '#fff', fontSize: 32, fontWeight: '900', letterSpacing: 1 },
   answerScore: { color: GREEN, fontSize: 18, fontWeight: '800' },
+  hiddenInput: {
+    height: 0,
+    width: 0,
+    opacity: 0,
+    position: 'absolute',
+  },
   bottom: { marginTop: 16 },
   buzzBtn: {
     backgroundColor: '#ffd54a',
