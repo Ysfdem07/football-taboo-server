@@ -26,6 +26,7 @@ export default function MarketScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [watchingAd, setWatchingAd] = useState(false);
   const [adReady, setAdReady] = useState(isRewardedReady('market'));
+  const [adStuck, setAdStuck] = useState(false);
 
   useEffect(() => {
     loadPlayer();
@@ -46,6 +47,20 @@ export default function MarketScreen({ navigation }: any) {
       }
     }, 1500);
     return () => clearInterval(interval);
+  }, [adReady]);
+
+  // A device-level ad/DNS blocker (VPN apps like AdGuard, NextDNS, Lockdown
+  // Privacy) keeps every ad request — including Google's guaranteed-fill test
+  // units — stuck at no-fill forever, since the block happens before the
+  // request ever reaches Google's servers. Without this, the button just sits
+  // on "preparing" indefinitely with no way for the player to know why.
+  useEffect(() => {
+    if (adReady) {
+      setAdStuck(false);
+      return;
+    }
+    const timeout = setTimeout(() => setAdStuck(true), 30000);
+    return () => clearTimeout(timeout);
   }, [adReady]);
 
   const loadPlayer = async () => {
@@ -275,6 +290,10 @@ export default function MarketScreen({ navigation }: any) {
                 <Text style={styles.jokerDesc}>
                   {adReady
                     ? (language === 'en' ? 'Watch a short ad to earn 50 free coins.' : 'Kısa bir reklam izle, 50 bedava jeton kazan.')
+                    : adStuck
+                    ? (language === 'en'
+                        ? 'Ad could not load. If you use a VPN or ad-blocker, try turning it off.'
+                        : 'Reklam yüklenemedi. VPN veya reklam engelleyici kullanıyorsan kapatmayı dene.')
                     : (language === 'en' ? 'Ad is preparing, please wait…' : 'Reklam hazırlanıyor, lütfen bekleyin…')}
                 </Text>
               </View>
