@@ -1,6 +1,11 @@
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
+import TutorialScreen from '../screens/TutorialScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import GameScreen from '../screens/GameScreen';
 import ResultScreen from '../screens/ResultScreen';
@@ -19,6 +24,8 @@ import MarketScreen from '../screens/MarketScreen';
 
 export type RootStackParamList = {
   Home: undefined;
+  Onboarding: undefined;
+  Tutorial: undefined;
   Settings: { categoryId?: string };
   Game: { timeLimit: number; winScore: number; teamA: string; teamB: string };
   Result: { teamAScore: number; teamBScore: number; teamA: string; teamB: string };
@@ -46,10 +53,26 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 export default function AppNavigator() {
+  // A device with no saved profile yet has never been through onboarding —
+  // send it there instead of straight to Home. Resolved once, synchronously
+  // enough (a single AsyncStorage read) that there's no visible flash before
+  // the very first frame most devices render.
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@logged_in_profile')
+      .then(profile => setInitialRoute(profile ? 'Home' : 'Onboarding'))
+      .catch(() => setInitialRoute('Home'));
+  }, []);
+
+  if (!initialRoute) {
+    return <View style={{ flex: 1, backgroundColor: '#060b08' }} />;
+  }
+
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator 
-        initialRouteName="Home"
+      <Stack.Navigator
+        initialRouteName={initialRoute}
         screenOptions={{
           headerStyle: {
             backgroundColor: '#121212',
@@ -62,6 +85,8 @@ export default function AppNavigator() {
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ gestureEnabled: false }} />
+        <Stack.Screen name="Tutorial" component={TutorialScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="CategoryMenu" component={CategoryMenuScreen} />
         <Stack.Screen name="Market" component={MarketScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />

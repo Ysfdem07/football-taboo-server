@@ -41,7 +41,6 @@ export default function ProfileScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('soccer_hero');
   const [email, setEmail] = useState('');
-  const [marketingConsent, setMarketingConsent] = useState(false);
 
   // Password Reset State
   const [resetEmail, setResetEmail] = useState('');
@@ -319,11 +318,6 @@ export default function ProfileScreen({ navigation }: Props) {
         return;
       }
     }
-    if (!marketingConsent) {
-      CustomAlert.show(t('error'), language === 'en' ? 'You must accept the Privacy Policy and data processing terms to continue.' : 'Devam etmek için Gizlilik Politikası ve veri işleme koşullarını onaylamalısınız.');
-      return;
-    }
-
     const generatedPassword = generateHiddenPassword();
     setPassword(generatedPassword);
     setLoading(true);
@@ -332,7 +326,6 @@ export default function ProfileScreen({ navigation }: Props) {
       password: generatedPassword,
       avatar: selectedAvatar,
       email: email.trim(),
-      marketingConsent
     });
   };
 
@@ -872,18 +865,11 @@ export default function ProfileScreen({ navigation }: Props) {
                   </ScrollView>
                 </View>
 
-                <TouchableOpacity
-                  style={styles.consentRow}
-                  onPress={() => setMarketingConsent(!marketingConsent)}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.checkbox, marketingConsent && styles.checkboxChecked]}>
-                    {marketingConsent && <Ionicons name="checkmark" size={14} color={Colors.white} />}
-                  </View>
-                  <Text style={styles.consentText}>
-                    {language === 'en' ? 'I want to be notified by email about Wordico updates and special offers.' : 'Wordico gelişmelerinden ve özel fırsatlardan e-posta ile haberdar olmak istiyorum.'}
-                  </Text>
-                </TouchableOpacity>
+                <Text style={styles.consentText}>
+                  {language === 'en'
+                    ? "By continuing, you agree to Wordico's Privacy Policy and Terms of Use."
+                    : 'Devam ederek Wordico\'nun Gizlilik Politikası ve Kullanım Koşulları\'nı kabul etmiş olursun.'}
+                </Text>
 
                 {loading ? (
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
