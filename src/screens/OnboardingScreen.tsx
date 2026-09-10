@@ -144,17 +144,6 @@ export default function OnboardingScreen({ navigation }: Props) {
             {language === 'en' ? 'Welcome! Let\'s set you up.' : 'Hoş geldin! Seni tanıyalım.'}
           </Text>
 
-          <Text style={styles.label}>{language === 'en' ? 'Choose an avatar' : 'Bir avatar seç'}</Text>
-          <View style={styles.avatarGrid}>
-            {AVATAR_OPTIONS.map(opt => (
-              <TouchableOpacity key={opt.id} onPress={() => setSelectedAvatar(opt.id)} activeOpacity={0.8}>
-                <View style={[styles.avatarWrap, selectedAvatar === opt.id && styles.avatarWrapSelected]}>
-                  <UserAvatar avatar={opt.id} size={52} />
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-
           <Text style={styles.label}>{language === 'en' ? 'Username' : 'Kullanıcı Adı'}</Text>
           <TextInput
             style={styles.input}
@@ -194,6 +183,17 @@ export default function OnboardingScreen({ navigation }: Props) {
               <Text style={styles.ctaText}>{language === 'en' ? 'GET STARTED' : 'BAŞLA'}</Text>
             </TouchableOpacity>
           )}
+
+          <Text style={[styles.label, { marginTop: 26 }]}>{language === 'en' ? 'Choose an avatar' : 'Bir avatar seç'}</Text>
+          <View style={styles.avatarGrid}>
+            {AVATAR_OPTIONS.map(opt => (
+              <TouchableOpacity key={opt.id} onPress={() => setSelectedAvatar(opt.id)} activeOpacity={0.8}>
+                <View style={[styles.avatarWrap, selectedAvatar === opt.id && styles.avatarWrapSelected]}>
+                  <UserAvatar avatar={opt.id} size={52} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
