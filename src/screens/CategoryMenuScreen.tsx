@@ -88,7 +88,8 @@ export default function CategoryMenuScreen() {
           [
             { text: t('cancel'), style: 'cancel' },
             { text: language === 'en' ? 'Sign In' : 'Giriş Yap', onPress: () => navigation.navigate('Profile') }
-          ]
+          ],
+          'neutral'
         );
         return;
       }

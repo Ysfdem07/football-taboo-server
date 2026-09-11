@@ -184,7 +184,8 @@ export default function TournamentScreen() {
       CustomAlert.show(
         language === 'en' ? 'Sign In Required' : 'Giriş Gerekli',
         language === 'en' ? 'Please create a profile to enter the tournament.' : 'Turnuvaya katılmak için profil oluşturmalısın.',
-        [{ text: t('ok'), onPress: () => navigation.navigate('Profile') }]
+        [{ text: t('ok'), onPress: () => navigation.navigate('Profile') }],
+        'neutral'
       );
       return;
     }

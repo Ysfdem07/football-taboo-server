@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, Animated, Easing } fro
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 
-type AlertType = 'success' | 'error' | 'info';
+type AlertType = 'success' | 'error' | 'info' | 'neutral';
 
 export interface AlertButton {
   text: string;
@@ -43,7 +43,7 @@ export const CustomAlert = () => {
   if (!visible) return null;
 
   const iconName = config.type === 'success' ? 'checkmark-circle' : config.type === 'error' ? 'alert-circle' : 'information-circle';
-  const iconColor = config.type === 'success' ? '#00FF88' : config.type === 'error' ? '#FF3366' : '#38BDF8';
+  const iconColor = config.type === 'success' ? '#00FF88' : config.type === 'error' ? '#FF3366' : config.type === 'neutral' ? '#FFFFFF' : '#38BDF8';
   
   const buttons = config.buttons && config.buttons.length > 0 
     ? config.buttons 

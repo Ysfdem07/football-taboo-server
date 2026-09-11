@@ -483,7 +483,7 @@ export default function TournamentGameScreen() {
                             size={12}
                             color={i < hintsShown ? NEON_BLUE : '#555'}
                           />
-                          <Text style={[styles.clueText, { fontSize: isTallScreen ? 15 : 13 }, i >= hintsShown && styles.clueTextHidden]}>
+                          <Text style={[styles.clueText, { fontSize: isTallScreen ? 18 : 15 }, i >= hintsShown && styles.clueTextHidden]}>
                             {i < hintsShown ? clue : '? ? ? ? ?'}
                           </Text>
 
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
   },
   qCounter:  { color: '#aaa', fontFamily: 'Poppins_600SemiBold', fontSize: 13, width: 50 },
   timerWrap: { alignItems: 'center', flex: 1 },
-  timerText: { fontFamily: 'Poppins_900Black', fontSize: 26 },
+  timerText: { fontFamily: 'Poppins_900Black', fontSize: 32 },
   timerBarBg:{ width: 90, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 1 },
   timerBarFill: { height: 4, borderRadius: 2 },
   scoreText: { color: '#FFFFFF', fontFamily: 'Poppins_700Bold', fontSize: 13, width: 80, textAlign: 'right' },
@@ -659,13 +659,15 @@ const styles = StyleSheet.create({
 
   // Clues Card (Below Word Placeholders)
   cluesCard: {
+    flex: 1,
     marginHorizontal: 16,
-    marginVertical: 4,
-    borderRadius: 14,
-    borderWidth: 1, borderColor: 'rgba(0,191,255,0.25)',
-    backgroundColor: 'rgba(0,191,255,0.05)', 
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    marginVertical: 6,
+    borderRadius: 18,
+    borderWidth: 1.5, borderColor: 'rgba(0,191,255,0.3)',
+    backgroundColor: 'rgba(0,191,255,0.06)',
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    justifyContent: 'center',
   },
   compactScoreBadge: {
     flexDirection: 'row',
@@ -684,11 +686,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
 
-  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 3, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.04)' },
+  clueRow:        { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   clueHidden:     { opacity: 0.35 },
-  clueText: { 
-    color: '#ffffff', 
-    fontFamily: 'Poppins_700Bold', 
+  clueText: {
+    color: '#ffffff',
+    fontFamily: 'Poppins_700Bold',
     flex: 1,
     textShadowColor: 'rgba(0,191,255,0.4)',
     textShadowOffset: { width: 0, height: 0 },
@@ -700,7 +702,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
-    marginTop: 6,
+    marginTop: 14,
     width: '100%'
   },
   neonActionButton: {
@@ -713,7 +715,7 @@ const styles = StyleSheet.create({
     borderColor: NEON_PURPLE,
     borderRadius: 16,
     backgroundColor: 'rgba(168,85,247,0.06)',
-    paddingVertical: 6,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     marginVertical: 2,
     shadowColor: NEON_PURPLE,
@@ -752,7 +754,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.35)',
     borderRadius: 24,
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    paddingVertical: 12,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -763,7 +765,7 @@ const styles = StyleSheet.create({
     borderColor: NEON_GREEN,
     borderRadius: 24,
     backgroundColor: 'rgba(0, 255, 136, 0.12)',
-    paddingVertical: 12,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
