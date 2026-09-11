@@ -395,13 +395,27 @@ const io = require('socket.io')(server, {
 
 const Papa = require('papaparse');
 const CSV_URLS = {
-  football: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=0",
-  football_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=2110439967",
-  cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=927039923",
-  cinema_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=1200646404",
+  football: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=324437223",
+  football_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=177431947",
+  cinema: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=660652071",
+  cinema_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=1709627660",
   music: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=648666227",
   music_en: "https://docs.google.com/spreadsheets/d/1i5Xz3CVZtqC5uf7Fgu8FX-CCmaw6acAHv5mooEFs5A4/export?format=csv&gid=1685819327"
 };
+// Football/cinema moved to a richer sheet layout (word, nationality/type,
+// subcategory, tag/IMDb+Oscar cols, difficulty, then 7 clue columns, +
+// trailing extras) — this only records where each category's clue columns
+// start; the extra metadata columns (difficulty, subcategory, etc.) aren't
+// read yet since nothing uses them. Music stays on the old plain
+// "word, clue1..5" layout (word col 0, clues col 1-5) until its own sheet
+// gets the same treatment.
+const HINT_COLUMN_START = {
+  football: 5,
+  football_en: 5,
+  cinema: 6,
+  cinema_en: 6,
+};
+const MAX_HINT_COLUMNS = 7;
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
 let wordsDb = { football: [], football_en: [], cinema: [], cinema_en: [], music: [], music_en: [] };
 
@@ -416,27 +430,16 @@ async function loadWords() {
         complete: (results) => {
           const newWords = [];
           const rows = results.data;
+          const hintStart = HINT_COLUMN_START[category] || 1;
+          const hintCount = HINT_COLUMN_START[category] ? MAX_HINT_COLUMNS : 5;
           for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
-            let word = '';
-            let forbidden = [];
-
-            if (category === 'cinema_en') {
-              // Format: EntityID, Answer, Clue_1, Clue_2, Clue_3, Clue_4, Clue_5, Difficulty
-              if (!row[1] || row[1].trim() === '') continue;
-              word = row[1].trim();
-              for (let col = 2; col <= 6; col++) {
-                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
-              }
-            } else {
-              // Standard format: Word, Forbidden1, Forbidden2, Forbidden3, Forbidden4, Forbidden5
-              if (!row[0] || row[0].trim() === '') continue;
-              word = row[0].trim();
-              for (let col = 1; col <= 5; col++) {
-                if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
-              }
+            if (!row[0] || row[0].trim() === '') continue;
+            const word = row[0].trim();
+            const forbidden = [];
+            for (let col = hintStart; col < hintStart + hintCount; col++) {
+              if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
             }
-            
             newWords.push({ word, forbidden });
           }
           if (newWords.length > 0) {
