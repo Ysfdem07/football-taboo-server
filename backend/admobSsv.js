@@ -50,14 +50,23 @@ function base64UrlToBuffer(input) {
 async function verify(rawQueryString) {
   if (!rawQueryString) return null;
 
-  const sigIdx = rawQueryString.indexOf('&signature=');
-  if (sigIdx === -1) return null;
-  const contentToVerify = rawQueryString.slice(0, sigIdx);
-
   const params = new URLSearchParams(rawQueryString);
   const signature = params.get('signature');
   const keyId = params.get('key_id');
   if (!signature || !keyId) return null;
+
+  // Google signs the DECODED param values, not the URL-encoded wire string —
+  // confirmed against a real callback where reward_item was "2x Jeton": the
+  // signature only verified against "reward_item=2x Jeton", not
+  // "...=2x%20Jeton". URLSearchParams decodes on iteration, so rebuilding
+  // from that (rather than slicing the raw string up to "&signature=") gets
+  // this right for any value containing spaces or other encodable chars.
+  const parts = [];
+  for (const [key, value] of params) {
+    if (key === 'signature' || key === 'key_id') continue;
+    parts.push(`${key}=${value}`);
+  }
+  const contentToVerify = parts.join('&');
 
   let keys;
   try {
@@ -102,7 +111,7 @@ function verifyWithKey(contentToVerify, signatureB64Url, pem, params) {
   return {
     adNetwork: params.get('ad_network'),
     adUnit: params.get('ad_unit'),
-    customData: params.get('custom_data') ? decodeURIComponent(params.get('custom_data')) : null,
+    customData: params.get('custom_data') || null,
     rewardAmount: params.get('reward_amount'),
     rewardItem: params.get('reward_item'),
     timestamp: params.get('timestamp'),
