@@ -14,8 +14,21 @@ const LanguageContext = createContext<LanguageContextType>({
   t: (key) => translations.tr[key] || key,
 });
 
+// No saved preference yet (first launch) used to always default to 'tr'
+// regardless of the device's own language — Hermes has built-in Intl
+// support, so this reads the device locale without any new native
+// dependency (which would need a new build, not just an OTA update).
+const detectDeviceLanguage = (): Language => {
+  try {
+    const locale = Intl.DateTimeFormat().resolvedOptions().locale || '';
+    return locale.toLowerCase().startsWith('tr') ? 'tr' : 'en';
+  } catch (e) {
+    return 'tr';
+  }
+};
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLangState] = useState<Language>('tr');
+  const [language, setLangState] = useState<Language>(() => detectDeviceLanguage());
 
   useEffect(() => {
     AsyncStorage.getItem('@app_language').then(savedLang => {
