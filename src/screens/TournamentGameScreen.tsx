@@ -70,25 +70,38 @@ export default function TournamentGameScreen() {
   const [scoreResult, setScoreResult] = useState<{ rank: number; totalPlayers: number; completedPerfectly: boolean } | null>(null);
   const [player, setPlayer]           = useState<{ id: string; username: string; avatar: string } | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  // The keyboard used to be pinned open for the whole round (permanently
+  // eating half the screen). Now it only opens once the player actually
+  // taps "TAHMİN ET!" — full-screen reading otherwise, keyboard-driven
+  // typing on demand, matching the duel/tutorial screens' buzz-in pattern.
+  const [isGuessing, setIsGuessing]   = useState(false);
 
   const flashAnim  = useRef(new Animated.Value(0)).current;
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef   = useRef<TextInput>(null);
   const isKeyboardOpenRef = useRef(false);
 
-  // Smooth, flicker-free focus maintainer
+  // Smooth, flicker-free focus maintainer — only while actively guessing;
+  // a hint/letter tap outside guessing mode must not summon the keyboard.
   const ensureFocus = useCallback(() => {
-    if (finished) return;
+    if (finished || !isGuessing) return;
     requestAnimationFrame(() => {
       if (!inputRef.current?.isFocused()) {
         inputRef.current?.focus();
       }
     });
-  }, [finished]);
+  }, [finished, isGuessing]);
 
-  // Handler for explicit screen tap when keyboard was closed (e.g. Android back button)
+  const handleBuzzIn = useCallback(() => {
+    if (finished || feedback) return;
+    setIsGuessing(true);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }, [finished, feedback]);
+
+  // Handler for explicit screen tap when keyboard was closed (e.g. Android back button) —
+  // only re-opens it if we were actively guessing already.
   const handleManualScreenTap = useCallback(() => {
-    if (finished) return;
+    if (finished || !isGuessing) return;
     if (!isKeyboardOpenRef.current) {
       inputRef.current?.blur();
       setTimeout(() => {
@@ -97,7 +110,7 @@ export default function TournamentGameScreen() {
     } else if (!inputRef.current?.isFocused()) {
       inputRef.current?.focus();
     }
-  }, [finished]);
+  }, [finished, isGuessing]);
 
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
@@ -109,25 +122,14 @@ export default function TournamentGameScreen() {
     const hideSub = Keyboard.addListener('keyboardDidHide', () => {
       isKeyboardOpenRef.current = false;
       setKeyboardVisible(false);
+      setIsGuessing(false);
     });
-
-    // Clean focus on mount - NO blur calls!
-    inputRef.current?.focus();
-    const t1 = setTimeout(() => inputRef.current?.focus(), 150);
 
     return () => {
       showSub.remove();
       hideSub.remove();
-      clearTimeout(t1);
     };
   }, []);
-
-  // Keep keyboard focused on question transition without blur calls
-  useEffect(() => {
-    if (!finished) {
-      inputRef.current?.focus();
-    }
-  }, [qIndex, finished]);
 
   // Listen for score result
   useEffect(() => {
@@ -204,13 +206,16 @@ export default function TournamentGameScreen() {
       flashScreen(false, `${t('wrongFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
     }
     setGuess('');
-    ensureFocus();
+    setIsGuessing(false);
+    inputRef.current?.blur();
   };
 
   const handleSkip = () => {
     if (feedback || finished) return;
     if (timerRef.current) clearInterval(timerRef.current);
     setGuess('');
+    setIsGuessing(false);
+    inputRef.current?.blur();
     flashScreen(false, `${t('passedFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
   };
 
@@ -255,7 +260,7 @@ export default function TournamentGameScreen() {
       setRevealedIndices([]);
       setTimeLeft(SECS_PER_Q);
       setGuess('');
-      ensureFocus();
+      setIsGuessing(false);
     }
   };
 
@@ -518,7 +523,9 @@ export default function TournamentGameScreen() {
 
                 {/* Input Section (Actions + Permanent TextInput) */}
                 <View style={[styles.inputSection, { paddingBottom: keyboardVisible ? 6 : Math.max(insets.bottom, 10) }]}>
-                  {/* Permanent TextInput - editable=true always so soft keyboard never drops */}
+                  {/* Only mounted/focusable once the player taps "TAHMİN ET!" —
+                      keeps the keyboard off-screen the rest of the round so
+                      the clue card gets the full screen to work with. */}
                   <TextInput
                     ref={inputRef}
                     style={styles.invisibleInput}
@@ -532,9 +539,8 @@ export default function TournamentGameScreen() {
                     autoCorrect={false}
                     autoCapitalize="characters"
                     returnKeyType="send"
-                    editable={true}
+                    editable={isGuessing}
                     maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
-                    autoFocus={true}
                     blurOnSubmit={false}
                     showSoftInputOnFocus={true}
                     caretHidden={true}
@@ -545,9 +551,15 @@ export default function TournamentGameScreen() {
                     <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} disabled={!!feedback} activeOpacity={0.8}>
                       <Text style={styles.skipBtnText}>{t('pass')}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback} activeOpacity={0.8}>
-                      <Text style={styles.guessBtnText}>{t('send')}</Text>
-                    </TouchableOpacity>
+                    {isGuessing ? (
+                      <TouchableOpacity style={styles.guessBtn} onPress={handleGuess} disabled={!!feedback} activeOpacity={0.8}>
+                        <Text style={styles.guessBtnText}>{t('send')}</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity style={styles.buzzBtn} onPress={handleBuzzIn} disabled={!!feedback} activeOpacity={0.8}>
+                        <Text style={[styles.guessBtnText, { color: NEON_GOLD }]}>⚡ {language === 'en' ? 'BUZZ IN!' : 'TAHMİN ET!'}</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               </View>
@@ -763,6 +775,16 @@ const styles = StyleSheet.create({
     borderColor: NEON_GREEN,
     borderRadius: 24,
     backgroundColor: 'rgba(0, 255, 136, 0.12)',
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buzzBtn: {
+    flex: 2,
+    borderWidth: 1.5,
+    borderColor: NEON_GOLD,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 215, 0, 0.12)',
     paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
