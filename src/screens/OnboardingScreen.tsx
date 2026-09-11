@@ -67,19 +67,12 @@ export default function OnboardingScreen({ navigation }: Props) {
 
     setLoading(true);
 
-    if (!trimmedEmail) {
-      // No email — no server account to recover later, just a local guest
-      // profile. Matches the same shape the app already silently creates
-      // on a fresh install (HomeScreen), just with a name/avatar the player
-      // actually chose instead of a random Guest_XXXX.
-      await createLocalGuest();
-      setLoading(false);
-      goToTutorial();
-      return;
-    }
-
-    // Email given — register a real recoverable account so it's actually
-    // usable later, instead of storing an email nothing can do anything with.
+    // Always register a real, unique account — email was only ever meant to
+    // be optional for account recovery, not a gate on having a real account
+    // at all (features like the weekly tournament need a stable server-side
+    // player id, which a shared local "guest" id can't provide). Matches
+    // ProfileScreen's own register flow, which does the same regardless of
+    // whether an email was given.
     const generatedPassword = generateHiddenPassword();
     const socket = getSocket();
     let settled = false;

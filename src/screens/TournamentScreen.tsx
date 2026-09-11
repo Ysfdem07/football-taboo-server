@@ -222,7 +222,7 @@ export default function TournamentScreen() {
       if (!player || player.id === 'guest') {
         return {
           text: language === 'en' ? 'Log in to join tournaments!' : 'Turnuvaya katılmak için giriş yapmalısın!',
-          color: '#ff4444', canPlay: false, showAd: false, bestScore: undefined
+          color: '#ffffff', canPlay: false, showAd: false, bestScore: undefined, needsLogin: true
         };
       }
       if (!tournamentData) return null;
@@ -319,6 +319,18 @@ export default function TournamentScreen() {
                 style={styles.playBtn}
               >
                 <Text style={styles.playBtnText}>{t('startTournament')}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
+          {status.needsLogin && (
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')} activeOpacity={0.8} style={styles.playBtnWrap}>
+              <LinearGradient
+                colors={['#00FF88', '#00C060']}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={styles.playBtn}
+              >
+                <Text style={styles.playBtnText}>{language === 'en' ? 'Create Profile' : 'Profil Oluştur'}</Text>
               </LinearGradient>
             </TouchableOpacity>
           )}
