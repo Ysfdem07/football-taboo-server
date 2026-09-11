@@ -95,7 +95,11 @@ export default function TournamentGameScreen() {
   const handleBuzzIn = useCallback(() => {
     if (finished || feedback) return;
     setIsGuessing(true);
-    requestAnimationFrame(() => inputRef.current?.focus());
+    // A plain requestAnimationFrame call raced the native `editable` prop
+    // commit on Android — the input was still non-editable when .focus()
+    // landed, so the soft keyboard never opened. A short setTimeout gives
+    // the re-render time to actually reach native before we focus.
+    setTimeout(() => inputRef.current?.focus(), 50);
   }, [finished, feedback]);
 
   // Handler for explicit screen tap when keyboard was closed (e.g. Android back button) —
@@ -531,7 +535,13 @@ export default function TournamentGameScreen() {
                     style={styles.invisibleInput}
                     value={guess}
                     onChangeText={(text) => {
-                      if (feedback || finished) return;
+                      // editable stays true at all times — gating it on
+                      // isGuessing made the native input non-focusable right
+                      // when we needed to open the keyboard (race with the
+                      // prop commit on Android, no soft keyboard at all).
+                      // Ignoring input while not actively guessing achieves
+                      // the same "can't type outside a buzz-in" guarantee.
+                      if (feedback || finished || !isGuessing) return;
                       const cleanText = text.replace(/\s+/g, '');
                       setGuess(cleanText);
                     }}
@@ -539,7 +549,7 @@ export default function TournamentGameScreen() {
                     autoCorrect={false}
                     autoCapitalize="characters"
                     returnKeyType="send"
-                    editable={isGuessing}
+                    editable={true}
                     maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
                     blurOnSubmit={false}
                     showSoftInputOnFocus={true}
@@ -677,7 +687,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,191,255,0.06)',
     paddingHorizontal: 18,
     paddingVertical: 16,
-    justifyContent: 'center',
   },
   compactScoreBadge: {
     flexDirection: 'row',
@@ -712,7 +721,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 8,
-    marginTop: 14,
+    marginTop: 'auto',
+    paddingTop: 14,
     width: '100%'
   },
   neonActionButton: {
