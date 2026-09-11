@@ -150,7 +150,7 @@ export default function HomeScreen() {
 
         {/* 3D WORDICO HEADER TITLE - Shifted down matching mockup */}
         <View style={styles.headerTitleRow}>
-          <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICO</Text>
+          <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICOO</Text>
         </View>
 
         {/* CATEGORIES LIST SCROLLVIEW */}
