@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, NativeModules, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // In Expo Go, appOwnership is 'expo'. In EAS builds, it's null or 'standalone'.
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -144,14 +145,38 @@ const loadInterstitial = () => {
   }
 };
 
-const loadRewarded = (type: 'x2' | 'tourney' | 'market') => {
+// Maps the client's internal ad "type" to the reward identifier the backend
+// (and the AdMob SSV callback's custom_data) uses — see backend/server.js's
+// /api/admob-ssv and db.js's grantSsvReward.
+const SSV_REWARD_TYPE: Record<string, string> = {
+  market: 'market_coins',
+  tourney: 'tourney_attempt',
+  x2: 'double_coins',
+};
+
+const loadRewarded = async (type: 'x2' | 'tourney' | 'market') => {
   if (!isFirebaseAvailable || !RewardedAd) return;
   const unitId = REWARDED_IDS[type];
   if (!unitId) return;
 
+  // Only logged-in (server-tracked) players get SSV custom data — a reward
+  // can only be verified/granted against a real account. Guests keep the
+  // existing client-trusted flow this session already uses for them.
+  let ssvOptions: { userId: string; customData: string } | undefined;
+  try {
+    const raw = await AsyncStorage.getItem('@logged_in_profile');
+    const player = raw ? JSON.parse(raw) : null;
+    if (player?.id && player.id !== 'guest') {
+      ssvOptions = { userId: player.id, customData: `${player.id}:${SSV_REWARD_TYPE[type]}` };
+    }
+  } catch (e) {
+    // No profile readable — falls back to no SSV options below.
+  }
+
   try {
     const instance = RewardedAd.createForAdRequest(unitId, {
       requestNonPersonalizedAdsOnly: true,
+      ...(ssvOptions ? { serverSideVerificationOptions: ssvOptions } : {}),
     });
 
     instance.addAdEventListener(RewardedAdEventType.LOADED, () => {
@@ -179,7 +204,18 @@ const loadRewarded = (type: 'x2' | 'tourney' | 'market') => {
   }
 };
 
+// In-memory only (resets on app restart) — every OTHER match end in the
+// same session shows the interstitial instead of every single one.
+let matchesSinceLastInterstitial = 0;
+
 export const showInterstitial = (): void => {
+  matchesSinceLastInterstitial += 1;
+  if (matchesSinceLastInterstitial < 2) {
+    if (__DEV__) console.log(`[Ads] Skipping interstitial (${matchesSinceLastInterstitial}/2 matches this session).`);
+    return;
+  }
+  matchesSinceLastInterstitial = 0;
+
   if (!isFirebaseAvailable || !interstitialAdInstance) {
     if (__DEV__) {
       console.log('[Ads Mock] [Expo Go] Interstitial Ad Triggered! (Simulating full-screen ad)');

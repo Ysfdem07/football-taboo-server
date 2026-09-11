@@ -85,6 +85,13 @@ const playerSchema = new mongoose.Schema({
     date: { type: String, default: '' },   // 'YYYY-MM-DD' of the last granted reward
     count: { type: Number, default: 0 }    // rewards granted that day
   },
+  // Persisted (not just socket.data) so the AdMob SSV callback — a stateless
+  // HTTP request from Google, not tied to any live socket — can still find
+  // and grant it after the match that earned it has ended.
+  pendingDoubleReward: {
+    amount: { type: Number, default: 0 },
+    grantedAt: { type: Date, default: null }
+  },
   jokers: {
     revealLetters: { type: Number, default: 0 },
     extraTime: { type: Number, default: 0 },
@@ -131,7 +138,11 @@ const tournamentScoreSchema = new mongoose.Schema({
   completedPerfectly: { type: Boolean, default: false },
   lastPlayedDate:     { type: String, default: '' },   // "YYYY-MM-DD"
   attempts:           { type: Number, default: 0 },
-  kpRewarded:         { type: Boolean, default: false }
+  kpRewarded:         { type: Boolean, default: false },
+  // Ad-earned bonus attempts, tracked separately from the 3 free daily
+  // attempts above so they can be capped on their own (+3/day via ads).
+  adBonusDate:        { type: String, default: '' },   // "YYYY-MM-DD"
+  adBonusCount:       { type: Number, default: 0 }
 }, { _id: false });
 
 const weeklyTournamentSchema = new mongoose.Schema({
@@ -146,6 +157,20 @@ const weeklyTournamentSchema = new mongoose.Schema({
 });
 
 const WeeklyTournament = mongoose.model('WeeklyTournament', weeklyTournamentSchema);
+
+// ─── AdMob SSV idempotency ──────────────────────────────────────────────────
+// Google retries an SSV callback up to 5 times if our server doesn't answer
+// fast enough with a 200 — recording transaction_id here (unique index) lets
+// the handler recognize and safely no-op a retry instead of granting twice.
+// TTL index auto-expires old rows; Google's transaction_ids don't repeat
+// within any realistic replay window.
+const adSsvTransactionSchema = new mongoose.Schema({
+  transactionId: { type: String, required: true, unique: true },
+  playerId:      { type: String, required: true },
+  rewardType:    { type: String, required: true },
+  createdAt:     { type: Date, default: Date.now, expires: '30d' }
+});
+const AdSsvTransaction = mongoose.model('AdSsvTransaction', adSsvTransactionSchema);
 
 // Get ISO week string e.g. "2026-W31_football"
 // Escape regex metacharacters so user-supplied username/email values used in
@@ -176,9 +201,13 @@ function getWeekBounds(date = new Date()) {
   return { startDate: monday, endDate: sunday };
 }
 
+// UTC, to match grantAdCoinReward's day boundary (new Date().toISOString())
+// — these used to disagree (this one was server-local time), which meant a
+// player near midnight could straddle two different "days" between the two
+// reward systems.
 function getTodayString() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return d.toISOString().slice(0, 10);
 }
 
 const findPlayerById = async (playerId) => {
@@ -393,7 +422,7 @@ module.exports = {
     if (!player) return { error: 'Oyuncu bulunamadı' };
 
     const today = new Date().toISOString().slice(0, 10);
-    const DAILY_AD_COIN_LIMIT = 5;
+    const DAILY_AD_COIN_LIMIT = 10;
     const AD_COIN_REWARD = 50;
 
     if (player.adCoinRewards?.date !== today) {
@@ -661,14 +690,26 @@ module.exports = {
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
 
+    const today = getTodayString();
+    const DAILY_AD_BONUS_LIMIT = 3; // +3 ekstra hak/gün, temel 3 hakkın üstüne
+
     const idx = tournament.scores.findIndex(s => s.playerId === playerId);
     if (idx >= 0) {
       const entry = tournament.scores[idx];
-      // attempts'i 1 azaltarak kullanıcıya yeni bir hak kazandırıyoruz
-      if (entry.attempts > 0) {
-        entry.attempts -= 1;
+      if (entry.adBonusDate !== today) {
+        entry.adBonusDate = today;
+        entry.adBonusCount = 0;
       }
-      await tournament.save();
+      if (entry.adBonusCount < DAILY_AD_BONUS_LIMIT) {
+        entry.adBonusCount += 1;
+        // attempts'i 1 azaltarak kullanıcıya yeni bir hak kazandırıyoruz
+        if (entry.attempts > 0) {
+          entry.attempts -= 1;
+        }
+        await tournament.save();
+      }
+      // Günlük reklam hakkı limitine zaten ulaşılmışsa sessizce hiçbir şey
+      // yapmadan aşağıdaki güncel turnuva verisini döndürüyoruz.
     }
     // Return updated tournament data
     // WordSource is not passed to grantAdAttempt easily, so we fallback or fetch empty array if missing
@@ -775,6 +816,64 @@ module.exports = {
     } catch (e) {
       console.error('Error saving guest token:', e);
     }
+  },
+
+  // ─── AdMob Server-Side Verification (SSV) ──────────────────────────────
+  // Stashes the exact coin amount a "watch ad to double it" reward is worth
+  // for THIS player, keyed by playerId (not socket.data) so the SSV callback
+  // — a stateless HTTP request from Google, unrelated to any live socket —
+  // can still find and grant it after the match has ended.
+  setPendingDoubleReward: async (playerId, amount) => {
+    await connectDB();
+    await Player.findOneAndUpdate(
+      { id: playerId },
+      { $set: { pendingDoubleReward: { amount, grantedAt: null } } }
+    );
+  },
+
+  // Records an SSV transaction_id before granting anything. The unique index
+  // on transactionId makes this atomically "claim or detect duplicate" — a
+  // retried callback (Google retries up to 5x on non-200) hits the duplicate
+  // key error and is safely treated as already-processed rather than
+  // granting the reward twice.
+  claimAdSsvTransaction: async (transactionId, playerId, rewardType) => {
+    await connectDB();
+    try {
+      await AdSsvTransaction.create({ transactionId, playerId, rewardType });
+      return true; // first time seeing this transaction — go ahead and grant
+    } catch (e) {
+      if (e && e.code === 11000) return false; // duplicate — already processed
+      throw e;
+    }
+  },
+
+  // Dispatches a verified SSV callback to the right grant function. Returns
+  // a small result object for logging; never throws for "expected" failure
+  // cases (player not found, nothing pending) since the HTTP handler must
+  // still answer 200 to Google either way.
+  grantSsvReward: async (playerId, rewardType, category = 'football') => {
+    await connectDB();
+    if (rewardType === 'market_coins') {
+      return module.exports.grantAdCoinReward(playerId);
+    }
+    if (rewardType === 'tourney_attempt') {
+      return module.exports.grantAdAttempt(playerId, category);
+    }
+    if (rewardType === 'double_coins') {
+      const player = await findPlayerById(playerId);
+      const amount = player?.pendingDoubleReward?.amount || 0;
+      if (!player || !amount || player.pendingDoubleReward.grantedAt) {
+        return { error: 'Katlanacak bekleyen bir ödül bulunamadı.' };
+      }
+      const updated = await Player.findOneAndUpdate(
+        { _id: player._id, 'pendingDoubleReward.amount': amount, 'pendingDoubleReward.grantedAt': null },
+        { $inc: { coins: amount }, $set: { 'pendingDoubleReward.grantedAt': new Date() } },
+        { new: true }
+      );
+      if (!updated) return { error: 'Ödül zaten verilmiş.' };
+      return { player: updated.toObject(), amount };
+    }
+    return { error: `Bilinmeyen ödül türü: ${rewardType}` };
   }
 };
 

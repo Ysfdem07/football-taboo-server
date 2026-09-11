@@ -661,15 +661,17 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <TouchableOpacity
                   style={styles.rewardButton}
                   onPress={() => {
-                    const bonus = coinChanges[myOriginalId] || 0;
                     showRewarded(() => {
                       socket.emit('reward_double_coins', { playerId: player?.id });
                       setRewardCollected(true);
+                      // Coins are only added once AdMob confirms (server-side)
+                      // the ad was watched in full — the coins_updated listener
+                      // above updates the balance chip once that lands.
                       CustomAlert.show(
                         t('rewardTitle'),
                         language === 'en'
-                          ? `Your earnings doubled! (+${bonus} Coins added).`
-                          : `Kazancınız 2'ye katlandı (+${bonus} Jeton eklendi).`
+                          ? 'Verifying with the ad network — your doubled coins will appear in a few seconds.'
+                          : 'Reklam ağıyla doğrulanıyor — katlanan jetonların birkaç saniye içinde hesabına eklenecek.'
                       );
                     });
                   }}

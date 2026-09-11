@@ -201,9 +201,15 @@ export default function TournamentScreen() {
         const socket = getSocket();
         if (socket) {
           socket.emit('grant_tournament_ad_attempt', { playerId: player.id, category: categoryId });
+          // The extra attempt is only granted once AdMob confirms (server-
+          // side) the ad was watched in full — this just acknowledges the
+          // request; a fresh weekly_tournament_data push (handleTournamentData
+          // above) reflects it a few seconds later, once that lands.
           CustomAlert.show(
-            language === 'en' ? 'Congratulations!' : 'Tebrikler!',
-            language === 'en' ? 'Watched ad to the end. +1 Attempt granted! 🎁' : 'Reklamı sonuna kadar izledin. +1 Hak kazandın! 🎁'
+            language === 'en' ? 'Thanks for watching!' : 'İzlediğin için teşekkürler!',
+            language === 'en'
+              ? 'Verifying with the ad network — your extra attempt will appear in a few seconds.'
+              : 'Reklam ağıyla doğrulanıyor — ekstra hakkın birkaç saniye içinde hesabına eklenecek.'
           );
         }
       },

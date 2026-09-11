@@ -74,11 +74,36 @@ export default function MarketScreen({ navigation }: any) {
     }
   };
 
+  const DAILY_AD_COIN_LIMIT = 10;
+
+  // Guests aren't in the DB, so this can only be a local, per-device cap —
+  // matches the server-enforced limit real accounts get, but a reinstall
+  // resets it (acceptable: guests are a low-trust bucket by nature).
+  const checkAndBumpGuestAdCoinCount = async (): Promise<boolean> => {
+    const today = new Date().toISOString().slice(0, 10);
+    const raw = await AsyncStorage.getItem('@guest_ad_coin_rewards');
+    const stored = raw ? JSON.parse(raw) : { date: '', count: 0 };
+    const count = stored.date === today ? stored.count : 0;
+    if (count >= DAILY_AD_COIN_LIMIT) return false;
+    await AsyncStorage.setItem('@guest_ad_coin_rewards', JSON.stringify({ date: today, count: count + 1 }));
+    return true;
+  };
+
   const watchAdForCoins = () => {
     setWatchingAd(true);
     showRewarded(
       async (reward) => {
         if (!player || !player.id || player.id === 'guest') {
+           const allowed = await checkAndBumpGuestAdCoinCount();
+           if (!allowed) {
+             CustomAlert.show(
+               t('error'),
+               language === 'en'
+                 ? 'You have reached today\'s ad reward limit. Try again tomorrow.'
+                 : 'Günlük reklam ödülü limitine ulaştınız, yarın tekrar deneyin.'
+             );
+             return;
+           }
            let guestName = player?.username?.startsWith('Guest_') ? player.username : `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
            let guest = player || { id: 'guest', username: guestName, coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
            guest.coins = (guest.coins || 0) + 50;
@@ -158,6 +183,27 @@ export default function MarketScreen({ navigation }: any) {
       s.on('joker_error', (data: { message: string }) => {
         setLoading(false);
         CustomAlert.show(t('error'), data.message);
+      });
+
+      // Coins are granted only once AdMob confirms (server-side) the ad was
+      // watched in full — reward_free_coins just requests verification now.
+      s.on('ad_reward_pending', (data: { rewardType: string }) => {
+        if (data.rewardType !== 'market_coins') return;
+        setLoading(false);
+        CustomAlert.show(
+          language === 'en' ? 'Thanks for watching!' : 'İzlediğin için teşekkürler!',
+          language === 'en'
+            ? 'Verifying with the ad network — your coins will appear in a few seconds.'
+            : 'Reklam ağıyla doğrulanıyor — jetonların birkaç saniye içinde hesabına eklenecek.'
+        );
+      });
+
+      // Fired once the SSV-verified reward actually lands (market coins,
+      // and also a "watch ad to double it" reward elsewhere in the app).
+      s.on('coins_updated', async (data: { player: any }) => {
+        if (!data.player) return;
+        setPlayer(data.player);
+        await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(data.player));
       });
     }
   };

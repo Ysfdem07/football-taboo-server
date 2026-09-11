@@ -6,6 +6,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
+const admobSsv = require('./admobSsv');
 const nodemailer = require('nodemailer');
 
 // Global crash logging helper to debug cloud environment startup issues
@@ -256,6 +257,64 @@ app.get('/health', (req, res) => {
 
 app.get('/version', (req, res) => {
   res.json({ version: '2026-08-14-v3-tournament-fix', wordsLoaded: { football: wordsDb.football.length, cinema: wordsDb.cinema.length, music: wordsDb.music.length } });
+});
+
+// AdMob Server-Side Verification callback. Register this exact URL (per
+// rewarded ad unit, in the AdMob console) as: https://wordico.net/api/admob-ssv
+// Google calls this directly from its own servers the instant a rewarded ad
+// finishes — never through the player's device — so a reward can only be
+// granted for an ad Google itself confirms was watched in full.
+//
+// Google expects a fast 200 regardless of outcome (it retries up to 5x on
+// anything else), so every path below responds 200 and just logs failures.
+app.get('/api/admob-ssv', async (req, res) => {
+  res.status(200).send('OK'); // ack immediately; everything below is best-effort
+  const rawQuery = (req.originalUrl.split('?')[1]) || '';
+  try {
+    const verified = await admobSsv.verify(rawQuery);
+    if (!verified) {
+      console.warn('[admob-ssv] Rejected callback (bad/unverifiable signature):', rawQuery);
+      return;
+    }
+    const { customData, transactionId, playerId: gPlayerId } = verified;
+    // customData is "<playerId>:<rewardType>", set client-side when the ad
+    // is requested (ads.tsx) — user_id carries the same playerId too, but
+    // customData is what we control end to end.
+    const [playerId, rewardType] = (customData || '').split(':');
+    if (!playerId || !rewardType || !transactionId) {
+      console.warn('[admob-ssv] Verified callback missing playerId/rewardType/transactionId:', verified);
+      return;
+    }
+
+    const firstTime = await db.claimAdSsvTransaction(transactionId, playerId, rewardType);
+    if (!firstTime) {
+      console.log(`[admob-ssv] Duplicate/retried transaction ${transactionId}, skipping re-grant.`);
+      return;
+    }
+
+    const result = await db.grantSsvReward(playerId, rewardType);
+    if (result?.error) {
+      console.warn(`[admob-ssv] Grant failed for ${playerId} (${rewardType}):`, result.error);
+      return;
+    }
+    console.log(`[admob-ssv] Granted ${rewardType} to ${playerId} (tx ${transactionId}).`);
+
+    // Push the fresh state to the player if they're still connected, so the
+    // app updates without them having to back out and back in — reusing the
+    // same events each screen already listens to for a player/tournament
+    // refresh, rather than introducing a new one every screen has to learn.
+    const targetSocketId = playerSockets[playerId];
+    const targetSocket = targetSocketId && io.sockets.sockets.get(targetSocketId);
+    if (targetSocket) {
+      if ((rewardType === 'market_coins' || rewardType === 'double_coins') && result.player) {
+        targetSocket.emit('coins_updated', { player: result.player });
+      } else if (rewardType === 'tourney_attempt') {
+        targetSocket.emit('weekly_tournament_data', result);
+      }
+    }
+  } catch (e) {
+    console.error('[admob-ssv] Callback handling error:', e);
+  }
 });
 
 app.get('/debug-tournament', requireAdmin, async (req, res) => {
@@ -578,21 +637,9 @@ let queue = [];
 let friendlyQueue = []; // Coin-only, no KP, guests allowed
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
-
-// Lightweight anti-spam gate for client-claimed "I watched an ad" reward events.
-// This does NOT verify the ad was actually shown (that requires AdMob
-// Server-Side Verification) — it only stops a modified/scripted client from
-// firing reward_free_coins/reward_double_coins in a tight loop.
-const rewardCooldowns = {}; // "playerId:rewardKind" -> timestamp of last granted reward
-const REWARD_COOLDOWN_MS = 20000;
-function checkRewardCooldown(playerId, rewardKind) {
-  const key = `${playerId}:${rewardKind}`;
-  const now = Date.now();
-  const last = rewardCooldowns[key] || 0;
-  if (now - last < REWARD_COOLDOWN_MS) return false;
-  rewardCooldowns[key] = now;
-  return true;
-}
+// playerId -> current socket.id, so a stateless HTTP callback (AdMob SSV)
+// can push a live update to a player without going through their request.
+const playerSockets = {};
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
@@ -624,20 +671,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  // The extra attempt is granted only once AdMob's server-side verification
+  // (/api/admob-ssv) confirms the ad was actually watched in full — not from
+  // this event, which a client could fire without ever finishing the ad.
+  // This just acknowledges the request; the client shows a "verifying"
+  // state and gets a fresh weekly_tournament_data push once SSV lands.
   socket.on('grant_tournament_ad_attempt', async (data) => {
     const playerId = socket.data.playerId;
-    const category = data?.category || 'football';
     if (!playerId) return socket.emit('weekly_tournament_data', { error: 'Ekstra hak almak için giriş yapmalısın.' });
-    if (!checkRewardCooldown(playerId, 'tournament_attempt')) {
-      return socket.emit('weekly_tournament_data', { error: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
-    }
-    try {
-      const result = await db.grantAdAttempt(playerId, category);
-      socket.emit('weekly_tournament_data', result);
-    } catch (e) {
-      console.error('[grant_tournament_ad_attempt] error:', e);
-      socket.emit('weekly_tournament_data', { error: 'Sunucu hatası, lütfen tekrar deneyin.' });
-    }
+    socket.emit('ad_reward_pending', { rewardType: 'tourney_attempt' });
   });
 
   // Must match the client's scoring formula (TournamentGameScreen.tsx):
@@ -697,6 +739,7 @@ io.on('connection', (socket) => {
         // events on this connection are authorized against a server-trusted id
         // instead of whatever playerId the client claims in its payload.
         socket.data.playerId = result.player.id;
+        playerSockets[result.player.id] = socket.id;
         socket.emit('register_response', { success: true, player: result.player });
       }
     } catch (e) {
@@ -717,6 +760,7 @@ io.on('connection', (socket) => {
         socket.emit('login_response', { success: false, error: result.error });
       } else {
         socket.data.playerId = result.player.id;
+        playerSockets[result.player.id] = socket.id;
         socket.emit('login_response', { success: true, player: result.player });
       }
     } catch (e) {
@@ -799,6 +843,7 @@ io.on('connection', (socket) => {
       if (result.error) {
         socket.emit('delete_account_response', { success: false, error: result.error });
       } else {
+        delete playerSockets[playerId];
         socket.data.playerId = null;
         socket.emit('delete_account_response', { success: true });
       }
@@ -931,50 +976,24 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Coins are granted only once AdMob's server-side verification
+  // (/api/admob-ssv) confirms the ad was actually watched in full — not from
+  // this event, which a client could fire without ever finishing the ad.
+  // This just acknowledges the request; the client shows a "verifying"
+  // state and gets a fresh balance push (ad_reward_confirmed) once SSV lands.
   socket.on('reward_free_coins', async (data) => {
     const playerId = socket.data.playerId;
     if (!playerId) return socket.emit('joker_error', { message: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
-    if (!checkRewardCooldown(playerId, 'coins')) {
-      return socket.emit('joker_error', { message: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
-    }
-    try {
-      const result = await db.grantAdCoinReward(playerId);
-      if (result.player) {
-        socket.emit('joker_bought', { player: result.player, jokerType: 'freeCoins' });
-      } else {
-        socket.emit('joker_error', { message: result.error || 'Ödül eklenemedi, lütfen tekrar deneyin.' });
-      }
-    } catch (e) {
-      console.error('Error rewarding free coins:', e);
-      socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
-    }
+    socket.emit('ad_reward_pending', { rewardType: 'market_coins' });
   });
 
   socket.on('reward_double_coins', async (data) => {
     const playerId = socket.data.playerId;
     if (!playerId) return socket.emit('joker_error', { message: 'Oturum bulunamadı, lütfen tekrar giriş yapın.' });
-    // Grants exactly what this socket earned in the match it just finished
-    // (stashed at game_over time) — a true x2, whatever the base reward for
-    // that game mode was, instead of a flat number tuned for one mode.
-    const bonusAmount = socket.data.lastMatchCoinReward;
-    if (!bonusAmount) {
+    if (!socket.data.lastMatchCoinReward) {
       return socket.emit('joker_error', { message: 'Katlanacak bir maç ödülü bulunamadı.' });
     }
-    if (!checkRewardCooldown(playerId, 'coins')) {
-      return socket.emit('joker_error', { message: 'Çok sık ödül talep ediyorsunuz, lütfen biraz bekleyin.' });
-    }
-    try {
-      const result = await db.updatePlayerCoins(playerId, bonusAmount);
-      socket.data.lastMatchCoinReward = null; // one-time use per match
-      if (result) {
-        socket.emit('coins_updated', { player: result });
-      } else {
-        socket.emit('joker_error', { message: 'Ödül eklenemedi, lütfen tekrar deneyin.' });
-      }
-    } catch (e) {
-      console.error('Error rewarding double coins:', e);
-      socket.emit('joker_error', { message: 'Sunucu hatası, lütfen tekrar deneyin.' });
-    }
+    socket.emit('ad_reward_pending', { rewardType: 'double_coins' });
   });
 
   // Debug: client can call this to get real-time coin balance from DB
@@ -1494,6 +1513,12 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     queue = queue.filter(u => u.id !== socket.id);
+    // Only clear the mapping if it still points at THIS socket — a newer
+    // connection from the same player (e.g. quick reconnect) may have
+    // already overwritten it, and we must not clobber that.
+    if (socket.data.playerId && playerSockets[socket.data.playerId] === socket.id) {
+      delete playerSockets[socket.data.playerId];
+    }
     
     // If they were in an active room
     const stableId = socket.data.stablePlayerId || socket.id;
@@ -1634,7 +1659,10 @@ async function resolveMatchForfeit(room, roomId, quitter) {
   for (const [playerSocketId, coinAmount] of Object.entries(coinChanges)) {
     if (coinAmount > 0) {
       const s = io.sockets.sockets.get(playerSocketId);
-      if (s) s.data.lastMatchCoinReward = coinAmount;
+      if (s) {
+        s.data.lastMatchCoinReward = coinAmount;
+        if (s.data.playerId) await db.setPendingDoubleReward(s.data.playerId, coinAmount);
+      }
     }
   }
 
@@ -1784,7 +1812,10 @@ async function startRound(roomId) {
     for (const [playerSocketId, coinAmount] of Object.entries(coinChanges)) {
       if (coinAmount > 0) {
         const s = io.sockets.sockets.get(playerSocketId);
-        if (s) s.data.lastMatchCoinReward = coinAmount;
+        if (s) {
+          s.data.lastMatchCoinReward = coinAmount;
+          if (s.data.playerId) await db.setPendingDoubleReward(s.data.playerId, coinAmount);
+        }
       }
     }
 
