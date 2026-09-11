@@ -4,6 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useLanguage } from '../context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
+import { CustomAlert } from '../components/CustomAlert';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Tutorial'>;
@@ -17,13 +18,16 @@ type Round = { answer: string; hints: string[]; hintsEn: string[] };
 // Five scripted rounds — no server, no real opponent. Just enough to teach
 // the rhythm (hints reveal one by one, buzz in and type the word the moment
 // you know it, fewer hints shown = more points) before dropping a
-// first-time player into a real match.
+// first-time player into a real match. Mixed across the app's 3 categories
+// (2 football, 2 cinema, 1 music) so the demo isn't misleadingly
+// football-only — words/hints here are pulled from the same source sheet
+// (CSV_URLS in backend/server.js) the real game uses, not invented.
 const ROUNDS: Round[] = [
   { answer: 'PELE', hints: ['Brezilyalı', '3 kez Dünya Kupası kazandı', "'Kral' lakaplı", 'Santos efsanesi', '10 numara'], hintsEn: ['Brazilian', 'Won the World Cup 3 times', "Nicknamed 'The King'", 'Santos legend', 'Wore number 10'] },
   { answer: 'MESSI', hints: ['Arjantinli', 'Barcelona efsanesi', "8 Ballon d'Or", 'Sol ayak ustası', '2022 Dünya Kupası şampiyonu'], hintsEn: ['Argentinian', 'Barcelona legend', '8 Ballon d\'Ors', 'Left-footed magician', '2022 World Cup champion'] },
-  { answer: 'RONALDO', hints: ['Portekizli', 'Al Nassr forması giyiyor', 'CR7 lakaplı', 'Manchester United efsanesi', 'Kariyer gol rekortmeni'], hintsEn: ['Portuguese', 'Plays for Al Nassr', "Nicknamed 'CR7'", 'Manchester United legend', 'All-time top scorer'] },
-  { answer: 'NEYMAR', hints: ['Brezilyalı', "PSG'de oynadı", "Santos'tan yetişti", 'Numara 10', 'Şov futbolu ile bilinir'], hintsEn: ['Brazilian', 'Played for PSG', 'Came up through Santos', 'Wears number 10', 'Known for flair'] },
-  { answer: 'MBAPPE', hints: ['Fransız', "Real Madrid'de oynuyor", '2018 Dünya Kupası şampiyonu', 'Çok hızlı', "PSG'den transfer oldu"], hintsEn: ['French', 'Plays for Real Madrid', '2018 World Cup champion', 'Extremely fast', 'Transferred from PSG'] },
+  { answer: 'INCEPTION', hints: ['Rüya', 'Topaç', 'Nolan', 'Labirent', 'Leonardo DiCaprio'], hintsEn: ['Action', 'Leonardo DiCaprio', 'Christopher Nolan', '2010', 'Tom Hardy'] },
+  { answer: 'FIGHT CLUB', hints: ['Kural', 'Edward Norton', 'Sabun', 'Şizofren', 'Brad Pitt'], hintsEn: ['Drama', 'Brad Pitt', 'David Fincher', '1999', 'Meat Loaf'] },
+  { answer: 'QUEEN', hints: ['Rock', 'Bıyık', 'Piyano', 'Bohemian Rhapsody', 'Freddie Mercury'], hintsEn: ['Smile (Band)', 'Live Aid 1985', 'We Will Rock You', 'Freddie Mercury', 'Bohemian Rhapsody'] },
 ];
 
 const HINT_INTERVAL_MS = 2200;
@@ -43,15 +47,29 @@ export default function TutorialScreen({ navigation }: Props) {
   const [totalScore, setTotalScore] = useState(0);
   const [lastScore, setLastScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [introStarted, setIntroStarted] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<TextInput>(null);
+
+  // Frames the demo as a deliberate practice round rather than the real
+  // game, before round 1's hints start revealing.
+  useEffect(() => {
+    CustomAlert.show(
+      language === 'en' ? 'Quick practice round!' : 'Kısa bir deneme turu!',
+      language === 'en'
+        ? 'Before jumping into real matches, let\'s play a short trial round so you get the hang of it.'
+        : 'Gerçek maçlara geçmeden önce, alışman için kısa bir deneme turu oynayalım.',
+      [{ text: language === 'en' ? "Let's go" : 'Başlayalım', onPress: () => setIntroStarted(true) }],
+      'info'
+    );
+  }, []);
 
   const round = ROUNDS[roundIndex];
   const hints = language === 'en' ? round.hintsEn : round.hints;
   const answerLength = normalize(round.answer).length;
 
   useEffect(() => {
-    if (phase !== 'revealing') return;
+    if (phase !== 'revealing' || !introStarted) return;
     timerRef.current = setInterval(() => {
       setHintsShown(prev => {
         if (prev >= hints.length) {
@@ -62,7 +80,7 @@ export default function TutorialScreen({ navigation }: Props) {
       });
     }, HINT_INTERVAL_MS);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [phase, roundIndex]);
+  }, [phase, roundIndex, introStarted]);
 
   const handleBuzz = () => {
     if (phase !== 'revealing') return;
