@@ -270,23 +270,17 @@ export default function TournamentGameScreen() {
     const longestWordLength = Math.max(...words.map(w => w.length));
     const isTallScreen = screenHeight > 750;
 
-    let boxWidth = isTallScreen ? 34 : 28;
-    let boxHeight = isTallScreen ? 42 : 34;
-    let fontSize = isTallScreen ? 19 : 16;
-
-    if (longestWordLength >= 14) {
-      boxWidth = isTallScreen ? 20 : 17;
-      boxHeight = isTallScreen ? 26 : 22;
-      fontSize = isTallScreen ? 12 : 10;
-    } else if (longestWordLength >= 11) {
-      boxWidth = isTallScreen ? 24 : 20;
-      boxHeight = isTallScreen ? 30 : 26;
-      fontSize = isTallScreen ? 14 : 12;
-    } else if (longestWordLength >= 9) {
-      boxWidth = isTallScreen ? 28 : 24;
-      boxHeight = isTallScreen ? 36 : 30;
-      fontSize = isTallScreen ? 16 : 14;
-    }
+    // Kutu boyutu, sabit eşikler yerine gerçek ekran genişliğine göre
+    // hesaplanıyor — böylece uzun bir kelime (ya da büyük sistem yazı tipi
+    // ayarı) asla ekranın dışına taşamaz. wordRow'daki flexWrap, minimum
+    // okunabilir boyutun altına inilirse ikinci satıra kaydırarak ek bir
+    // güvenlik ağı sağlıyor.
+    const TILE_GAP = 4;
+    const availableWidth = screenWidth - 32; // wordsWrapper paddingHorizontal (16*2)
+    let boxWidth = Math.floor((availableWidth - (longestWordLength - 1) * TILE_GAP) / longestWordLength);
+    boxWidth = Math.max(14, Math.min(isTallScreen ? 34 : 28, boxWidth));
+    const boxHeight = Math.round(boxWidth * 1.25);
+    const fontSize = Math.max(10, Math.round(boxWidth * 0.55));
 
     return (
       <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={styles.wordsWrapper}>
@@ -483,7 +477,7 @@ export default function TournamentGameScreen() {
                             size={12}
                             color={i < hintsShown ? NEON_BLUE : '#555'}
                           />
-                          <Text style={[styles.clueText, { fontSize: isTallScreen ? 18 : 15 }, i >= hintsShown && styles.clueTextHidden]}>
+                          <Text style={[styles.clueText, { fontSize: isTallScreen ? 16 : 14 }, i >= hintsShown && styles.clueTextHidden]}>
                             {i < hintsShown ? clue : '? ? ? ? ?'}
                           </Text>
 
@@ -636,6 +630,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
     paddingHorizontal: 16,
     marginVertical: 6,
     rowGap: 10,
@@ -643,6 +638,9 @@ const styles = StyleSheet.create({
   },
   wordRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    maxWidth: '100%',
     gap: 4
   },
   charBox: {

@@ -734,8 +734,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <View style={[styles.header, { flexDirection: 'row', justifyContent: 'center', position: 'relative' }]}>
-              <TouchableOpacity 
+            <View style={styles.header}>
+              <TouchableOpacity
                 onPress={() => {
                   CustomAlert.show(
                     t('exitGameTitle'),
@@ -748,16 +748,14 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                       }}
                     ]
                   );
-                }} 
-                style={{ position: 'absolute', left: 20, top: 0, zIndex: 10, padding: 5 }}
+                }}
+                style={styles.closeBtn}
               >
-                <Ionicons name="close" size={32} color="#fff" />
+                <Ionicons name="close" size={28} color="#fff" />
               </TouchableOpacity>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={styles.roundText} maxFontSizeMultiplier={1.3}>TUR {currentRound} / {maxRounds}</Text>
-                <View style={styles.timerWrap}>
-                  <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]} maxFontSizeMultiplier={1.2}>{timeLeft}</Text>
-                </View>
+              <Text style={styles.roundText} numberOfLines={1} maxFontSizeMultiplier={1.2}>TUR {currentRound} / {maxRounds}</Text>
+              <View style={[styles.timerBadge, { borderColor: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]}>
+                <Text style={[styles.timerText, { color: timeLeft <= 10 ? '#ff4444' : NEON_GREEN }]} maxFontSizeMultiplier={1.2}>{timeLeft}</Text>
               </View>
             </View>
             
@@ -775,29 +773,22 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               // Boşluksuz en uzun kelimenin harf sayısını bulalım
               const longestWordLength = Math.max(...words.map(w => w.length));
 
-              // Harf sayısına göre dinamik kutu boyutları
-              let boxWidth = 32;
-              let boxHeight = 40;
-              let fontSize = 18;
-
-              if (longestWordLength >= 14) {
-                boxWidth = 20;
-                boxHeight = 28;
-                fontSize = 12;
-              } else if (longestWordLength >= 11) {
-                boxWidth = 24;
-                boxHeight = 32;
-                fontSize = 14;
-              } else if (longestWordLength >= 9) {
-                boxWidth = 28;
-                boxHeight = 36;
-                fontSize = 16;
-              }
+              // Kutu boyutu, sabit eşikler yerine gerçek ekran genişliğine
+              // göre hesaplanıyor — böylece uzun bir kelime (ya da büyük
+              // sistem yazı tipi ayarı) asla ekranın dışına taşamaz. Yine de
+              // minimum okunabilir boyutun altına inmemesi için wordRow
+              // stilinde bir flexWrap güvenlik ağı var.
+              const TILE_GAP = 5;
+              const availableWidth = width - 40; // keyboardView paddingHorizontal (20*2)
+              let boxWidth = Math.floor((availableWidth - (longestWordLength - 1) * TILE_GAP) / longestWordLength);
+              boxWidth = Math.max(16, Math.min(32, boxWidth));
+              const boxHeight = Math.round(boxWidth * 1.25);
+              const fontSize = Math.max(11, Math.round(boxWidth * 0.55));
 
               const isMyTurn = guessingPlayerId === myOriginalId;
 
               return (
-                <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()}>
+                <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()} style={{ width: '100%' }}>
                   <View style={styles.wordsWrapper}>
                     {words.map((word, wordIdx) => {
                     const charBoxes = word.split('').map((char, charIdx) => {
@@ -1100,23 +1091,35 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,8,20,0.85)',
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: 10,
     marginBottom: 8,
+    gap: 8,
+  },
+  closeBtn: {
+    padding: 5,
   },
   roundText: {
+    flex: 1,
     color: Colors.white,
     fontSize: 16,
     fontFamily: 'Poppins_700Bold',
-    marginBottom: 6,
     letterSpacing: 1,
+    textAlign: 'center',
   },
-  timerWrap: {
+  timerBadge: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,8,20,0.6)',
   },
   timerText: {
-    fontSize: 42,
+    fontSize: 20,
     fontFamily: 'Poppins_900Black',
     color: NEON_GREEN,
     textShadowColor: 'rgba(0,255,136,0.3)',
@@ -1133,12 +1136,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
     paddingHorizontal: 16,
     marginVertical: 10,
     gap: 12
   },
   wordRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    maxWidth: '100%',
     gap: 5
   },
   charBox: {
@@ -1155,14 +1162,14 @@ const styles = StyleSheet.create({
   },
   cluesCard: {
     flex: 1,
-    marginHorizontal: 16,
+    marginHorizontal: 10,
     marginVertical: 10,
     borderRadius: 18,
     borderWidth: 1.5,
     borderColor: 'rgba(0,191,255,0.3)',
     backgroundColor: 'rgba(0,191,255,0.06)',
-    padding: 18,
-    width: '92%',
+    padding: 16,
+    width: '96%',
   },
   compactScoreBadge: {
     flexDirection: 'row',
@@ -1191,7 +1198,7 @@ const styles = StyleSheet.create({
   clueText: {
     color: '#ffffff',
     fontFamily: 'Poppins_700Bold',
-    fontSize: 17,
+    fontSize: 15,
     flex: 1,
     textShadowColor: 'rgba(0,191,255,0.3)',
     textShadowOffset: { width: 0, height: 0 },
