@@ -76,9 +76,12 @@ export default function MarketScreen({ navigation }: any) {
 
   const DAILY_AD_COIN_LIMIT = 10;
 
-  // Guests aren't in the DB, so this can only be a local, per-device cap —
-  // matches the server-enforced limit real accounts get, but a reinstall
-  // resets it (acceptable: guests are a low-trust bucket by nature).
+  // Reached only when ensureRealAccount (ads.tsx) couldn't promote this
+  // guest to a real, SSV-verified account yet (offline / never connected) —
+  // the normal case now routes real accounts through the SSV branch below
+  // instead. This is a local, per-device cap since there's no DB record to
+  // enforce it against; a reinstall resets it (acceptable: a rare fallback
+  // for an offline low-trust bucket, not the everyday guest path anymore).
   const checkAndBumpGuestAdCoinCount = async (): Promise<boolean> => {
     const today = new Date().toISOString().slice(0, 10);
     const raw = await AsyncStorage.getItem('@guest_ad_coin_rewards');
@@ -93,7 +96,13 @@ export default function MarketScreen({ navigation }: any) {
     setWatchingAd(true);
     showRewarded(
       async (reward) => {
-        if (!player || !player.id || player.id === 'guest') {
+        // Re-read fresh: a still-guest profile may have been silently
+        // upgraded to a real, SSV-verifiable account in the background
+        // while this ad was preloading (see ensureRealAccount / ads.tsx) —
+        // component state here could still be the stale guest object.
+        const storedFresh = await AsyncStorage.getItem('@logged_in_profile');
+        const freshPlayer = storedFresh ? JSON.parse(storedFresh) : player;
+        if (!freshPlayer || !freshPlayer.id || freshPlayer.id === 'guest') {
            const allowed = await checkAndBumpGuestAdCoinCount();
            if (!allowed) {
              CustomAlert.show(
@@ -104,8 +113,8 @@ export default function MarketScreen({ navigation }: any) {
              );
              return;
            }
-           let guestName = player?.username?.startsWith('Guest_') ? player.username : `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
-           let guest = player || { id: 'guest', username: guestName, coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
+           let guestName = freshPlayer?.username?.startsWith('Guest_') ? freshPlayer.username : `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
+           let guest = freshPlayer || { id: 'guest', username: guestName, coins: 0, jokers: { revealLetters:0, extraTime:0, instantHints:0, shield:0 } };
            guest.coins = (guest.coins || 0) + 50;
            guest.id = 'guest';
            guest.username = guestName;
@@ -113,6 +122,7 @@ export default function MarketScreen({ navigation }: any) {
            await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
            CustomAlert.show(t('buySuccess'), language === 'en' ? 'You earned 50 Coins!' : '50 Jeton kazandınız!');
         } else {
+          setPlayer(freshPlayer);
           let s = getSocket();
           // Don't update local coins optimistically — wait for the server's
           // 'joker_bought' (success) or 'joker_error' (failure/cooldown)
@@ -121,7 +131,7 @@ export default function MarketScreen({ navigation }: any) {
           // sync with the DB whenever the server call silently failed.
           const grantReward = () => {
             setLoading(true);
-            s!.emit('reward_free_coins', { playerId: player.id });
+            s!.emit('reward_free_coins', { playerId: freshPlayer.id });
           };
           if (s && s.connected) {
             grantReward();

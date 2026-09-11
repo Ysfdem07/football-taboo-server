@@ -661,18 +661,42 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <TouchableOpacity
                   style={styles.rewardButton}
                   onPress={() => {
-                    showRewarded(() => {
-                      socket.emit('reward_double_coins', { playerId: player?.id });
-                      setRewardCollected(true);
-                      // Coins are only added once AdMob confirms (server-side)
-                      // the ad was watched in full — the coins_updated listener
-                      // above updates the balance chip once that lands.
-                      CustomAlert.show(
-                        t('rewardTitle'),
-                        language === 'en'
-                          ? 'Verifying with the ad network — your doubled coins will appear in a few seconds.'
-                          : 'Reklam ağıyla doğrulanıyor — katlanan jetonların birkaç saniye içinde hesabına eklenecek.'
-                      );
+                    showRewarded(async () => {
+                      // Re-read fresh: a still-guest profile may have been
+                      // silently upgraded to a real, SSV-verifiable account
+                      // in the background while this ad was preloading (see
+                      // ensureRealAccount / ads.tsx) — component state here
+                      // could still be the stale guest object.
+                      const storedFresh = await AsyncStorage.getItem('@logged_in_profile');
+                      const freshPlayer = storedFresh ? JSON.parse(storedFresh) : player;
+                      if (freshPlayer?.id && freshPlayer.id !== 'guest') {
+                        setPlayer(freshPlayer);
+                        socket.emit('reward_double_coins', { playerId: freshPlayer.id });
+                        setRewardCollected(true);
+                        // Coins are only added once AdMob confirms (server-side)
+                        // the ad was watched in full — the coins_updated listener
+                        // above updates the balance chip once that lands.
+                        CustomAlert.show(
+                          t('rewardTitle'),
+                          language === 'en'
+                            ? 'Verifying with the ad network — your doubled coins will appear in a few seconds.'
+                            : 'Reklam ağıyla doğrulanıyor — katlanan jetonların birkaç saniye içinde hesabına eklenecek.'
+                        );
+                      } else {
+                        // Still offline / this session never got a chance to
+                        // upgrade the account — fall back to local-only
+                        // credit, same convention as MarketScreen's guest
+                        // fallback (no server account to verify against yet).
+                        const bonus = coinChanges[myOriginalId] ?? 0;
+                        const guest = { ...(freshPlayer || {}), id: 'guest', coins: (freshPlayer?.coins || 0) + bonus };
+                        setPlayer(guest);
+                        setRewardCollected(true);
+                        await AsyncStorage.setItem('@logged_in_profile', JSON.stringify(guest));
+                        CustomAlert.show(
+                          t('rewardTitle'),
+                          language === 'en' ? `You earned ${bonus} more coins!` : `${bonus} jeton daha kazandın!`
+                        );
+                      }
                     });
                   }}
                   activeOpacity={0.8}

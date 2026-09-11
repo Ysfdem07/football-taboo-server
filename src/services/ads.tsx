@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, NativeModules, Platform } fro
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ensureRealAccount } from '../utils/ensureAccount';
 
 // In Expo Go, appOwnership is 'expo'. In EAS builds, it's null or 'standalone'.
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -159,13 +160,20 @@ const loadRewarded = async (type: 'x2' | 'tourney' | 'market') => {
   const unitId = REWARDED_IDS[type];
   if (!unitId) return;
 
-  // Only logged-in (server-tracked) players get SSV custom data — a reward
-  // can only be verified/granted against a real account. Guests keep the
-  // existing client-trusted flow this session already uses for them.
+  // SSV custom data can only be verified/granted against a real account —
+  // a still-local "guest" profile gets silently promoted to one here first
+  // (best-effort; a genuinely offline device just falls back to no SSV
+  // options below, same as before). This runs on every load, including the
+  // reload after each ad close, so it self-heals as soon as connectivity
+  // comes back instead of needing a separate retry path.
   let ssvOptions: { userId: string; customData: string } | undefined;
   try {
     const raw = await AsyncStorage.getItem('@logged_in_profile');
-    const player = raw ? JSON.parse(raw) : null;
+    let player = raw ? JSON.parse(raw) : null;
+    if (player?.id === 'guest') {
+      const upgraded = await ensureRealAccount(player);
+      if (upgraded) player = upgraded;
+    }
     if (player?.id && player.id !== 'guest') {
       ssvOptions = { userId: player.id, customData: `${player.id}:${SSV_REWARD_TYPE[type]}` };
     }
