@@ -33,21 +33,19 @@ if (isFirebaseAvailable) {
 
 // AD UNIT IDs.
 //
-// TEMPORARY (2026-09-03): App Review rejected the app (Guideline 2.1(a))
+// (2026-09-03 → 2026-09-13) App Review rejected the app (Guideline 2.1(a))
 // after tapping "Watch Ad & Earn" hit a [googleMobileAds/no-fill] error on
-// iOS. This AdMob account/app is brand new, and rewarded-video fill is
-// inconsistent while it ramps up — the SDK integration itself is fine (the
-// no-fill is a real, successful round-trip to Google's ad server, and
-// flipping to test IDs previously confirmed ads render correctly end to
-// end). Rather than gamble on live fill during another review pass, both
-// platforms are pinned to Google's public test ad units — 100% fill,
-// clearly-labeled "Test Ad" creatives, safe to submit. Flip
-// USE_TEST_AD_UNITS back to false (reverting to the real
-// ca-app-pub-3816139413382983/... units below) once the account has real
-// traffic and fill has stabilized — this can ship as a JS-only OTA update,
-// no new build needed. Do not leave this on indefinitely: test ads earn
-// nothing.
-const USE_TEST_AD_UNITS = true;
+// iOS, back when the AdMob app-ads.txt verification was still incomplete.
+// Both platforms were pinned to Google's public test ad units (100% fill,
+// clearly-labeled "Test Ad" creatives) until each platform's AdMob app was
+// independently confirmed ready to serve. iOS's app-ads.txt verification
+// passed and its AdMob app now shows "Ready" — real ads are live there.
+// Android's AdMob app is still "Needs review" (limited ad serving, no
+// linked store listing yet — the Play Store release is still in closed
+// testing), so it stays on test units until that clears too, to avoid
+// repeating the same no-fill situation. Flip this to `false` once Android's
+// AdMob app also shows Ready — JS-only OTA update, no new build needed.
+const USE_TEST_AD_UNITS = Platform.OS === 'android';
 
 // Google's shared public test ad units — same for every developer, always
 // 100% fill, and rendered with a visible "Test Ad" label so they're never
