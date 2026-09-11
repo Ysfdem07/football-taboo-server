@@ -1877,18 +1877,21 @@ async function startRound(roomId) {
 
     room.timeLeft--;
 
-    // Every 5 seconds (25, 20, 15, 10), we show another hint
-    // Hints at: t=25 (2nd), t=20 (3rd), t=15 (4th), t=10 (5th)
-    if (room.timeLeft % 5 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < room.card.forbidden.length && room.hintsShown < 5) {
+    // Every 3 seconds (27, 24, 21, 18, 15, 12), we show another hint
+    // Hints at: t=27 (2nd) ... t=12 (7th) — first hint already shown
+    // immediately at round start (t=30).
+    const MAX_HINTS = 7;
+    if (room.timeLeft % 3 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < room.card.forbidden.length && room.hintsShown < MAX_HINTS) {
       const hintWord = room.card.forbidden[room.hintsShown]; // use room.card (always current)
       room.hintsShown++;
       io.to(roomId).emit('hint_revealed', { hint: hintWord, potentialScore: getPotentialScore(room) });
     }
 
-    // After ALL hints are shown (hintsShown >= 5 OR no more hints) AND timeLeft < 10,
-    // reveal one letter every 2 seconds, max 3 letters
-    const allHintsShown = room.hintsShown >= Math.min(5, room.card.forbidden.length);
-    if (allHintsShown && room.timeLeft < 10 && room.timeLeft % 2 === 0 && room.revealedIndices.length < 3) {
+    // After ALL hints are shown (hintsShown >= MAX_HINTS OR no more hints)
+    // AND timeLeft < 12, reveal one letter every 3 seconds, max 3 letters
+    // (t=9, 6, 3).
+    const allHintsShown = room.hintsShown >= Math.min(MAX_HINTS, room.card.forbidden.length);
+    if (allHintsShown && room.timeLeft < 12 && room.timeLeft % 3 === 0 && room.revealedIndices.length < 3) {
       const availableIndices = [];
       for (let i = 0; i < card.word.length; i++) {
         if (card.word[i] !== ' ' && !room.revealedIndices.includes(i)) {
