@@ -198,7 +198,10 @@ export default function TournamentGameScreen() {
     if (!rawCard) return rawCard;
     return {
       ...rawCard,
-      forbidden: [...(rawCard.forbidden || [])].sort(() => Math.random() - 0.5)
+      // Shuffle the full clue pool (now up to 7/word), then only keep 5 —
+      // rounds stay a fixed length, but which 5 (and in what order) still
+      // varies each time the word comes up.
+      forbidden: [...(rawCard.forbidden || [])].sort(() => Math.random() - 0.5).slice(0, 5)
     };
   }, [qIndex, rawCard]);
 
