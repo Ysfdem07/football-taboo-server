@@ -135,6 +135,37 @@ export default function TournamentGameScreen() {
     };
   }, []);
 
+  // Prevent accidental back navigation (Android back button, iOS swipe
+  // back) — the header's own X button already confirms before exiting,
+  // but that only guards its own onPress; the hardware back button and
+  // iOS's edge-swipe gesture both skip it entirely and go straight to
+  // React Navigation's default back action unless this is intercepted too.
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      if (finished) return;
+
+      e.preventDefault();
+
+      CustomAlert.show(
+        t('exitTournamentTitle'),
+        t('exitTournamentMsg'),
+        [
+          { text: t('cancel'), style: 'cancel' },
+          {
+            text: t('exitBtn'),
+            style: 'destructive',
+            onPress: () => {
+              if (timerRef.current) clearInterval(timerRef.current);
+              navigation.dispatch(e.data.action);
+            },
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, finished]);
+
   // Listen for score result
   useEffect(() => {
     const socket = getSocket();

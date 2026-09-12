@@ -8,6 +8,7 @@ import { Colors } from '../constants/Colors';
 import { getWords, Word } from '../utils/WordSync';
 import { showInterstitial } from '../services/ads';
 import { useLanguage } from '../context/LanguageContext';
+import { CustomAlert } from '../components/CustomAlert';
 
 type GameScreenRouteProp = RouteProp<RootStackParamList, 'Game'>;
 type GameScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Game'>;
@@ -145,6 +146,36 @@ export default function GameScreen({ route, navigation }: Props) {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  // Prevent accidental exit mid-round via the Android back button (the
+  // iOS swipe-back gesture is already disabled for this screen in
+  // AppNavigator). Only guards while a round is actually in progress —
+  // the between-rounds screen already has its own explicit Home button.
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+      if (!isPlaying) return;
+
+      e.preventDefault();
+
+      CustomAlert.show(
+        language === 'en' ? 'Leave Game?' : 'Oyundan Ayrıl?',
+        language === 'en' ? 'Are you sure? The current score will be lost.' : 'Emin misiniz? Mevcut skor kaybolacak.',
+        [
+          { text: language === 'en' ? 'Cancel' : 'Vazgeç', style: 'cancel' },
+          {
+            text: language === 'en' ? 'Leave' : 'Çık',
+            style: 'destructive',
+            onPress: () => {
+              if (timerRef.current) clearInterval(timerRef.current);
+              navigation.dispatch(e.data.action);
+            },
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, isPlaying, language]);
 
   if (!isPlaying) {
     return (
