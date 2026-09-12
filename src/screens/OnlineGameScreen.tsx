@@ -679,8 +679,8 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                         CustomAlert.show(
                           t('rewardTitle'),
                           language === 'en'
-                            ? 'Verifying with the ad network — your doubled coins will appear in a few seconds.'
-                            : 'Reklam ağıyla doğrulanıyor — katlanan jetonların birkaç saniye içinde hesabına eklenecek.'
+                            ? 'Your doubled coins will be added in a few seconds.'
+                            : 'Katlanan jetonların birkaç saniye içinde hesabına eklenecek.'
                         );
                       } else {
                         // Still offline / this session never got a chance to

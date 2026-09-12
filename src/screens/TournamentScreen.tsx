@@ -208,8 +208,8 @@ export default function TournamentScreen() {
           CustomAlert.show(
             language === 'en' ? 'Thanks for watching!' : 'İzlediğin için teşekkürler!',
             language === 'en'
-              ? 'Verifying with the ad network — your extra attempt will appear in a few seconds.'
-              : 'Reklam ağıyla doğrulanıyor — ekstra hakkın birkaç saniye içinde hesabına eklenecek.'
+              ? 'Your extra attempt will be added in a few seconds.'
+              : 'Ekstra hakkın birkaç saniye içinde hesabına eklenecek.'
           );
         }
       },

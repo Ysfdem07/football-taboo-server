@@ -203,8 +203,8 @@ export default function MarketScreen({ navigation }: any) {
         CustomAlert.show(
           language === 'en' ? 'Thanks for watching!' : 'İzlediğin için teşekkürler!',
           language === 'en'
-            ? 'Verifying with the ad network — your coins will appear in a few seconds.'
-            : 'Reklam ağıyla doğrulanıyor — jetonların birkaç saniye içinde hesabına eklenecek.'
+            ? 'Your coins will be added in a few seconds.'
+            : 'Jetonların birkaç saniye içinde hesabına eklenecek.'
         );
       });
 
