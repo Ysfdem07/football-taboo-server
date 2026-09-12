@@ -817,7 +817,11 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()} style={{ width: '100%' }}>
                   <View style={styles.wordsWrapper}>
                     {words.map((word, wordIdx) => {
-                    const charBoxes = word.split('').map((char, charIdx) => {
+                    // A hyphen (e.g. "Jean-Alain Boumsong") arrives pre-revealed
+                    // in wordHint (see server.js) — filter it out here so it
+                    // never gets its own guessable box, instead of showing up
+                    // as a locked "extra letter" the player never has to type.
+                    const charBoxes = word.split('').filter(char => char !== '-').map((char, charIdx) => {
                       const isRevealed = char !== '_';
                       let displayChar = '';
                       let isPrediction = false;
@@ -882,7 +886,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                         {(() => {
                           if (serverPotentialScore !== null) return `+${serverPotentialScore}`;
                           const hintsPenalty = Math.max(0, hints.length - 1);
-                          const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
+                          const revealedLetters = Math.max(0, wordHint.replace(/[\s_-]/g, '').length - 1);
                           const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
                           return `+${potentialScore}`;
                         })()}
@@ -919,7 +923,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   {(() => {
                     if (serverPotentialScore !== null) return `+${serverPotentialScore}`;
                     const hintsPenalty = Math.max(0, hints.length - 1);
-                    const revealedLetters = Math.max(0, wordHint.replace(/[\s_]/g, '').length - 1);
+                    const revealedLetters = Math.max(0, wordHint.replace(/[\s_-]/g, '').length - 1);
                     const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
                     return `+${potentialScore}`;
                   })()}

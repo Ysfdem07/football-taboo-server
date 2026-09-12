@@ -33,18 +33,19 @@ const THEMES = {
   music_en: require('../../assets/images/music_bg.jpg'),
 };
 
+// Turkish letters first (ı/ğ/ş don't reliably fold via NFD), then a generic
+// Unicode accent-strip for everything else the word database's non-Turkish
+// names bring in (é, ñ, ç, ü, ø, etc.) — matches server.js's normalizeText,
+// which already did this; this client-side copy (used for Tournament's own
+// guess check) was missing the NFD step, so e.g. "Grégory" (kept as "grgory"
+// after just dropping the é) never matched a plain "gregory" guess.
 function normalizeText(t: string) {
-  return t.toLowerCase()
+  return t
     .replace(/ı/g, 'i').replace(/İ/g, 'i')
     .replace(/ğ/g, 'g').replace(/Ğ/g, 'g')
     .replace(/ş/g, 's').replace(/Ş/g, 's')
-    .replace(/ü/g, 'u').replace(/Ü/g, 'u')
-    .replace(/ö/g, 'o').replace(/Ö/g, 'o')
-    .replace(/ç/g, 'c').replace(/Ç/g, 'c')
-    .replace(/[âäàá]/g, 'a')
-    .replace(/[îïìí]/g, 'i')
-    .replace(/[ûüùú]/g, 'u')
-    .replace(/[ôöòó]/g, 'o')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
     .replace(/[^a-z0-9]/g, '').trim();
 }
 
@@ -224,7 +225,7 @@ export default function TournamentGameScreen() {
     if (!guess.trim()) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
-    const wordClean = currentCard.word.replace(/\s+/g, '');
+    const wordClean = currentCard.word.replace(/[\s-]+/g, '');
     if (revealedIndices.length >= wordClean.length) {
       setGuess('');
       flashScreen(false, `${t('timeOutFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
@@ -262,12 +263,12 @@ export default function TournamentGameScreen() {
   };
 
   const handleShowLetter = () => {
-    const wordClean = currentCard.word.replace(/\s+/g, '');
+    const wordClean = currentCard.word.replace(/[\s-]+/g, '');
     if (revealedIndices.length >= wordClean.length) return;
 
     const unrevealed: number[] = [];
     for (let i = 0; i < currentCard.word.length; i++) {
-      if (currentCard.word[i] !== ' ' && !revealedIndices.includes(i)) {
+      if (currentCard.word[i] !== ' ' && currentCard.word[i] !== '-' && !revealedIndices.includes(i)) {
         unrevealed.push(i);
       }
     }
@@ -328,8 +329,13 @@ export default function TournamentGameScreen() {
           const charBoxes = word.split('').map((char, charIdx) => {
             const index = globalCharIndex;
             globalCharIndex++;
+            // A hyphen inside a name (e.g. "Jean-Alain") gets no box at all —
+            // it's never something the player types — but the index still
+            // has to advance so later real letters keep lining up with
+            // revealedIndices, which was built against the raw word string.
+            if (char === '-') return null;
             const isRevealed = revealedIndices.includes(index);
-            
+
             let displayChar = '';
             let isPrediction = false;
 

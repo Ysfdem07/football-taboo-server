@@ -1857,7 +1857,10 @@ async function startRound(roomId) {
   room.passVotes = new Set();
 
   // Create word hint replacing only non-space chars with underscore
-  room.wordHintArray = card.word.split('').map(c => c === ' ' ? ' ' : '_');
+  // A hyphen (e.g. "Jean-Alain Boumsong") is pre-revealed just like a space
+  // — the client renders no guessable box for either, so there's nothing to
+  // hide there in the first place.
+  room.wordHintArray = card.word.split('').map(c => (c === ' ' || c === '-') ? c : '_');
   room.revealedIndices = [];
   room.privateLetterReveals = {};
   room.finalCountdownStarted = false;
@@ -1897,7 +1900,7 @@ async function startRound(roomId) {
     if (allHintsShown && room.timeLeft < 12 && room.timeLeft % 3 === 0 && room.revealedIndices.length < 3) {
       const availableIndices = [];
       for (let i = 0; i < card.word.length; i++) {
-        if (card.word[i] !== ' ' && !room.revealedIndices.includes(i)) {
+        if (card.word[i] !== ' ' && card.word[i] !== '-' && !room.revealedIndices.includes(i)) {
           availableIndices.push(i);
         }
       }
