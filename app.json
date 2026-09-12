@@ -29,12 +29,6 @@
           },
           {
             "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
-          },
-          {
-            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
-          },
-          {
-            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
           }
         ]
       }
@@ -73,10 +67,10 @@
       [
         "react-native-fbsdk-next",
         {
-          "appID": "27431147593233821",
-          "clientToken": "7695a6f5ff97777868aabed2b510e4c3",
-          "displayName": "Wordico",
-          "scheme": "fb27431147593233821",
+          "appID": "2280881809380286",
+          "clientToken": "0448ff93fa10ba9f2b4133953df9c9a2",
+          "displayName": "Wordicoo",
+          "scheme": "fb2280881809380286",
           "advertiserIDCollectionEnabled": true,
           "autoLogAppEventsEnabled": true,
           "isAutoInitEnabled": true,
