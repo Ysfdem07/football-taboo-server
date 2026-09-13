@@ -405,18 +405,19 @@ const CSV_URLS = {
 // Football/cinema moved to a richer sheet layout (word, nationality/type,
 // subcategory, tag/IMDb+Oscar cols, difficulty, then 7 clue columns, +
 // trailing extras) — this only records where each category's clue columns
-// start, plus the subcategory column (used by getWeeklyTournament's
-// weighted card selection, see db.js). Difficulty/tag aren't read yet since
-// nothing uses them. Music stays on the old plain "word, clue1..5" layout
-// (word col 0, clues col 1-5, no subcategory) until its own sheet gets the
-// same treatment.
+// start. Subcategory sits at column 2 and difficulty always sits right
+// before the clue columns in both layouts, so both are captured too (used
+// by getWeeklyTournament's weighted card selection, see db.js) without
+// needing their own per-category column maps. Music stays on the old plain
+// "word, clue1..5" layout (word col 0, clues col 1-5, no metadata) until
+// its own sheet gets the same treatment.
 const HINT_COLUMN_START = {
   football: 5,
   football_en: 5,
   cinema: 6,
   cinema_en: 6,
 };
-const SUBCATEGORY_COLUMN = 2; // same position in both football's and cinema's layout
+const SUBCATEGORY_COLUMN = 2;
 const MAX_HINT_COLUMNS = 7;
 const WORDS_PATH = path.join(__dirname, '..', 'assets', 'data', 'words.json');
 let wordsDb = { football: [], football_en: [], cinema: [], cinema_en: [], music: [], music_en: [] };
@@ -443,8 +444,14 @@ async function loadWords() {
               if (row[col] && row[col].trim() !== '') forbidden.push(row[col].trim());
             }
             const card = { word, forbidden };
-            if (HINT_COLUMN_START[category] && row[SUBCATEGORY_COLUMN] && row[SUBCATEGORY_COLUMN].trim() !== '') {
-              card.subcategory = row[SUBCATEGORY_COLUMN].trim();
+            if (HINT_COLUMN_START[category]) {
+              if (row[SUBCATEGORY_COLUMN] && row[SUBCATEGORY_COLUMN].trim() !== '') {
+                card.subcategory = row[SUBCATEGORY_COLUMN].trim();
+              }
+              const difficultyCol = hintStart - 1; // difficulty always sits right before the clue columns
+              if (row[difficultyCol] && row[difficultyCol].trim() !== '') {
+                card.difficulty = row[difficultyCol].trim();
+              }
             }
             newWords.push(card);
           }

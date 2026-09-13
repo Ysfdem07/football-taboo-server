@@ -218,47 +218,63 @@ const findPlayerById = async (playerId) => {
   return await Player.findOne({ id: playerId });
 };
 
-// Football's card pool spans multiple eras (Classic Era through 2000s
-// Stars). Picking 20 cards purely at random could — and, per player
-// feedback, did — hand someone a suspiciously lopsided attempt (several
-// Juventus players in a row, or a run of obscure Classic Era names back to
-// back). Categories/subcategories not listed here are untouched and keep
-// using plain random selection.
-const SUBCATEGORY_WEIGHTS = {
+// Picking a tournament attempt's 20 cards purely at random could — and, per
+// player feedback, did — hand someone a suspiciously lopsided attempt
+// (several Juventus players in a row, a run of obscure Classic Era names
+// back to back, or an unusually hard/easy cinema set). Each entry names
+// which card field to group by and the target share per group value;
+// categories not listed here are untouched and keep using plain random
+// selection.
+const CARD_WEIGHTING = {
   football: {
-    "Klasik Dönem": 0.05,
-    "1980'ler Efsaneleri": 0.10,
-    "1990'lar Efsaneleri": 0.40,
-    "2000'ler Yıldızları": 0.45,
+    field: 'subcategory',
+    weights: {
+      "Klasik Dönem": 0.05,
+      "1980'ler Efsaneleri": 0.10,
+      "1990'lar Efsaneleri": 0.40,
+      "2000'ler Yıldızları": 0.45,
+    },
   },
   football_en: {
-    "Classic Era": 0.05,
-    "1980s Legends": 0.10,
-    "1990s Legends": 0.40,
-    "2000s Stars": 0.45,
+    field: 'subcategory',
+    weights: {
+      "Classic Era": 0.05,
+      "1980s Legends": 0.10,
+      "1990s Legends": 0.40,
+      "2000s Stars": 0.45,
+    },
+  },
+  cinema: {
+    field: 'difficulty',
+    weights: { "Kolay": 0.50, "Orta": 0.25, "Zor": 0.25 },
+  },
+  cinema_en: {
+    field: 'difficulty',
+    weights: { "Easy": 0.50, "Medium": 0.25, "Hard": 0.25 },
   },
 };
 
-// Picks `count` cards from wordList following SUBCATEGORY_WEIGHTS's target
-// proportions for this category (falls back to plain `shuffleArray(wordList)
-// .slice(0, count)` if the category has no configured weights, or none of
-// its cards carry a matching subcategory yet).
+// Picks `count` cards from wordList following CARD_WEIGHTING's target
+// proportions for this category's grouping field (falls back to plain
+// `shuffleArray(wordList).slice(0, count)` if the category has no
+// configured weighting, or none of its cards carry a matching value yet).
 function pickWeightedCards(wordList, category, count, shuffleArray) {
-  const weights = SUBCATEGORY_WEIGHTS[category];
-  if (!weights) return shuffleArray(wordList).slice(0, count);
+  const config = CARD_WEIGHTING[category];
+  if (!config) return shuffleArray(wordList).slice(0, count);
+  const { field, weights } = config;
 
-  const bySubcategory = {};
+  const byGroup = {};
   for (const card of wordList) {
-    if (!weights[card.subcategory]) continue;
-    (bySubcategory[card.subcategory] = bySubcategory[card.subcategory] || []).push(card);
+    if (!weights[card[field]]) continue;
+    (byGroup[card[field]] = byGroup[card[field]] || []).push(card);
   }
-  const pooled = Object.values(bySubcategory).flat();
+  const pooled = Object.values(byGroup).flat();
   if (pooled.length === 0) return shuffleArray(wordList).slice(0, count);
 
-  // Largest-remainder rounding: each subcategory's exact share (weight *
-  // count) is rarely a whole number, so hand out the leftover slots to
-  // whichever subcategories rounded down the most, keeping the total at
-  // exactly `count` instead of merely close to it.
+  // Largest-remainder rounding: each group's exact share (weight * count)
+  // is rarely a whole number, so hand out the leftover slots to whichever
+  // groups rounded down the most, keeping the total at exactly `count`
+  // instead of merely close to it.
   const targets = Object.entries(weights).map(([key, w]) => {
     const exact = w * count;
     return { key, count: Math.floor(exact), remainder: exact - Math.floor(exact) };
@@ -271,10 +287,10 @@ function pickWeightedCards(wordList, category, count, shuffleArray) {
 
   const picked = [];
   for (const t of targets) {
-    picked.push(...shuffleArray(bySubcategory[t.key] || []).slice(0, t.count));
+    picked.push(...shuffleArray(byGroup[t.key] || []).slice(0, t.count));
   }
 
-  // A subcategory running short of its target (shouldn't happen at current
+  // A group running short of its target (shouldn't happen at current
   // volumes, but stay safe) just leaves picked shorter than `count` — top it
   // back up from whatever weighted cards are left over.
   if (picked.length < count) {
