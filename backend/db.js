@@ -218,6 +218,74 @@ const findPlayerById = async (playerId) => {
   return await Player.findOne({ id: playerId });
 };
 
+// Football's card pool spans multiple eras (Classic Era through 2000s
+// Stars). Picking 20 cards purely at random could — and, per player
+// feedback, did — hand someone a suspiciously lopsided attempt (several
+// Juventus players in a row, or a run of obscure Classic Era names back to
+// back). Categories/subcategories not listed here are untouched and keep
+// using plain random selection.
+const SUBCATEGORY_WEIGHTS = {
+  football: {
+    "Klasik Dönem": 0.05,
+    "1980'ler Efsaneleri": 0.10,
+    "1990'lar Efsaneleri": 0.40,
+    "2000'ler Yıldızları": 0.45,
+  },
+  football_en: {
+    "Classic Era": 0.05,
+    "1980s Legends": 0.10,
+    "1990s Legends": 0.40,
+    "2000s Stars": 0.45,
+  },
+};
+
+// Picks `count` cards from wordList following SUBCATEGORY_WEIGHTS's target
+// proportions for this category (falls back to plain `shuffleArray(wordList)
+// .slice(0, count)` if the category has no configured weights, or none of
+// its cards carry a matching subcategory yet).
+function pickWeightedCards(wordList, category, count, shuffleArray) {
+  const weights = SUBCATEGORY_WEIGHTS[category];
+  if (!weights) return shuffleArray(wordList).slice(0, count);
+
+  const bySubcategory = {};
+  for (const card of wordList) {
+    if (!weights[card.subcategory]) continue;
+    (bySubcategory[card.subcategory] = bySubcategory[card.subcategory] || []).push(card);
+  }
+  const pooled = Object.values(bySubcategory).flat();
+  if (pooled.length === 0) return shuffleArray(wordList).slice(0, count);
+
+  // Largest-remainder rounding: each subcategory's exact share (weight *
+  // count) is rarely a whole number, so hand out the leftover slots to
+  // whichever subcategories rounded down the most, keeping the total at
+  // exactly `count` instead of merely close to it.
+  const targets = Object.entries(weights).map(([key, w]) => {
+    const exact = w * count;
+    return { key, count: Math.floor(exact), remainder: exact - Math.floor(exact) };
+  });
+  let shortfall = count - targets.reduce((n, t) => n + t.count, 0);
+  targets.sort((a, b) => b.remainder - a.remainder);
+  for (let i = 0; shortfall > 0; i = (i + 1) % targets.length, shortfall--) {
+    targets[i].count++;
+  }
+
+  const picked = [];
+  for (const t of targets) {
+    picked.push(...shuffleArray(bySubcategory[t.key] || []).slice(0, t.count));
+  }
+
+  // A subcategory running short of its target (shouldn't happen at current
+  // volumes, but stay safe) just leaves picked shorter than `count` — top it
+  // back up from whatever weighted cards are left over.
+  if (picked.length < count) {
+    const used = new Set(picked);
+    const leftover = shuffleArray(pooled.filter(c => !used.has(c)));
+    picked.push(...leftover.slice(0, count - picked.length));
+  }
+
+  return shuffleArray(picked);
+}
+
 module.exports = {
   connectDB,
   saveLog: async (type, message) => {
@@ -577,7 +645,16 @@ module.exports = {
     await connectDB();
     const weekId = getWeekId(category);
     let tournament = await WeeklyTournament.findOne({ weekId });
-    
+
+    const shuffleArray = (arr) => {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
     // Auto-create tournament if it doesn't exist (handles race condition where
     // initTournament may have run before loadWords completed)
     if (!tournament) {
@@ -586,8 +663,7 @@ module.exports = {
         console.error(`[Tournament] Cannot auto-create: wordList is empty for ${category}`);
         return { error: 'Turnuva hazırlanıyor, lütfen birazdan tekrar deneyin.' };
       }
-      const shuffled = [...wordList].sort(() => Math.random() - 0.5);
-      const cards = shuffled.slice(0, 20);
+      const cards = pickWeightedCards(wordList, category, 20, shuffleArray);
       const { startDate, endDate } = getWeekBounds();
       try {
         tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
@@ -606,18 +682,9 @@ module.exports = {
     const today = getTodayString();
     const myEntry = tournament.scores.find(s => s.playerId === playerId);
 
-    // Her denemede farklı 20 kart için rastgele seçiyoruz ve ipucu sırasını karıştırıyoruz
-    const shuffleArray = (arr) => {
-      const copy = [...arr];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-      }
-      return copy;
-    };
-
-    const shuffled = shuffleArray(wordList);
-    const randomCardsForAttempt = shuffled.slice(0, 20).map(c => ({
+    // Her denemede farklı 20 kart için rastgele seçiyoruz (ağırlıklı alt
+    // kategori dağılımıyla, bkz. pickWeightedCards) ve ipucu sırasını karıştırıyoruz
+    const randomCardsForAttempt = pickWeightedCards(wordList, category, 20, shuffleArray).map(c => ({
       ...c,
       forbidden: shuffleArray(c.forbidden || [])
     }));
