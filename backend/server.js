@@ -166,6 +166,13 @@ function normalizeText(text) {
     .replace(/[^a-z0-9]/g, '');
 }
 
+// Punctuation inside a word (movie-title colons, apostrophes, etc.) is never
+// something the player has to type \u2014 same treatment spaces/hyphens already
+// got. Pre-revealed in wordHintArray instead of hidden behind '_', so the
+// client never renders a guessable tile for it (see matching NON_TILE_CHAR
+// in TournamentGameScreen.tsx / OnlineGameScreen.tsx).
+const NON_TILE_CHAR = /[\s\-.,:;!?'\u2019\u2018"\u201c\u201d()&/\\\u00b7]/;
+
 const app = express();
 
 // Gate for internal/debug endpoints that expose PII, secrets, or destructive
@@ -1136,11 +1143,12 @@ io.on('connection', (socket) => {
     
     const category = data.category || 'football';
     console.log(socket.id, 'joined queue. Name:', data.name, 'DB Player ID:', data.dbPlayerId, 'Category:', category);
-    queue.push({ 
-      id: socket.id, 
+    queue.push({
+      id: socket.id,
       name: data.name || 'Misafir',
+      avatar: data.avatar || null,
       dbPlayerId: data.dbPlayerId || null,
-      category 
+      category
     });
 
     // Drop any queued entries whose socket has since disconnected/reconnected
@@ -1183,10 +1191,11 @@ io.on('connection', (socket) => {
         category
       });
 
-      // Give 3 seconds before starting the game
+      // Give 5 seconds before starting the game — matches the client's
+      // face-off intro countdown (name/avatar reveal) in OnlineLobbyScreen.
       setTimeout(() => {
         startRound(roomId);
-      }, 3000);
+      }, 5000);
     }
   });
 
@@ -1198,6 +1207,7 @@ io.on('connection', (socket) => {
     friendlyQueue.push({
       id: socket.id,
       name: data.name || 'Misafir',
+      avatar: data.avatar || null,
       dbPlayerId: data.dbPlayerId || null,
       category
     });
@@ -1228,7 +1238,7 @@ io.on('connection', (socket) => {
         guessTimer: null
       };
       io.to(roomId).emit('match_found', { players: [p1, p2], roomId, category, isFriendly: true });
-      setTimeout(() => { startRound(roomId); }, 3000);
+      setTimeout(() => { startRound(roomId); }, 5000);
     }
   });
 
@@ -1876,7 +1886,7 @@ async function startRound(roomId) {
   // A hyphen (e.g. "Jean-Alain Boumsong") is pre-revealed just like a space
   // — the client renders no guessable box for either, so there's nothing to
   // hide there in the first place.
-  room.wordHintArray = card.word.split('').map(c => (c === ' ' || c === '-') ? c : '_');
+  room.wordHintArray = card.word.split('').map(c => NON_TILE_CHAR.test(c) ? c : '_');
   room.revealedIndices = [];
   room.privateLetterReveals = {};
   room.finalCountdownStarted = false;
@@ -1916,7 +1926,7 @@ async function startRound(roomId) {
     if (allHintsShown && room.timeLeft < 10 && room.timeLeft % 2 === 0 && room.revealedIndices.length < 3) {
       const availableIndices = [];
       for (let i = 0; i < card.word.length; i++) {
-        if (card.word[i] !== ' ' && card.word[i] !== '-' && !room.revealedIndices.includes(i)) {
+        if (!NON_TILE_CHAR.test(card.word[i]) && !room.revealedIndices.includes(i)) {
           availableIndices.push(i);
         }
       }

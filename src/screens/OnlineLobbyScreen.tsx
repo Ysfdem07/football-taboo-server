@@ -141,6 +141,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       const joinPayload = {
         name: (playerName.trim() === 'Misafir' && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
+        avatar: profile?.avatar || null,
         dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null),
         category: categoryId
       };
@@ -157,7 +158,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
         s.off('connect', rejoinOnReconnect);
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
-        navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId });
+        navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId, matchedPlayers: data.players });
       });
     }, () => {
       Analytics.logEvent('join_friendly_queue_failed');
@@ -185,6 +186,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     ensureSocket((s) => {
       const joinPayload = {
         name: ((playerName.trim() === 'Misafir' || playerName.trim() === 'Oyuncu') && language === 'en' ? 'Guest' : playerName.trim()) || (language === 'en' ? 'Guest' : 'Misafir'),
+        avatar: profile?.avatar || null,
         dbPlayerId: (profile?.id && profile.id !== 'guest') ? profile.id : (profile?._id || null),
         category: categoryId
       };
@@ -197,7 +199,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
         s.off('connect', rejoinOnReconnect);
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
-        navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId });
+        navigation.navigate('OnlineGame', { roomId: data.roomId, categoryId: data.category || categoryId, matchedPlayers: data.players });
       });
     }, () => {
       Analytics.logEvent('join_queue_failed');

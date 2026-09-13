@@ -49,6 +49,14 @@ function normalizeText(t: string) {
     .replace(/[^a-z0-9]/g, '').trim();
 }
 
+// Punctuation inside a word (movie-title colons, apostrophes, etc.) gets no
+// guessable tile and is never something the player has to type — same
+// treatment hyphens already got. Keeps players from having to switch
+// keyboard pages mid-guess just to hit a colon or quote mark. Matches
+// NON_TILE_CHAR in server.js / OnlineGameScreen.tsx.
+const NON_TILE_CHAR = /[\s\-.,:;!?'’‘"“”()&/\\·]/;
+const NON_TILE_CHAR_G = /[\s\-.,:;!?'’‘"“”()&/\\·]/g;
+
 export default function TournamentGameScreen() {
   const navigation = useNavigation<Nav>();
   const route      = useRoute<Route>();
@@ -216,7 +224,7 @@ export default function TournamentGameScreen() {
       setFeedback(null);
       setFeedbackText('');
       nextQuestion();
-    }, 900);
+    }, 3000);
   };
 
   const handleTimeout = () => {
@@ -228,7 +236,7 @@ export default function TournamentGameScreen() {
     if (!guess.trim()) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
-    const wordClean = currentCard.word.replace(/[\s-]+/g, '');
+    const wordClean = currentCard.word.replace(NON_TILE_CHAR_G, '');
     if (revealedIndices.length >= wordClean.length) {
       setGuess('');
       flashScreen(false, `${t('timeOutFeedback')}\n${t('answerWas')} ${currentCard.word.toUpperCase()}`);
@@ -266,12 +274,12 @@ export default function TournamentGameScreen() {
   };
 
   const handleShowLetter = () => {
-    const wordClean = currentCard.word.replace(/[\s-]+/g, '');
+    const wordClean = currentCard.word.replace(NON_TILE_CHAR_G, '');
     if (revealedIndices.length >= wordClean.length) return;
 
     const unrevealed: number[] = [];
     for (let i = 0; i < currentCard.word.length; i++) {
-      if (currentCard.word[i] !== ' ' && currentCard.word[i] !== '-' && !revealedIndices.includes(i)) {
+      if (!NON_TILE_CHAR.test(currentCard.word[i]) && !revealedIndices.includes(i)) {
         unrevealed.push(i);
       }
     }
@@ -332,11 +340,11 @@ export default function TournamentGameScreen() {
           const charBoxes = word.split('').map((char, charIdx) => {
             const index = globalCharIndex;
             globalCharIndex++;
-            // A hyphen inside a name (e.g. "Jean-Alain") gets no box at all —
-            // it's never something the player types — but the index still
-            // has to advance so later real letters keep lining up with
+            // Punctuation (hyphens, colons, apostrophes, ...) gets no box at
+            // all — it's never something the player types — but the index
+            // still has to advance so later real letters keep lining up with
             // revealedIndices, which was built against the raw word string.
-            if (char === '-') return null;
+            if (NON_TILE_CHAR.test(char)) return null;
             const isRevealed = revealedIndices.includes(index);
 
             let displayChar = '';
@@ -582,7 +590,7 @@ export default function TournamentGameScreen() {
                       // Ignoring input while not actively guessing achieves
                       // the same "can't type outside a buzz-in" guarantee.
                       if (feedback || finished || !isGuessing) return;
-                      const cleanText = text.replace(/\s+/g, '');
+                      const cleanText = text.replace(NON_TILE_CHAR_G, '');
                       setGuess(cleanText);
                     }}
                     onSubmitEditing={handleGuess}
@@ -590,7 +598,7 @@ export default function TournamentGameScreen() {
                     autoCapitalize="characters"
                     returnKeyType="send"
                     editable={true}
-                    maxLength={currentCard ? currentCard.word.replace(/\s+/g, '').length : 20}
+                    maxLength={currentCard ? currentCard.word.replace(NON_TILE_CHAR_G, '').length : 20}
                     blurOnSubmit={false}
                     showSoftInputOnFocus={true}
                     caretHidden={true}

@@ -12,11 +12,23 @@ import { showInterstitial, showRewarded } from '../services/ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CustomAlert } from '../components/CustomAlert';
 import { useLanguage } from '../context/LanguageContext';
+import { UserAvatar } from '../components/UserAvatar';
 
 const NEON_GREEN  = '#00FF88';
 const NEON_BLUE   = '#00BFFF';
 const NEON_PURPLE = '#A855F7';
 const NEON_GOLD   = '#FFD700';
+
+// Punctuation inside a word (movie-title colons, apostrophes, etc.) gets no
+// guessable tile and is never something the player has to type — same
+// treatment hyphens already got. Keeps players from having to switch
+// keyboard pages mid-guess just to hit a colon or quote mark. Matches
+// NON_TILE_CHAR in server.js / TournamentGameScreen.tsx.
+const NON_TILE_CHAR = /[\s\-.,:;!?'’‘"“”()&/\\·]/;
+const NON_TILE_CHAR_G = /[\s\-.,:;!?'’‘"“”()&/\\·]/g;
+// Same set, plus the '_' placeholder for a still-hidden letter — used when
+// counting how many REAL letters are currently visible in wordHint.
+const NON_TILE_OR_BLANK_G = /[\s_\-.,:;!?'’‘"“”()&/\\·]/g;
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
@@ -70,6 +82,18 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [jokerLoading, setJokerLoading] = useState(false);
   const [rewardCollected, setRewardCollected] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Face-off intro: for an auto-matched 1v1 (ranked/friendly queue), the
+  // lobby hands over the matched players' name/avatar instead of diving
+  // straight into a blank game screen. Stays up for a 5s countdown that
+  // mirrors the server's own delay before the first round actually starts
+  // (see join_queue/join_friendly_queue in server.js), and only actually
+  // dismisses once real round data (game_start) has arrived too.
+  const matchedPlayers = route.params?.matchedPlayers;
+  const hasMatchIntro = !!(matchedPlayers && matchedPlayers.length === 2);
+  const [showMatchIntro, setShowMatchIntro] = useState(hasMatchIntro);
+  const [introCountdown, setIntroCountdown] = useState(5);
+  const [gameDataReady, setGameDataReady] = useState(false);
 
   const inputRef = React.useRef<TextInput>(null);
   const transitionAnim = React.useRef(new Animated.Value(0)).current;
@@ -183,6 +207,23 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     }
   }, [gameOver, isFinal]);
 
+  // Countdown ticks down once per second regardless of gameDataReady, so the
+  // number on screen always matches wall-clock time; the overlay itself only
+  // dismisses once both the countdown has finished AND game_start actually
+  // arrived (protects against a slow/late server response leaving a blank
+  // screen exposed for however long the network took).
+  useEffect(() => {
+    if (!showMatchIntro || introCountdown <= 0) return;
+    const timer = setTimeout(() => setIntroCountdown(c => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [showMatchIntro, introCountdown]);
+
+  useEffect(() => {
+    if (showMatchIntro && introCountdown <= 0 && gameDataReady) {
+      setShowMatchIntro(false);
+    }
+  }, [showMatchIntro, introCountdown, gameDataReady]);
+
   const buzzerTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const toastTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -190,6 +231,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     Analytics.logScreenView('OnlineGame');
     socket.on('game_start', (data: any) => {
       Analytics.logGameStart(roomId, data.isRanked ? 'ranked' : 'friendly', 'giver');
+      setGameDataReady(true);
       setGameOver(false);
       setIsFinal(false);
       setWinnerMessage('');
@@ -486,6 +528,37 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     setHasPassed(true);
     socket.emit('pass_round', { roomId, playerId: myOriginalId });
   };
+
+  if (showMatchIntro && matchedPlayers) {
+    const [playerA, playerB] = matchedPlayers;
+    return (
+      <ImageBackground source={bgImageSource} style={styles.bgImage}>
+        <View style={styles.overlay} />
+        <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={styles.matchIntroReady}>{language === 'en' ? 'MATCH FOUND!' : 'RAKİP BULUNDU!'}</Text>
+          <View style={styles.matchIntroRow}>
+            <View style={styles.matchIntroPlayer}>
+              <UserAvatar avatar={playerA.avatar} size={84} />
+              <Text style={[styles.matchIntroName, playerA.id === myOriginalId && { color: NEON_GREEN }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+                {playerA.id === myOriginalId ? playerA.name + (language === 'en' ? ' (You)' : ' (Sen)') : playerA.name}
+              </Text>
+            </View>
+            <Text style={styles.matchIntroVs}>VS</Text>
+            <View style={styles.matchIntroPlayer}>
+              <UserAvatar avatar={playerB.avatar} size={84} />
+              <Text style={[styles.matchIntroName, playerB.id === myOriginalId && { color: NEON_GREEN }]} numberOfLines={1} maxFontSizeMultiplier={1.2}>
+                {playerB.id === myOriginalId ? playerB.name + (language === 'en' ? ' (You)' : ' (Sen)') : playerB.name}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.matchIntroCountdownCircle}>
+            <Text style={styles.matchIntroCountdownText}>{introCountdown > 0 ? introCountdown : '✓'}</Text>
+          </View>
+          <Text style={styles.matchIntroSub}>{language === 'en' ? 'Get ready...' : 'Hazırlanın...'}</Text>
+        </SafeAreaView>
+      </ImageBackground>
+    );
+  }
 
   if (gameOver) {
     if (!isFinal) {
@@ -817,11 +890,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()} style={{ width: '100%' }}>
                   <View style={styles.wordsWrapper}>
                     {words.map((word, wordIdx) => {
-                    // A hyphen (e.g. "Jean-Alain Boumsong") arrives pre-revealed
+                    // Punctuation (e.g. hyphens in "Jean-Alain Boumsong",
+                    // colons/apostrophes in movie titles) arrives pre-revealed
                     // in wordHint (see server.js) — filter it out here so it
                     // never gets its own guessable box, instead of showing up
                     // as a locked "extra letter" the player never has to type.
-                    const charBoxes = word.split('').filter(char => char !== '-').map((char, charIdx) => {
+                    const charBoxes = word.split('').filter(char => !NON_TILE_CHAR.test(char)).map((char, charIdx) => {
                       const isRevealed = char !== '_';
                       let displayChar = '';
                       let isPrediction = false;
@@ -886,7 +960,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                         {(() => {
                           if (serverPotentialScore !== null) return `+${serverPotentialScore}`;
                           const hintsPenalty = Math.max(0, hints.length - 1);
-                          const revealedLetters = Math.max(0, wordHint.replace(/[\s_-]/g, '').length - 1);
+                          const revealedLetters = Math.max(0, wordHint.replace(NON_TILE_OR_BLANK_G, '').length - 1);
                           const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
                           return `+${potentialScore}`;
                         })()}
@@ -923,7 +997,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   {(() => {
                     if (serverPotentialScore !== null) return `+${serverPotentialScore}`;
                     const hintsPenalty = Math.max(0, hints.length - 1);
-                    const revealedLetters = Math.max(0, wordHint.replace(/[\s_-]/g, '').length - 1);
+                    const revealedLetters = Math.max(0, wordHint.replace(NON_TILE_OR_BLANK_G, '').length - 1);
                     const potentialScore = Math.max(10, 100 - hintsPenalty * 10 - revealedLetters * 10);
                     return `+${potentialScore}`;
                   })()}
@@ -1032,14 +1106,14 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                   style={styles.invisibleInput}
                   value={guess}
                   onChangeText={(text) => {
-                    const cleanText = text.replace(/\s+/g, '');
+                    const cleanText = text.replace(NON_TILE_CHAR_G, '');
                     setGuess(cleanText);
                   }}
                   onSubmitEditing={sendGuess}
                   autoCapitalize="characters"
                   autoCorrect={false}
                   autoFocus
-                  maxLength={wordHint.replace(/\s+/g, '').length}
+                  maxLength={wordHint.replace(NON_TILE_CHAR_G, '').length}
                   underlineColorAndroid="transparent"
                 />
                 <View style={styles.inlineTimerWrap}>
@@ -1416,6 +1490,69 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     textAlign: 'center',
     marginBottom: 10,
+  },
+  matchIntroReady: {
+    fontSize: 20,
+    color: NEON_GOLD,
+    fontFamily: 'Poppins_800ExtraBold',
+    letterSpacing: 2,
+    marginBottom: 30,
+    textShadowColor: 'rgba(255,215,0,0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  matchIntroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    marginBottom: 40,
+  },
+  matchIntroPlayer: {
+    alignItems: 'center',
+    width: 110,
+  },
+  matchIntroName: {
+    marginTop: 10,
+    color: '#fff',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  matchIntroVs: {
+    color: '#ff4444',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 22,
+    textShadowColor: 'rgba(255,68,68,0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
+  matchIntroCountdownCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 2.5,
+    borderColor: NEON_GREEN,
+    backgroundColor: 'rgba(0,255,136,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: NEON_GREEN,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  matchIntroCountdownText: {
+    color: NEON_GREEN,
+    fontFamily: 'Poppins_900Black',
+    fontSize: 30,
+  },
+  matchIntroSub: {
+    marginTop: 16,
+    color: '#aaa',
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 13,
+    letterSpacing: 1,
   },
   transitionCard: {
     borderWidth: 2,
