@@ -153,6 +153,9 @@ export const translations = {
     connectionErrorMsg2: 'Sunucuya bağlanılamadı. Uygulamayı tamamen kapatıp açmayı deneyin.',
     roomMinPlayers: 'Uyarı',
     roomMinPlayersMsg: 'Oyunu başlatmak için en az 2 kişi olmalı!',
+    noOnlinePlayersTitle: 'Şu An Online Oyuncu Yok',
+    noOnlinePlayersMsg: 'Eşleşecek bir rakip bulunamadı. Beklemeye devam edebilir ya da haftalık turnuvada oynayabilirsin.',
+    goToWeeklyTournament: 'Haftalık Turnuvaya Git',
 
     // Online Game Round Labels
     roundLabel: 'TUR',
@@ -321,6 +324,9 @@ export const translations = {
     connectionErrorMsg2: 'Could not connect to server. Try fully closing and reopening the app.',
     roomMinPlayers: 'Warning',
     roomMinPlayersMsg: 'You need at least 2 players to start the game!',
+    noOnlinePlayersTitle: 'No Online Players Right Now',
+    noOnlinePlayersMsg: "We couldn't find an opponent to match you with. You can keep waiting or play the weekly tournament instead.",
+    goToWeeklyTournament: 'Go to Weekly Tournament',
 
     // Online Game Round Labels
     roundLabel: 'ROUND',

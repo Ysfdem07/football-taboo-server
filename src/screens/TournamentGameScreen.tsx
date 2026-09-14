@@ -245,7 +245,7 @@ export default function TournamentGameScreen() {
 
     const isCorrect = normalizeText(guess) === normalizeText(currentCard.word);
     if (isCorrect) {
-      const earned = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
+      const earned = Math.max(10, 100 - (hintsShown - 1) * 5 - revealedIndices.length * 10);
       setTotalScore(prev => prev + earned);
       setCorrectCount(prev => prev + 1);
       flashScreen(true, t('correctFeedback'));
@@ -411,7 +411,7 @@ export default function TournamentGameScreen() {
     outputRange: ['rgba(0,8,20,0)', feedback === 'correct' ? 'rgba(0,255,136,0.25)' : 'rgba(255,68,68,0.25)'],
   });
 
-  const potentialScore = Math.max(10, 100 - (hintsShown - 1) * 10 - revealedIndices.length * 10);
+  const potentialScore = Math.max(10, 100 - (hintsShown - 1) * 5 - revealedIndices.length * 10);
   const isTallScreen = screenHeight > 750;
 
   // ─── Finished Screen ─────────────────────────────────────────────────────

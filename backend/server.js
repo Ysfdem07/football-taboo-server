@@ -1199,6 +1199,14 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Client gave up waiting for a quick match (see the give-up timer in
+  // OnlineLobbyScreen) — pull this socket out of both queues so a match
+  // doesn't get formed against someone who already navigated away.
+  socket.on('leave_queue', () => {
+    queue = queue.filter(u => u.id !== socket.id);
+    friendlyQueue = friendlyQueue.filter(u => u.id !== socket.id);
+  });
+
   // Friendly Quick Match queue — coins only, no KP, guests OK
   socket.on('join_friendly_queue', (data) => {
     if (friendlyQueue.find(u => u.id === socket.id)) return;

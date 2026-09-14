@@ -42,6 +42,17 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [showFriendlyOptions, setShowFriendlyOptions] = useState(initialMode === 'friendly');
   const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(false);
   const [showRankedRoomSettings, setShowRankedRoomSettings] = useState(false);
+  // Quick-match queue give-up timer — if no opponent shows up within this
+  // window, stop waiting and offer Weekly Tournament instead of leaving the
+  // player staring at a spinner indefinitely.
+  const matchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const MATCH_WAIT_MS = 20000;
+
+  useEffect(() => {
+    return () => {
+      if (matchTimeoutRef.current) clearTimeout(matchTimeoutRef.current);
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -135,6 +146,28 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
   const categoryId = route.params?.categoryId || 'football';
 
+  // If no opponent turns up within MATCH_WAIT_MS, stop waiting (and leave
+  // the server-side queue) instead of leaving the player staring at a
+  // spinner forever — offer the weekly tournament as an immediate
+  // alternative.
+  const armMatchTimeout = (s: any, rejoinOnReconnect: () => void) => {
+    if (matchTimeoutRef.current) clearTimeout(matchTimeoutRef.current);
+    matchTimeoutRef.current = setTimeout(() => {
+      s.off('match_found');
+      s.off('connect', rejoinOnReconnect);
+      s.emit('leave_queue');
+      setLobbyStatus('idle');
+      CustomAlert.show(
+        t('noOnlinePlayersTitle'),
+        t('noOnlinePlayersMsg'),
+        [
+          { text: t('cancel'), style: 'cancel' },
+          { text: t('goToWeeklyTournament'), onPress: () => navigation.navigate('Tournament', { categoryId }) }
+        ]
+      );
+    }, MATCH_WAIT_MS);
+  };
+
   const findFriendlyMatch = () => {
     Analytics.logEvent('join_friendly_queue_start');
     setLobbyStatus('searching_match');
@@ -153,8 +186,10 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
       // ends up in the matched room instead of being stuck here forever.
       const rejoinOnReconnect = () => s.emit('join_friendly_queue', joinPayload);
       s.on('connect', rejoinOnReconnect);
+      armMatchTimeout(s, rejoinOnReconnect);
 
       s.on('match_found', (data: any) => {
+        if (matchTimeoutRef.current) clearTimeout(matchTimeoutRef.current);
         s.off('connect', rejoinOnReconnect);
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
@@ -194,8 +229,10 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
       const rejoinOnReconnect = () => s.emit('join_queue', joinPayload);
       s.on('connect', rejoinOnReconnect);
+      armMatchTimeout(s, rejoinOnReconnect);
 
       s.on('match_found', (data: any) => {
+        if (matchTimeoutRef.current) clearTimeout(matchTimeoutRef.current);
         s.off('connect', rejoinOnReconnect);
         Analytics.logEvent('join_queue_success', { roomId: data.roomId });
         setLobbyStatus('idle');
