@@ -578,7 +578,8 @@ module.exports = {
     // small player base they'd otherwise clutter the top 50 even at 0 KP,
     // since this query has no minimum-KP cutoff of its own.
     const usernameFilter = { username: { $not: LEADERBOARD_HIDDEN_USERNAMES_RE } };
-    if (category && ['football', 'cinema', 'music'].includes(category)) {
+    const validCategories = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
+    if (category && validCategories.includes(category)) {
       const sortField = `categoryKp.${category}`;
       // kp is floor-clamped at 0 (see updatePlayerStats), so "0 KP" and
       // "never played this category" are the same condition here — one
