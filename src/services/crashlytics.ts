@@ -2,15 +2,21 @@
 // Firebase Crashlytics Service
 // Safe dynamic require — no crash in Expo Go if native module is missing.
 
-import { NativeModules } from 'react-native';
-
-const isCrashlyticsAvailable = !!NativeModules.RNFBCrashlyticsNativeModule;
-
+// react-native-firebase v21 predates its TurboModule migration (that landed
+// in v26), so under the New Architecture (newArchEnabled: true) its modules
+// go through React Native's legacy-interop layer instead of being
+// registered directly. That interop layer doesn't reliably populate
+// NativeModules.RNFBCrashlyticsNativeModule synchronously at JS-bundle-load
+// time on iOS (Android's bridge happened to still work) — gating on it here
+// permanently disabled Crashlytics on iOS with no error, ever. Matching
+// analytics.ts's pattern instead: just try the require + factory call and
+// let the try/catch below be the actual availability signal.
 let crashlyticsInstance: any = null;
+let triedInit = false;
 
 const getInstance = () => {
-  if (!isCrashlyticsAvailable) return null;
-  if (!crashlyticsInstance) {
+  if (!crashlyticsInstance && !triedInit) {
+    triedInit = true;
     try {
       const mod = require('@react-native-firebase/crashlytics');
       crashlyticsInstance = (mod.default || mod)();
