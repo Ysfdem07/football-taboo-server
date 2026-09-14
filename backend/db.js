@@ -577,9 +577,13 @@ module.exports = {
     // re-verification) but hidden from the public leaderboard — with a
     // small player base they'd otherwise clutter the top 50 even at 0 KP,
     // since this query has no minimum-KP cutoff of its own.
-    const leaderboardFilter = { username: { $not: LEADERBOARD_HIDDEN_USERNAMES_RE } };
+    const usernameFilter = { username: { $not: LEADERBOARD_HIDDEN_USERNAMES_RE } };
     if (category && ['football', 'cinema', 'music'].includes(category)) {
       const sortField = `categoryKp.${category}`;
+      // kp is floor-clamped at 0 (see updatePlayerStats), so "0 KP" and
+      // "never played this category" are the same condition here — one
+      // check excludes both kinds of leaderboard clutter.
+      const leaderboardFilter = { ...usernameFilter, [sortField]: { $gt: 0 } };
       const players = await Player.find(leaderboardFilter)
         .select(`id username avatar kp categoryKp categoryWins categoryMatchesPlayed matches_won matches_played -_id`)
         .sort({ [sortField]: -1 })
@@ -593,7 +597,7 @@ module.exports = {
       });
     }
     // Global leaderboard (fallback)
-    const players = await Player.find(leaderboardFilter)
+    const players = await Player.find({ ...usernameFilter, kp: { $gt: 0 } })
       .select('id username avatar kp categoryKp categoryWins matches_won matches_played -_id')
       .sort({ kp: -1 })
       .limit(50);
