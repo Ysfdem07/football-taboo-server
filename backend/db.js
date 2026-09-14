@@ -117,6 +117,11 @@ playerSchema.index({ email: 1 }, { unique: true, sparse: true, collation: CASE_I
 
 const Player = mongoose.model('Player', playerSchema);
 
+// Usernames of real, working accounts (app-store review testers, internal QA)
+// that should stay fully functional but never show up on the public KP
+// leaderboard — see getLeaderboard below.
+const LEADERBOARD_HIDDEN_USERNAMES_RE = /^(applereviewer)$/i;
+
 const systemLogSchema = new mongoose.Schema({
   type: { type: String, required: true },
   message: { type: String, required: true },
@@ -568,9 +573,14 @@ module.exports = {
 
   getLeaderboard: async (category = null) => {
     await connectDB();
+    // Kept as real, working accounts (e.g. for Apple/Google review
+    // re-verification) but hidden from the public leaderboard — with a
+    // small player base they'd otherwise clutter the top 50 even at 0 KP,
+    // since this query has no minimum-KP cutoff of its own.
+    const leaderboardFilter = { username: { $not: LEADERBOARD_HIDDEN_USERNAMES_RE } };
     if (category && ['football', 'cinema', 'music'].includes(category)) {
       const sortField = `categoryKp.${category}`;
-      const players = await Player.find({})
+      const players = await Player.find(leaderboardFilter)
         .select(`id username avatar kp categoryKp categoryWins categoryMatchesPlayed matches_won matches_played -_id`)
         .sort({ [sortField]: -1 })
         .limit(50);
@@ -583,7 +593,7 @@ module.exports = {
       });
     }
     // Global leaderboard (fallback)
-    const players = await Player.find({})
+    const players = await Player.find(leaderboardFilter)
       .select('id username avatar kp categoryKp categoryWins matches_won matches_played -_id')
       .sort({ kp: -1 })
       .limit(50);
