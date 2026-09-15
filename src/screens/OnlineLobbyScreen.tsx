@@ -46,7 +46,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   // window, stop waiting and offer Weekly Tournament instead of leaving the
   // player staring at a spinner indefinitely.
   const matchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const MATCH_WAIT_MS = 20000;
+  const MATCH_WAIT_MS = 7000;
 
   useEffect(() => {
     return () => {
