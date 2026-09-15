@@ -137,7 +137,7 @@ export default function TutorialScreen({ navigation }: Props) {
   // here — straight off the demo, one tap per category — gives them a sure
   // thing to fall back on.
   const goToWeeklyTournament = (categoryId: string) => {
-    navigation.reset({ index: 0, routes: [{ name: 'Tournament', params: { categoryId } }] });
+    navigation.reset({ index: 1, routes: [{ name: 'Home' }, { name: 'Tournament', params: { categoryId } }] });
   };
 
   const SOLO_CATEGORIES: { id: string; icon: keyof typeof Ionicons.glyphMap; label: string; labelEn: string }[] = [
