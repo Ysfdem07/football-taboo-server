@@ -391,7 +391,7 @@ export default function TournamentGameScreen() {
 
   const finishGame = () => {
     setFinished(true);
-    showInterstitial();
+    showInterstitial(true); // Tournament: every attempt shows an ad, no every-other throttling
     const socket = getSocket();
     if (socket && player) {
       socket.emit('submit_tournament_score', {

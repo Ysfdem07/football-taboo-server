@@ -213,16 +213,20 @@ const loadRewarded = async (type: 'x2' | 'tourney' | 'market') => {
 };
 
 // In-memory only (resets on app restart) — every OTHER match end in the
-// same session shows the interstitial instead of every single one.
+// same session shows the interstitial instead of every single one. Weekly
+// Tournament is the one exception (see `force` below): every attempt there
+// ends in a full ad, no every-other throttling.
 let matchesSinceLastInterstitial = 0;
 
-export const showInterstitial = (): void => {
-  matchesSinceLastInterstitial += 1;
-  if (matchesSinceLastInterstitial < 2) {
-    if (__DEV__) console.log(`[Ads] Skipping interstitial (${matchesSinceLastInterstitial}/2 matches this session).`);
-    return;
+export const showInterstitial = (force: boolean = false): void => {
+  if (!force) {
+    matchesSinceLastInterstitial += 1;
+    if (matchesSinceLastInterstitial < 2) {
+      if (__DEV__) console.log(`[Ads] Skipping interstitial (${matchesSinceLastInterstitial}/2 matches this session).`);
+      return;
+    }
+    matchesSinceLastInterstitial = 0;
   }
-  matchesSinceLastInterstitial = 0;
 
   if (!isFirebaseAvailable || !interstitialAdInstance) {
     if (__DEV__) {
