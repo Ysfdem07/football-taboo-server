@@ -323,6 +323,7 @@ export default function ProfileScreen({ navigation }: Props) {
       password: generatedPassword,
       avatar: selectedAvatar,
       email: email.trim(),
+      language,
     });
   };
 

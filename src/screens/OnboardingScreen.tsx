@@ -117,6 +117,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       password: generatedPassword,
       avatar: selectedAvatar,
       email: trimmedEmail,
+      language,
     });
     if (socket.connected) emit(); else socket.once('connect', emit);
 

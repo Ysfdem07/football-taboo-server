@@ -318,13 +318,15 @@ module.exports = {
     return await SystemLog.find({ type }).sort({ timestamp: -1 }).limit(limit);
   },
 
-  registerPlayer: async (username, password, avatar, email, marketingConsent) => {
+  registerPlayer: async (username, password, avatar, email, marketingConsent, language = 'tr') => {
     await connectDB();
     const trimmedEmail = email && email.trim() ? email.trim() : null;
     const dupConditions = [{ username: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') }];
     if (trimmedEmail) dupConditions.push({ email: new RegExp(`^${escapeRegex(trimmedEmail)}$`, 'i') });
     const existing = await Player.findOne({ $or: dupConditions });
-    if (existing) return { error: 'Kullanıcı adı veya e-posta zaten kullanımda!' };
+    if (existing) {
+      return { error: language === 'en' ? 'Username or email already in use!' : 'Kullanıcı adı veya e-posta zaten kullanımda!' };
+    }
 
     const newPlayer = {
       id: `player_${Math.random().toString(36).substr(2, 9)}`,

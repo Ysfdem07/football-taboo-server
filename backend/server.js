@@ -747,14 +747,15 @@ io.on('connection', (socket) => {
 
   // Profile Registration
   socket.on('register_profile', async (data) => {
-    const { username, password, avatar, email, marketingConsent } = data || {};
+    const { username, password, avatar, email, marketingConsent, language } = data || {};
+    const lang = language === 'en' ? 'en' : 'tr';
     // email is optional — only needed for password recovery, not to
     // register or to unlock ranked/tournament play.
     if (typeof username !== 'string' || typeof password !== 'string' || (email !== undefined && email !== null && typeof email !== 'string')) {
-      return socket.emit('register_response', { success: false, error: 'Eksik veya geçersiz bilgi.' });
+      return socket.emit('register_response', { success: false, error: lang === 'en' ? 'Missing or invalid information.' : 'Eksik veya geçersiz bilgi.' });
     }
     try {
-      const result = await db.registerPlayer(username, password, avatar, email, marketingConsent);
+      const result = await db.registerPlayer(username, password, avatar, email, marketingConsent, lang);
       if (result.error) {
         socket.emit('register_response', { success: false, error: result.error });
       } else {
@@ -767,7 +768,7 @@ io.on('connection', (socket) => {
       }
     } catch (e) {
       console.error('[register_profile] error:', e);
-      socket.emit('register_response', { success: false, error: 'Sunucu hatası, lütfen tekrar deneyin.' });
+      socket.emit('register_response', { success: false, error: lang === 'en' ? 'Server error, please try again.' : 'Sunucu hatası, lütfen tekrar deneyin.' });
     }
   });
 
