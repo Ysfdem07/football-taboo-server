@@ -172,9 +172,20 @@ export default function OnboardingScreen({ navigation }: Props) {
           {loading ? (
             <ActivityIndicator size="large" color={NEON_GREEN} style={{ marginVertical: 20 }} />
           ) : (
-            <TouchableOpacity style={styles.cta} onPress={handleContinue} activeOpacity={0.85}>
-              <Text style={styles.ctaText}>{language === 'en' ? 'GET STARTED' : 'BAŞLA'}</Text>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity style={styles.cta} onPress={handleContinue} activeOpacity={0.85}>
+                <Text style={styles.ctaText}>{language === 'en' ? 'GET STARTED' : 'BAŞLA'}</Text>
+              </TouchableOpacity>
+              {/* A returning user (reinstalled the app, or on a new device)
+                  lands here with no local profile — without this, their only
+                  option was to register a throwaway account and dig into
+                  Profile settings to find the real login form. */}
+              <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.loginLink} activeOpacity={0.7}>
+                <Text style={styles.loginLinkText}>
+                  {language === 'en' ? 'Already have an account? Log In' : 'Zaten hesabın var mı? Giriş Yap'}
+                </Text>
+              </TouchableOpacity>
+            </>
           )}
 
           <Text style={[styles.label, { marginTop: 26 }]}>{language === 'en' ? 'Choose an avatar' : 'Bir avatar seç'}</Text>
@@ -219,6 +230,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   legal: { color: '#8898aa', fontSize: 11, textAlign: 'center', marginTop: 16, marginBottom: 20, lineHeight: 16 },
+  loginLink: { marginTop: 14, alignItems: 'center' },
+  loginLinkText: { color: NEON_GREEN, fontSize: 13, fontWeight: '700', textDecorationLine: 'underline' },
   cta: {
     width: '100%',
     backgroundColor: NEON_GREEN,
