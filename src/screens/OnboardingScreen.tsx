@@ -53,16 +53,20 @@ export default function OnboardingScreen({ navigation }: Props) {
       );
       return;
     }
+    // Email is required, not optional — there's no password to type anywhere
+    // in this app (one is generated silently), so email is the only way a
+    // player can ever recover their account (Profile screen's "forgot
+    // password" flow) after a reinstall or on a new device.
     const trimmedEmail = email.trim();
-    if (trimmedEmail) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmedEmail)) {
-        CustomAlert.show(
-          language === 'en' ? 'Error' : 'Hata',
-          language === 'en' ? 'Please enter a valid email address, or leave it blank.' : 'Lütfen geçerli bir e-posta adresi gir, ya da boş bırak.'
-        );
-        return;
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+      CustomAlert.show(
+        language === 'en' ? 'Error' : 'Hata',
+        language === 'en'
+          ? 'Please enter a valid email address — it’s required to recover your account later.'
+          : 'Lütfen geçerli bir e-posta adresi gir — hesabını daha sonra kurtarabilmen için gerekli.'
+      );
+      return;
     }
 
     setLoading(true);
@@ -150,7 +154,7 @@ export default function OnboardingScreen({ navigation }: Props) {
           />
 
           <Text style={styles.label}>
-            {language === 'en' ? 'Email (optional — for account recovery)' : 'E-posta (opsiyonel — hesabını kurtarmak için)'}
+            {language === 'en' ? 'Email (required — for account recovery)' : 'E-posta (zorunlu — hesabını kurtarmak için)'}
           </Text>
           <TextInput
             style={styles.input}

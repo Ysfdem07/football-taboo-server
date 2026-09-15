@@ -23,7 +23,7 @@ type Props = {
 export default function ProfileScreen({ navigation }: Props) {
   const { t, language } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authStep, setAuthStep] = useState<'landing' | 'login' | 'register' | 'forgot_request' | 'forgot_verify'>('landing');
+  const [authStep, setAuthStep] = useState<'landing' | 'register' | 'forgot_request' | 'forgot_verify'>('landing');
   const [loading, setLoading] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   
@@ -54,13 +54,6 @@ export default function ProfileScreen({ navigation }: Props) {
   // "Change username" (logged-in players)
   const [editingUsername, setEditingUsername] = useState(false);
   const [usernameInput, setUsernameInput] = useState('');
-
-  // Quick username+password login — for players who actually know their
-  // password (pre-hidden-password accounts, or anyone who wrote theirs
-  // down): faster than the full email-recovery round trip for a routine
-  // logout/login on the same device.
-  const [loginUsername, setLoginUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
 
   const isRegisterMode = authStep === 'register';
 
@@ -309,14 +302,18 @@ export default function ProfileScreen({ navigation }: Props) {
       CustomAlert.show(t('error'), language === 'en' ? 'Username must be between 3 and 30 characters.' : 'Kullanıcı adı 3-30 karakter arasında olmalıdır.');
       return;
     }
-    // Email is optional — only used for account recovery — but if they did
-    // type something, it has to actually look like an email.
-    if (email.trim()) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email.trim())) {
-        CustomAlert.show(t('error'), language === 'en' ? 'Please enter a valid email address.' : 'Lütfen geçerli bir e-posta adresi girin.');
-        return;
-      }
+    // Email is required, not optional — there's no password to type anywhere
+    // in this app (one is generated silently), so it's the only way to ever
+    // recover the account via the "forgot password" flow.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      CustomAlert.show(
+        t('error'),
+        language === 'en'
+          ? 'Please enter a valid email address — it’s required to recover your account later.'
+          : 'Lütfen geçerli bir e-posta adresi girin — hesabınızı daha sonra kurtarabilmeniz için gerekli.'
+      );
+      return;
     }
     const generatedPassword = generateHiddenPassword();
     setPassword(generatedPassword);
@@ -327,15 +324,6 @@ export default function ProfileScreen({ navigation }: Props) {
       avatar: selectedAvatar,
       email: email.trim(),
     });
-  };
-
-  const handlePasswordLogin = () => {
-    if (!loginUsername.trim() || !loginPassword.trim()) {
-      CustomAlert.show(t('error'), language === 'en' ? 'Please enter your username and password.' : 'Lütfen kullanıcı adı ve şifrenizi girin.');
-      return;
-    }
-    setLoading(true);
-    socket.emit('login_profile', { username: loginUsername.trim(), password: loginPassword });
   };
 
   const handleForgotRequest = () => {
@@ -676,7 +664,7 @@ export default function ProfileScreen({ navigation }: Props) {
                     : 'Mevcut bir hesaba giriş yap ya da yeni bir profil oluştur.'}
                 </Text>
 
-                <TouchableOpacity style={styles.authButton} onPress={() => setAuthStep('login')}>
+                <TouchableOpacity style={styles.authButton} onPress={() => setAuthStep('forgot_request')}>
                   <Text style={styles.authButtonText}>
                     {language === 'en' ? 'LOG IN' : 'GİRİŞ YAP'}
                   </Text>
@@ -691,70 +679,16 @@ export default function ProfileScreen({ navigation }: Props) {
                   </Text>
                 </TouchableOpacity>
               </View>
-            ) : authStep === 'login' ? (
-              // LOGIN VIEW — direct username/email + password form, reachable
-              // in one tap from the landing screen (previously buried two
-              // taps deep inside the "recover account" flow).
-              <View style={styles.authCard}>
-                <Text style={styles.authTitle}>
-                  {language === 'en' ? 'Log In' : 'Giriş Yap'}
-                </Text>
-                <Text style={styles.authSubtitle}>
-                  {language === 'en'
-                    ? 'Enter your username or email and your password.'
-                    : 'Kullanıcı adını veya e-postanı ve şifreni gir.'}
-                </Text>
-
-                <TextInput
-                  style={styles.input}
-                  placeholder={language === 'en' ? 'Username or Email' : 'Kullanıcı Adı veya E-posta'}
-                  placeholderTextColor="#888"
-                  value={loginUsername}
-                  onChangeText={setLoginUsername}
-                  autoCapitalize="none"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder={language === 'en' ? 'Password' : 'Şifre'}
-                  placeholderTextColor="#888"
-                  secureTextEntry
-                  value={loginPassword}
-                  onChangeText={setLoginPassword}
-                  autoCapitalize="none"
-                />
-
-                {loading ? (
-                  <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
-                ) : (
-                  <TouchableOpacity style={styles.authButton} onPress={handlePasswordLogin}>
-                    <Text style={styles.authButtonText}>
-                      {language === 'en' ? 'LOG IN' : 'GİRİŞ YAP'}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-
-                <TouchableOpacity onPress={() => setAuthStep('forgot_request')} style={styles.toggleLink}>
-                  <Text style={styles.toggleLinkText}>
-                    {language === 'en' ? 'Forgot your password? Recover via email' : 'Şifreni mi unuttun? E-posta ile kurtar'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setAuthStep('register')} style={styles.toggleLink}>
-                  <Text style={styles.toggleLinkText}>
-                    {language === 'en' ? "Don't have an account? Create Profile" : 'Henüz hesabın yok mu? Profil Yarat'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setAuthStep('landing')} style={styles.toggleLink}>
-                  <Text style={styles.toggleLinkText}>
-                    {language === 'en' ? 'Go Back' : 'Geri Dön'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
             ) : authStep === 'forgot_request' ? (
-              // ACCOUNT RECOVERY REQUEST VIEW
+              // LOGIN VIEW — no password anywhere in this app (one is
+              // generated and hidden at registration), so logging in on a
+              // new/reinstalled device works by emailing a one-time code
+              // instead. Reuses what used to be the "forgot password" flow,
+              // since that's now the only login path there is.
               <View style={styles.authCard}>
-                <Text style={styles.authTitle}>{language === 'en' ? 'Recover My Account' : 'Hesabımı Kurtar'}</Text>
+                <Text style={styles.authTitle}>{language === 'en' ? 'Log In' : 'Giriş Yap'}</Text>
                 <Text style={styles.authSubtitle}>
-                  {language === 'en' ? "Enter the email address on your account and we'll send you a verification code." : 'Hesabına kayıtlı e-posta adresini gir, doğrulama kodunu gönderelim.'}
+                  {language === 'en' ? "Enter the email address on your account and we'll send you a login code." : 'Hesabına kayıtlı e-posta adresini gir, sana bir giriş kodu gönderelim.'}
                 </Text>
 
                 <TextInput
@@ -771,21 +705,26 @@ export default function ProfileScreen({ navigation }: Props) {
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleForgotRequest}>
-                    <Text style={styles.authButtonText}>{language === 'en' ? 'SEND CODE' : 'KOD GÖNDER'}</Text>
+                    <Text style={styles.authButtonText}>{language === 'en' ? 'SEND LOGIN CODE' : 'GİRİŞ KODU GÖNDER'}</Text>
                   </TouchableOpacity>
                 )}
 
-                <TouchableOpacity onPress={() => setAuthStep('login')} style={styles.toggleLink}>
+                <TouchableOpacity onPress={() => setAuthStep('register')} style={styles.toggleLink}>
+                  <Text style={styles.toggleLinkText}>
+                    {language === 'en' ? "Don't have an account? Create Profile" : 'Henüz hesabın yok mu? Profil Yarat'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setAuthStep('landing')} style={styles.toggleLink}>
                   <Text style={styles.toggleLinkText}>{language === 'en' ? 'Go Back' : 'Geri Dön'}</Text>
                 </TouchableOpacity>
               </View>
             ) : authStep === 'forgot_verify' ? (
-              // ACCOUNT RECOVERY VERIFY VIEW — no password field here either;
+              // LOGIN CODE VERIFY VIEW — no password field here either;
               // handleForgotVerify generates one behind the scenes.
               <View style={styles.authCard}>
                 <Text style={styles.authTitle}>{language === 'en' ? 'Verify Code' : 'Kodu Doğrula'}</Text>
                 <Text style={styles.authSubtitle}>
-                  {language === 'en' ? 'Enter the 6-digit code sent to your email to get your account back on this device.' : 'E-postana gönderilen 6 haneli kodu gir, hesabın bu cihaza geri gelsin.'}
+                  {language === 'en' ? 'Enter the 6-digit code sent to your email to log in on this device.' : 'E-postana gönderilen 6 haneli kodu gir, bu cihazda giriş yap.'}
                 </Text>
 
                 <TextInput
@@ -803,7 +742,7 @@ export default function ProfileScreen({ navigation }: Props) {
                   <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
                 ) : (
                   <TouchableOpacity style={styles.authButton} onPress={handleForgotVerify}>
-                    <Text style={styles.authButtonText}>{language === 'en' ? 'RECOVER MY ACCOUNT' : 'HESABIMI GERİ GETİR'}</Text>
+                    <Text style={styles.authButtonText}>{language === 'en' ? 'LOG IN' : 'GİRİŞ YAP'}</Text>
                   </TouchableOpacity>
                 )}
 
@@ -833,7 +772,7 @@ export default function ProfileScreen({ navigation }: Props) {
 
                 <TextInput
                   style={styles.input}
-                  placeholder={language === 'en' ? "Email Address (optional)" : "E-posta Adresi (opsiyonel)"}
+                  placeholder={language === 'en' ? "Email Address (required)" : "E-posta Adresi (zorunlu)"}
                   placeholderTextColor="#888"
                   value={email}
                   onChangeText={setEmail}
@@ -842,8 +781,8 @@ export default function ProfileScreen({ navigation }: Props) {
                 />
                 <Text style={styles.emailHintText}>
                   {language === 'en'
-                    ? "Without this, your account can't be recovered if you lose this device — you'll never need to type a password otherwise."
-                    : 'Bunu eklemezseniz, bu cihazı kaybettiğinizde hesabınız kurtarılamaz — aksi halde hiçbir zaman şifre girmeniz gerekmeyecek.'}
+                    ? "Needed to recover your account if you lose this device — you'll never need to type a password otherwise."
+                    : 'Bu cihazı kaybettiğinizde hesabınızı kurtarabilmeniz için gerekli — aksi halde hiçbir zaman şifre girmeniz gerekmeyecek.'}
                 </Text>
 
                 <View style={styles.avatarSelectionSection}>
@@ -881,7 +820,7 @@ export default function ProfileScreen({ navigation }: Props) {
                   </TouchableOpacity>
                 )}
 
-                <TouchableOpacity onPress={() => setAuthStep('login')} style={styles.toggleLink}>
+                <TouchableOpacity onPress={() => setAuthStep('forgot_request')} style={styles.toggleLink}>
                   <Text style={styles.toggleLinkText}>
                     {language === 'en' ? 'Already have an account? Log in' : 'Zaten hesabın var mı? Giriş yap'}
                   </Text>
