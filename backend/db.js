@@ -583,10 +583,16 @@ module.exports = {
     const validCategories = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
     if (category && validCategories.includes(category)) {
       const sortField = `categoryKp.${category}`;
+      const playedField = `categoryMatchesPlayed.${category}`;
       // kp is floor-clamped at 0 (see updatePlayerStats), so "0 KP" and
       // "never played this category" are the same condition here — one
-      // check excludes both kinds of leaderboard clutter.
-      const leaderboardFilter = { ...usernameFilter, [sortField]: { $gt: 0 } };
+      // check excludes both kinds of leaderboard clutter. Also require a
+      // tracked game count: categoryMatchesPlayed was added after
+      // categoryKp/categoryWins, so an account whose category KP is entirely
+      // pre-dated has no real win-rate to show — hide it from the ranked
+      // list until it has an actual tracked match (playing again fixes this
+      // automatically, no manual re-listing needed).
+      const leaderboardFilter = { ...usernameFilter, [sortField]: { $gt: 0 }, [playedField]: { $gt: 0 } };
       const players = await Player.find(leaderboardFilter)
         .select(`id username avatar kp categoryKp categoryWins categoryMatchesPlayed matches_won matches_played -_id`)
         .sort({ [sortField]: -1 })
