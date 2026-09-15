@@ -134,10 +134,17 @@ export default function TutorialScreen({ navigation }: Props) {
   // A new player whose first move is a 1v1 duel search can hit "no online
   // players right now" and bounce without ever actually playing. Offering
   // the weekly tournament (always playable solo, no opponent needed) right
-  // here — straight off the demo — gives them a sure thing to fall back on.
-  const goToWeeklyTournament = () => {
-    navigation.reset({ index: 0, routes: [{ name: 'Tournament', params: {} }] });
+  // here — straight off the demo, one tap per category — gives them a sure
+  // thing to fall back on.
+  const goToWeeklyTournament = (categoryId: string) => {
+    navigation.reset({ index: 0, routes: [{ name: 'Tournament', params: { categoryId } }] });
   };
+
+  const SOLO_CATEGORIES: { id: string; icon: keyof typeof Ionicons.glyphMap; label: string; labelEn: string }[] = [
+    { id: language === 'en' ? 'football_en' : 'football', icon: 'football', label: 'Futbol', labelEn: 'Football' },
+    { id: language === 'en' ? 'cinema_en' : 'cinema', icon: 'videocam', label: 'Sinema', labelEn: 'Cinema' },
+    { id: language === 'en' ? 'music_en' : 'music', icon: 'musical-notes', label: 'Müzik', labelEn: 'Music' },
+  ];
 
   if (done) {
     return (
@@ -157,11 +164,23 @@ export default function TutorialScreen({ navigation }: Props) {
         <TouchableOpacity style={styles.ctaBtn} onPress={finishTutorial} activeOpacity={0.85}>
           <Text style={styles.ctaBtnText}>{language === 'en' ? "LET'S PLAY!" : 'HADİ OYNAYALIM!'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryCtaBtn} onPress={goToWeeklyTournament} activeOpacity={0.85}>
-          <Text style={styles.secondaryCtaBtnText}>
-            {language === 'en' ? 'Play Weekly Tournament Solo' : 'Haftalık Turnuvada Tek Başına Oyna'}
-          </Text>
-        </TouchableOpacity>
+
+        <Text style={styles.soloLabel}>
+          {language === 'en' ? 'Or try solo mode right now:' : 'Ya da solo modu hemen dene:'}
+        </Text>
+        <View style={styles.soloRow}>
+          {SOLO_CATEGORIES.map(cat => (
+            <TouchableOpacity
+              key={cat.id}
+              style={styles.soloCatBtn}
+              onPress={() => goToWeeklyTournament(cat.id)}
+              activeOpacity={0.85}
+            >
+              <Ionicons name={cat.icon} size={20} color={GREEN} />
+              <Text style={styles.soloCatBtnText}>{language === 'en' ? cat.labelEn : cat.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </SafeAreaView>
     );
   }
@@ -338,15 +357,17 @@ const styles = StyleSheet.create({
   doneScore: { color: GREEN, fontSize: 16, fontWeight: '800', marginBottom: 28 },
   ctaBtn: { backgroundColor: GREEN, borderRadius: 16, paddingVertical: 16, paddingHorizontal: 40, alignItems: 'center' },
   ctaBtnText: { color: '#031007', fontWeight: '900', fontSize: 16, letterSpacing: 0.5 },
-  secondaryCtaBtn: {
-    marginTop: 14,
+  soloLabel: { color: '#cbd5e1', fontSize: 13, fontWeight: '700', marginTop: 20, marginBottom: 10, textAlign: 'center' },
+  soloRow: { flexDirection: 'row', gap: 10 },
+  soloCatBtn: {
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.3)',
     backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 16,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     alignItems: 'center',
+    gap: 6,
   },
-  secondaryCtaBtnText: { color: '#fff', fontWeight: '800', fontSize: 14, letterSpacing: 0.3 },
+  soloCatBtnText: { color: '#fff', fontWeight: '700', fontSize: 12, letterSpacing: 0.2 },
 });
