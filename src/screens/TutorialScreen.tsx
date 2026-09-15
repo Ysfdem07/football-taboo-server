@@ -44,6 +44,7 @@ export default function TutorialScreen({ navigation }: Props) {
   const [phase, setPhase] = useState<'revealing' | 'guessing' | 'answered'>('revealing');
   const [guessInput, setGuessInput] = useState('');
   const [wasCorrect, setWasCorrect] = useState(false);
+  const [wasPassed, setWasPassed] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   const [lastScore, setLastScore] = useState(0);
   const [done, setDone] = useState(false);
@@ -96,8 +97,21 @@ export default function TutorialScreen({ navigation }: Props) {
     const correct = normalize(guessInput) === normalize(round.answer) && guessInput.trim().length > 0;
     const score = correct ? Math.max(10, (hints.length - hintsAtBuzz + 1) * SCORE_PER_HINT_LEFT) : 0;
     setWasCorrect(correct);
+    setWasPassed(false);
     setLastScore(score);
     setTotalScore(s => s + score);
+    setPhase('answered');
+  };
+
+  // Mirrors the real game's Pass button — lets a player who doesn't want to
+  // (or can't) guess move on without ever buzzing in, same as Tournament/
+  // Online play. Scored like a miss: reveals the answer, no points.
+  const handlePass = () => {
+    if (phase === 'answered') return;
+    if (timerRef.current) clearInterval(timerRef.current);
+    setWasCorrect(false);
+    setWasPassed(true);
+    setLastScore(0);
     setPhase('answered');
   };
 
@@ -109,6 +123,7 @@ export default function TutorialScreen({ navigation }: Props) {
     setRoundIndex(i => i + 1);
     setHintsShown(1);
     setGuessInput('');
+    setWasPassed(false);
     setPhase('revealing');
   };
 
@@ -183,7 +198,9 @@ export default function TutorialScreen({ navigation }: Props) {
             <Text style={[styles.answerScore, !wasCorrect && { color: RED }]}>
               {wasCorrect
                 ? `+${lastScore} ${language === 'en' ? 'points' : 'puan'}`
-                : (language === 'en' ? 'Not quite — here\'s the word' : 'Tam olmadı — kelime buydu')}
+                : wasPassed
+                  ? (language === 'en' ? 'Passed — here\'s the word' : 'Pas geçildi — kelime buydu')
+                  : (language === 'en' ? 'Not quite — here\'s the word' : 'Tam olmadı — kelime buydu')}
             </Text>
           </View>
         ) : (
@@ -213,9 +230,14 @@ export default function TutorialScreen({ navigation }: Props) {
 
         <View style={styles.bottom}>
           {phase === 'revealing' && (
-            <TouchableOpacity style={styles.buzzBtn} onPress={handleBuzz} activeOpacity={0.85}>
-              <Text style={styles.buzzBtnText}>⚡ {language === 'en' ? 'BUZZ IN!' : 'TAHMİN ET!'}</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity style={styles.passBtn} onPress={handlePass} activeOpacity={0.85}>
+                <Text style={styles.passBtnText}>{language === 'en' ? 'PASS' : 'PAS'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.buzzBtn, { flex: 2 }]} onPress={handleBuzz} activeOpacity={0.85}>
+                <Text style={styles.buzzBtnText}>⚡ {language === 'en' ? 'BUZZ IN!' : 'TAHMİN ET!'}</Text>
+              </TouchableOpacity>
+            </View>
           )}
           {phase === 'guessing' && (
             <TouchableOpacity style={styles.buzzBtn} onPress={handleSubmitGuess} activeOpacity={0.85}>
@@ -276,7 +298,19 @@ const styles = StyleSheet.create({
     opacity: 0,
     position: 'absolute',
   },
-  bottom: { marginTop: 16 },
+  bottom: { marginTop: 16, marginBottom: 22 },
+  actionRow: { flexDirection: 'row', gap: 10 },
+  passBtn: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 16,
+    paddingVertical: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  passBtnText: { color: '#fff', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 },
   buzzBtn: {
     backgroundColor: '#ffd54a',
     borderRadius: 16,
