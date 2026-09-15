@@ -556,6 +556,12 @@ app.get('/admin/notify', requireAdmin, (req, res) => {
     <label>Başlık<input type="text" name="title" required maxlength="100"></label>
     <label>Mesaj<textarea name="body" required maxlength="200"></textarea></label>
     <label>Dokununca gidilecek ekran (opsiyonel, örn. Tournament, Market)<input type="text" name="route" maxlength="40"></label>
+    <div style="margin-top:20px;padding:14px;border:1px dashed #00c853;border-radius:10px;background:rgba(0,200,83,0.06)">
+      <label style="margin-top:0">Test — sadece bu kullanıcı adına gönder (opsiyonel)
+        <input type="text" name="testUsername" maxlength="30" placeholder="örn. kendi kullanıcı adın">
+      </label>
+      <p style="color:#888;font-size:12px;margin:6px 0 0">Doldurursan aşağıdaki hedef kitle ve dil seçimi yok sayılır, bildirim SADECE bu kullanıcının kayıtlı cihazına gider. Önce burayı doldurup kendine test at, sonra boşaltıp herkese gönder.</p>
+    </div>
     <div class="checks">
       <label><input type="checkbox" name="targetPlayers" value="1" checked> Kayıtlı oyunculara</label>
       <label><input type="checkbox" name="targetGuests" value="1" checked> Misafirlere</label>
@@ -579,6 +585,7 @@ app.get('/admin/notify/send', requireAdmin, async (req, res) => {
   const wantGuests = !!req.query.targetGuests;
   const languageRaw = (req.query.language || 'all').toString().trim();
   const language = ['tr', 'en'].includes(languageRaw) ? languageRaw : 'all';
+  const testUsername = (req.query.testUsername || '').toString().trim();
 
   if (!title || !body) {
     return res.status(400).send('Başlık ve mesaj gerekli. <a href="javascript:history.back()">Geri</a>');
@@ -586,14 +593,26 @@ app.get('/admin/notify/send', requireAdmin, async (req, res) => {
 
   try {
     let tokens = [];
-    if (wantPlayers) {
-      const players = await db.getPlayersWithPushTokens(language);
-      tokens.push(...players.map(p => p.pushToken));
+    if (testUsername) {
+      // Test mode: ignore audience/language, send to this one account only.
+      const player = await db.getPlayerPushTokenByUsername(testUsername);
+      if (!player) {
+        return res.send(`"${escapeHtml(testUsername)}" adında kayıtlı bir kullanıcı bulunamadı. <a href="javascript:history.back()">Geri</a>`);
+      }
+      if (!player.pushToken) {
+        return res.send(`"${escapeHtml(testUsername)}" bulundu ama kayıtlı bir push token'ı yok (bildirimlere izin vermemiş olabilir). <a href="javascript:history.back()">Geri</a>`);
+      }
+      tokens = [player.pushToken];
+    } else {
+      if (wantPlayers) {
+        const players = await db.getPlayersWithPushTokens(language);
+        tokens.push(...players.map(p => p.pushToken));
+      }
+      if (wantGuests) {
+        tokens.push(...(await db.getGuestPushTokens(language)));
+      }
+      tokens = [...new Set(tokens)].filter(Boolean);
     }
-    if (wantGuests) {
-      tokens.push(...(await db.getGuestPushTokens(language)));
-    }
-    tokens = [...new Set(tokens)].filter(Boolean);
 
     if (tokens.length === 0) {
       return res.send('Gönderilecek kayıtlı token bulunamadı (bu dil filtresiyle eşleşen kimse yok olabilir). <a href="javascript:history.back()">Geri</a>');
@@ -606,12 +625,16 @@ app.get('/admin/notify/send', requireAdmin, async (req, res) => {
       data: route ? { route } : {}
     }));
     const tickets = await sendPushNotifications(messages);
-    console.log(`[AdminNotify] Sent "${title}" to ${tokens.length} tokens (players=${wantPlayers}, guests=${wantGuests}, language=${language}, route=${route || 'none'})`);
+    console.log(testUsername
+      ? `[AdminNotify] TEST send "${title}" to "${testUsername}" only`
+      : `[AdminNotify] Sent "${title}" to ${tokens.length} tokens (players=${wantPlayers}, guests=${wantGuests}, language=${language}, route=${route || 'none'})`);
 
     res.set('Content-Type', 'text/html; charset=utf-8');
     res.send(`<!doctype html><html><body style="font-family:sans-serif;background:#0b1220;color:#eee;max-width:480px;margin:40px auto;padding:0 16px">
       <h2>✅ Gönderildi</h2>
-      <p>${escapeHtml(title)} — ${tokens.length} cihaza (dil: ${language === 'all' ? 'tümü' : language}), ${tickets.length} bilet oluşturuldu.</p>
+      <p>${escapeHtml(title)} — ${testUsername
+        ? `SADECE "${escapeHtml(testUsername)}" adlı kullanıcıya (test) gönderildi.`
+        : `${tokens.length} cihaza (dil: ${language === 'all' ? 'tümü' : language}), ${tickets.length} bilet oluşturuldu.`}</p>
       <p><a href="/admin/notify?key=${key}" style="color:#00c853">← Yeni bildirim gönder</a></p>
     </body></html>`);
   } catch (e) {

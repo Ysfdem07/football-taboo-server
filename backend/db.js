@@ -897,6 +897,17 @@ module.exports = {
     return await Player.find(filter, 'id username pushToken');
   },
 
+  // Single-player lookup for the admin notify panel's "test send to just me"
+  // option — same case-insensitive username match used at registration/login.
+  getPlayerPushTokenByUsername: async (username) => {
+    await connectDB();
+    const player = await Player.findOne(
+      { username: new RegExp(`^${escapeRegex(username.trim())}$`, 'i') },
+      'id username pushToken'
+    );
+    return player || null;
+  },
+
   getGuestPushTokens: async (language) => {
     await connectDB();
     const filter = (language && language !== 'all') ? { language } : {};
