@@ -238,17 +238,17 @@ export default function TournamentScreen() {
       text: language === 'en' ? '🏆 You completed this week! See you next week.' : '🏆 Bu haftayı tamamladın! Gelecek hafta görüşürüz.',
       color: NEON_GOLD, canPlay: false, showAd: false, bestScore: undefined
     };
-    const remaining = 3 - tournamentData.attempts;
+    const remaining = 5 - tournamentData.attempts;
     if (remaining <= 0) {
       return {
         text: language === 'en'
-          ? '❌ Your 3 daily attempts are used up. Watch an ad for +1 attempt!'
-          : '❌ Bugünlük 3 hakkın da bitti. Reklam izleyerek +1 hak kazanabilirsin!',
+          ? '❌ Your 5 daily attempts are used up. Watch an ad for +1 attempt!'
+          : '❌ Bugünlük 5 hakkın da bitti. Reklam izleyerek +1 hak kazanabilirsin!',
         color: '#ff5555', canPlay: false, showAd: true, bestScore: undefined
       };
     }
     return {
-      text: language === 'en' ? `Daily Attempts Left: ${remaining}/3` : `Kalan Günlük Hak: ${remaining}/3`,
+      text: language === 'en' ? `Daily Attempts Left: ${remaining}/5` : `Kalan Günlük Hak: ${remaining}/5`,
       bestScore: tournamentData.myBestScore,
       color: NEON_GREEN, canPlay: true, showAd: false
     };

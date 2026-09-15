@@ -14,6 +14,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { CustomAlert } from '../components/CustomAlert';
+import { showInterstitial } from '../services/ads';
 
 type Nav  = NativeStackNavigationProp<RootStackParamList, 'TournamentGame'>;
 type Route = RouteProp<RootStackParamList, 'TournamentGame'>;
@@ -390,6 +391,7 @@ export default function TournamentGameScreen() {
 
   const finishGame = () => {
     setFinished(true);
+    showInterstitial();
     const socket = getSocket();
     if (socket && player) {
       socket.emit('submit_tournament_score', {

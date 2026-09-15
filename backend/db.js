@@ -738,7 +738,7 @@ module.exports = {
       myBestScore:        myEntry?.bestScore || 0,
       myCorrectCount:     myEntry?.correctCount || 0,
       myRank:             tournament.scores.filter(s => s.bestScore > (myEntry?.bestScore || 0)).length + 1,
-      canPlayToday:       attemptsToday < 3, // Günlük limit: 3 hak
+      canPlayToday:       attemptsToday < 5, // Günlük limit: 5 hak
       blockedForWeek:     false, // Sınırsız deneme (en iyi skor)
       attempts:           attemptsToday,
       totalAttempts:      myEntry?.attempts || 0
@@ -797,7 +797,7 @@ module.exports = {
     if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
 
     const today = getTodayString();
-    const DAILY_AD_BONUS_LIMIT = 3; // +3 ekstra hak/gün, temel 3 hakkın üstüne
+    const DAILY_AD_BONUS_LIMIT = 3; // +3 ekstra hak/gün, temel 5 hakkın üstüne
 
     const idx = tournament.scores.findIndex(s => s.playerId === playerId);
     if (idx >= 0) {
