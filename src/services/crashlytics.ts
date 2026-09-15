@@ -3,8 +3,17 @@
 // Safe dynamic require — no crash in Expo Go if native module is missing.
 
 import { NativeModules } from 'react-native';
+import { reportPreviewInitError } from './previewDiagnostics';
 
-const isCrashlyticsAvailable = !!NativeModules.RNFBCrashlyticsNativeModule;
+// The real native module class is RNFBCrashlyticsModule (see
+// node_modules/@react-native-firebase/crashlytics/ios/.../RNFBCrashlyticsModule.m
+// and the nativeModuleName constant in crashlytics/lib/index.js) — the
+// previous check here looked for "RNFBCrashlyticsNativeModule" (an extra,
+// nonexistent "Native"), which never matches on any platform. That made
+// this whole service a permanent no-op everywhere, not an iOS-specific
+// guard — Android's crash reports we do see come from its native SDK's own
+// independent auto-init, not from this JS path.
+const isCrashlyticsAvailable = !!NativeModules.RNFBCrashlyticsModule;
 
 let crashlyticsInstance: any = null;
 
@@ -16,6 +25,7 @@ const getInstance = () => {
       crashlyticsInstance = (mod.default || mod)();
     } catch (e) {
       if (__DEV__) console.log('[Crashlytics] Native module unavailable (expected in Expo Go).');
+      reportPreviewInitError('Crashlytics getInstance()', e);
     }
   }
   return crashlyticsInstance;
@@ -35,6 +45,7 @@ export const initCrashlytics = async (): Promise<void> => {
     if (__DEV__) console.log('[Crashlytics] Initialized successfully.');
   } catch (err) {
     console.warn('[Crashlytics] Failed to initialize:', err);
+    reportPreviewInitError('Crashlytics initCrashlytics()', err);
   }
 };
 

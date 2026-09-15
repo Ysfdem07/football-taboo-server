@@ -1,5 +1,7 @@
 // src/services/analytics.ts
 
+import { reportPreviewInitError } from './previewDiagnostics';
+
 export interface AnalyticsEventParams {
   [key: string]: any;
 }
@@ -29,6 +31,7 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
       if (__DEV__) {
         console.log('[Analytics] Firebase native module not available (expected in Expo Go).');
       }
+      reportPreviewInitError('Analytics FirebaseAnalyticsProvider.init()', err);
       this.analytics = null;
     }
   }
