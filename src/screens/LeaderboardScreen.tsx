@@ -143,7 +143,13 @@ export default function LeaderboardScreen() {
     : getLeagues(language as 'tr'|'en')[getLeagues(language as 'tr'|'en').length - 1];
 
   const winRateText = (won: number, played: number) => {
-    const pct = played > 0 ? Math.round((won / played) * 100) : 0;
+    // Every player here already has KP > 0 (server-side filter), so
+    // played === 0 never means "hasn't played" — it means their KP predates
+    // the per-category match counter (added later) and we have no game
+    // count for them. Showing "0% (0G)" there reads as a data bug; show a
+    // dash instead to signal "no data" rather than a false zero.
+    if (played <= 0) return '—';
+    const pct = Math.round((won / played) * 100);
     return language === 'en' ? `${pct}% (${won}W)` : `%${pct} (${won}G)`;
   };
 
