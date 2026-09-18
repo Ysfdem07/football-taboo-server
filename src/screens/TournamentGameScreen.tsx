@@ -126,6 +126,19 @@ export default function TournamentGameScreen() {
     }
   }, [finished, isGuessing]);
 
+  // Tapping the word's letter tiles is what players instinctively reach for
+  // to "answer" — so unlike the rest of the screen (hint card, backdrop),
+  // tapping the tiles while NOT yet guessing starts guess mode exactly like
+  // the TAHMİN ET! button does, instead of being a dead tap.
+  const handleWordBoxesTap = useCallback(() => {
+    if (finished || feedback) return;
+    if (!isGuessing) {
+      handleBuzzIn();
+    } else {
+      handleManualScreenTap();
+    }
+  }, [finished, feedback, isGuessing, handleBuzzIn, handleManualScreenTap]);
+
   useEffect(() => {
     AsyncStorage.getItem('@logged_in_profile').then(raw => { if (raw) setPlayer(JSON.parse(raw)); });
 
@@ -336,7 +349,7 @@ export default function TournamentGameScreen() {
     const fontSize = Math.max(10, Math.round(boxWidth * 0.55));
 
     return (
-      <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={styles.wordsWrapper}>
+      <TouchableOpacity activeOpacity={1} onPress={handleWordBoxesTap} style={styles.wordsWrapper}>
         {words.map((word, wordIdx) => {
           const charBoxes = word.split('').map((char, charIdx) => {
             const index = globalCharIndex;
