@@ -20,6 +20,7 @@ type Invite = {
   inviteId: string;
   from: { name: string; avatar?: string | null };
   category: string;
+  mode: 'friendly' | 'ranked';
   deadline: number;
   inTournament: boolean;
 };
@@ -88,6 +89,7 @@ export default function DuelInviteHost() {
         inviteId: d.inviteId,
         from: { name: String(d.from?.name || '?'), avatar: d.from?.avatar || null },
         category: String(d.category || 'football'),
+        mode: d.mode === 'ranked' ? 'ranked' : 'friendly',
         deadline: Date.now() + (Number(d.ttlMs) || 30000),
         inTournament: activity === 'tournament',
       });
@@ -183,7 +185,7 @@ export default function DuelInviteHost() {
           <View style={{ flex: 1, marginHorizontal: 10 }}>
             <Text style={styles.bannerBody} numberOfLines={2}>{bodyText}</Text>
             <Text style={styles.bannerNote} numberOfLines={2}>
-              {t('duelInviteTournamentNote')} · {secondsLeft}s
+              {invite.mode === 'ranked' ? t('modeRanked') + ' · ' : ''}{t('duelInviteTournamentNote')} · {secondsLeft}s
             </Text>
           </View>
           {accepted ? (
@@ -213,7 +215,7 @@ export default function DuelInviteHost() {
               <UserAvatar avatar={invite.from.avatar || undefined} size={64} />
             </View>
             <Text style={styles.body}>{bodyText}</Text>
-            <Text style={styles.note}>{t('duelInviteFriendlyNote')}</Text>
+            <Text style={styles.note}>{t(invite.mode === 'ranked' ? 'duelInviteRankedNote' : 'duelInviteFriendlyNote')}</Text>
             <Text style={styles.timer}>{secondsLeft}s</Text>
             {accepted ? (
               <Text style={styles.waiting}>{t('duelInviteStarting')}</Text>

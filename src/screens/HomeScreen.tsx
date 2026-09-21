@@ -166,6 +166,10 @@ export default function HomeScreen() {
               <Ionicons name="chevron-forward" size={14} color="#00FF88" />
             </TouchableOpacity>
           )}
+          <TouchableOpacity style={styles.duelCta} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
+            <Ionicons name="flash" size={15} color="#04140b" />
+            <Text style={styles.duelCtaText} allowFontScaling={false}>{t('duelNowCta')}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* CATEGORIES LIST SCROLLVIEW */}
@@ -244,7 +248,14 @@ export default function HomeScreen() {
         {/* BOTTOM TAB BAR */}
         <BottomNavBar activeTab="home" navigation={navigation} />
 
-        <OnlinePlayersModal visible={showOnline} onClose={() => setShowOnline(false)} />
+        <OnlinePlayersModal
+          visible={showOnline}
+          onClose={() => setShowOnline(false)}
+          onFindOpponent={(categoryId, mode) => {
+            setShowOnline(false);
+            navigation.navigate('OnlineLobby', { categoryId, mode, autoSearch: true });
+          }}
+        />
 
       </SafeAreaView>
     </ImageBackground>
@@ -285,6 +296,27 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'rgba(0,255,136,0.6)',
     backgroundColor: 'rgba(5,11,20,0.85)',
+  },
+  duelCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 20,
+    backgroundColor: '#00FF88',
+    shadowColor: '#00FF88',
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
+  },
+  duelCtaText: {
+    color: '#04140b',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 12.5,
+    letterSpacing: 0.6,
   },
   onlineDot: {
     width: 9,

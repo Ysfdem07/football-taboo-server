@@ -31,7 +31,7 @@ export type RootStackParamList = {
   Settings: { categoryId?: string };
   Game: { timeLimit: number; winScore: number; teamA: string; teamB: string };
   Result: { teamAScore: number; teamBScore: number; teamA: string; teamB: string };
-  OnlineLobby: { categoryId?: string };
+  OnlineLobby: { categoryId?: string; mode?: 'ranked' | 'friendly'; autoSearch?: boolean };
   RoomLobby: { roomId: string, roomCode: string, isHost: boolean, categoryId?: string };
   OnlineGame: { roomId: string, categoryId?: string, matchedPlayers?: { id: string; name: string; avatar?: string }[] };
   About: undefined;

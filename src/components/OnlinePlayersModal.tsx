@@ -1,14 +1,17 @@
-// "Players online" sheet opened from the Home counter: pick a category and
-// send a direct duel invite to someone who is online right now — no need to
-// open the matchmaking screen and wait in the queue.
+// Duel hub opened from the Home screen: pick a category and a mode (friendly or
+// ranked), then either search for a random opponent right away or challenge
+// someone who is online now with a direct invite — no matchmaking screen to
+// sit in first.
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getSocket } from '../services/socket';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getSocket, withSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { UserAvatar } from './UserAvatar';
 
 type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; busy?: boolean };
+type Mode = 'friendly' | 'ranked';
 
 const NEON = '#00FF88';
 const CATS = [
@@ -17,28 +20,40 @@ const CATS = [
   { base: 'music', color: '#ff1493' },
 ] as const;
 
-export default function OnlinePlayersModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+type Props = {
+  visible: boolean;
+  onClose: () => void;
+  // Start a random-opponent search in the lobby (auto-starts there).
+  onFindOpponent?: (categoryId: string, mode: Mode) => void;
+};
+
+export default function OnlinePlayersModal({ visible, onClose, onFindOpponent }: Props) {
   const { language, t } = useLanguage();
   const [players, setPlayers] = useState<OnlinePlayer[] | null>(null);
   const [base, setBase] = useState<'football' | 'cinema' | 'music'>('football');
+  const [mode, setMode] = useState<Mode>('friendly');
+  const [isRegistered, setIsRegistered] = useState(false);
   const [pending, setPending] = useState<{ inviteId?: string; name: string } | null>(null);
   const [message, setMessage] = useState('');
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
 
   const categoryId = language === 'en' ? `${base}_en` : base;
+  const rankedBlocked = mode === 'ranked' && !isRegistered;
 
   useEffect(() => {
     if (!visible) return;
-    const s = getSocket();
     setPlayers(null);
     setPending(null);
     setMessage('');
+    AsyncStorage.getItem('@logged_in_profile')
+      .then(raw => { const p = raw ? JSON.parse(raw) : null; setIsRegistered(!!(p && p.id && p.id !== 'guest')); })
+      .catch(() => setIsRegistered(false));
 
     const onPlayers = (d: any) => setPlayers(Array.isArray(d?.players) ? d.players : []);
     const onSent = (d: any) => setPending(p => (p ? { ...p, inviteId: d?.inviteId } : p));
-    const finish = (msgKey: string, name?: string) => {
-      const who = name || pendingRef.current?.name || '';
+    const finish = (msgKey: string) => {
+      const who = pendingRef.current?.name || '';
       setPending(null);
       setMessage(t(msgKey as any).replace('{name}', who));
     };
@@ -47,46 +62,58 @@ export default function OnlinePlayersModal({ visible, onClose }: { visible: bool
     const onCancelled = () => finish('inviteOffline');
     const onMatched = () => { setPending(null); onClose(); };
     const onError = (d: any) => {
-      const map: Record<string, string> = { busy: 'inviteBusy', offline: 'inviteOffline', too_fast: 'inviteTooFast', self_busy: 'inviteBusy' };
+      const map: Record<string, string> = { busy: 'inviteBusy', offline: 'inviteOffline', too_fast: 'inviteTooFast', self_busy: 'inviteBusy', ranked_guest: 'inviteRankedGuest' };
       finish(map[d?.reason] || 'inviteGenericError');
     };
 
-    s.on('online_players', onPlayers);
-    s.on('duel_invite_sent', onSent);
-    s.on('duel_invite_declined', onDeclined);
-    s.on('duel_invite_expired', onExpired);
-    s.on('duel_invite_cancelled', onCancelled);
-    s.on('duel_invite_matched', onMatched);
-    s.on('duel_invite_error', onError);
+    const unbind = withSocket((s) => {
+      s.on('online_players', onPlayers);
+      s.on('duel_invite_sent', onSent);
+      s.on('duel_invite_declined', onDeclined);
+      s.on('duel_invite_expired', onExpired);
+      s.on('duel_invite_cancelled', onCancelled);
+      s.on('duel_invite_matched', onMatched);
+      s.on('duel_invite_error', onError);
+      return () => {
+        s.off('online_players', onPlayers);
+        s.off('duel_invite_sent', onSent);
+        s.off('duel_invite_declined', onDeclined);
+        s.off('duel_invite_expired', onExpired);
+        s.off('duel_invite_cancelled', onCancelled);
+        s.off('duel_invite_matched', onMatched);
+        s.off('duel_invite_error', onError);
+      };
+    });
 
-    const poll = () => { if (s.connected && !pendingRef.current) s.emit('get_online_players'); };
+    const poll = () => { const cur = getSocket(); if (cur.connected && !pendingRef.current) cur.emit('get_online_players'); };
     poll();
     const id = setInterval(poll, 5000);
     return () => {
       clearInterval(id);
-      s.off('online_players', onPlayers);
-      s.off('duel_invite_sent', onSent);
-      s.off('duel_invite_declined', onDeclined);
-      s.off('duel_invite_expired', onExpired);
-      s.off('duel_invite_cancelled', onCancelled);
-      s.off('duel_invite_matched', onMatched);
-      s.off('duel_invite_error', onError);
+      unbind();
       // Closing the sheet withdraws an invite that is still waiting.
-      if (pendingRef.current?.inviteId) s.emit('cancel_duel_invite', { inviteId: pendingRef.current.inviteId });
+      if (pendingRef.current?.inviteId) getSocket().emit('cancel_duel_invite', { inviteId: pendingRef.current.inviteId });
     };
   }, [visible, language]);
 
   const invite = (p: OnlinePlayer) => {
-    if (pending) return;
+    if (pending || rankedBlocked) return;
     setMessage('');
     setPending({ name: p.name });
-    getSocket().emit('send_duel_invite', { targetId: p.targetId, category: categoryId });
+    getSocket().emit('send_duel_invite', { targetId: p.targetId, category: categoryId, mode });
   };
 
   const cancelPending = () => {
     if (pending?.inviteId) getSocket().emit('cancel_duel_invite', { inviteId: pending.inviteId });
     setPending(null);
   };
+
+  const findOpponent = () => {
+    if (rankedBlocked) { setMessage(t('rankedNeedLogin')); return; }
+    onFindOpponent?.(categoryId, mode);
+  };
+
+  const canInvite = (p: OnlinePlayer) => !pending && !p.busy && !rankedBlocked && !(mode === 'ranked' && !p.registered);
 
   const renderItem = ({ item }: { item: OnlinePlayer }) => (
     <View style={styles.row}>
@@ -98,9 +125,65 @@ export default function OnlinePlayersModal({ visible, onClose }: { visible: bool
           {item.busy ? `  ·  ${t('inviteTagBusy')}` : item.inTournament ? `  ·  ${t('inviteTagTournament')}` : item.searching ? `  ·  ${t('inviteSearchingTag')}` : ''}
         </Text>
       </View>
-      <TouchableOpacity style={[styles.inviteBtn, (pending || item.busy) && { opacity: 0.4 }]} disabled={!!pending || !!item.busy} onPress={() => invite(item)} activeOpacity={0.85}>
-        <Text style={styles.inviteBtnText}>{item.busy ? t('inviteButtonBusy') : t('inviteButton')}</Text>
+      <TouchableOpacity style={[styles.inviteBtn, !canInvite(item) && { opacity: 0.4 }]} disabled={!canInvite(item)} onPress={() => invite(item)} activeOpacity={0.85}>
+        <Text style={styles.inviteBtnText}>
+          {item.busy ? t('inviteButtonBusy') : (mode === 'ranked' && !item.registered) ? t('inviteFriendlyOnly') : t('inviteButton')}
+        </Text>
       </TouchableOpacity>
+    </View>
+  );
+
+  const header = (
+    <View>
+      <View style={styles.chips}>
+        {CATS.map(c => (
+          <TouchableOpacity
+            key={c.base}
+            style={[styles.chip, { borderColor: base === c.base ? c.color : 'rgba(255,255,255,0.2)', backgroundColor: base === c.base ? `${c.color}22` : 'transparent' }]}
+            onPress={() => setBase(c.base)}
+            disabled={!!pending}
+            activeOpacity={0.85}
+          >
+            <Text style={[styles.chipText, { color: base === c.base ? c.color : 'rgba(255,255,255,0.6)' }]}>{t(c.base)}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.chips}>
+        {(['friendly', 'ranked'] as Mode[]).map(m => (
+          <TouchableOpacity
+            key={m}
+            style={[styles.modeChip, mode === m && styles.modeChipActive]}
+            onPress={() => { setMode(m); setMessage(''); }}
+            disabled={!!pending}
+            activeOpacity={0.85}
+          >
+            <Ionicons name={m === 'ranked' ? 'trophy' : 'happy'} size={15} color={mode === m ? '#04140b' : 'rgba(255,255,255,0.7)'} />
+            <Text style={[styles.modeText, mode === m && { color: '#04140b' }]}>{t(m === 'ranked' ? 'modeRanked' : 'modeFriendly')}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.modeDesc}>{rankedBlocked ? t('rankedNeedLogin') : t(mode === 'ranked' ? 'modeRankedDesc' : 'modeFriendlyDesc')}</Text>
+
+      {onFindOpponent ? (
+        <TouchableOpacity style={[styles.findBtn, (pending || rankedBlocked) && { opacity: 0.45 }]} disabled={!!pending} onPress={findOpponent} activeOpacity={0.85}>
+          <Ionicons name="flash" size={18} color="#04140b" />
+          <Text style={styles.findBtnText}>{t('findRandomOpponent')}</Text>
+        </TouchableOpacity>
+      ) : null}
+
+      {pending ? (
+        <View style={styles.pendingBox}>
+          <ActivityIndicator color={NEON} />
+          <Text style={styles.pendingText}>{t('inviteWaiting').replace('{name}', pending.name)}</Text>
+          <TouchableOpacity style={styles.cancelBtn} onPress={cancelPending} activeOpacity={0.85}>
+            <Text style={styles.cancelText}>{t('cancel')}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+      {message ? <Text style={styles.message}>{message}</Text> : null}
+
+      <Text style={styles.sectionLabel}>{t('challengeOnline')}{players ? ` (${players.length})` : ''}</Text>
     </View>
   );
 
@@ -109,46 +192,24 @@ export default function OnlinePlayersModal({ visible, onClose }: { visible: bool
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.title}>🟢 {t('onlinePlayersTitle')}</Text>
+            <Text style={styles.title}>⚔️ {t('duelHubTitle')}</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Ionicons name="close" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
           <Text style={styles.hint}>{t('onlinePlayersHint')}</Text>
 
-          <View style={styles.chips}>
-            {CATS.map(c => (
-              <TouchableOpacity
-                key={c.base}
-                style={[styles.chip, { borderColor: base === c.base ? c.color : 'rgba(255,255,255,0.2)', backgroundColor: base === c.base ? `${c.color}22` : 'transparent' }]}
-                onPress={() => setBase(c.base)}
-                disabled={!!pending}
-                activeOpacity={0.85}
-              >
-                <Text style={[styles.chipText, { color: base === c.base ? c.color : 'rgba(255,255,255,0.6)' }]}>{t(c.base)}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {pending ? (
-            <View style={styles.pendingBox}>
-              <ActivityIndicator color={NEON} />
-              <Text style={styles.pendingText}>{t('inviteWaiting').replace('{name}', pending.name)}</Text>
-              <TouchableOpacity style={styles.cancelBtn} onPress={cancelPending} activeOpacity={0.85}>
-                <Text style={styles.cancelText}>{t('cancel')}</Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-          {message ? <Text style={styles.message}>{message}</Text> : null}
-
-          {players === null ? (
-            <ActivityIndicator color={NEON} style={{ marginTop: 30 }} />
-          ) : players.length === 0 ? (
-            <Text style={styles.empty}>{t('onlinePlayersEmpty')}</Text>
-          ) : (
-            <FlatList data={players} keyExtractor={p => p.targetId} renderItem={renderItem} style={{ marginTop: 6 }} />
-          )}
-          <Text style={styles.footNote}>{t('duelInviteFriendlyNote')}</Text>
+          <FlatList
+            data={players || []}
+            keyExtractor={p => p.targetId}
+            renderItem={renderItem}
+            ListHeaderComponent={header}
+            ListEmptyComponent={players === null
+              ? <ActivityIndicator color={NEON} style={{ marginTop: 20 }} />
+              : <Text style={styles.empty}>{t('onlinePlayersEmpty')}</Text>}
+            style={{ marginTop: 4 }}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
       </View>
     </Modal>
@@ -157,23 +218,29 @@ export default function OnlinePlayersModal({ visible, onClose }: { visible: bool
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#0b1220', borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1.5, borderColor: 'rgba(0,255,136,0.5)', padding: 18, paddingBottom: 28, maxHeight: '78%', minHeight: 320 },
+  sheet: { backgroundColor: '#0b1220', borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1.5, borderColor: 'rgba(0,255,136,0.5)', padding: 18, paddingBottom: 28, maxHeight: '88%', minHeight: 360 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { color: '#FFF', fontFamily: 'Poppins_900Black', fontSize: 18 },
   hint: { color: 'rgba(255,255,255,0.65)', fontFamily: 'Poppins_400Regular', fontSize: 12, marginTop: 4 },
   chips: { flexDirection: 'row', gap: 8, marginTop: 12 },
   chip: { flex: 1, paddingVertical: 8, borderRadius: 14, borderWidth: 1.5, alignItems: 'center' },
   chipText: { fontFamily: 'Poppins_700Bold', fontSize: 12 },
+  modeChip: { flex: 1, flexDirection: 'row', gap: 6, paddingVertical: 9, borderRadius: 14, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
+  modeChipActive: { backgroundColor: NEON, borderColor: NEON },
+  modeText: { color: 'rgba(255,255,255,0.8)', fontFamily: 'Poppins_700Bold', fontSize: 12.5 },
+  modeDesc: { color: '#FFD700', fontFamily: 'Poppins_400Regular', fontSize: 11.5, marginTop: 6 },
+  findBtn: { flexDirection: 'row', gap: 8, marginTop: 14, backgroundColor: NEON, borderRadius: 16, paddingVertical: 13, alignItems: 'center', justifyContent: 'center' },
+  findBtnText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 14 },
+  sectionLabel: { color: 'rgba(255,255,255,0.75)', fontFamily: 'Poppins_700Bold', fontSize: 12.5, marginTop: 18, marginBottom: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.12)' },
   name: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 14 },
   sub: { color: 'rgba(255,255,255,0.55)', fontFamily: 'Poppins_400Regular', fontSize: 11 },
   inviteBtn: { backgroundColor: NEON, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 },
   inviteBtnText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 12 },
-  empty: { color: 'rgba(255,255,255,0.7)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', marginTop: 30, lineHeight: 19 },
+  empty: { color: 'rgba(255,255,255,0.7)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', marginTop: 16, lineHeight: 19 },
   pendingBox: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(0,255,136,0.08)' },
   pendingText: { flex: 1, color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 12 },
   cancelBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   cancelText: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 11 },
   message: { color: '#FFD700', fontFamily: 'Poppins_700Bold', fontSize: 12, marginTop: 10 },
-  footNote: { color: 'rgba(255,255,255,0.45)', fontFamily: 'Poppins_400Regular', fontSize: 11, textAlign: 'center', marginTop: 12 },
 });
