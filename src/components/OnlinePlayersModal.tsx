@@ -8,7 +8,7 @@ import { getSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { UserAvatar } from './UserAvatar';
 
-type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean };
+type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; busy?: boolean };
 
 const NEON = '#00FF88';
 const CATS = [
@@ -94,11 +94,12 @@ export default function OnlinePlayersModal({ visible, onClose }: { visible: bool
       <View style={{ flex: 1, marginHorizontal: 10 }}>
         <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
         <Text style={styles.sub} numberOfLines={1}>
-          {item.registered ? `${item.kp} KP` : t('inviteGuest')}{item.searching ? `  ·  ${t('inviteSearchingTag')}` : ''}
+          {item.registered ? `${item.kp} KP` : t('inviteGuest')}
+          {item.busy ? `  ·  ${t('inviteTagBusy')}` : item.inTournament ? `  ·  ${t('inviteTagTournament')}` : item.searching ? `  ·  ${t('inviteSearchingTag')}` : ''}
         </Text>
       </View>
-      <TouchableOpacity style={[styles.inviteBtn, pending && { opacity: 0.4 }]} disabled={!!pending} onPress={() => invite(item)} activeOpacity={0.85}>
-        <Text style={styles.inviteBtnText}>{t('inviteButton')}</Text>
+      <TouchableOpacity style={[styles.inviteBtn, (pending || item.busy) && { opacity: 0.4 }]} disabled={!!pending || !!item.busy} onPress={() => invite(item)} activeOpacity={0.85}>
+        <Text style={styles.inviteBtnText}>{item.busy ? t('inviteButtonBusy') : t('inviteButton')}</Text>
       </TouchableOpacity>
     </View>
   );

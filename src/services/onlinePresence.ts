@@ -9,7 +9,18 @@ import { getSocket } from './socket';
 // hidden — "1 online" (just you) would put people off rather than encourage.
 export const MIN_ONLINE_TO_SHOW = 2;
 
-export async function announcePresence(language: string) {
+export type Activity = 'idle' | 'tournament' | 'busy';
+
+// What the player is doing, as far as duel invites care: a tournament run can
+// still receive an invite (shown as a banner), a private-room lobby or the
+// first-run tutorial can't.
+export function activityForRoute(route?: string): Activity {
+  if (route === 'TournamentGame' || route === 'Game') return 'tournament';
+  if (route && ['OnlineGame', 'RoomLobby', 'Onboarding', 'Tutorial'].includes(route)) return 'busy';
+  return 'idle';
+}
+
+export async function announcePresence(language: string, activity: Activity = 'idle') {
   let name: string | undefined;
   let avatar: string | undefined;
   try {
@@ -23,7 +34,7 @@ export async function announcePresence(language: string) {
     // presence still works without a name (guests fall back to "Guest")
   }
   const s = getSocket();
-  if (s.connected) s.emit('presence', { language, name, avatar });
+  if (s.connected) s.emit('presence', { language, name, avatar, activity });
 }
 
 export type OnlineStats = { online: number; searching: number };

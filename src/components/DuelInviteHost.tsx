@@ -1,48 +1,68 @@
 // App-wide listener for direct duel invites. Mounted once inside the
 // NavigationContainer so an invite can pop up on whatever screen the player is
 // on, and so a matched invite can take BOTH players into OnlineGame.
+//
+// Most screens get a centered card. During a tournament run the invite is a
+// small non-blocking banner instead, so it doesn't interrupt the timed game;
+// accepting it abandons the run (the score isn't saved) and starts the duel.
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSocket } from '../services/socket';
-import { announcePresence } from '../services/onlinePresence';
+import { announcePresence, activityForRoute } from '../services/onlinePresence';
+import { setLeavingForDuel } from '../services/duelInviteState';
 import { useLanguage } from '../context/LanguageContext';
 import { navigationRef } from '../navigation/navigationRef';
 import { UserAvatar } from './UserAvatar';
 import { CustomAlert } from './CustomAlert';
 
-// Screens where an invite must not interrupt (mid-game, onboarding...).
-const NO_INVITE_ROUTES = ['OnlineGame', 'RoomLobby', 'TournamentGame', 'Game', 'Onboarding', 'Tutorial'];
-
-type Invite = { inviteId: string; from: { name: string; avatar?: string | null }; category: string; deadline: number };
+type Invite = {
+  inviteId: string;
+  from: { name: string; avatar?: string | null };
+  category: string;
+  deadline: number;
+  inTournament: boolean;
+};
 
 const NEON = '#00FF88';
 
+const currentRoute = () => (navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined);
+
 export default function DuelInviteHost() {
   const { language, t } = useLanguage();
+  const insets = useSafeAreaInsets();
   const [invite, setInvite] = useState<Invite | null>(null);
   const [accepted, setAccepted] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const inviteRef = useRef<Invite | null>(null);
   inviteRef.current = invite;
 
-  // Keep the server informed of our language / that this build can take
-  // invites. Re-announced periodically because other screens occasionally
-  // strip 'connect' listeners off the shared socket.
+  // Keep the server informed of our language and what we're doing (idle /
+  // tournament run / busy). Re-sent on navigation changes and periodically,
+  // because other screens occasionally strip 'connect' listeners off the
+  // shared socket.
   useEffect(() => {
     const s = getSocket();
-    const send = () => { announcePresence(language); };
+    let lastActivity = '';
+    const send = () => {
+      lastActivity = activityForRoute(currentRoute());
+      announcePresence(language, lastActivity as any);
+    };
     send();
     s.on('connect', send);
-    const id = setInterval(send, 20000);
-    return () => { clearInterval(id); s.off('connect', send); };
+    const periodic = setInterval(send, 20000);
+    const watch = setInterval(() => { if (activityForRoute(currentRoute()) !== lastActivity) send(); }, 2000);
+    return () => { clearInterval(periodic); clearInterval(watch); s.off('connect', send); };
   }, [language]);
 
   useEffect(() => {
     const s = getSocket();
 
     const onReceived = (d: any) => {
-      const route = navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined;
-      if (!d?.inviteId || (route && NO_INVITE_ROUTES.includes(route)) || inviteRef.current) {
+      const activity = activityForRoute(currentRoute());
+      // Busy (in a match, private lobby, onboarding) or already showing one:
+      // the server normally won't send these, but decline if it slips through.
+      if (!d?.inviteId || activity === 'busy' || inviteRef.current) {
         if (d?.inviteId) s.emit('respond_duel_invite', { inviteId: d.inviteId, accept: false });
         return;
       }
@@ -52,6 +72,7 @@ export default function DuelInviteHost() {
         from: { name: String(d.from?.name || '?'), avatar: d.from?.avatar || null },
         category: String(d.category || 'football'),
         deadline: Date.now() + (Number(d.ttlMs) || 30000),
+        inTournament: activity === 'tournament',
       });
     };
 
@@ -62,6 +83,8 @@ export default function DuelInviteHost() {
     const onMatched = (d: any) => {
       setInvite(null);
       if (!d?.roomId || !navigationRef.isReady()) return;
+      // Leaving a tournament run on purpose: skip its "are you sure?" prompt.
+      setLeavingForDuel(true);
       // Reset (rather than push) so a lobby the player was waiting in can't
       // fire its "no opponent found" alert on top of the match.
       navigationRef.reset({
@@ -71,9 +94,10 @@ export default function DuelInviteHost() {
           { name: 'OnlineGame', params: { roomId: d.roomId, categoryId: d.category, matchedPlayers: d.players } },
         ],
       });
+      setTimeout(() => setLeavingForDuel(false), 1000);
     };
 
-    const onError = (d: any) => {
+    const onError = () => {
       if (inviteRef.current) {
         setInvite(null);
         CustomAlert.show(t('duelInviteTitle'), t('inviteOffline'), [{ text: t('ok') }]);
@@ -94,14 +118,14 @@ export default function DuelInviteHost() {
     };
   }, [language]);
 
-  // Countdown shown on the invite card.
+  // Countdown shown on the invite.
   useEffect(() => {
     if (!invite) return;
     const tick = () => {
       const left = Math.max(0, Math.ceil((invite.deadline - Date.now()) / 1000));
       setSecondsLeft(left);
       // The server drops the invite at the same moment; if its 'expired' /
-      // 'cancelled' event never reached us (reconnect), don't leave the card up.
+      // 'cancelled' event never reached us (reconnect), don't leave it up.
       if (left <= 0) setInvite(null);
     };
     tick();
@@ -110,7 +134,7 @@ export default function DuelInviteHost() {
   }, [invite]);
 
   // After accepting, the match should start within moments; if it doesn't
-  // (invite already gone, other side left) close the card and say so.
+  // (invite already gone, other side left) close it and say so.
   useEffect(() => {
     if (!accepted) return;
     const id = setTimeout(() => {
@@ -129,6 +153,36 @@ export default function DuelInviteHost() {
 
   const baseCategory = invite ? invite.category.replace(/_en$/, '') : 'football';
   const categoryName = t(baseCategory as 'football' | 'cinema' | 'music');
+  const bodyText = invite ? t('duelInviteBody').replace('{name}', invite.from.name).replace('{category}', categoryName) : '';
+
+  // Tournament run: slim banner at the top that leaves the game playable.
+  if (invite && invite.inTournament) {
+    return (
+      <View pointerEvents="box-none" style={[styles.bannerWrap, { top: Math.max(insets.top, 8) + 6 }]}>
+        <View style={styles.banner}>
+          <UserAvatar avatar={invite.from.avatar || undefined} size={38} />
+          <View style={{ flex: 1, marginHorizontal: 10 }}>
+            <Text style={styles.bannerBody} numberOfLines={2}>{bodyText}</Text>
+            <Text style={styles.bannerNote} numberOfLines={2}>
+              {t('duelInviteTournamentNote')} · {secondsLeft}s
+            </Text>
+          </View>
+          {accepted ? (
+            <Text style={styles.waiting}>…</Text>
+          ) : (
+            <View style={styles.bannerBtns}>
+              <TouchableOpacity style={[styles.bannerBtn, styles.decline]} onPress={() => respond(false)} activeOpacity={0.85}>
+                <Text style={styles.declineText}>✕</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.bannerBtn, styles.accept]} onPress={() => respond(true)} activeOpacity={0.85}>
+                <Text style={styles.acceptText}>{t('duelInviteAccept')}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <Modal visible={!!invite} transparent animationType="fade" onRequestClose={() => respond(false)}>
@@ -139,9 +193,7 @@ export default function DuelInviteHost() {
             <View style={{ marginVertical: 14 }}>
               <UserAvatar avatar={invite.from.avatar || undefined} size={64} />
             </View>
-            <Text style={styles.body}>
-              {t('duelInviteBody').replace('{name}', invite.from.name).replace('{category}', categoryName)}
-            </Text>
+            <Text style={styles.body}>{bodyText}</Text>
             <Text style={styles.note}>{t('duelInviteFriendlyNote')}</Text>
             <Text style={styles.timer}>{secondsLeft}s</Text>
             {accepted ? (
@@ -177,4 +229,11 @@ const styles = StyleSheet.create({
   acceptText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 14 },
   decline: { borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.35)' },
   declineText: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 14 },
+  // tournament banner
+  bannerWrap: { position: 'absolute', left: 10, right: 10, zIndex: 9999, elevation: 30 },
+  banner: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(11,18,32,0.97)', borderRadius: 16, borderWidth: 1.5, borderColor: NEON, padding: 10 },
+  bannerBody: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 12.5, lineHeight: 17 },
+  bannerNote: { color: '#FFD700', fontFamily: 'Poppins_400Regular', fontSize: 10.5, marginTop: 2 },
+  bannerBtns: { flexDirection: 'row', gap: 6 },
+  bannerBtn: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
 });

@@ -15,6 +15,7 @@ import { getSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { CustomAlert } from '../components/CustomAlert';
 import { showInterstitial } from '../services/ads';
+import { isLeavingForDuel } from '../services/duelInviteState';
 
 type Nav  = NativeStackNavigationProp<RootStackParamList, 'TournamentGame'>;
 type Route = RouteProp<RootStackParamList, 'TournamentGame'>;
@@ -165,7 +166,8 @@ export default function TournamentGameScreen() {
   // React Navigation's default back action unless this is intercepted too.
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
-      if (finished) return;
+      // finished, or the player accepted a duel invite and is leaving on purpose
+      if (finished || isLeavingForDuel()) return;
 
       e.preventDefault();
 
