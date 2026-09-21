@@ -154,6 +154,18 @@ const systemLogSchema = new mongoose.Schema({
 
 const SystemLog = mongoose.model('SystemLog', systemLogSchema);
 
+// Admin-edited overrides for the automatic push notifications (see
+// notificationRules.js, which holds the built-in defaults). One doc per rule;
+// a rule with no doc simply uses its defaults.
+const notificationTemplateSchema = new mongoose.Schema({
+  key:       { type: String, required: true, unique: true },
+  enabled:   { type: Boolean, default: true },
+  tr:        { title: { type: String, default: '' }, body: { type: String, default: '' } },
+  en:        { title: { type: String, default: '' }, body: { type: String, default: '' } },
+  updatedAt: { type: Date, default: Date.now }
+});
+const NotificationTemplate = mongoose.model('NotificationTemplate', notificationTemplateSchema);
+
 // ─── Weekly Tournament ────────────────────────────────────────────────────────
 
 const tournamentScoreSchema = new mongoose.Schema({
@@ -975,6 +987,26 @@ module.exports = {
     const filter = { pushToken: { $ne: null } };
     if (language && language !== 'all') filter.pushLanguage = language;
     return await Player.find(filter, 'id username pushToken');
+  },
+
+  getNotificationOverrides: async () => {
+    await connectDB();
+    return await NotificationTemplate.find({}).lean();
+  },
+
+  saveNotificationOverride: async (key, { enabled, tr, en }) => {
+    await connectDB();
+    return await NotificationTemplate.findOneAndUpdate(
+      { key },
+      { $set: { enabled, tr, en, updatedAt: new Date() } },
+      { upsert: true, new: true }
+    ).lean();
+  },
+
+  // Back to the built-in defaults (only removes the admin's edited copy).
+  resetNotificationOverride: async (key) => {
+    await connectDB();
+    await NotificationTemplate.deleteOne({ key });
   },
 
   // Single-player lookup for the admin notify panel's "test send to just me"

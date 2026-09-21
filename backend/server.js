@@ -526,20 +526,125 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+const notificationRules = require('./notificationRules');
+
+// Panel section: the automatic notifications (trigger, audience, editable texts).
+function renderAutoRulesHtml(rules, key) {
+  const fmt = (d) => d ? new Date(d).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' }) : '';
+  const cards = rules.map(r => {
+    const ph = Object.entries(r.placeholders);
+    const phHtml = ph.length
+      ? ph.map(([n, p]) => `<code>{${n}}</code> ${escapeHtml(p.info)} (örn. <i>${escapeHtml(p.tr)}</i>)`).join('<br>')
+      : 'Bu bildirimde değişken yok, metin sabittir.';
+    const prev = (lang) => {
+      const v = notificationRules.sampleVars(r.key, lang);
+      return `<b>${escapeHtml(notificationRules.render(r[lang].title, v))}</b><br>${escapeHtml(notificationRules.render(r[lang].body, v))}`;
+    };
+    const field = (name, val, max, area) => area
+      ? `<textarea name="${name}" required maxlength="${max}" style="min-height:64px">${escapeHtml(val)}</textarea>`
+      : `<input type="text" name="${name}" required maxlength="${max}" value="${escapeHtml(val)}">`;
+    return `<form method="POST" action="/admin/notify/rules?key=${encodeURIComponent(key)}" class="rule" id="rule-${r.key}">
+  <input type="hidden" name="ruleKey" value="${r.key}">
+  <h2>${escapeHtml(r.name)} <span class="badge">${r.customized ? 'düzenlendi ' + fmt(r.updatedAt) : 'varsayılan'}</span></h2>
+  <p class="meta"><b>Ne zaman:</b> ${escapeHtml(r.trigger)}<br><b>Kime:</b> ${escapeHtml(r.audience)}<br><b>Dokununca:</b> ${escapeHtml(r.route)} ekranı</p>
+  <label class="chk"><input type="checkbox" name="enabled" value="1" ${r.enabled ? 'checked' : ''}> Aktif (kapatırsan bu bildirim gönderilmez)</label>
+  <p class="meta"><b>Kullanılabilir değişkenler:</b><br>${phHtml}</p>
+  <label>🇹🇷 Başlık ${field('trTitle', r.tr.title, notificationRules.MAX_TITLE, false)}</label>
+  <label>🇹🇷 Mesaj ${field('trBody', r.tr.body, notificationRules.MAX_BODY, true)}</label>
+  <label>🇬🇧 Title ${field('enTitle', r.en.title, notificationRules.MAX_TITLE, false)}</label>
+  <label>🇬🇧 Message ${field('enBody', r.en.body, notificationRules.MAX_BODY, true)}</label>
+  <div class="preview"><b>Kayıtlı metnin örnek çıktısı</b><br>TR: ${prev('tr')}<br>EN: ${prev('en')}</div>
+  <div class="row">
+    <button type="submit" name="action" value="save">Kaydet</button>
+    <button type="submit" name="action" value="reset" class="ghost" onclick="return confirm('Bu bildirimin metinleri varsayılana dönsün mü?')">Varsayılana dön</button>
+  </div>
+  <div class="row test">
+    <input type="text" name="testUsername" maxlength="30" placeholder="test için kullanıcı adı">
+    <button type="submit" name="action" value="test_tr" class="ghost">Test TR</button>
+    <button type="submit" name="action" value="test_en" class="ghost">Test EN</button>
+  </div>
+  <p class="meta" style="margin-top:4px">Test, formdaki (kaydedilmemiş olabilir) metni örnek değerlerle SADECE bu kullanıcıya gönderir.</p>
+</form>`;
+  }).join('\n');
+  return `<style>
+  .rule { margin-top: 24px; padding: 16px; border: 1px solid #263353; border-radius: 12px; background: #0f1830; }
+  .rule h2 { font-size: 16px; margin: 0 0 8px; } .badge { font-size: 11px; font-weight: 400; color: #8aa; }
+  .meta { color: #9aa7c4; font-size: 12.5px; line-height: 1.5; margin: 8px 0; } code { color: #00c853; }
+  .chk { display: flex; align-items: center; gap: 6px; color: #ddd; }
+  .preview { margin-top: 14px; padding: 10px; border-radius: 8px; background: #161f33; font-size: 13px; line-height: 1.5; }
+  .row { display: flex; gap: 8px; margin-top: 14px; } .row button { margin-top: 0; padding: 10px; } .row input { margin-top: 0 !important; }
+  button.ghost { background: transparent; border: 1px solid #00c853; color: #00c853; } .row.test button { width: auto; white-space: nowrap; }
+  </style>
+  <h1 style="margin-top:48px">⚙️ Otomatik Bildirimler</h1>
+  <p style="color:#888;font-size:13px">Uygulamanın kendiliğinden gönderdiği bildirimler. Metinleri buradan istediğin zaman değiştirebilirsin; yeni metin bir sonraki gönderimden itibaren geçerli olur (deploy gerekmez).</p>
+  ${cards}`;
+}
+
+app.post('/admin/notify/rules', requireAdmin, express.urlencoded({ extended: false }), async (req, res) => {
+  const key = req.query.key || '';
+  const back = (text) => res.redirect(`/admin/notify?key=${encodeURIComponent(key)}&msg=${encodeURIComponent(text)}#rule-${encodeURIComponent(req.body.ruleKey || '')}`);
+  try {
+    const ruleKey = (req.body.ruleKey || '').toString();
+    const action = (req.body.action || '').toString();
+    if (!notificationRules.RULES[ruleKey]) return res.status(400).send('Bilinmeyen bildirim kuralı.');
+    const rule = notificationRules.RULES[ruleKey];
+
+    if (action === 'reset') {
+      await db.resetNotificationOverride(ruleKey);
+      return back(`"${rule.name}" varsayılan metinlere döndü.`);
+    }
+
+    const texts = {
+      tr: { title: (req.body.trTitle || '').toString().trim(), body: (req.body.trBody || '').toString().trim() },
+      en: { title: (req.body.enTitle || '').toString().trim(), body: (req.body.enBody || '').toString().trim() }
+    };
+    const error = notificationRules.validateTexts(ruleKey, texts);
+    if (error) return back('⚠️ Kaydedilmedi — ' + error);
+
+    if (action === 'save') {
+      await db.saveNotificationOverride(ruleKey, { enabled: !!req.body.enabled, ...texts });
+      return back(`✅ "${rule.name}" kaydedildi${req.body.enabled ? '' : ' (KAPALI: bu bildirim gönderilmeyecek)'}.`);
+    }
+
+    if (action === 'test_tr' || action === 'test_en') {
+      const lang = action === 'test_en' ? 'en' : 'tr';
+      const username = (req.body.testUsername || '').toString().trim();
+      if (!username) return back('⚠️ Test için bir kullanıcı adı yaz.');
+      const player = await db.getPlayerPushTokenByUsername(username);
+      if (!player) return back(`⚠️ "${username}" adında kullanıcı bulunamadı.`);
+      if (!player.pushToken) return back(`⚠️ "${username}" için kayıtlı push token yok.`);
+      const vars = notificationRules.sampleVars(ruleKey, lang);
+      await sendPushNotifications([{
+        pushToken: player.pushToken,
+        title: notificationRules.render(texts[lang].title, vars),
+        body: notificationRules.render(texts[lang].body, vars),
+        data: { route: rule.route }
+      }]);
+      return back(`📨 Test (${lang.toUpperCase()}) sadece "${username}" kullanıcısına gönderildi.`);
+    }
+    return res.status(400).send('Bilinmeyen işlem.');
+  } catch (e) {
+    console.error('[AdminNotifyRules] error:', e);
+    res.status(500).send('Sunucu hatası: ' + escapeHtml(e.message));
+  }
+});
+
 // Manual push-notification panel — same requireAdmin gate as the other
 // admin routes above (x-admin-key header or ?key= query param matching
 // ADMIN_SECRET). For a real-time opportunity that doesn't fit the Friday
 // 18:00 weekly-tournament cron (see below): open this URL with ?key=...,
 // fill in the form, it sends immediately to every currently-registered
 // push token via the same sendPushNotifications() the cron uses.
-app.get('/admin/notify', requireAdmin, (req, res) => {
+app.get('/admin/notify', requireAdmin, async (req, res) => {
   const key = escapeHtml(req.query.key);
+  const msg = req.query.msg ? `<div style="margin:16px 0;padding:12px;border-radius:8px;background:#12351f;color:#9be7b1;font-size:14px">${escapeHtml(req.query.msg)}</div>` : '';
+  const rulesHtml = renderAutoRulesHtml(await notificationRules.getRules(), key);
   res.set('Content-Type', 'text/html; charset=utf-8');
   res.send(`<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wordico — Bildirim Gönder</title>
 <style>
-  body { font-family: -apple-system, sans-serif; background: #0b1220; color: #eee; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+  body { font-family: -apple-system, sans-serif; background: #0b1220; color: #eee; max-width: 560px; margin: 40px auto; padding: 0 16px; }
   h1 { font-size: 20px; }
   label { display: block; margin-top: 16px; font-size: 14px; color: #aaa; }
   input[type=text], textarea { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #161f33; color: #fff; font-size: 15px; margin-top: 4px; }
@@ -549,6 +654,7 @@ app.get('/admin/notify', requireAdmin, (req, res) => {
   button { margin-top: 24px; width: 100%; padding: 14px; border-radius: 10px; border: none; background: #00c853; color: #05130a; font-weight: 700; font-size: 15px; }
 </style></head>
 <body>
+  ${msg}
   <h1>🔔 Manuel Bildirim Gönder</h1>
   <p style="color:#888;font-size:13px">Şu an kayıtlı olan tüm push token'lara anında gönderilir. Geri alınamaz.</p>
   <form method="GET" action="/admin/notify/send">
@@ -573,6 +679,7 @@ app.get('/admin/notify', requireAdmin, (req, res) => {
     </select></label>
     <button type="submit">Gönder</button>
   </form>
+  ${rulesHtml}
 </body></html>`);
 });
 
@@ -2009,23 +2116,7 @@ const { sendPushNotifications } = require('./notifications');
 cron.schedule('0 18 * * 5', async () => {
   console.log('[CRON] Starting weekly tournament push notification job...');
   try {
-    const players = await db.getPlayersWithPushTokens();
-    const guestTokens = await db.getGuestPushTokens();
-    
-    // Merge tokens and remove duplicates (if any)
-    const allTokens = [...new Set([...players.map(p => p.pushToken), ...guestTokens])];
-
-    const messages = allTokens.map(token => ({
-      pushToken: token,
-      title: '🏆 Haftalık Turnuva Zamanı!',
-      body: 'Yeni haftalık turnuva başladı. Hemen katıl ve liderlik tablosunda yerini al!',
-      data: { route: 'Tournament' }
-    }));
-
-    if (messages.length > 0) {
-      await sendPushNotifications(messages);
-      console.log(`[CRON] Sent notifications to ${messages.length} players.`);
-    }
+    await notificationRules.sendWeeklyReminder();
   } catch (err) {
     console.error('[CRON] Error sending notifications:', err);
   }
