@@ -806,7 +806,9 @@ const playerSockets = {};
 // 'presence' (older app versions don't, and count as Turkish but can't be
 // invited). A duel invite is a short-lived (30s) request from one connected
 // player to another; accepting it starts a FRIENDLY 1v1 (coins only, no KP)
-// in the same kind of room the friendly quick-match queue creates.
+// in the same kind of room the friendly quick-match queue creates. An invite can
+// also be a RANKED duel (KP at stake, like the ranked queue): both players must
+// then be signed in to an account.
 const pendingInvites = {};   // inviteId -> { id, fromId, toId, category, timer }
 const lastInviteAt = {};     // fromSocketId -> ms
 const INVITE_TTL_MS = 30000;
@@ -1475,10 +1477,12 @@ io.on('connection', (socket) => {
     const fail = (reason) => socket.emit('duel_invite_error', { reason });
     try {
       const category = INVITE_CATEGORIES.includes(data?.category) ? data.category : null;
+      const mode = data?.mode === 'ranked' ? 'ranked' : 'friendly';
       const target = io.sockets.sockets.get(String(data?.targetId || ''));
       if (!category) return fail('bad_request');
       if (!target || !target.connected || target.id === socket.id || !isLive(target)) return fail('offline');
       if (langOfSocket(target) !== langOfSocket(socket) || langOfCategory(category) !== langOfSocket(socket)) return fail('bad_request');
+      if (mode === 'ranked' && (!socket.data.playerId || !target.data.playerId)) return fail('ranked_guest');
       if (isSocketInGame(socket)) return fail('self_busy');
       if (isSocketBusy(target) || hasPendingInviteFor(target.id)) return fail('busy');
       const now = Date.now();
@@ -1501,10 +1505,10 @@ io.on('connection', (socket) => {
         io.sockets.sockets.get(inv.fromId)?.emit('duel_invite_expired', { inviteId });
         io.sockets.sockets.get(inv.toId)?.emit('duel_invite_expired', { inviteId });
       }, INVITE_TTL_MS);
-      pendingInvites[inviteId] = { id: inviteId, fromId: socket.id, toId: target.id, category, timer };
+      pendingInvites[inviteId] = { id: inviteId, fromId: socket.id, toId: target.id, category, mode, timer };
 
-      socket.emit('duel_invite_sent', { inviteId, toName: to.name, ttlMs: INVITE_TTL_MS });
-      target.emit('duel_invite_received', { inviteId, from: { name: from.name, avatar: from.avatar }, category, ttlMs: INVITE_TTL_MS });
+      socket.emit('duel_invite_sent', { inviteId, toName: to.name, ttlMs: INVITE_TTL_MS, mode });
+      target.emit('duel_invite_received', { inviteId, from: { name: from.name, avatar: from.avatar }, category, mode, ttlMs: INVITE_TTL_MS });
     } catch (e) {
       console.error('[send_duel_invite] error:', e);
       fail('server');
@@ -1528,6 +1532,12 @@ io.on('connection', (socket) => {
       inviter?.emit('duel_invite_declined', { inviteId: inv.id });
       return;
     }
+    // Either side may have signed out since the invite was sent.
+    if (inv.mode === 'ranked' && inviter && (!inviter.data.playerId || !socket.data.playerId)) {
+      socket.emit('duel_invite_error', { reason: 'ranked_guest' });
+      inviter.emit('duel_invite_error', { reason: 'ranked_guest' });
+      return;
+    }
     if (!inviter || !inviter.connected || isSocketInGame(inviter) || isSocketInGame(socket)) {
       socket.emit('duel_invite_error', { reason: 'offline' });
       inviter?.emit('duel_invite_error', { reason: 'busy' });
@@ -1547,8 +1557,8 @@ io.on('connection', (socket) => {
       activeRooms[roomId] = {
         category: inv.category,
         isPrivate: false,
-        isRanked1v1: false,
-        isFriendly1v1: true,  // coins only, no KP/category XP
+        isRanked1v1: inv.mode === 'ranked',        // KP at stake
+        isFriendly1v1: inv.mode !== 'ranked',      // coins only, no KP/category XP
         status: 'playing',
         players: [p1, p2],
         scores: { [p1.id]: 0, [p2.id]: 0 },
@@ -1561,7 +1571,7 @@ io.on('connection', (socket) => {
         guessingPlayerId: null,
         guessTimer: null
       };
-      io.to(roomId).emit('duel_invite_matched', { players: [p1, p2], roomId, category: inv.category, isFriendly: true });
+      io.to(roomId).emit('duel_invite_matched', { players: [p1, p2], roomId, category: inv.category, mode: inv.mode, isFriendly: inv.mode !== 'ranked' });
       setTimeout(() => { startRound(roomId); }, 5000);
     }).catch(e => console.error('[respond_duel_invite] error:', e));
   });
