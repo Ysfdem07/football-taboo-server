@@ -33,6 +33,31 @@ if (__DEV__) {
 
 let socket: any = null;
 
+// Some screens (OnlineLobby, Market) replace the shared socket with a brand new
+// one via initSocketWithUrl, which silently orphans any listener attached to
+// the old instance. Long-lived listeners (online presence, duel invites) use
+// withSocket() instead of getSocket(): the binder is re-run against every new
+// socket, and its cleanup runs against the one it replaces.
+type SocketBinder = (s: any) => void | (() => void);
+const binders = new Set<{ fn: SocketBinder; cleanup?: () => void }>();
+
+const rebindSocketConsumers = () => {
+  binders.forEach(b => {
+    try { b.cleanup?.(); } catch (e) {}
+    b.cleanup = (b.fn(socket) as (() => void) | undefined) || undefined;
+  });
+};
+
+export const withSocket = (fn: SocketBinder) => {
+  const entry: { fn: SocketBinder; cleanup?: () => void } = { fn };
+  binders.add(entry);
+  entry.cleanup = (fn(getSocket()) as (() => void) | undefined) || undefined;
+  return () => {
+    try { entry.cleanup?.(); } catch (e) {}
+    binders.delete(entry);
+  };
+};
+
 const socketOptions = {
   transports: ['websocket', 'polling'],
   reconnection: true,
@@ -57,6 +82,7 @@ export const initSocketWithUrl = (url: string) => {
     socket = null;
   }
   socket = io(SOCKET_URL, socketOptions);
+  rebindSocketConsumers();
   return socket;
 };
 

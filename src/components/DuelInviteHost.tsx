@@ -8,8 +8,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getSocket } from '../services/socket';
-import { announcePresence, activityForRoute } from '../services/onlinePresence';
+import { getSocket, withSocket } from '../services/socket';
+import { announcePresence, activityForRoute, reloginIfAccount } from '../services/onlinePresence';
 import { setLeavingForDuel } from '../services/duelInviteState';
 import { useLanguage } from '../context/LanguageContext';
 import { navigationRef } from '../navigation/navigationRef';
@@ -42,21 +42,38 @@ export default function DuelInviteHost() {
   // because other screens occasionally strip 'connect' listeners off the
   // shared socket.
   useEffect(() => {
-    const s = getSocket();
     let lastActivity = '';
     const send = () => {
       lastActivity = activityForRoute(currentRoute());
       announcePresence(language, lastActivity as any);
     };
+    const onConnect = () => { reloginIfAccount(); send(); };
+    const unbind = withSocket((s) => {
+      s.on('connect', onConnect);
+      return () => s.off('connect', onConnect);
+    });
     send();
-    s.on('connect', send);
     const periodic = setInterval(send, 20000);
     const watch = setInterval(() => { if (activityForRoute(currentRoute()) !== lastActivity) send(); }, 2000);
-    return () => { clearInterval(periodic); clearInterval(watch); s.off('connect', send); };
+    return () => { clearInterval(periodic); clearInterval(watch); unbind(); };
   }, [language]);
 
+  // Leaving a match or the lobby disconnects the shared socket on purpose, and
+  // socket.io never reconnects after a manual disconnect(). Presence, the online
+  // counter and invites all need a live connection, so bring it back once the
+  // player is out of the game screens.
   useEffect(() => {
-    const s = getSocket();
+    const id = setInterval(() => {
+      const route = currentRoute();
+      if (route === 'OnlineGame' || route === 'RoomLobby') return;
+      const cur = getSocket();
+      if (!cur.connected && !cur.active) cur.connect();
+    }, 2500);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const s = { emit: (...a: any[]) => (getSocket().emit as any)(...a) }; // always the current socket
 
     const onReceived = (d: any) => {
       const activity = activityForRoute(currentRoute());
@@ -104,18 +121,20 @@ export default function DuelInviteHost() {
       }
     };
 
-    s.on('duel_invite_received', onReceived);
-    s.on('duel_invite_cancelled', onGone);
-    s.on('duel_invite_expired', onGone);
-    s.on('duel_invite_matched', onMatched);
-    s.on('duel_invite_error', onError);
-    return () => {
-      s.off('duel_invite_received', onReceived);
-      s.off('duel_invite_cancelled', onGone);
-      s.off('duel_invite_expired', onGone);
-      s.off('duel_invite_matched', onMatched);
-      s.off('duel_invite_error', onError);
-    };
+    return withSocket((sock) => {
+      sock.on('duel_invite_received', onReceived);
+      sock.on('duel_invite_cancelled', onGone);
+      sock.on('duel_invite_expired', onGone);
+      sock.on('duel_invite_matched', onMatched);
+      sock.on('duel_invite_error', onError);
+      return () => {
+        sock.off('duel_invite_received', onReceived);
+        sock.off('duel_invite_cancelled', onGone);
+        sock.off('duel_invite_expired', onGone);
+        sock.off('duel_invite_matched', onMatched);
+        sock.off('duel_invite_error', onError);
+      };
+    });
   }, [language]);
 
   // Countdown shown on the invite.
