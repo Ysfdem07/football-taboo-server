@@ -810,6 +810,13 @@ const playerSockets = {};
 const pendingInvites = {};   // inviteId -> { id, fromId, toId, category, timer }
 const lastInviteAt = {};     // fromSocketId -> ms
 const INVITE_TTL_MS = 30000;
+// How long a match waits for a dropped player to come back before forfeiting
+// them. Skipped entirely when the client called socket.disconnect() itself.
+const RECONNECT_GRACE_MS = 10000;
+// A socket counts as online only while it keeps announcing itself (the app
+// re-sends 'presence' every 20s) — a dead connection otherwise lingers for
+// the whole ping timeout and inflates the counter.
+const PRESENCE_FRESH_MS = 50000;
 const INVITE_COOLDOWN_MS = 4000;
 const INVITE_CATEGORIES = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
 
@@ -817,6 +824,8 @@ const langOfSocket = (sock) => (sock.data && sock.data.language === 'en' ? 'en' 
 const langOfCategory = (cat) => (String(cat).endsWith('_en') ? 'en' : 'tr');
 const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, max) : '');
 const connectedSockets = () => [...io.sockets.sockets.values()].filter(sock => sock.connected);
+// Updated app, connected, and heard from recently.
+const isLive = (sock) => !!sock.data.inviteCapable && Date.now() - (sock.data.presenceAt || 0) < PRESENCE_FRESH_MS;
 const roomIdOfSocket = (sock) => sock.data.stablePlayerId || sock.id;
 const isSocketBusy = (sock) => sock.data.activity === 'busy' || isSocketInGame(sock);
 const isSocketInGame = (sock) => Object.values(activeRooms).some(r => r.status === 'playing' && r.players.some(p => p.id === roomIdOfSocket(sock)));
@@ -825,12 +834,18 @@ const hasPendingInviteFor = (socketId) => Object.values(pendingInvites).some(inv
 function onlineStatsFor(lang) {
   const seen = new Set();
   for (const sock of connectedSockets()) {
-    if (langOfSocket(sock) !== lang) continue;
+    if (langOfSocket(sock) !== lang || !isLive(sock)) continue;
     seen.add(sock.data.playerId || sock.id); // one count per account, guests per device
   }
-  const searching = [...queue, ...friendlyQueue]
-    .filter(u => langOfCategory(u.category) === lang && io.sockets.sockets.get(u.id)?.connected).length;
-  return { online: seen.size, searching };
+  // Someone searching in Duel mode is demonstrably online (even on an older
+  // app version that can't be invited), so they count too.
+  const searchers = [...queue, ...friendlyQueue]
+    .filter(u => langOfCategory(u.category) === lang && io.sockets.sockets.get(u.id)?.connected);
+  for (const u of searchers) {
+    const sock = io.sockets.sockets.get(u.id);
+    seen.add(sock.data.playerId || sock.id);
+  }
+  return { online: seen.size, searching: searchers.length };
 }
 
 // Name/avatar shown to the other side: registered players come from the DB
@@ -1410,6 +1425,7 @@ io.on('connection', (socket) => {
   socket.on('presence', (data) => {
     socket.data.language = data?.language === 'en' ? 'en' : 'tr';
     socket.data.inviteCapable = true;
+    socket.data.presenceAt = Date.now();
     // 'idle' | 'tournament' (mid solo/tournament run: can still receive an invite,
     // shown as a banner) | 'busy' (onboarding, private room lobby: not invitable)
     socket.data.activity = ['tournament', 'busy'].includes(data?.activity) ? data.activity : 'idle';
@@ -1429,7 +1445,7 @@ io.on('connection', (socket) => {
       if (socket.data.playerId) seen.add(socket.data.playerId);
       const candidates = [];
       for (const sock of connectedSockets()) {
-        if (sock.id === socket.id || !sock.data.inviteCapable || langOfSocket(sock) !== lang) continue;
+        if (sock.id === socket.id || !isLive(sock) || langOfSocket(sock) !== lang) continue;
         const key = sock.data.playerId || sock.id;
         if (seen.has(key)) continue;
         seen.add(key);
@@ -1461,7 +1477,7 @@ io.on('connection', (socket) => {
       const category = INVITE_CATEGORIES.includes(data?.category) ? data.category : null;
       const target = io.sockets.sockets.get(String(data?.targetId || ''));
       if (!category) return fail('bad_request');
-      if (!target || !target.connected || target.id === socket.id || !target.data.inviteCapable) return fail('offline');
+      if (!target || !target.connected || target.id === socket.id || !isLive(target)) return fail('offline');
       if (langOfSocket(target) !== langOfSocket(socket) || langOfCategory(category) !== langOfSocket(socket)) return fail('bad_request');
       if (isSocketInGame(socket)) return fail('self_busy');
       if (isSocketBusy(target) || hasPendingInviteFor(target.id)) return fail('busy');
@@ -1887,8 +1903,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+  socket.on('disconnect', (reason) => {
+    console.log('User disconnected:', socket.id, reason);
+    // 'client namespace disconnect' = the app itself called socket.disconnect()
+    // (exit-match button): it left deliberately and will not reconnect.
+    const deliberate = reason === 'client namespace disconnect';
     dropInvitesOf(socket.id);
     queue = queue.filter(u => u.id !== socket.id);
     // Only clear the mapping if it still points at THIS socket — a newer
@@ -1918,10 +1937,9 @@ io.on('connection', (socket) => {
              io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
            }
         } else {
-           // Playing state: Delay removal to allow Socket.io auto-reconnect
-           io.to(roomId).emit('player_disconnected_warning', { playerId: stableId });
-
-           disconnectTimeouts[stableId] = setTimeout(async () => {
+           // Playing state. A dropped connection gets a short grace window to
+           // reconnect (Socket.io auto-reconnect); a deliberate exit forfeits now.
+           const removePlayer = async () => {
              if (!activeRooms[roomId]) return;
 
              const pIndex = room.players.findIndex(p => p.id === stableId);
@@ -1933,7 +1951,13 @@ io.on('connection', (socket) => {
                  await resolveMatchForfeit(room, roomId, quitter);
                }
              }
-           }, 20000); // Wait 20 seconds for reconnect before kicking
+           };
+           if (deliberate) {
+             removePlayer();
+           } else {
+             io.to(roomId).emit('player_disconnected_warning', { playerId: stableId });
+             disconnectTimeouts[stableId] = setTimeout(removePlayer, RECONNECT_GRACE_MS);
+           }
         }
       }
     }
