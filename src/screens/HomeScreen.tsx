@@ -156,7 +156,7 @@ export default function HomeScreen() {
         {/* 3D WORDICO HEADER TITLE - Shifted down matching mockup */}
         <View style={styles.headerTitleRow}>
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICOO</Text>
-          {onlineStats && onlineStats.online >= MIN_ONLINE_TO_SHOW && (
+          {onlineStats && onlineStats.online >= MIN_ONLINE_TO_SHOW && (<>
             <TouchableOpacity style={styles.onlinePill} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
               <View style={styles.onlineDot} />
               <Text style={styles.onlineText} allowFontScaling={false}>
@@ -165,11 +165,11 @@ export default function HomeScreen() {
               </Text>
               <Ionicons name="chevron-forward" size={14} color="#00FF88" />
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.duelCta} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
-            <Ionicons name="flash" size={15} color="#04140b" />
-            <Text style={styles.duelCtaText} allowFontScaling={false}>{t('duelNowCta')}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.duelCta} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
+              <Ionicons name="flash" size={15} color="#04140b" />
+              <Text style={styles.duelCtaText} allowFontScaling={false}>{t('duelNowCta')}</Text>
+            </TouchableOpacity>
+          </>)}
         </View>
 
         {/* CATEGORIES LIST SCROLLVIEW */}
@@ -248,14 +248,7 @@ export default function HomeScreen() {
         {/* BOTTOM TAB BAR */}
         <BottomNavBar activeTab="home" navigation={navigation} />
 
-        <OnlinePlayersModal
-          visible={showOnline}
-          onClose={() => setShowOnline(false)}
-          onFindOpponent={(categoryId, mode) => {
-            setShowOnline(false);
-            navigation.navigate('OnlineLobby', { categoryId, mode, autoSearch: true });
-          }}
-        />
+        <OnlinePlayersModal visible={showOnline} onClose={() => setShowOnline(false)} />
 
       </SafeAreaView>
     </ImageBackground>

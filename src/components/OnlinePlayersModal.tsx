@@ -1,7 +1,6 @@
-// Duel hub opened from the Home screen: pick a category and a mode (friendly or
-// ranked), then either search for a random opponent right away or challenge
-// someone who is online now with a direct invite — no matchmaking screen to
-// sit in first.
+// Duel sheet opened from the Home screen: pick a category and a mode (friendly
+// or ranked), then challenge someone who is online now with a direct invite —
+// no matchmaking screen to sit in first.
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,11 +22,9 @@ const CATS = [
 type Props = {
   visible: boolean;
   onClose: () => void;
-  // Start a random-opponent search in the lobby (auto-starts there).
-  onFindOpponent?: (categoryId: string, mode: Mode) => void;
 };
 
-export default function OnlinePlayersModal({ visible, onClose, onFindOpponent }: Props) {
+export default function OnlinePlayersModal({ visible, onClose }: Props) {
   const { language, t } = useLanguage();
   const [players, setPlayers] = useState<OnlinePlayer[] | null>(null);
   const [base, setBase] = useState<'football' | 'cinema' | 'music'>('football');
@@ -108,11 +105,6 @@ export default function OnlinePlayersModal({ visible, onClose, onFindOpponent }:
     setPending(null);
   };
 
-  const findOpponent = () => {
-    if (rankedBlocked) { setMessage(t('rankedNeedLogin')); return; }
-    onFindOpponent?.(categoryId, mode);
-  };
-
   const canInvite = (p: OnlinePlayer) => !pending && !p.busy && !rankedBlocked && !(mode === 'ranked' && !p.registered);
 
   const renderItem = ({ item }: { item: OnlinePlayer }) => (
@@ -164,13 +156,6 @@ export default function OnlinePlayersModal({ visible, onClose, onFindOpponent }:
         ))}
       </View>
       <Text style={styles.modeDesc}>{rankedBlocked ? t('rankedNeedLogin') : t(mode === 'ranked' ? 'modeRankedDesc' : 'modeFriendlyDesc')}</Text>
-
-      {onFindOpponent ? (
-        <TouchableOpacity style={[styles.findBtn, (pending || rankedBlocked) && { opacity: 0.45 }]} disabled={!!pending} onPress={findOpponent} activeOpacity={0.85}>
-          <Ionicons name="flash" size={18} color="#04140b" />
-          <Text style={styles.findBtnText}>{t('findRandomOpponent')}</Text>
-        </TouchableOpacity>
-      ) : null}
 
       {pending ? (
         <View style={styles.pendingBox}>
@@ -229,8 +214,6 @@ const styles = StyleSheet.create({
   modeChipActive: { backgroundColor: NEON, borderColor: NEON },
   modeText: { color: 'rgba(255,255,255,0.8)', fontFamily: 'Poppins_700Bold', fontSize: 12.5 },
   modeDesc: { color: '#FFD700', fontFamily: 'Poppins_400Regular', fontSize: 11.5, marginTop: 6 },
-  findBtn: { flexDirection: 'row', gap: 8, marginTop: 14, backgroundColor: NEON, borderRadius: 16, paddingVertical: 13, alignItems: 'center', justifyContent: 'center' },
-  findBtnText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 14 },
   sectionLabel: { color: 'rgba(255,255,255,0.75)', fontFamily: 'Poppins_700Bold', fontSize: 12.5, marginTop: 18, marginBottom: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.12)' },
   name: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 14 },

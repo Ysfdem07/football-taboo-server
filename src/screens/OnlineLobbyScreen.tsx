@@ -54,23 +54,6 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     };
   }, []);
 
-  // Coming from the Home 'Jump into a duel' sheet: start searching right away
-  // (once the saved profile has loaded) instead of making the player tap through.
-  // Waits for the lobby's own socket refresh (initDynamicTunnel swaps the shared
-  // socket for a new one shortly after mount — searching on the old one would be
-  // dropped with it), with a fallback so a failed refresh can't block the search.
-  const autoSearchDone = React.useRef(false);
-  const [autoReady, setAutoReady] = useState(false);
-  useEffect(() => {
-    if (!route.params?.autoSearch) return;
-    const id = setTimeout(() => setAutoReady(true), 1500);
-    return () => clearTimeout(id);
-  }, []);
-  useEffect(() => {
-    if (!route.params?.autoSearch || autoSearchDone.current || !profile || !(socket || autoReady)) return;
-    autoSearchDone.current = true;
-    if (initialMode === 'ranked') findMatch(); else findFriendlyMatch();
-  }, [profile, socket, autoReady]);
 
   useFocusEffect(
     useCallback(() => {
