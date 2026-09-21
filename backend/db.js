@@ -76,6 +76,18 @@ const playerSchema = new mongoose.Schema({
     cinema_en:   { type: Number, default: 0 },
     music_en:    { type: Number, default: 0 }
   },
+  // KP earned through weekly-tournament rewards, per category. Already
+  // included in kp/categoryKp; tracked separately so the category leaderboard
+  // can show a tournament winner who has never played a ranked match (they
+  // have no categoryMatchesPlayed, which the leaderboard otherwise requires).
+  tournamentKp: {
+    football: { type: Number, default: 0 },
+    cinema:   { type: Number, default: 0 },
+    music:    { type: Number, default: 0 },
+    football_en: { type: Number, default: 0 },
+    cinema_en:   { type: Number, default: 0 },
+    music_en:    { type: Number, default: 0 }
+  },
   matches_played: { type: Number, default: 0 },
   matches_won: { type: Number, default: 0 },
   correct_guesses: { type: Number, default: 0 },
@@ -122,6 +134,14 @@ const Player = mongoose.model('Player', playerSchema);
 // leaderboard — see getLeaderboard below.
 const LEADERBOARD_HIDDEN_USERNAMES_RE = /^(applereviewer)$/i;
 
+// Weekly tournament payout: KP for ranks 1-3, coins for ranks 1-3, and a small
+// participation KP for everyone else who scored.
+const WEEKLY_REWARD_CATEGORIES = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
+const WEEKLY_REWARD_KP = [400, 200, 100];
+const WEEKLY_REWARD_COINS = [500, 250, 100];
+const WEEKLY_PARTICIPATION_KP = 15;
+const REWARD_CATCHUP_MS = 3 * 24 * 60 * 60 * 1000;
+
 const systemLogSchema = new mongoose.Schema({
   type: { type: String, required: true },
   message: { type: String, required: true },
@@ -156,7 +176,10 @@ const weeklyTournamentSchema = new mongoose.Schema({
   endDate:      { type: Date, required: true },
   cards:        { type: Array, required: true },  // [{ word, forbidden }] x20
   scores:       { type: [tournamentScoreSchema], default: [] },
-  rewardsGiven: { type: Boolean, default: false }
+  rewardsGiven: { type: Boolean, default: false },
+  // True once the reward also went into categoryKp/tournamentKp. Weeks paid
+  // before that fix only bumped the global kp, and were backfilled once.
+  categoryKpCredited: { type: Boolean, default: false }
 }, {
   // bufferCommands: default true - allows queuing until connected
 });
@@ -592,7 +615,13 @@ module.exports = {
       // pre-dated has no real win-rate to show — hide it from the ranked
       // list until it has an actual tracked match (playing again fixes this
       // automatically, no manual re-listing needed).
-      const leaderboardFilter = { ...usernameFilter, [sortField]: { $gt: 0 }, [playedField]: { $gt: 0 } };
+      // A weekly-tournament winner has real, tracked KP too even without a
+      // ranked match (their win-rate shows a dash, see LeaderboardScreen).
+      const leaderboardFilter = {
+        ...usernameFilter,
+        [sortField]: { $gt: 0 },
+        $or: [{ [playedField]: { $gt: 0 } }, { [`tournamentKp.${category}`]: { $gt: 0 } }]
+      };
       const players = await Player.find(leaderboardFilter)
         .select(`id username avatar kp categoryKp categoryWins categoryMatchesPlayed matches_won matches_played -_id`)
         .sort({ [sortField]: -1 })
@@ -856,31 +885,79 @@ module.exports = {
     });
   },
 
-  giveWeeklyRewards: async () => {
+  // Pays out finished weekly tournaments, every category (TR and _en).
+  //   includeCurrentWeek: also pay this week's tournaments (used from Sunday
+  //     23:00, before the week formally ends).
+  //   weekIds: pay exactly these tournaments (manual/backfill runs), any age.
+//   dryRun: compute the payout list only — no claim, no writes.
+  // Without weekIds, tournaments that ended within the last 3 days and are
+  // still unpaid are also picked up, so a restart during the payout hour
+  // can't silently skip a week. Each tournament is claimed with an atomic
+  // rewardsGiven flip first, so overlapping server instances can't pay twice.
+  // Returns every paid entry in `winners` (rank 1-3 carry coins).
+  giveWeeklyRewards: async ({ includeCurrentWeek = false, weekIds = null, dryRun = false } = {}) => {
     await connectDB();
-    let totalRewarded = 0;
-    for (const category of ['football', 'cinema', 'music']) {
-      const weekId = getWeekId(category);
-      const tournament = await WeeklyTournament.findOne({ weekId });
-      if (!tournament || tournament.rewardsGiven) continue;
+    const now = new Date();
+    let query;
+    if (weekIds) {
+      query = { rewardsGiven: false, weekId: { $in: weekIds } };
+    } else {
+      const or = [{ endDate: { $lt: now, $gte: new Date(now.getTime() - REWARD_CATCHUP_MS) } }];
+      if (includeCurrentWeek) or.push({ weekId: { $in: WEEKLY_REWARD_CATEGORIES.map(c => getWeekId(c)) } });
+      query = { rewardsGiven: false, $or: or };
+    }
 
-      const sorted = [...tournament.scores].sort((a, b) => b.bestScore - a.bestScore);
-      const kpMap = { 0: 400, 1: 200, 2: 100 };
-      const coinMap = { 0: 500, 1: 250, 2: 100 };
+    const tournaments = await WeeklyTournament.find(query, { cards: 0 });
+    const winners = [];
+    for (const t of tournaments) {
+      const category = t.weekId.replace(/^\d{4}-W\d{2}_/, '');
+      if (!WEEKLY_REWARD_CATEGORIES.includes(category)) continue;
 
-      for (let i = 0; i < sorted.length; i++) {
-        const kp = kpMap[i] ?? 15; // participation KP for rest
-        const coins = coinMap[i]; // coin reward only for top 3
-        const inc = coins ? { kp, coins } : { kp };
-        await Player.findOneAndUpdate({ id: sorted[i].playerId }, { $inc: inc });
-        sorted[i].kpRewarded = true;
+      const claimed = dryRun ? t : await WeeklyTournament.findOneAndUpdate(
+        { _id: t._id, rewardsGiven: false },
+        { $set: { rewardsGiven: true, categoryKpCredited: true } },
+        { new: true, projection: { cards: 0 } }
+      );
+      if (!claimed) continue;
+
+      // Score 0 (never answered anything) and hidden review accounts don't
+      // count as participants, so they neither take a podium spot nor KP.
+      const ranked = [...claimed.scores]
+        .filter(s => s.bestScore > 0 && !LEADERBOARD_HIDDEN_USERNAMES_RE.test(s.username || ''))
+        .sort((a, b) => b.bestScore - a.bestScore);
+
+      const paidIds = [];
+      for (let i = 0; i < ranked.length; i++) {
+        const kp = WEEKLY_REWARD_KP[i] ?? WEEKLY_PARTICIPATION_KP;
+        const coins = WEEKLY_REWARD_COINS[i] || 0; // coins only for top 3
+        const inc = { kp, [`categoryKp.${category}`]: kp, [`tournamentKp.${category}`]: kp };
+        if (coins) inc.coins = coins;
+        try {
+          const res = dryRun ? true : await Player.findOneAndUpdate({ id: ranked[i].playerId }, { $inc: inc });
+          if (!res) { console.warn(`[Rewards] ${claimed.weekId}: player ${ranked[i].playerId} not found, skipped`); continue; }
+          paidIds.push(ranked[i].playerId);
+          winners.push({ weekId: claimed.weekId, category, playerId: ranked[i].playerId, username: ranked[i].username, rank: i + 1, score: ranked[i].bestScore, kp, coins });
+        } catch (err) {
+          console.error(`[Rewards] ${claimed.weekId}: failed to pay ${ranked[i].playerId}:`, err);
+        }
       }
 
-      tournament.rewardsGiven = true;
-      await tournament.save();
-      totalRewarded += sorted.length;
+      if (paidIds.length && !dryRun) {
+        await WeeklyTournament.updateOne(
+          { _id: claimed._id },
+          { $set: { 'scores.$[e].kpRewarded': true } },
+          { arrayFilters: [{ 'e.playerId': { $in: paidIds } }] }
+        );
+      }
+      console.log(`[Rewards] ${claimed.weekId}: paid ${paidIds.length} of ${claimed.scores.length} entries`);
     }
-    return { success: true, rewarded: totalRewarded };
+    return { success: true, rewarded: winners.length, winners };
+  },
+
+  // Push tokens for a set of player ids (weekly-reward notifications).
+  getPushTokensByIds: async (ids) => {
+    await connectDB();
+    return await Player.find({ id: { $in: ids }, pushToken: { $ne: null } }, 'id username pushToken pushLanguage');
   },
 
   getIsConnected: () => {

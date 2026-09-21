@@ -660,13 +660,20 @@ async function initTournament() {
   }
 }
 
-// Check every hour: if it's Sunday night, give rewards
+// Check every hour: from Sunday 23:00 pay this week's tournaments; at any
+// other hour giveWeeklyRewards still catches a recently-ended week that was
+// missed (e.g. server restarted during the payout hour). Already-paid weeks
+// are skipped by an atomic flag, so calling it hourly is safe.
 setInterval(async () => {
   const now = new Date();
-  // Sunday = 0, after 23:00
-  if (now.getDay() === 0 && now.getHours() >= 23) {
-    const result = await db.giveWeeklyRewards();
-    if (result?.success) console.log(`[Tournament] Weekly rewards given to ${result.rewarded} players.`);
+  try {
+    const result = await db.giveWeeklyRewards({ includeCurrentWeek: now.getDay() === 0 && now.getHours() >= 23 });
+    if (result?.rewarded) {
+      console.log(`[Tournament] Weekly rewards given to ${result.rewarded} players.`);
+      await require('./tournamentRewardNotify').notifyWeeklyWinners(result.winners);
+    }
+  } catch (e) {
+    console.error('[Tournament] Weekly reward run failed:', e);
   }
   // Monday = 1, after 00:01 — ensure new tournament exists
   if (now.getDay() === 1 && now.getHours() === 0) {
