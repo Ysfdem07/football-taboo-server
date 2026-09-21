@@ -801,6 +801,66 @@ const disconnectTimeouts = {};
 // can push a live update to a player without going through their request.
 const playerSockets = {};
 
+// ─── Online presence + direct duel invites ───────────────────────────────────
+// "Online" = a connected socket. Clients announce their language with
+// 'presence' (older app versions don't, and count as Turkish but can't be
+// invited). A duel invite is a short-lived (30s) request from one connected
+// player to another; accepting it starts a FRIENDLY 1v1 (coins only, no KP)
+// in the same kind of room the friendly quick-match queue creates.
+const pendingInvites = {};   // inviteId -> { id, fromId, toId, category, timer }
+const lastInviteAt = {};     // fromSocketId -> ms
+const INVITE_TTL_MS = 30000;
+const INVITE_COOLDOWN_MS = 4000;
+const INVITE_CATEGORIES = ['football', 'cinema', 'music', 'football_en', 'cinema_en', 'music_en'];
+
+const langOfSocket = (sock) => (sock.data && sock.data.language === 'en' ? 'en' : 'tr');
+const langOfCategory = (cat) => (String(cat).endsWith('_en') ? 'en' : 'tr');
+const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, max) : '');
+const connectedSockets = () => [...io.sockets.sockets.values()].filter(sock => sock.connected);
+const roomIdOfSocket = (sock) => sock.data.stablePlayerId || sock.id;
+const isSocketInGame = (sock) => Object.values(activeRooms).some(r => r.status === 'playing' && r.players.some(p => p.id === roomIdOfSocket(sock)));
+const hasPendingInviteFor = (socketId) => Object.values(pendingInvites).some(inv => inv.toId === socketId);
+
+function onlineStatsFor(lang) {
+  const seen = new Set();
+  for (const sock of connectedSockets()) {
+    if (langOfSocket(sock) !== lang) continue;
+    seen.add(sock.data.playerId || sock.id); // one count per account, guests per device
+  }
+  const searching = [...queue, ...friendlyQueue]
+    .filter(u => langOfCategory(u.category) === lang && io.sockets.sockets.get(u.id)?.connected).length;
+  return { online: seen.size, searching };
+}
+
+// Name/avatar shown to the other side: registered players come from the DB
+// (not from anything the client sends), guests from their 'presence' payload.
+async function describeSocket(sock) {
+  if (sock.data.playerId) {
+    const [p] = await db.getPlayersPublicByIds([sock.data.playerId]);
+    if (p) return { name: p.username, avatar: p.avatar || null, kp: p.kp || 0, registered: true };
+  }
+  return { name: sock.data.guestName || 'Guest', avatar: sock.data.guestAvatar || null, kp: 0, registered: false };
+}
+
+function endInvite(inviteId) {
+  const inv = pendingInvites[inviteId];
+  if (!inv) return null;
+  clearTimeout(inv.timer);
+  delete pendingInvites[inviteId];
+  return inv;
+}
+
+// Drop every invite this socket is part of (disconnect) and tell the other side.
+function dropInvitesOf(socketId) {
+  for (const inv of Object.values(pendingInvites)) {
+    if (inv.fromId !== socketId && inv.toId !== socketId) continue;
+    endInvite(inv.id);
+    const otherId = inv.fromId === socketId ? inv.toId : inv.fromId;
+    io.sockets.sockets.get(otherId)?.emit('duel_invite_cancelled', { inviteId: inv.id });
+  }
+  delete lastInviteAt[socketId];
+}
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -1345,6 +1405,141 @@ io.on('connection', (socket) => {
     friendlyQueue = friendlyQueue.filter(u => u.id !== socket.id);
   });
 
+  // ─── Presence + direct duel invites ───────────────────────────────────────
+  socket.on('presence', (data) => {
+    socket.data.language = data?.language === 'en' ? 'en' : 'tr';
+    socket.data.inviteCapable = true;
+    socket.data.guestName = cleanText(data?.name, 20) || null;
+    socket.data.guestAvatar = cleanText(data?.avatar, 8) || null;
+  });
+
+  socket.on('get_online_stats', () => {
+    socket.emit('online_stats', onlineStatsFor(langOfSocket(socket)));
+  });
+
+  // Who can be challenged right now: same language, updated app, not in a match.
+  socket.on('get_online_players', async () => {
+    try {
+      const lang = langOfSocket(socket);
+      const seen = new Set();
+      if (socket.data.playerId) seen.add(socket.data.playerId);
+      const candidates = [];
+      for (const sock of connectedSockets()) {
+        if (sock.id === socket.id || !sock.data.inviteCapable || langOfSocket(sock) !== lang) continue;
+        const key = sock.data.playerId || sock.id;
+        if (seen.has(key) || isSocketInGame(sock)) continue;
+        seen.add(key);
+        candidates.push(sock);
+      }
+      const described = await Promise.all(candidates.slice(0, 60).map(async sock => ({ sock, info: await describeSocket(sock) })));
+      const searchingIds = new Set([...queue, ...friendlyQueue].map(u => u.id));
+      const players = described
+        .filter(d => d.info.registered || !d.sock.data.playerId) // hidden/test accounts resolve to nothing
+        .sort((a, b) => (b.info.kp - a.info.kp))
+        .slice(0, 30)
+        .map(d => ({ targetId: d.sock.id, name: d.info.name, avatar: d.info.avatar, kp: d.info.kp, registered: d.info.registered, searching: searchingIds.has(d.sock.id) }));
+      socket.emit('online_players', { players });
+    } catch (e) {
+      console.error('[get_online_players] error:', e);
+      socket.emit('online_players', { players: [] });
+    }
+  });
+
+  socket.on('send_duel_invite', async (data) => {
+    const fail = (reason) => socket.emit('duel_invite_error', { reason });
+    try {
+      const category = INVITE_CATEGORIES.includes(data?.category) ? data.category : null;
+      const target = io.sockets.sockets.get(String(data?.targetId || ''));
+      if (!category) return fail('bad_request');
+      if (!target || !target.connected || target.id === socket.id || !target.data.inviteCapable) return fail('offline');
+      if (langOfSocket(target) !== langOfSocket(socket) || langOfCategory(category) !== langOfSocket(socket)) return fail('bad_request');
+      if (isSocketInGame(socket)) return fail('self_busy');
+      if (isSocketInGame(target) || hasPendingInviteFor(target.id)) return fail('busy');
+      const now = Date.now();
+      if (lastInviteAt[socket.id] && now - lastInviteAt[socket.id] < INVITE_COOLDOWN_MS) return fail('too_fast');
+      lastInviteAt[socket.id] = now;
+
+      // One outstanding invite per sender: a new one replaces the old.
+      for (const old of Object.values(pendingInvites)) {
+        if (old.fromId !== socket.id) continue;
+        endInvite(old.id);
+        io.sockets.sockets.get(old.toId)?.emit('duel_invite_cancelled', { inviteId: old.id });
+      }
+
+      const from = await describeSocket(socket);
+      const to = await describeSocket(target);
+      const inviteId = 'inv_' + now + '_' + Math.floor(Math.random() * 1e6);
+      const timer = setTimeout(() => {
+        const inv = endInvite(inviteId);
+        if (!inv) return;
+        io.sockets.sockets.get(inv.fromId)?.emit('duel_invite_expired', { inviteId });
+        io.sockets.sockets.get(inv.toId)?.emit('duel_invite_expired', { inviteId });
+      }, INVITE_TTL_MS);
+      pendingInvites[inviteId] = { id: inviteId, fromId: socket.id, toId: target.id, category, timer };
+
+      socket.emit('duel_invite_sent', { inviteId, toName: to.name, ttlMs: INVITE_TTL_MS });
+      target.emit('duel_invite_received', { inviteId, from: { name: from.name, avatar: from.avatar }, category, ttlMs: INVITE_TTL_MS });
+    } catch (e) {
+      console.error('[send_duel_invite] error:', e);
+      fail('server');
+    }
+  });
+
+  socket.on('cancel_duel_invite', (data) => {
+    const inv = pendingInvites[data?.inviteId];
+    if (!inv || inv.fromId !== socket.id) return;
+    endInvite(inv.id);
+    io.sockets.sockets.get(inv.toId)?.emit('duel_invite_cancelled', { inviteId: inv.id });
+  });
+
+  socket.on('respond_duel_invite', (data) => {
+    const inv = pendingInvites[data?.inviteId];
+    if (!inv || inv.toId !== socket.id) return;
+    endInvite(inv.id);
+    const inviter = io.sockets.sockets.get(inv.fromId);
+
+    if (!data.accept) {
+      inviter?.emit('duel_invite_declined', { inviteId: inv.id });
+      return;
+    }
+    if (!inviter || !inviter.connected || isSocketInGame(inviter) || isSocketInGame(socket)) {
+      socket.emit('duel_invite_error', { reason: 'offline' });
+      inviter?.emit('duel_invite_error', { reason: 'busy' });
+      return;
+    }
+
+    // Either side may have been quick-match searching: pull them out first.
+    queue = queue.filter(u => u.id !== inviter.id && u.id !== socket.id);
+    friendlyQueue = friendlyQueue.filter(u => u.id !== inviter.id && u.id !== socket.id);
+    Promise.all([describeSocket(inviter), describeSocket(socket)]).then(([a, b]) => {
+      if (!inviter.connected || !socket.connected) return;
+      const p1 = { id: inviter.id, name: a.name, avatar: a.avatar, dbPlayerId: inviter.data.playerId || null, category: inv.category };
+      const p2 = { id: socket.id, name: b.name, avatar: b.avatar, dbPlayerId: socket.data.playerId || null, category: inv.category };
+      const roomId = `friendly_${Date.now()}_${Math.random()}`;
+      inviter.join(roomId);
+      socket.join(roomId);
+      activeRooms[roomId] = {
+        category: inv.category,
+        isPrivate: false,
+        isRanked1v1: false,
+        isFriendly1v1: true,  // coins only, no KP/category XP
+        status: 'playing',
+        players: [p1, p2],
+        scores: { [p1.id]: 0, [p2.id]: 0 },
+        currentRound: 0,
+        maxRounds: 10,
+        usedWords: [],
+        timer: null,
+        roundActive: false,
+        isPaused: false,
+        guessingPlayerId: null,
+        guessTimer: null
+      };
+      io.to(roomId).emit('duel_invite_matched', { players: [p1, p2], roomId, category: inv.category, isFriendly: true });
+      setTimeout(() => { startRound(roomId); }, 5000);
+    }).catch(e => console.error('[respond_duel_invite] error:', e));
+  });
+
   // Friendly Quick Match queue — coins only, no KP, guests OK
   socket.on('join_friendly_queue', (data) => {
     if (friendlyQueue.find(u => u.id === socket.id)) return;
@@ -1684,6 +1879,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+    dropInvitesOf(socket.id);
     queue = queue.filter(u => u.id !== socket.id);
     // Only clear the mapping if it still points at THIS socket — a newer
     // connection from the same player (e.g. quick reconnect) may have

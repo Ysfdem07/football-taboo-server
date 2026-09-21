@@ -989,6 +989,12 @@ module.exports = {
     return await Player.find(filter, 'id username pushToken');
   },
 
+  // Public profile bits (name/avatar/kp) for the "online players" list.
+  getPlayersPublicByIds: async (ids) => {
+    await connectDB();
+    return await Player.find({ id: { $in: ids }, username: { $not: LEADERBOARD_HIDDEN_USERNAMES_RE } }, 'id username avatar kp').lean();
+  },
+
   getNotificationOverrides: async () => {
     await connectDB();
     return await NotificationTemplate.find({}).lean();
