@@ -818,6 +818,7 @@ const langOfCategory = (cat) => (String(cat).endsWith('_en') ? 'en' : 'tr');
 const cleanText = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, max) : '');
 const connectedSockets = () => [...io.sockets.sockets.values()].filter(sock => sock.connected);
 const roomIdOfSocket = (sock) => sock.data.stablePlayerId || sock.id;
+const isSocketBusy = (sock) => sock.data.activity === 'busy' || isSocketInGame(sock);
 const isSocketInGame = (sock) => Object.values(activeRooms).some(r => r.status === 'playing' && r.players.some(p => p.id === roomIdOfSocket(sock)));
 const hasPendingInviteFor = (socketId) => Object.values(pendingInvites).some(inv => inv.toId === socketId);
 
@@ -1409,6 +1410,9 @@ io.on('connection', (socket) => {
   socket.on('presence', (data) => {
     socket.data.language = data?.language === 'en' ? 'en' : 'tr';
     socket.data.inviteCapable = true;
+    // 'idle' | 'tournament' (mid solo/tournament run: can still receive an invite,
+    // shown as a banner) | 'busy' (onboarding, private room lobby: not invitable)
+    socket.data.activity = ['tournament', 'busy'].includes(data?.activity) ? data.activity : 'idle';
     socket.data.guestName = cleanText(data?.name, 20) || null;
     socket.data.guestAvatar = cleanText(data?.avatar, 8) || null;
   });
@@ -1427,7 +1431,7 @@ io.on('connection', (socket) => {
       for (const sock of connectedSockets()) {
         if (sock.id === socket.id || !sock.data.inviteCapable || langOfSocket(sock) !== lang) continue;
         const key = sock.data.playerId || sock.id;
-        if (seen.has(key) || isSocketInGame(sock)) continue;
+        if (seen.has(key)) continue;
         seen.add(key);
         candidates.push(sock);
       }
@@ -1435,9 +1439,15 @@ io.on('connection', (socket) => {
       const searchingIds = new Set([...queue, ...friendlyQueue].map(u => u.id));
       const players = described
         .filter(d => d.info.registered || !d.sock.data.playerId) // hidden/test accounts resolve to nothing
-        .sort((a, b) => (b.info.kp - a.info.kp))
+        .map(d => ({ ...d, busy: isSocketBusy(d.sock) }))
+        .sort((a, b) => (Number(a.busy) - Number(b.busy)) || (b.info.kp - a.info.kp)) // available first
         .slice(0, 30)
-        .map(d => ({ targetId: d.sock.id, name: d.info.name, avatar: d.info.avatar, kp: d.info.kp, registered: d.info.registered, searching: searchingIds.has(d.sock.id) }));
+        .map(d => ({
+          targetId: d.sock.id, name: d.info.name, avatar: d.info.avatar, kp: d.info.kp, registered: d.info.registered,
+          searching: searchingIds.has(d.sock.id),
+          inTournament: d.sock.data.activity === 'tournament' && !d.busy,
+          busy: d.busy
+        }));
       socket.emit('online_players', { players });
     } catch (e) {
       console.error('[get_online_players] error:', e);
@@ -1454,7 +1464,7 @@ io.on('connection', (socket) => {
       if (!target || !target.connected || target.id === socket.id || !target.data.inviteCapable) return fail('offline');
       if (langOfSocket(target) !== langOfSocket(socket) || langOfCategory(category) !== langOfSocket(socket)) return fail('bad_request');
       if (isSocketInGame(socket)) return fail('self_busy');
-      if (isSocketInGame(target) || hasPendingInviteFor(target.id)) return fail('busy');
+      if (isSocketBusy(target) || hasPendingInviteFor(target.id)) return fail('busy');
       const now = Date.now();
       if (lastInviteAt[socket.id] && now - lastInviteAt[socket.id] < INVITE_COOLDOWN_MS) return fail('too_fast');
       lastInviteAt[socket.id] = now;
