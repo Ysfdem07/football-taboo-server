@@ -13,6 +13,8 @@ import { getSocket } from '../services/socket';
 import { registerForPushNotificationsAsync } from '../services/notifications';
 import { useOnlineStats, MIN_ONLINE_TO_SHOW } from '../services/onlinePresence';
 import OnlinePlayersModal from '../components/OnlinePlayersModal';
+import SoloModePicker from '../components/SoloModePicker';
+import { CustomAlert } from '../components/CustomAlert';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -23,8 +25,27 @@ export default function HomeScreen() {
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showOnline, setShowOnline] = useState(false);
+  const [showSolo, setShowSolo] = useState(false);
   const isFocused = useIsFocused();
   const onlineStats = useOnlineStats(isFocused);
+  // Duel invites need someone else online (the count includes yourself).
+  const canDuel = !!onlineStats && onlineStats.online >= MIN_ONLINE_TO_SHOW;
+
+  // Solo mode: straight to the weekly tournament of the chosen category (same
+  // sign-in requirement as entering it from the category menu).
+  const startSolo = async (categoryId: string) => {
+    setShowSolo(false);
+    const raw = await AsyncStorage.getItem('@logged_in_profile');
+    const p = raw ? JSON.parse(raw) : null;
+    if (!p || !p.id || p.id === 'guest') {
+      CustomAlert.show(t('error'), t('tournamentNeedLogin'), [
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('signInBtn'), onPress: () => navigation.navigate('Profile') },
+      ], 'neutral');
+      return;
+    }
+    navigation.navigate('Tournament', { categoryId });
+  };
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
@@ -156,20 +177,35 @@ export default function HomeScreen() {
         {/* 3D WORDICO HEADER TITLE - Shifted down matching mockup */}
         <View style={styles.headerTitleRow}>
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICOO</Text>
-          {onlineStats && onlineStats.online >= MIN_ONLINE_TO_SHOW && (<>
-            <TouchableOpacity style={styles.onlinePill} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
-              <View style={styles.onlineDot} />
-              <Text style={styles.onlineText} allowFontScaling={false}>
-                {t('onlinePlayersCount').replace('{n}', String(onlineStats.online))}
-                {onlineStats.searching > 0 ? ' · ' + t('onlineSearching').replace('{n}', String(onlineStats.searching)) : ''}
-              </Text>
-              <Ionicons name="chevron-forward" size={14} color="#00FF88" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.duelCta} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[styles.onlinePill, !canDuel && styles.disabledBtn]}
+            onPress={() => setShowOnline(true)}
+            disabled={!canDuel}
+            activeOpacity={0.85}
+          >
+            <View style={[styles.onlineDot, !canDuel && { backgroundColor: '#7a8a80', shadowOpacity: 0 }]} />
+            <Text style={styles.onlineText} allowFontScaling={false}>
+              {canDuel
+                ? t('onlinePlayersCount').replace('{n}', String(onlineStats!.online)) + (onlineStats!.searching > 0 ? ' · ' + t('onlineSearching').replace('{n}', String(onlineStats!.searching)) : '')
+                : t('onlineNoOthers')}
+            </Text>
+            {canDuel && <Ionicons name="chevron-forward" size={14} color="#00FF88" />}
+          </TouchableOpacity>
+          <View style={styles.ctaRow}>
+            <TouchableOpacity
+              style={[styles.duelCta, !canDuel && styles.disabledBtn]}
+              onPress={() => setShowOnline(true)}
+              disabled={!canDuel}
+              activeOpacity={0.85}
+            >
               <Ionicons name="flash" size={15} color="#04140b" />
               <Text style={styles.duelCtaText} allowFontScaling={false}>{t('duelNowCta')}</Text>
             </TouchableOpacity>
-          </>)}
+            <TouchableOpacity style={styles.soloCta} onPress={() => setShowSolo(true)} activeOpacity={0.85}>
+              <Ionicons name="trophy" size={15} color="#1a1400" />
+              <Text style={styles.soloCtaText} allowFontScaling={false}>{t('soloModeCta')}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* CATEGORIES LIST SCROLLVIEW */}
@@ -249,6 +285,7 @@ export default function HomeScreen() {
         <BottomNavBar activeTab="home" navigation={navigation} />
 
         <OnlinePlayersModal visible={showOnline} onClose={() => setShowOnline(false)} />
+        <SoloModePicker visible={showSolo} onClose={() => setShowSolo(false)} onPick={startSolo} />
 
       </SafeAreaView>
     </ImageBackground>
@@ -290,11 +327,40 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0,255,136,0.6)',
     backgroundColor: 'rgba(5,11,20,0.85)',
   },
+  disabledBtn: {
+    opacity: 0.4,
+  },
+  ctaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  soloCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 20,
+    backgroundColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
+  },
+  soloCtaText: {
+    color: '#1a1400',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 12.5,
+    letterSpacing: 0.6,
+  },
   duelCta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 8,
     paddingHorizontal: 18,
     paddingVertical: 9,
     borderRadius: 20,
