@@ -132,7 +132,9 @@ const Player = mongoose.model('Player', playerSchema);
 // Usernames of real, working accounts (app-store review testers, internal QA)
 // that should stay fully functional but never show up on the public KP
 // leaderboard — see getLeaderboard below.
-const LEADERBOARD_HIDDEN_USERNAMES_RE = /^(applereviewer)$/i;
+// (Dusan Dusan / Lionel Yusuf: the owner's own old test accounts, hidden until
+// they're deleted for good.)
+const LEADERBOARD_HIDDEN_USERNAMES_RE = /^(applereviewer|Dusan Dusan|Lionel Yusuf)$/i;
 
 // Weekly tournament payout: KP for ranks 1-3, coins for ranks 1-3, and a small
 // participation KP for everyone else who scored.
@@ -859,7 +861,8 @@ module.exports = {
     const weekId = getWeekId(category);
     const tournament = await WeeklyTournament.findOne({ weekId });
     if (!tournament) return [];
-    const top = [...tournament.scores]
+    const top = tournament.scores
+      .filter(s => !LEADERBOARD_HIDDEN_USERNAMES_RE.test(s.username || ''))
       .sort((a, b) => b.bestScore - a.bestScore)
       .slice(0, 20);
 
