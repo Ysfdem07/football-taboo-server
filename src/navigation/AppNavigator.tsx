@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
+import { navigationRef } from './navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
@@ -21,6 +22,7 @@ import TournamentGameScreen from '../screens/TournamentGameScreen';
 import CardAlbumScreen from '../screens/CardAlbumScreen';
 import PitchBattleScreen from '../screens/PitchBattleScreen';
 import MarketScreen from '../screens/MarketScreen';
+import DuelInviteHost from '../components/DuelInviteHost';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -48,9 +50,8 @@ import RoomLobbyScreen from '../screens/RoomLobbyScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Lets code outside the navigator (a push-notification tap handler in
-// App.tsx) navigate without needing the ref passed down through props.
-export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+// Re-exported for existing importers (App.tsx); defined in navigationRef.ts.
+export { navigationRef };
 
 export default function AppNavigator() {
   // A device with no saved profile yet has never been through onboarding —
@@ -104,6 +105,7 @@ export default function AppNavigator() {
         <Stack.Screen name="CardAlbum" component={CardAlbumScreen} />
         <Stack.Screen name="PitchBattle" component={PitchBattleScreen} />
       </Stack.Navigator>
+      <DuelInviteHost />
     </NavigationContainer>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, ActivityIndicator, Image, useWindowDimensions, Linking, ScrollView, StatusBar, Platform } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,6 +11,8 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useLanguage } from '../context/LanguageContext';
 import { getSocket } from '../services/socket';
 import { registerForPushNotificationsAsync } from '../services/notifications';
+import { useOnlineStats, MIN_ONLINE_TO_SHOW } from '../services/onlinePresence';
+import OnlinePlayersModal from '../components/OnlinePlayersModal';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -20,6 +22,9 @@ export default function HomeScreen() {
   const { language, setLanguage, t } = useLanguage();
   const [player, setPlayer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showOnline, setShowOnline] = useState(false);
+  const isFocused = useIsFocused();
+  const onlineStats = useOnlineStats(isFocused);
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
 
@@ -151,6 +156,16 @@ export default function HomeScreen() {
         {/* 3D WORDICO HEADER TITLE - Shifted down matching mockup */}
         <View style={styles.headerTitleRow}>
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICOO</Text>
+          {onlineStats && onlineStats.online >= MIN_ONLINE_TO_SHOW && (
+            <TouchableOpacity style={styles.onlinePill} onPress={() => setShowOnline(true)} activeOpacity={0.85}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.onlineText} allowFontScaling={false}>
+                {t('onlinePlayersCount').replace('{n}', String(onlineStats.online))}
+                {onlineStats.searching > 0 ? ' · ' + t('onlineSearching').replace('{n}', String(onlineStats.searching)) : ''}
+              </Text>
+              <Ionicons name="chevron-forward" size={14} color="#00FF88" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* CATEGORIES LIST SCROLLVIEW */}
@@ -229,6 +244,8 @@ export default function HomeScreen() {
         {/* BOTTOM TAB BAR */}
         <BottomNavBar activeTab="home" navigation={navigation} />
 
+        <OnlinePlayersModal visible={showOnline} onClose={() => setShowOnline(false)} />
+
       </SafeAreaView>
     </ImageBackground>
   );
@@ -256,6 +273,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 10,
+  },
+  onlinePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginTop: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0,255,136,0.6)',
+    backgroundColor: 'rgba(5,11,20,0.85)',
+  },
+  onlineDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: '#00FF88',
+    shadowColor: '#00FF88',
+    shadowOpacity: 0.9,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  onlineText: {
+    color: '#FFF',
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 12,
   },
   iconButton: {
     width: 42,

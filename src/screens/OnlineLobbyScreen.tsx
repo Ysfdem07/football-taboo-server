@@ -108,7 +108,10 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
     initDynamicTunnel();
     
     return () => {
-      // Do not disconnect shared singleton socket when navigating to OnlineGame or RoomLobby
+      // Do not disconnect shared singleton socket when navigating to OnlineGame or RoomLobby.
+      // Do stop the give-up timer, or its "no opponent" alert can fire over a game
+      // the player was pulled into after leaving this screen.
+      if (matchTimeoutRef.current) clearTimeout(matchTimeoutRef.current);
     };
   }, []);
 
