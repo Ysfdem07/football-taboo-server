@@ -212,38 +212,59 @@ const loadRewarded = async (type: 'x2' | 'tourney' | 'market') => {
   }
 };
 
-// In-memory only (resets on app restart) — every OTHER match end in the
-// same session shows the interstitial instead of every single one. Weekly
-// Tournament is the one exception (see `force` below): every attempt there
-// ends in a full ad, no every-other throttling.
+// Match ads (in-memory only, resets on app restart): the FIRST completed match
+// of a session always gets an interstitial; after that every 2nd match does.
+// Weekly Tournament is the one exception (see `force` below): every attempt
+// there ends in a full ad and doesn't touch this counter.
+let firstMatchAdShown = false;
 let matchesSinceLastInterstitial = 0;
 
-export const showInterstitial = (force: boolean = false): void => {
-  if (!force) {
-    matchesSinceLastInterstitial += 1;
-    if (matchesSinceLastInterstitial < 2) {
-      if (__DEV__) console.log(`[Ads] Skipping interstitial (${matchesSinceLastInterstitial}/2 matches this session).`);
-      return;
-    }
-    matchesSinceLastInterstitial = 0;
-  }
-
+// Returns true when the ad was actually put on screen (or simulated in Expo Go),
+// false when it couldn't be shown yet (still loading).
+const tryShowInterstitial = (): boolean => {
   if (!isFirebaseAvailable || !interstitialAdInstance) {
     if (__DEV__) {
       console.log('[Ads Mock] [Expo Go] Interstitial Ad Triggered! (Simulating full-screen ad)');
     }
-    return;
+    return true;
   }
 
   try {
     if (isInterstitialLoaded) {
       interstitialAdInstance.show();
-    } else {
-      if (__DEV__) console.log('[Ads] Interstitial not loaded yet. Retrying load...');
-      interstitialAdInstance.load();
+      return true;
     }
+    if (__DEV__) console.log('[Ads] Interstitial not loaded yet. Retrying load...');
+    interstitialAdInstance.load();
   } catch (err) {
     console.warn('[Ads] Failed to show interstitial:', err);
+  }
+  return false;
+};
+
+export const showInterstitial = (force: boolean = false): void => {
+  if (force) {
+    tryShowInterstitial();
+    return;
+  }
+
+  let due: boolean;
+  if (!firstMatchAdShown) {
+    due = true;
+  } else {
+    matchesSinceLastInterstitial += 1;
+    due = matchesSinceLastInterstitial >= 2;
+  }
+  if (!due) {
+    if (__DEV__) console.log(`[Ads] Skipping interstitial (${matchesSinceLastInterstitial}/2 matches since the last one).`);
+    return;
+  }
+
+  // Only a shown ad resets the schedule: if it wasn't loaded yet, the next
+  // match is still due, so the first-match ad isn't silently lost.
+  if (tryShowInterstitial()) {
+    firstMatchAdShown = true;
+    matchesSinceLastInterstitial = 0;
   }
 };
 

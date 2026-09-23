@@ -484,8 +484,12 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   // Prevent accidental back navigation (Android back button, iOS swipe back)
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
-      // If the game is over, let them go back immediately without asking
+      // If the game is over, let them go back immediately without asking. This
+      // is the single place a finished duel triggers its interstitial: every
+      // way off the result screen (menu button, Android back, swipe) removes
+      // the screen, so all of them count as exactly one completed match.
       if (gameOver) {
+        showInterstitial();
         return;
       }
 
@@ -783,7 +787,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 style={styles.menuButton}
                 onPress={() => {
                   socket.disconnect();
-                  showInterstitial();
                   navigation.replace('Home');
                 }}
                 activeOpacity={0.8}
