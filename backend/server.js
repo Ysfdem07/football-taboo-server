@@ -527,6 +527,7 @@ function escapeHtml(str) {
 }
 
 const notificationRules = require('./notificationRules');
+const duelBots = require('./duelBots');
 
 // Panel section: the automatic notifications (trigger, audience, editable texts).
 function renderAutoRulesHtml(rules, key) {
@@ -877,6 +878,58 @@ function dropInvitesOf(socketId) {
     io.sockets.sockets.get(otherId)?.emit('duel_invite_cancelled', { inviteId: inv.id });
   }
   delete lastInviteAt[socketId];
+}
+
+// A practice match against one of the bots: no invite to wait for, the bot
+// "accepts" instantly and the friendly room (coins only) starts like any other.
+async function startBotMatch(socket, botKey, category, fail) {
+  try {
+    const bot = duelBots.findBot(botKey);
+    const lang = langOfSocket(socket);
+    if (!bot || langOfCategory(category) !== lang) return fail('bad_request');
+    if (isSocketInGame(socket)) return fail('self_busy');
+    const now = Date.now();
+    if (lastInviteAt[socket.id] && now - lastInviteAt[socket.id] < INVITE_COOLDOWN_MS) return fail('too_fast');
+    lastInviteAt[socket.id] = now;
+
+    // one outstanding thing at a time: drop any pending invite / search
+    for (const old of Object.values(pendingInvites)) {
+      if (old.fromId !== socket.id) continue;
+      endInvite(old.id);
+      io.sockets.sockets.get(old.toId)?.emit('duel_invite_cancelled', { inviteId: old.id });
+    }
+    queue = queue.filter(u => u.id !== socket.id);
+    friendlyQueue = friendlyQueue.filter(u => u.id !== socket.id);
+
+    const me = await describeSocket(socket);
+    const human = { id: socket.id, name: me.name, avatar: me.avatar, dbPlayerId: socket.data.playerId || null, category };
+    const botPlayer = duelBots.createBotPlayer(bot, lang);
+    const roomId = `friendly_bot_${Date.now()}_${Math.random()}`;
+    socket.join(roomId);
+    activeRooms[roomId] = {
+      category,
+      isPrivate: false,
+      isRanked1v1: false,
+      isFriendly1v1: true,   // coins only, no KP/category XP
+      hasBots: true,
+      status: 'playing',
+      players: [human, botPlayer],
+      scores: { [human.id]: 0, [botPlayer.id]: 0 },
+      currentRound: 0,
+      maxRounds: 10,
+      usedWords: [],
+      timer: null,
+      roundActive: false,
+      isPaused: false,
+      guessingPlayerId: null,
+      guessTimer: null
+    };
+    socket.emit('duel_invite_matched', { players: [human, botPlayer], roomId, category, mode: 'friendly', isFriendly: true });
+    setTimeout(() => { startRound(roomId); }, 5000);
+  } catch (e) {
+    console.error('[startBotMatch] error:', e);
+    fail('server');
+  }
 }
 
 io.on('connection', (socket) => {
@@ -1466,7 +1519,7 @@ io.on('connection', (socket) => {
           inTournament: d.sock.data.activity === 'tournament' && !d.busy,
           busy: d.busy
         }));
-      socket.emit('online_players', { players });
+      socket.emit('online_players', { players, bots: duelBots.publicRoster() });
     } catch (e) {
       console.error('[get_online_players] error:', e);
       socket.emit('online_players', { players: [] });
@@ -1480,6 +1533,10 @@ io.on('connection', (socket) => {
       const mode = data?.mode === 'ranked' ? 'ranked' : 'friendly';
       const target = io.sockets.sockets.get(String(data?.targetId || ''));
       if (!category) return fail('bad_request');
+      if (duelBots.isBotId(String(data?.targetId || ''))) {
+        if (mode === 'ranked') return fail('ranked_bot'); // practice bots never play ranked
+        return startBotMatch(socket, String(data.targetId), category, fail);
+      }
       if (!target || !target.connected || target.id === socket.id || !isLive(target)) return fail('offline');
       if (langOfSocket(target) !== langOfSocket(socket) || langOfCategory(category) !== langOfSocket(socket)) return fail('bad_request');
       if (mode === 'ranked' && (!socket.data.playerId || !target.data.playerId)) return fail('ranked_guest');
@@ -1687,148 +1744,22 @@ io.on('connection', (socket) => {
     }, 3000);
   });
 
+  // The three in-match actions live in module-level functions (see
+  // beginGuessTurn / castPassVote / submitGuess) so the practice bots can call
+  // exactly the same code paths as a real player's socket.
   socket.on('request_guess_turn', (data) => {
     const { roomId, playerId } = data;
-    const id = playerId || socket.id;
-    const room = activeRooms[roomId];
-    if (!room || !room.roundActive || room.isPaused || room.guessingPlayerId) return; // someone is already guessing or round ended
-
-    room.guessingPlayerId = id;
-    room.isPaused = true;
-    room.guessTimeLeft = 15; // Increased to 15 seconds as requested!
-
-    io.to(roomId).emit('guess_turn_started', { playerId: id, time: room.guessTimeLeft });
-
-    room.guessTimer = setInterval(() => {
-      room.guessTimeLeft--;
-      if (room.guessTimeLeft <= 0) {
-        clearInterval(room.guessTimer);
-        room.guessTimer = null;
-        room.guessingPlayerId = null;
-        room.isPaused = false;
-        
-        // Timeout penalty
-        const penalty = 10;
-        room.scores[id] = (room.scores[id] || 0) - penalty;
-        io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'timeout', playerId: id });
-        io.to(roomId).emit('guess_turn_ended');
-      } else {
-        io.to(roomId).emit('guess_time_tick', { time: room.guessTimeLeft });
-      }
-    }, 1000);
+    beginGuessTurn(roomId, playerId || socket.id);
   });
 
   socket.on('pass_round', (data) => {
     const { roomId, playerId } = data;
-    const id = playerId || socket.id;
-    const room = activeRooms[roomId];
-    if (!room || !room.roundActive) {
-      console.log(`[PassRound] Rejected - room exists: ${!!room}, roundActive: ${room?.roundActive}`);
-      return;
-    }
-
-    if (!room.passVotes) {
-      room.passVotes = new Set();
-    }
-
-    // Add this socket's vote
-    room.passVotes.add(id);
-
-    // Count votes by checking which room players have voted
-    // room.players[i].id === socket.id always (set at join time)
-    const activePlayers = room.players || [];
-    const totalPlayers = activePlayers.length;
-    const validVotesCount = activePlayers.filter(p => room.passVotes.has(p.id)).length;
-
-    // Fallback: if player list seems wrong, use passVotes.size directly
-    const effectiveVotes = validVotesCount > 0 ? validVotesCount : room.passVotes.size;
-    const requiredVotes = Math.max(1, totalPlayers || room.passVotes.size);
-
-    console.log(`[PassRound] Room ${roomId}: socket=${socket.id}, passVotes=[${[...room.passVotes].join(',')}], players=[${activePlayers.map(p=>p.id).join(',')}], validVotes=${validVotesCount}, effectiveVotes=${effectiveVotes}, required=${requiredVotes}`);
-
-    io.to(roomId).emit('pass_update', {
-      votesCount: effectiveVotes,
-      totalPlayers: requiredVotes,
-      voterId: id
-    });
-
-    if (effectiveVotes >= requiredVotes) {
-      room.roundActive = false;
-      room.isPaused = false;
-      room.guessingPlayerId = null;
-      if (room.timer) clearInterval(room.timer);
-      if (room.guessTimer) clearInterval(room.guessTimer);
-
-      io.to(roomId).emit('round_ended', {
-        winnerId: null,
-        winnerName: null,
-        word: room.card ? room.card.word : 'PAS',
-        reason: 'pass',
-        scores: room.scores
-      });
-
-      setTimeout(() => {
-        startRound(roomId);
-      }, 3000);
-    }
+    castPassVote(roomId, playerId || socket.id);
   });
 
   socket.on('guess_word', (data) => {
     const { roomId, guess, playerId } = data;
-    const id = playerId || socket.id;
-    const room = activeRooms[roomId];
-    if (!room || !room.roundActive) return;
-    
-    if (room.guessingPlayerId !== id) return;
-
-    if (room.guessTimer) {
-      clearInterval(room.guessTimer);
-      room.guessTimer = null;
-    }
-
-    if (normalizeText(guess) === normalizeText(room.card.word)) {
-      // Correct!
-      room.roundActive = false;
-      room.isPaused = false;
-      room.guessingPlayerId = null;
-      clearInterval(room.timer);
-      
-      const pointsEarned = getPotentialScore(room);
-      room.scores[id] = (room.scores[id] || 0) + pointsEarned;
-      
-      const winnerPlayer = room.players.find(p => p.id === id);
-      
-      io.to(roomId).emit('round_ended', {
-        winnerId: id,
-        winnerName: winnerPlayer ? winnerPlayer.name : 'Oyuncu',
-        word: room.card.word,
-        reason: 'correct_guess',
-        pointsEarned: pointsEarned,
-        scores: room.scores
-      });
-      
-      setTimeout(() => {
-        startRound(roomId);
-      }, 4000);
-    } else {
-      // Incorrect guess
-      let penalty = 10;
-      let reason = 'incorrect';
-      
-      if (room.activeShields && room.activeShields[id]) {
-        room.activeShields[id] = false; // consume shield
-        penalty = 0;
-        reason = 'shielded';
-      } else {
-        room.scores[id] = (room.scores[id] || 0) - penalty;
-      }
-      
-      room.guessingPlayerId = null;
-      room.isPaused = false;
-
-      io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: reason, playerId: id });
-      io.to(roomId).emit('guess_turn_ended');
-    }
+    submitGuess(roomId, playerId || socket.id, guess);
   });
 
   // Called by the client right after its socket reconnects mid-match (see
@@ -2053,6 +1984,10 @@ async function resolveMatchForfeit(room, roomId, quitter) {
       kpChanges[p.id] = 50;
       if (p.dbPlayerId) record(await db.updatePlayerStats(p.dbPlayerId, 50, true, 0, 0, roomCat));
     }
+  } else if (room.hasBots) {
+    // Practice match vs. a bot: leaving costs nothing.
+    kpChanges[quitter.id] = 0;
+    for (const p of remaining) kpChanges[p.id] = 0;
   } else {
     // Friendly / private: coins only, no KP — quitter loses 25 (only if
     // they actually have 25+; updatePlayerCoins' own $gte guard makes this
@@ -2091,6 +2026,165 @@ function getPotentialScore(room) {
   return Math.max(10, 100 - (hintsPenalty * 10) - (lettersPenalty * 10));
 }
 
+// ─── In-match actions (shared by real players' sockets and the practice bots) ─
+function beginGuessTurn(roomId, id) {
+  const room = activeRooms[roomId];
+  if (!room || !room.roundActive || room.isPaused || room.guessingPlayerId) return; // someone is already guessing or round ended
+
+  room.guessingPlayerId = id;
+  room.isPaused = true;
+  room.guessTimeLeft = 15; // Increased to 15 seconds as requested!
+
+  io.to(roomId).emit('guess_turn_started', { playerId: id, time: room.guessTimeLeft });
+
+  room.guessTimer = setInterval(() => {
+    room.guessTimeLeft--;
+    if (room.guessTimeLeft <= 0) {
+      clearInterval(room.guessTimer);
+      room.guessTimer = null;
+      room.guessingPlayerId = null;
+      room.isPaused = false;
+
+      // Timeout penalty
+      const penalty = 10;
+      room.scores[id] = (room.scores[id] || 0) - penalty;
+      io.to(roomId).emit('wrong_guess', { scores: room.scores, reason: 'timeout', playerId: id });
+      io.to(roomId).emit('guess_turn_ended');
+    } else {
+      io.to(roomId).emit('guess_time_tick', { time: room.guessTimeLeft });
+    }
+  }, 1000);
+}
+
+function castPassVote(roomId, id) {
+  const room = activeRooms[roomId];
+  if (!room || !room.roundActive) {
+    console.log(`[PassRound] Rejected - room exists: ${!!room}, roundActive: ${room?.roundActive}`);
+    return;
+  }
+
+  if (!room.passVotes) {
+    room.passVotes = new Set();
+  }
+
+  // Add this player's vote
+  room.passVotes.add(id);
+
+  // Count votes by checking which room players have voted
+  const activePlayers = room.players || [];
+  const totalPlayers = activePlayers.length;
+  const validVotesCount = activePlayers.filter(p => room.passVotes.has(p.id)).length;
+
+  // Fallback: if player list seems wrong, use passVotes.size directly
+  const effectiveVotes = validVotesCount > 0 ? validVotesCount : room.passVotes.size;
+  const requiredVotes = Math.max(1, totalPlayers || room.passVotes.size);
+
+  console.log(`[PassRound] Room ${roomId}: voter=${id}, passVotes=[${[...room.passVotes].join(',')}], players=[${activePlayers.map(p=>p.id).join(',')}], validVotes=${validVotesCount}, effectiveVotes=${effectiveVotes}, required=${requiredVotes}`);
+
+  io.to(roomId).emit('pass_update', {
+    votesCount: effectiveVotes,
+    totalPlayers: requiredVotes,
+    voterId: id
+  });
+
+  if (effectiveVotes >= requiredVotes) {
+    room.roundActive = false;
+    room.isPaused = false;
+    room.guessingPlayerId = null;
+    if (room.timer) clearInterval(room.timer);
+    if (room.guessTimer) clearInterval(room.guessTimer);
+
+    io.to(roomId).emit('round_ended', {
+      winnerId: null,
+      winnerName: null,
+      word: room.card ? room.card.word : 'PAS',
+      reason: 'pass',
+      scores: room.scores
+    });
+
+    setTimeout(() => {
+      startRound(roomId);
+    }, 3000);
+  } else if (room.hasBots) {
+    duelBots.onPassVote(room, roomId, id, botHooks);
+  }
+}
+
+function submitGuess(roomId, id, guess) {
+  const room = activeRooms[roomId];
+  if (!room || !room.roundActive) return;
+
+  if (room.guessingPlayerId !== id) return;
+
+  if (room.guessTimer) {
+    clearInterval(room.guessTimer);
+    room.guessTimer = null;
+  }
+
+  if (normalizeText(guess) === normalizeText(room.card.word)) {
+    // Correct!
+    room.roundActive = false;
+    room.isPaused = false;
+    room.guessingPlayerId = null;
+    clearInterval(room.timer);
+
+    const pointsEarned = getPotentialScore(room);
+    room.scores[id] = (room.scores[id] || 0) + pointsEarned;
+
+    const winnerPlayer = room.players.find(p => p.id === id);
+
+    io.to(roomId).emit('round_ended', {
+      winnerId: id,
+      winnerName: winnerPlayer ? winnerPlayer.name : 'Oyuncu',
+      word: room.card.word,
+      reason: 'correct_guess',
+      pointsEarned: pointsEarned,
+      scores: room.scores
+    });
+
+    setTimeout(() => {
+      startRound(roomId);
+    }, 4000);
+  } else {
+    // Incorrect guess
+    let penalty = 10;
+    let reason = 'incorrect';
+
+    if (room.activeShields && room.activeShields[id]) {
+      room.activeShields[id] = false; // consume shield
+      penalty = 0;
+      reason = 'shielded';
+    } else {
+      room.scores[id] = (room.scores[id] || 0) - penalty;
+    }
+
+    room.guessingPlayerId = null;
+    room.isPaused = false;
+
+    io.to(roomId).emit('wrong_guess', { scores: room.scores, penalty: penalty, reason: reason, playerId: id });
+    io.to(roomId).emit('guess_turn_ended');
+  }
+}
+
+const BOT_MATCH_COIN_LIMIT_PER_DAY = 5;
+const botCoinLog = new Map(); // player key -> { day, count }
+function botMatchCoinsAllowed(key) {
+  const day = new Date().toISOString().slice(0, 10);
+  const rec = botCoinLog.get(key);
+  if (!rec || rec.day !== day) { botCoinLog.set(key, { day, count: 1 }); return true; }
+  rec.count += 1;
+  return rec.count <= BOT_MATCH_COIN_LIMIT_PER_DAY;
+}
+
+// What the practice bots need from the game engine (see duelBots.js).
+const botHooks = {
+  get activeRooms() { return activeRooms; },
+  beginGuessTurn,
+  submitGuess,
+  castPassVote,
+  wordPool: (category) => wordsDb[category || 'football'] || [],
+};
+
 async function startRound(roomId) {
   const room = activeRooms[roomId];
   if (!room) return;
@@ -2111,7 +2205,7 @@ async function startRound(roomId) {
     // one player is mid-disconnect and hasn't been formally removed yet.
     // Without this, that resolved as a normal win/tie off their stale
     // frozen score instead of the forfeit it actually is.
-    const goneIndex = room.players.findIndex(p => !isPlayerConnected(p.id));
+    const goneIndex = room.players.findIndex(p => !p.isBot && !isPlayerConnected(p.id));
     if (goneIndex !== -1 && room.players.length > 1) {
       const [quitter] = room.players.splice(goneIndex, 1);
       io.to(roomId).emit('player_disconnected', { playerId: quitter.id, players: room.players });
@@ -2193,9 +2287,13 @@ async function startRound(roomId) {
       const isTie = room.players.filter(p => (room.scores[p.id] || 0) === highScore).length > 1;
       console.log(`[FriendlyGame] Room ${roomId} ending. players=${room.players.length} highScore=${highScore} isTie=${isTie}`);
       for (const p of room.players) {
+        if (p.isBot) continue; // practice bots earn nothing
         const score = room.scores[p.id] || 0;
         const isWinner = !isTie && score === highScore;
-        const coinsEarned = isWinner ? 25 : 5;
+        let coinsEarned = isWinner ? 25 : 5;
+        // Practice matches vs. a bot pay coins only for the first few per day,
+        // so an easy bot can't be farmed.
+        if (room.hasBots && !botMatchCoinsAllowed(p.dbPlayerId || p.id)) coinsEarned = 0;
         // Always set, guest or not — coinChanges is what the client uses to
         // credit the reward, whether that's a DB write (below) or a
         // local-only guest balance (client has no DB record to look up).
@@ -2289,6 +2387,8 @@ async function startRound(roomId) {
     scores: room.scores,
     players: room.players
   });
+
+  if (room.hasBots) duelBots.scheduleRound(room, roomId, botHooks);
 
   room.timer = setInterval(() => {
     if (room.isPaused) return; // PAUSE logic
