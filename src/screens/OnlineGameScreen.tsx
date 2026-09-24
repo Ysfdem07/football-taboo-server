@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../constants/Colors';
 import { getSocket } from '../services/socket';
 import { Analytics } from '../services/analytics';
+import { setLeavingForDuel, isLeavingForDuel } from '../services/duelInviteState';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { showInterstitial, showRewarded } from '../services/ads';
@@ -224,6 +225,39 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     }
   }, [showMatchIntro, introCountdown, gameDataReady]);
 
+  // Safety net for an intro that never ends: the countdown is over but round 1's
+  // data (game_start) hasn't arrived — e.g. this socket reconnected and missed
+  // it. First ask the server for a snapshot (rejoin_room -> room_synced, which
+  // also marks the game as ready); if that still leads nowhere, don't leave the
+  // player staring at "match found" forever: offer a retry or a way out.
+  useEffect(() => {
+    if (!showMatchIntro || introCountdown > 0 || gameDataReady) return;
+    const nudge = setTimeout(() => {
+      socket.emit('rejoin_room', { roomId, oldPlayerId: myOriginalId });
+    }, 2500);
+    const giveUp = setTimeout(() => {
+      Analytics.logEvent('online_intro_stuck', { roomId });
+      CustomAlert.show(
+        t('matchStartFailedTitle'),
+        t('matchStartFailedMsg'),
+        [
+          { text: t('retry'), onPress: () => socket.emit('rejoin_room', { roomId, oldPlayerId: myOriginalId }) },
+          {
+            text: t('exitBtn'),
+            style: 'destructive',
+            onPress: () => {
+              setLeavingForDuel(true); // skip the "leave the match?" prompt: there is no match to leave
+              socket.disconnect();
+              navigation.navigate('Home');
+              setTimeout(() => setLeavingForDuel(false), 1000);
+            },
+          },
+        ]
+      );
+    }, 10000);
+    return () => { clearTimeout(nudge); clearTimeout(giveUp); };
+  }, [showMatchIntro, introCountdown, gameDataReady]);
+
   const buzzerTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const toastTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -438,6 +472,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
     });
 
     socket.on('room_synced', (data: any) => {
+      // A snapshot with a word means a round is already running: that is as good
+      // as game_start for dismissing the match-found intro.
+      if (data.wordHint) setGameDataReady(true);
       if (data.players) setPlayers(data.players);
       if (data.scores) setScores(data.scores);
       if (data.currentRound !== undefined) setCurrentRound(data.currentRound);
@@ -488,6 +525,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       // is the single place a finished duel triggers its interstitial: every
       // way off the result screen (menu button, Android back, swipe) removes
       // the screen, so all of them count as exactly one completed match.
+      if (isLeavingForDuel()) return; // backing out of a match that never started
       if (gameOver) {
         showInterstitial();
         return;
