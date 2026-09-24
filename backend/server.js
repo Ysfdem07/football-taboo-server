@@ -795,7 +795,7 @@ setInterval(async () => {
 }, 3600000);
 
 let queue = [];
-const FRIENDLY_BOT_FALLBACK_MS = 4000; // wait this long for a real opponent before offering a bot
+const FRIENDLY_BOT_FALLBACK_MS = 3000; // wait this long for a real opponent before offering a bot
 let friendlyQueue = []; // Coin-only, no KP, guests allowed
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
