@@ -795,6 +795,7 @@ setInterval(async () => {
 }, 3600000);
 
 let queue = [];
+const FRIENDLY_BOT_FALLBACK_MS = 4000; // wait this long for a real opponent before offering a bot
 let friendlyQueue = []; // Coin-only, no KP, guests allowed
 const activeRooms = {}; // roomId -> room details
 const disconnectTimeouts = {};
@@ -882,15 +883,17 @@ function dropInvitesOf(socketId) {
 
 // A practice match against one of the bots: no invite to wait for, the bot
 // "accepts" instantly and the friendly room (coins only) starts like any other.
-async function startBotMatch(socket, botKey, category, fail) {
+async function startBotMatch(socket, botKey, category, fail, opts = {}) {
   try {
     const bot = duelBots.findBot(botKey);
-    const lang = langOfSocket(socket);
+    const lang = opts.viaQueue ? langOfCategory(category) : langOfSocket(socket);
     if (!bot || langOfCategory(category) !== lang) return fail('bad_request');
     if (isSocketInGame(socket)) return fail('self_busy');
-    const now = Date.now();
-    if (lastInviteAt[socket.id] && now - lastInviteAt[socket.id] < INVITE_COOLDOWN_MS) return fail('too_fast');
-    lastInviteAt[socket.id] = now;
+    if (!opts.viaQueue) {
+      const now = Date.now();
+      if (lastInviteAt[socket.id] && now - lastInviteAt[socket.id] < INVITE_COOLDOWN_MS) return fail('too_fast');
+      lastInviteAt[socket.id] = now;
+    }
 
     // one outstanding thing at a time: drop any pending invite / search
     for (const old of Object.values(pendingInvites)) {
@@ -924,7 +927,8 @@ async function startBotMatch(socket, botKey, category, fail) {
       guessingPlayerId: null,
       guessTimer: null
     };
-    socket.emit('duel_invite_matched', { players: [human, botPlayer], roomId, category, mode: 'friendly', isFriendly: true });
+    if (opts.viaQueue) socket.emit('match_found', { players: [human, botPlayer], roomId, category, isFriendly: true });
+    else socket.emit('duel_invite_matched', { players: [human, botPlayer], roomId, category, mode: 'friendly', isFriendly: true });
     setTimeout(() => { startRound(roomId); }, 5000);
   } catch (e) {
     console.error('[startBotMatch] error:', e);
@@ -1673,7 +1677,20 @@ io.on('connection', (socket) => {
       };
       io.to(roomId).emit('match_found', { players: [p1, p2], roomId, category, isFriendly: true });
       setTimeout(() => { startRound(roomId); }, 5000);
+      return;
     }
+
+    // Nobody else searching for this category: after a short wait, pair the
+    // player with an easy/medium practice bot (quick match gives no choice, so
+    // the harder bots are only available by picking them from the duel list).
+    const waitingId = socket.id;
+    setTimeout(() => {
+      if (!friendlyQueue.find(u => u.id === waitingId)) return; // matched with a real player meanwhile
+      if (!io.sockets.sockets.get(waitingId)?.connected) return;
+      const pool = duelBots.BOTS.filter(b => b.level === 'easy' || b.level === 'medium');
+      const bot = pool[Math.floor(Math.random() * pool.length)];
+      startBotMatch(socket, bot.id, category, (why) => console.log('[friendly queue bot] not started:', why), { viaQueue: true });
+    }, FRIENDLY_BOT_FALLBACK_MS);
   });
 
   socket.on('create_room', (data) => {
