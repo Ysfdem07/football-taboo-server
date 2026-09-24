@@ -177,20 +177,19 @@ export default function HomeScreen() {
         {/* 3D WORDICO HEADER TITLE - Shifted down matching mockup */}
         <View style={styles.headerTitleRow}>
           <Text style={styles.topBarTitle} allowFontScaling={false}>WORDICOO</Text>
+          {canDuel && (
           <TouchableOpacity
-            style={[styles.onlinePill, !canDuel && styles.disabledBtn]}
+            style={styles.onlinePill}
             onPress={() => setShowOnline(true)}
-            disabled={!canDuel}
             activeOpacity={0.85}
           >
-            <View style={[styles.onlineDot, !canDuel && { backgroundColor: '#7a8a80', shadowOpacity: 0 }]} />
+            <View style={styles.onlineDot} />
             <Text style={styles.onlineText} allowFontScaling={false}>
-              {canDuel
-                ? t('onlinePlayersCount').replace('{n}', String(onlineStats!.online)) + (onlineStats!.searching > 0 ? ' · ' + t('onlineSearching').replace('{n}', String(onlineStats!.searching)) : '')
-                : t('onlineNoOthers')}
+              {t('onlinePlayersCount').replace('{n}', String(onlineStats!.online)) + (onlineStats!.searching > 0 ? ' · ' + t('onlineSearching').replace('{n}', String(onlineStats!.searching)) : '')}
             </Text>
-            {canDuel && <Ionicons name="chevron-forward" size={14} color="#00FF88" />}
+            <Ionicons name="chevron-forward" size={14} color="#00FF88" />
           </TouchableOpacity>
+          )}
           <View style={styles.ctaRow}>
             <TouchableOpacity
               style={styles.duelCta}
