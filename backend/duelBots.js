@@ -10,23 +10,23 @@
 
 const BOTS = [
   // easy
-  { id: 'bot:mira',   name: 'Mira',   avatar: 'avatar_3',  level: 'easy' },
-  { id: 'bot:ege',    name: 'Ege',    avatar: 'avatar_7',  level: 'easy' },
-  { id: 'bot:luna',   name: 'Luna',   avatar: 'avatar_11', level: 'easy' },
-  { id: 'bot:poyraz', name: 'Poyraz', avatar: 'avatar_15', level: 'easy' },
-  { id: 'bot:nehir',  name: 'Nehir',  avatar: 'avatar_19', level: 'easy' },
+  { id: 'bot:mira',   name: 'Mira', nameEn: 'Emma',   avatar: 'avatar_3',  level: 'easy' },
+  { id: 'bot:ege',    name: 'Ege', nameEn: 'Jack',    avatar: 'avatar_7',  level: 'easy' },
+  { id: 'bot:luna',   name: 'Luna', nameEn: 'Olivia',   avatar: 'avatar_11', level: 'easy' },
+  { id: 'bot:poyraz', name: 'Poyraz', nameEn: 'Harry', avatar: 'avatar_15', level: 'easy' },
+  { id: 'bot:nehir',  name: 'Nehir', nameEn: 'Lily',  avatar: 'avatar_19', level: 'easy' },
   // medium
-  { id: 'bot:atlas',  name: 'Atlas',  avatar: 'avatar_2',  level: 'medium' },
-  { id: 'bot:defne',  name: 'Defne',  avatar: 'avatar_6',  level: 'medium' },
-  { id: 'bot:arda',   name: 'Arda',   avatar: 'avatar_10', level: 'medium' },
-  { id: 'bot:sena',   name: 'Sena',   avatar: 'avatar_14', level: 'medium' },
-  { id: 'bot:kuzey',  name: 'Kuzey',  avatar: 'avatar_18', level: 'medium' },
+  { id: 'bot:atlas',  name: 'Atlas', nameEn: 'Oliver',  avatar: 'avatar_2',  level: 'medium' },
+  { id: 'bot:defne',  name: 'Defne', nameEn: 'Sophie',  avatar: 'avatar_6',  level: 'medium' },
+  { id: 'bot:arda',   name: 'Arda', nameEn: 'George',   avatar: 'avatar_10', level: 'medium' },
+  { id: 'bot:sena',   name: 'Sena', nameEn: 'Charlotte',   avatar: 'avatar_14', level: 'medium' },
+  { id: 'bot:kuzey',  name: 'Kuzey', nameEn: 'Tom',  avatar: 'avatar_18', level: 'medium' },
   // hard
-  { id: 'bot:sahin',  name: 'Şahin',  avatar: 'avatar_1',  level: 'hard' },
-  { id: 'bot:nova',   name: 'Nova',   avatar: 'avatar_5',  level: 'hard' },
-  { id: 'bot:zafer',  name: 'Zafer',  avatar: 'avatar_9',  level: 'hard' },
-  { id: 'bot:asli',   name: 'Aslı',   avatar: 'avatar_13', level: 'hard' },
-  { id: 'bot:titan',  name: 'Titan',  avatar: 'avatar_17', level: 'hard' },
+  { id: 'bot:sahin',  name: 'Şahin', nameEn: 'James',  avatar: 'avatar_1',  level: 'hard' },
+  { id: 'bot:nova',   name: 'Nova', nameEn: 'Amelia',   avatar: 'avatar_5',  level: 'hard' },
+  { id: 'bot:zafer',  name: 'Zafer', nameEn: 'William',  avatar: 'avatar_9',  level: 'hard' },
+  { id: 'bot:asli',   name: 'Aslı', nameEn: 'Grace',   avatar: 'avatar_13', level: 'hard' },
+  { id: 'bot:titan',  name: 'Titan', nameEn: 'Henry',  avatar: 'avatar_17', level: 'hard' },
 ];
 
 // pKnow: chance the bot "knows" the word this round. pWrongBuzz: if it doesn't,
@@ -50,7 +50,8 @@ const isBotId = (id) => typeof id === 'string' && id.startsWith('bot:');
 const findBot = (id) => BOTS.find(b => b.id === id) || null;
 
 // What the app lists (name/avatar/level only — no internals).
-const publicRoster = () => BOTS.map(b => ({ botId: b.id, name: b.name, avatar: b.avatar, level: b.level }));
+const botName = (b, lang) => (lang === 'en' && b.nameEn) ? b.nameEn : b.name;
+const publicRoster = (lang) => BOTS.map(b => ({ botId: b.id, name: botName(b, lang), avatar: b.avatar, level: b.level }));
 
 // The room participant for one match. The 🤖 + difficulty are part of the
 // display name so every screen that shows names labels the bot as a bot.
@@ -58,7 +59,7 @@ function createBotPlayer(bot, lang) {
   const label = (LEVEL_LABEL[lang] || LEVEL_LABEL.tr)[bot.level];
   return {
     id: `${bot.id}:${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}`,
-    name: `🤖 ${bot.name} · ${label}`,
+    name: `🤖 ${botName(bot, lang)} · ${label}`,
     avatar: bot.avatar,
     dbPlayerId: null,
     isBot: true,

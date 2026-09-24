@@ -1519,7 +1519,7 @@ io.on('connection', (socket) => {
           inTournament: d.sock.data.activity === 'tournament' && !d.busy,
           busy: d.busy
         }));
-      socket.emit('online_players', { players, bots: duelBots.publicRoster() });
+      socket.emit('online_players', { players, bots: duelBots.publicRoster(langOfSocket(socket)) });
     } catch (e) {
       console.error('[get_online_players] error:', e);
       socket.emit('online_players', { players: [] });
