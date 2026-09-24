@@ -1,6 +1,7 @@
 // Duel sheet opened from the Home screen: pick a category and a mode (friendly
-// or ranked), then challenge someone who is online now with a direct invite —
-// no matchmaking screen to sit in first.
+// or ranked), then either play one of the practice bots (friendly only) or
+// challenge someone who is online right now with a direct invite — no
+// matchmaking screen to sit in first.
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +11,12 @@ import { useLanguage } from '../context/LanguageContext';
 import { UserAvatar } from './UserAvatar';
 
 type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; busy?: boolean };
+type BotInfo = { botId: string; name: string; avatar?: string | null; level: 'easy' | 'medium' | 'hard' };
+type Row =
+  | { kind: 'player'; p: OnlinePlayer }
+  | { kind: 'bot'; b: BotInfo }
+  | { kind: 'header'; title: string; sub: string }
+  | { kind: 'note'; text: string };
 type Mode = 'friendly' | 'ranked';
 
 const NEON = '#00FF88';
@@ -27,6 +34,7 @@ type Props = {
 export default function OnlinePlayersModal({ visible, onClose }: Props) {
   const { language, t } = useLanguage();
   const [players, setPlayers] = useState<OnlinePlayer[] | null>(null);
+  const [bots, setBots] = useState<BotInfo[]>([]);
   const [base, setBase] = useState<'football' | 'cinema' | 'music'>('football');
   const [mode, setMode] = useState<Mode>('friendly');
   const [isRegistered, setIsRegistered] = useState(false);
@@ -37,6 +45,12 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
 
   const categoryId = language === 'en' ? `${base}_en` : base;
   const rankedBlocked = mode === 'ranked' && !isRegistered;
+  // Ranked is only playable against real people: with nobody else online it is off.
+  const rankedUnavailable = players !== null && players.length === 0;
+
+  useEffect(() => {
+    if (mode === 'ranked' && rankedUnavailable) setMode('friendly');
+  }, [rankedUnavailable]);
 
   useEffect(() => {
     if (!visible) return;
@@ -47,7 +61,10 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
       .then(raw => { const p = raw ? JSON.parse(raw) : null; setIsRegistered(!!(p && p.id && p.id !== 'guest')); })
       .catch(() => setIsRegistered(false));
 
-    const onPlayers = (d: any) => setPlayers(Array.isArray(d?.players) ? d.players : []);
+    const onPlayers = (d: any) => {
+      setPlayers(Array.isArray(d?.players) ? d.players : []);
+      setBots(Array.isArray(d?.bots) ? d.bots : []);
+    };
     const onSent = (d: any) => setPending(p => (p ? { ...p, inviteId: d?.inviteId } : p));
     const finish = (msgKey: string) => {
       const who = pendingRef.current?.name || '';
@@ -59,7 +76,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
     const onCancelled = () => finish('inviteOffline');
     const onMatched = () => { setPending(null); onClose(); };
     const onError = (d: any) => {
-      const map: Record<string, string> = { busy: 'inviteBusy', offline: 'inviteOffline', too_fast: 'inviteTooFast', self_busy: 'inviteBusy', ranked_guest: 'inviteRankedGuest' };
+      const map: Record<string, string> = { busy: 'inviteBusy', offline: 'inviteOffline', too_fast: 'inviteTooFast', self_busy: 'inviteBusy', ranked_guest: 'inviteRankedGuest', ranked_bot: 'inviteGenericError' };
       finish(map[d?.reason] || 'inviteGenericError');
     };
 
@@ -100,6 +117,20 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
     getSocket().emit('send_duel_invite', { targetId: p.targetId, category: categoryId, mode });
   };
 
+  // Bots "accept" instantly: there is no invite to wait for, the match just starts.
+  const inviteBot = (b: BotInfo) => {
+    if (pending) return;
+    setMessage('');
+    setPending({ name: b.name });
+    getSocket().emit('send_duel_invite', { targetId: b.botId, category: categoryId, mode: 'friendly' });
+    setTimeout(() => {
+      if (pendingRef.current && !pendingRef.current.inviteId) {
+        setPending(null);
+        setMessage(t('inviteGenericError'));
+      }
+    }, 8000);
+  };
+
   const cancelPending = () => {
     if (pending?.inviteId) getSocket().emit('cancel_duel_invite', { inviteId: pending.inviteId });
     setPending(null);
@@ -107,7 +138,24 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
 
   const canInvite = (p: OnlinePlayer) => !pending && !p.busy && !rankedBlocked && !(mode === 'ranked' && !p.registered);
 
-  const renderItem = ({ item }: { item: OnlinePlayer }) => (
+  const levelLabel = (l: BotInfo['level']) => t(l === 'easy' ? 'botLevelEasy' : l === 'medium' ? 'botLevelMedium' : 'botLevelHard');
+
+  // Real players are listed in both modes; the practice bots only under Friendly.
+  const rows: Row[] = [];
+  if (players) {
+    players.forEach(p => rows.push({ kind: 'player', p }));
+    if (mode === 'friendly') {
+      if (players.length === 0) rows.push({ kind: 'note', text: t('noRealPlayersNow') });
+      if (bots.length) {
+        rows.push({ kind: 'header', title: t('botsSectionTitle'), sub: t('botsSectionHint') });
+        bots.forEach(b => rows.push({ kind: 'bot', b }));
+      }
+    } else if (players.length === 0) {
+      rows.push({ kind: 'note', text: t('rankedNeedPlayers') });
+    }
+  }
+
+  const renderPlayer = (item: OnlinePlayer) => (
     <View style={styles.row}>
       <UserAvatar avatar={item.avatar || undefined} size={42} />
       <View style={{ flex: 1, marginHorizontal: 10 }}>
@@ -124,6 +172,34 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
       </TouchableOpacity>
     </View>
   );
+
+  const renderRow = ({ item }: { item: Row }) => {
+    if (item.kind === 'header') {
+      return (
+        <View style={{ marginTop: 16 }}>
+          <Text style={styles.sectionLabel}>🤖 {item.title}</Text>
+          <Text style={styles.sectionSub}>{item.sub}</Text>
+        </View>
+      );
+    }
+    if (item.kind === 'note') return <Text style={styles.empty}>{item.text}</Text>;
+    if (item.kind === 'bot') {
+      const b = item.b;
+      return (
+        <View style={styles.row}>
+          <UserAvatar avatar={b.avatar || undefined} size={42} />
+          <View style={{ flex: 1, marginHorizontal: 10 }}>
+            <Text style={styles.name} numberOfLines={1}>{b.name}</Text>
+            <Text style={styles.sub} numberOfLines={1}>🤖 {levelLabel(b.level)}</Text>
+          </View>
+          <TouchableOpacity style={[styles.inviteBtn, !!pending && { opacity: 0.4 }]} disabled={!!pending} onPress={() => inviteBot(b)} activeOpacity={0.85}>
+            <Text style={styles.inviteBtnText}>{t('botPlayButton')}</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return renderPlayer(item.p);
+  };
 
   const header = (
     <View>
@@ -145,9 +221,9 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
         {(['friendly', 'ranked'] as Mode[]).map(m => (
           <TouchableOpacity
             key={m}
-            style={[styles.modeChip, mode === m && styles.modeChipActive]}
+            style={[styles.modeChip, mode === m && styles.modeChipActive, m === 'ranked' && rankedUnavailable && { opacity: 0.4 }]}
             onPress={() => { setMode(m); setMessage(''); }}
-            disabled={!!pending}
+            disabled={!!pending || (m === 'ranked' && rankedUnavailable)}
             activeOpacity={0.85}
           >
             <Ionicons name={m === 'ranked' ? 'trophy' : 'happy'} size={15} color={mode === m ? '#04140b' : 'rgba(255,255,255,0.7)'} />
@@ -156,6 +232,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
         ))}
       </View>
       <Text style={styles.modeDesc}>{rankedBlocked ? t('rankedNeedLogin') : t(mode === 'ranked' ? 'modeRankedDesc' : 'modeFriendlyDesc')}</Text>
+      {rankedUnavailable ? <Text style={styles.modeDesc}>{t('rankedNeedPlayers')}</Text> : null}
 
       {pending ? (
         <View style={styles.pendingBox}>
@@ -185,13 +262,11 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
           <Text style={styles.hint}>{t('onlinePlayersHint')}</Text>
 
           <FlatList
-            data={players || []}
-            keyExtractor={p => p.targetId}
-            renderItem={renderItem}
+            data={rows}
+            keyExtractor={(r, i) => (r.kind === 'player' ? r.p.targetId : r.kind === 'bot' ? r.b.botId : r.kind + i)}
+            renderItem={renderRow}
             ListHeaderComponent={header}
-            ListEmptyComponent={players === null
-              ? <ActivityIndicator color={NEON} style={{ marginTop: 20 }} />
-              : <Text style={styles.empty}>{t('onlinePlayersEmpty')}</Text>}
+            ListEmptyComponent={players === null ? <ActivityIndicator color={NEON} style={{ marginTop: 20 }} /> : null}
             style={{ marginTop: 4 }}
             showsVerticalScrollIndicator={false}
           />
@@ -215,12 +290,13 @@ const styles = StyleSheet.create({
   modeText: { color: 'rgba(255,255,255,0.8)', fontFamily: 'Poppins_700Bold', fontSize: 12.5 },
   modeDesc: { color: '#FFD700', fontFamily: 'Poppins_400Regular', fontSize: 11.5, marginTop: 6 },
   sectionLabel: { color: 'rgba(255,255,255,0.75)', fontFamily: 'Poppins_700Bold', fontSize: 12.5, marginTop: 18, marginBottom: 2 },
+  sectionSub: { color: 'rgba(255,255,255,0.5)', fontFamily: 'Poppins_400Regular', fontSize: 11, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.12)' },
   name: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 14 },
   sub: { color: 'rgba(255,255,255,0.55)', fontFamily: 'Poppins_400Regular', fontSize: 11 },
   inviteBtn: { backgroundColor: NEON, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 },
   inviteBtnText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 12 },
-  empty: { color: 'rgba(255,255,255,0.7)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', marginTop: 16, lineHeight: 19 },
+  empty: { color: 'rgba(255,255,255,0.7)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', marginTop: 12, lineHeight: 19 },
   pendingBox: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(0,255,136,0.08)' },
   pendingText: { flex: 1, color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 12 },
   cancelBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },

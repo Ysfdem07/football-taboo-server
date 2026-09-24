@@ -193,9 +193,8 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <View style={styles.ctaRow}>
             <TouchableOpacity
-              style={[styles.duelCta, !canDuel && styles.disabledBtn]}
+              style={styles.duelCta}
               onPress={() => setShowOnline(true)}
-              disabled={!canDuel}
               activeOpacity={0.85}
             >
               <Ionicons name="flash" size={15} color="#04140b" />
