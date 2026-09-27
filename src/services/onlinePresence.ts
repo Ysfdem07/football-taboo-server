@@ -20,7 +20,7 @@ export function activityForRoute(route?: string): Activity {
   return 'idle';
 }
 
-export async function announcePresence(language: string, activity: Activity = 'idle') {
+export async function announcePresence(language: string, activity: Activity = 'idle', category?: string) {
   let name: string | undefined;
   let avatar: string | undefined;
   try {
@@ -34,7 +34,7 @@ export async function announcePresence(language: string, activity: Activity = 'i
     // presence still works without a name (guests fall back to "Guest")
   }
   const s = getSocket();
-  if (s.connected) s.emit('presence', { language, name, avatar, activity });
+  if (s.connected) s.emit('presence', { language, name, avatar, activity, category });
 }
 
 // A reconnected socket is a brand-new, anonymous session server-side. Sign a

@@ -10,7 +10,7 @@ import { getSocket, withSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { UserAvatar } from './UserAvatar';
 
-type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; busy?: boolean };
+type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; tournamentCategory?: string | null; busy?: boolean; busyCategory?: string | null };
 type BotInfo = { botId: string; name: string; avatar?: string | null; level: 'easy' | 'medium' | 'hard' };
 type Row =
   | { kind: 'player'; p: OnlinePlayer }
@@ -155,6 +155,27 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
     }
   }
 
+  const categoryLabel = (cat?: string | null) => {
+    const base = (cat || '').replace(/_en$/, '');
+    if (base === 'football') return t('football');
+    if (base === 'cinema') return t('cinema');
+    if (base === 'music') return t('music');
+    return null;
+  };
+
+  const statusTag = (item: OnlinePlayer) => {
+    if (item.busy) {
+      const cat = categoryLabel(item.busyCategory);
+      return cat ? `${t('inviteTagDuel')} - ${cat}` : t('inviteTagBusy');
+    }
+    if (item.inTournament) {
+      const cat = categoryLabel(item.tournamentCategory);
+      return cat ? `${t('inviteTagTournament')} - ${cat}` : t('inviteTagTournament');
+    }
+    if (item.searching) return t('inviteSearchingTag');
+    return '';
+  };
+
   const renderPlayer = (item: OnlinePlayer) => (
     <View style={styles.row}>
       <UserAvatar avatar={item.avatar || undefined} size={42} />
@@ -162,7 +183,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
         <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
         <Text style={styles.sub} numberOfLines={1}>
           {item.registered ? `${item.kp} KP` : t('inviteGuest')}
-          {item.busy ? `  ·  ${t('inviteTagBusy')}` : item.inTournament ? `  ·  ${t('inviteTagTournament')}` : item.searching ? `  ·  ${t('inviteSearchingTag')}` : ''}
+          {statusTag(item) ? `  ·  ${statusTag(item)}` : ''}
         </Text>
       </View>
       <TouchableOpacity style={[styles.inviteBtn, !canInvite(item) && { opacity: 0.4 }]} disabled={!canInvite(item)} onPress={() => invite(item)} activeOpacity={0.85}>

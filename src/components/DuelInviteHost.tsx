@@ -28,6 +28,7 @@ type Invite = {
 const NEON = '#00FF88';
 
 const currentRoute = () => (navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined);
+const currentCategory = () => (navigationRef.isReady() ? (navigationRef.getCurrentRoute()?.params as any)?.categoryId : undefined);
 
 export default function DuelInviteHost() {
   const { language, t } = useLanguage();
@@ -44,9 +45,11 @@ export default function DuelInviteHost() {
   // shared socket.
   useEffect(() => {
     let lastActivity = '';
+    let lastCategory = '';
     const send = () => {
       lastActivity = activityForRoute(currentRoute());
-      announcePresence(language, lastActivity as any);
+      lastCategory = currentCategory() || '';
+      announcePresence(language, lastActivity as any, lastCategory || undefined);
     };
     const onConnect = () => { reloginIfAccount(); send(); };
     const unbind = withSocket((s) => {
@@ -55,7 +58,9 @@ export default function DuelInviteHost() {
     });
     send();
     const periodic = setInterval(send, 20000);
-    const watch = setInterval(() => { if (activityForRoute(currentRoute()) !== lastActivity) send(); }, 2000);
+    const watch = setInterval(() => {
+      if (activityForRoute(currentRoute()) !== lastActivity || (currentCategory() || '') !== lastCategory) send();
+    }, 2000);
     return () => { clearInterval(periodic); clearInterval(watch); unbind(); };
   }, [language]);
 
