@@ -523,12 +523,7 @@ export default function TournamentGameScreen() {
                             <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
                           </View>
                         </View>
-                        <View style={styles.scoreCol}>
-                          <Text style={styles.scoreText}>{totalScore} {t('points').toLowerCase()}</Text>
-                          {!!currentCard?.subcategory && (
-                            <Text style={styles.subcategoryTag} numberOfLines={1}>{currentCard.subcategory}</Text>
-                          )}
-                        </View>
+                        <Text style={styles.scoreText}>{totalScore} {t('points').toLowerCase()}</Text>
                       </View>
 
                       {/* Progress dots */}
@@ -548,6 +543,9 @@ export default function TournamentGameScreen() {
 
                     {/* 2. CLUES CARD (COMPACT WITH SCORE BADGE MOVED TO FIRST CLUE ROW) */}
                     <TouchableOpacity activeOpacity={1} onPress={handleManualScreenTap} style={styles.cluesCard}>
+                      {!!currentCard?.subcategory && (
+                        <Text style={styles.subcategoryTitle} numberOfLines={1}>{currentCard.subcategory}</Text>
+                      )}
                       {/* Forbidden Word Clues */}
                       {currentCard.forbidden.map((clue, i) => (
                         <View key={i} style={[styles.clueRow, i >= hintsShown && styles.clueHidden]}>
@@ -709,9 +707,15 @@ const styles = StyleSheet.create({
   timerText: { fontFamily: 'Poppins_900Black', fontSize: 32 },
   timerBarBg:{ width: 90, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 1 },
   timerBarFill: { height: 4, borderRadius: 2 },
-  scoreCol: { width: 80, alignItems: 'flex-end' },
-  scoreText: { color: '#FFFFFF', fontFamily: 'Poppins_700Bold', fontSize: 13, textAlign: 'right' },
-  subcategoryTag: { color: 'rgba(255,255,255,0.55)', fontFamily: 'Poppins_600SemiBold', fontSize: 9.5, marginTop: 2, textAlign: 'right' },
+  scoreText: { color: '#FFFFFF', fontFamily: 'Poppins_700Bold', fontSize: 13, width: 80, textAlign: 'right' },
+  subcategoryTitle: {
+    color: '#FFFFFF',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
 
   progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 4 },
   dot:          { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#333' },

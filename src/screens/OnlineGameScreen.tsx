@@ -875,9 +875,6 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             </Text>
           ))}
         </View>
-        {!!subcategory && (
-          <Text style={styles.subcategoryTag} numberOfLines={1}>{subcategory}</Text>
-        )}
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1006,6 +1003,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                 keyword boxes, jokers, and input into a cramped scroll. */}
             {guessingPlayerId !== myOriginalId && (
             <View style={styles.cluesCard}>
+              {!!subcategory && (
+                <Text style={styles.subcategoryTitle} numberOfLines={1}>{subcategory}</Text>
+              )}
               {hints.map((h, i) => (
                 <View key={i} style={styles.clueRow}>
                   <Ionicons name="eye-outline" size={14} color={NEON_BLUE} />
@@ -1241,12 +1241,13 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     flexWrap: 'wrap',
   },
-  subcategoryTag: {
-    color: 'rgba(255,255,255,0.55)',
-    fontSize: 10.5,
-    fontFamily: 'Poppins_600SemiBold',
+  subcategoryTitle: {
+    color: '#FFFFFF',
+    fontFamily: 'Poppins_900Black',
+    fontSize: 13,
     textAlign: 'center',
-    marginTop: 4,
+    marginBottom: 8,
+    letterSpacing: 0.3,
   },
   scoreText: {
     color: Colors.white,
