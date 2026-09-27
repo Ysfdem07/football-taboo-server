@@ -76,6 +76,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   const [kpChanges, setKpChanges] = useState<Record<string, number>>({});
   const [coinChanges, setCoinChanges] = useState<Record<string, number>>({});
   const [serverPotentialScore, setServerPotentialScore] = useState<number | null>(null);
+  const [subcategory, setSubcategory] = useState<string | null>(null);
   const [lastPenalty, setLastPenalty] = useState<number>(10);
   const [forfeitQuitterId, setForfeitQuitterId] = useState<string | null>(null);
   
@@ -276,6 +277,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       setWordHint(data.wordHint);
       setTimeLeft(data.timeLeft);
       setHints(data.firstHint ? [data.firstHint] : []);
+      setSubcategory(data.subcategory || null);
       if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
       setCurrentRound(data.currentRound);
       if (data.maxRounds) setMaxRounds(data.maxRounds);
@@ -486,6 +488,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       if (data.timeLeft !== undefined) setTimeLeft(data.timeLeft);
       if (data.wordHint) setWordHint(data.wordHint);
       if (data.hints) setHints(data.hints);
+      if (data.subcategory !== undefined) setSubcategory(data.subcategory);
       if (data.potentialScore !== undefined) setServerPotentialScore(data.potentialScore);
       setGuessingPlayerId(data.guessingPlayerId || null);
       if (data.guessTimeLeft !== undefined) setGuessTimeLeft(data.guessTimeLeft);
@@ -872,6 +875,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             </Text>
           ))}
         </View>
+        {!!subcategory && (
+          <Text style={styles.subcategoryTag} numberOfLines={1}>{subcategory}</Text>
+        )}
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1234,6 +1240,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     flexWrap: 'wrap',
+  },
+  subcategoryTag: {
+    color: 'rgba(255,255,255,0.55)',
+    fontSize: 10.5,
+    fontFamily: 'Poppins_600SemiBold',
+    textAlign: 'center',
+    marginTop: 4,
   },
   scoreText: {
     color: Colors.white,

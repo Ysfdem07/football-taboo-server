@@ -40,7 +40,7 @@ export type RootStackParamList = {
   Leaderboard: { categoryId?: string };
   Tournament: { categoryId?: string };
   CategoryMenu: { categoryId: string };
-  TournamentGame: { cards: { word: string; forbidden: string[] }[]; categoryId?: string };
+  TournamentGame: { cards: { word: string; forbidden: string[]; subcategory?: string }[]; categoryId?: string };
   CardAlbum: { categoryId?: string };
   PitchBattle: undefined;
   Market: undefined;

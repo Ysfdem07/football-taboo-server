@@ -523,7 +523,12 @@ export default function TournamentGameScreen() {
                             <View style={[styles.timerBarFill, { width: `${timerPct * 100}%` as any, backgroundColor: timerColor }]} />
                           </View>
                         </View>
-                        <Text style={styles.scoreText}>{totalScore} {t('points').toLowerCase()}</Text>
+                        <View style={styles.scoreCol}>
+                          <Text style={styles.scoreText}>{totalScore} {t('points').toLowerCase()}</Text>
+                          {!!currentCard?.subcategory && (
+                            <Text style={styles.subcategoryTag} numberOfLines={1}>{currentCard.subcategory}</Text>
+                          )}
+                        </View>
                       </View>
 
                       {/* Progress dots */}
@@ -704,7 +709,9 @@ const styles = StyleSheet.create({
   timerText: { fontFamily: 'Poppins_900Black', fontSize: 32 },
   timerBarBg:{ width: 90, height: 4, backgroundColor: '#1a1a2e', borderRadius: 2, marginTop: 1 },
   timerBarFill: { height: 4, borderRadius: 2 },
-  scoreText: { color: '#FFFFFF', fontFamily: 'Poppins_700Bold', fontSize: 13, width: 80, textAlign: 'right' },
+  scoreCol: { width: 80, alignItems: 'flex-end' },
+  scoreText: { color: '#FFFFFF', fontFamily: 'Poppins_700Bold', fontSize: 13, textAlign: 'right' },
+  subcategoryTag: { color: 'rgba(255,255,255,0.55)', fontFamily: 'Poppins_600SemiBold', fontSize: 9.5, marginTop: 2, textAlign: 'right' },
 
   progressDots: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, gap: 4, marginBottom: 4 },
   dot:          { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#333' },
