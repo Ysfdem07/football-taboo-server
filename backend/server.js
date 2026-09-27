@@ -831,8 +831,10 @@ const connectedSockets = () => [...io.sockets.sockets.values()].filter(sock => s
 // Updated app, connected, and heard from recently.
 const isLive = (sock) => !!sock.data.inviteCapable && Date.now() - (sock.data.presenceAt || 0) < PRESENCE_FRESH_MS;
 const roomIdOfSocket = (sock) => sock.data.stablePlayerId || sock.id;
+const roomInGameOfSocket = (sock) => Object.values(activeRooms).find(r => r.status === 'playing' && r.players.some(p => p.id === roomIdOfSocket(sock))) || null;
+const isSocketInGame = (sock) => !!roomInGameOfSocket(sock);
 const isSocketBusy = (sock) => sock.data.activity === 'busy' || isSocketInGame(sock);
-const isSocketInGame = (sock) => Object.values(activeRooms).some(r => r.status === 'playing' && r.players.some(p => p.id === roomIdOfSocket(sock)));
+const baseCategory = (cat) => (typeof cat === 'string' ? cat.replace(/_en$/, '') : null);
 const hasPendingInviteFor = (socketId) => Object.values(pendingInvites).some(inv => inv.toId === socketId);
 
 function onlineStatsFor(lang) {
@@ -1488,6 +1490,7 @@ io.on('connection', (socket) => {
     // 'idle' | 'tournament' (mid solo/tournament run: can still receive an invite,
     // shown as a banner) | 'busy' (onboarding, private room lobby: not invitable)
     socket.data.activity = ['tournament', 'busy'].includes(data?.activity) ? data.activity : 'idle';
+    socket.data.activityCategory = typeof data?.category === 'string' ? data.category.slice(0, 20) : null;
     socket.data.guestName = cleanText(data?.name, 20) || null;
     socket.data.guestAvatar = cleanText(data?.avatar, 8) || null;
   });
@@ -1510,18 +1513,20 @@ io.on('connection', (socket) => {
         seen.add(key);
         candidates.push(sock);
       }
-      const described = await Promise.all(candidates.slice(0, 60).map(async sock => ({ sock, info: await describeSocket(sock) })));
+      const described = await Promise.all(candidates.slice(0, 60).map(async sock => ({ sock, info: await describeSocket(sock), room: roomInGameOfSocket(sock) })));
       const searchingIds = new Set([...queue, ...friendlyQueue].map(u => u.id));
       const players = described
         .filter(d => d.info.registered || !d.sock.data.playerId) // hidden/test accounts resolve to nothing
-        .map(d => ({ ...d, busy: isSocketBusy(d.sock) }))
+        .map(d => ({ ...d, busy: !!d.room || d.sock.data.activity === 'busy' }))
         .sort((a, b) => (Number(a.busy) - Number(b.busy)) || (b.info.kp - a.info.kp)) // available first
         .slice(0, 30)
         .map(d => ({
           targetId: d.sock.id, name: d.info.name, avatar: d.info.avatar, kp: d.info.kp, registered: d.info.registered,
           searching: searchingIds.has(d.sock.id),
           inTournament: d.sock.data.activity === 'tournament' && !d.busy,
-          busy: d.busy
+          tournamentCategory: (d.sock.data.activity === 'tournament' && !d.busy) ? baseCategory(d.sock.data.activityCategory) : null,
+          busy: d.busy,
+          busyCategory: d.room ? baseCategory(d.room.category) : null
         }));
       socket.emit('online_players', { players, bots: duelBots.publicRoster(langOfSocket(socket)) });
     } catch (e) {
