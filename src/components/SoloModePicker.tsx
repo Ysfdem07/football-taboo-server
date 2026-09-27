@@ -16,17 +16,20 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   onPick: (categoryId: string) => void;
+  title?: string;
+  sub?: string;
+  emoji?: string;
 };
 
-export default function SoloModePicker({ visible, onClose, onPick }: Props) {
+export default function SoloModePicker({ visible, onClose, onPick, title, sub, emoji }: Props) {
   const { language, t } = useLanguage();
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
         <TouchableOpacity activeOpacity={1} style={styles.card}>
-          <Text style={styles.title}>🏆 {t('soloPickTitle')}</Text>
-          <Text style={styles.sub}>{t('soloPickSub')}</Text>
+          <Text style={styles.title}>{emoji || '🏆'} {title || t('soloPickTitle')}</Text>
+          <Text style={styles.sub}>{sub || t('soloPickSub')}</Text>
           {CATS.map(c => (
             <TouchableOpacity
               key={c.base}

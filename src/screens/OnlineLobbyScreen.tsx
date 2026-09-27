@@ -38,9 +38,13 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const initialMode = route.params?.mode;
+  // Home's "Create Room" CTA sends { mode: 'friendly', autoAction: 'createRoom' }
+  // so it can jump straight to the rounds picker below, skipping the friendly
+  // sub-menu (quick match / create room / join room) entirely.
+  const autoCreateRoom = initialMode === 'friendly' && route.params?.autoAction === 'createRoom';
   const [showRankedOptions, setShowRankedOptions] = useState(initialMode === 'ranked');
   const [showFriendlyOptions, setShowFriendlyOptions] = useState(initialMode === 'friendly');
-  const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(false);
+  const [showFriendlyRoomSettings, setShowFriendlyRoomSettings] = useState(autoCreateRoom);
   const [showRankedRoomSettings, setShowRankedRoomSettings] = useState(false);
   // Quick-match queue give-up timer — if no opponent shows up within this
   // window, stop waiting and offer Weekly Tournament instead of leaving the
