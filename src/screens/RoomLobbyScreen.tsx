@@ -43,7 +43,7 @@ export default function RoomLobbyScreen({ navigation, route }: Props) {
     socket.on('game_starting_soon', () => {
       // Small delay before transition to make UI feel smooth
       setTimeout(() => {
-        navigation.replace('OnlineGame', { roomId, categoryId: roomCategory || categoryId || 'football' });
+        navigation.replace('OnlineGame', { roomId, categoryId: roomCategory || categoryId || 'football', isCustomRoom: true });
       }, 1000);
     });
 

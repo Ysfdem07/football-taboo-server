@@ -91,6 +91,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
   // (see join_queue/join_friendly_queue in server.js), and only actually
   // dismisses once real round data (game_start) has arrived too.
   const matchedPlayers = route.params?.matchedPlayers;
+  // Custom/private rooms ("Çoklu Oyun Kur") get an interstitial after every
+  // match, not the shared session's "first match, then every 2nd" schedule —
+  // sessions here are rarer and player-initiated, so ad frequency isn't a concern.
+  const isCustomRoom = !!route.params?.isCustomRoom;
   const hasMatchIntro = !!(matchedPlayers && matchedPlayers.length === 2);
   const [showMatchIntro, setShowMatchIntro] = useState(hasMatchIntro);
   const [introCountdown, setIntroCountdown] = useState(5);
@@ -527,7 +531,7 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
       // the screen, so all of them count as exactly one completed match.
       if (isLeavingForDuel()) return; // backing out of a match that never started
       if (gameOver) {
-        showInterstitial();
+        showInterstitial(isCustomRoom);
         return;
       }
 

@@ -14,6 +14,7 @@ import { registerForPushNotificationsAsync } from '../services/notifications';
 import { useOnlineStats, MIN_ONLINE_TO_SHOW } from '../services/onlinePresence';
 import OnlinePlayersModal from '../components/OnlinePlayersModal';
 import SoloModePicker from '../components/SoloModePicker';
+import CreateRoomPicker from '../components/CreateRoomPicker';
 import { CustomAlert } from '../components/CustomAlert';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -27,6 +28,7 @@ export default function HomeScreen() {
   const [showOnline, setShowOnline] = useState(false);
   const [showSolo, setShowSolo] = useState(false);
   const [showRoomPicker, setShowRoomPicker] = useState(false);
+  const [ctaRowWidth, setCtaRowWidth] = useState<number | null>(null);
   const isFocused = useIsFocused();
   const onlineStats = useOnlineStats(isFocused);
   // Duel invites need someone else online (the count includes yourself).
@@ -48,11 +50,22 @@ export default function HomeScreen() {
     navigation.navigate('Tournament', { categoryId });
   };
 
-  // Create Room: category first, then straight to the friendly room-settings
-  // screen (rounds + "Create & Start") — skips the duel/ranked menu entirely.
-  const pickRoomCategory = (categoryId: string) => {
+  // Create Room: Friendly/Ranked + category, then straight to that mode's
+  // room-settings screen (rounds + "Create & Start") — skips the duel menu.
+  const pickRoomCategory = async (categoryId: string, mode: 'friendly' | 'ranked') => {
+    if (mode === 'ranked') {
+      const raw = await AsyncStorage.getItem('@logged_in_profile');
+      const p = raw ? JSON.parse(raw) : null;
+      if (!p || !p.id || p.id === 'guest') {
+        CustomAlert.show(t('error'), t('rankedNeedLogin'), [
+          { text: t('cancel'), style: 'cancel' },
+          { text: t('signInBtn'), onPress: () => navigation.navigate('Profile') },
+        ], 'neutral');
+        return;
+      }
+    }
     setShowRoomPicker(false);
-    navigation.navigate('OnlineLobby', { categoryId, mode: 'friendly', autoAction: 'createRoom' });
+    navigation.navigate('OnlineLobby', { categoryId, mode, autoAction: 'createRoom' });
   };
 
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
@@ -198,7 +211,10 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward" size={14} color="#00FF88" />
           </TouchableOpacity>
           )}
-          <View style={styles.ctaRow}>
+          <View
+            style={styles.ctaRow}
+            onLayout={(e) => setCtaRowWidth(e.nativeEvent.layout.width)}
+          >
             <TouchableOpacity
               style={styles.duelCta}
               onPress={() => setShowOnline(true)}
@@ -213,7 +229,11 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.roomCtaRow}>
-            <TouchableOpacity style={styles.roomCta} onPress={() => setShowRoomPicker(true)} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={[styles.roomCta, ctaRowWidth ? { width: ctaRowWidth, maxWidth: ctaRowWidth } : null]}
+              onPress={() => setShowRoomPicker(true)}
+              activeOpacity={0.85}
+            >
               <Ionicons name="people" size={15} color="#eaf6ff" />
               <Text style={styles.roomCtaText} allowFontScaling={false}>{t('createRoomCta')}</Text>
             </TouchableOpacity>
@@ -298,14 +318,7 @@ export default function HomeScreen() {
 
         <OnlinePlayersModal visible={showOnline} onClose={() => setShowOnline(false)} />
         <SoloModePicker visible={showSolo} onClose={() => setShowSolo(false)} onPick={startSolo} />
-        <SoloModePicker
-          visible={showRoomPicker}
-          onClose={() => setShowRoomPicker(false)}
-          onPick={pickRoomCategory}
-          emoji="👥"
-          title={t('createRoomPickTitle')}
-          sub={t('createRoomPickSub')}
-        />
+        <CreateRoomPicker visible={showRoomPicker} onClose={() => setShowRoomPicker(false)} onPick={pickRoomCategory} />
 
       </SafeAreaView>
     </ImageBackground>
@@ -405,6 +418,7 @@ const styles = StyleSheet.create({
   roomCta: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 6,
     maxWidth: '92%',
     paddingHorizontal: 16,
