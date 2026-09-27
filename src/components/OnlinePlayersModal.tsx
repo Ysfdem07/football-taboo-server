@@ -173,7 +173,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
       return cat ? `${t('inviteTagTournament')} - ${cat}` : t('inviteTagTournament');
     }
     if (item.searching) return t('inviteSearchingTag');
-    return '';
+    return t('inviteTagLobby'); // online, not in a match/tournament — still invitable
   };
 
   const renderPlayer = (item: OnlinePlayer) => (

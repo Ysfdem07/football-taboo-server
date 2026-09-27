@@ -543,7 +543,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
             text: t('exitBtn'),
             style: 'destructive',
             onPress: () => {
-              socket.disconnect();
+              // Not socket.disconnect(): the unmount cleanup below already emits
+              // leave_room (which forfeits the match server-side just as fast) —
+              // disconnecting here just forced an unnecessary reconnect once back
+              // on Home, which briefly showed the player as offline/a guest there.
               navigation.dispatch(e.data.action);
             },
           },
@@ -824,7 +827,10 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
               <TouchableOpacity
                 style={styles.menuButton}
                 onPress={() => {
-                  socket.disconnect();
+                  // No socket.disconnect(): the match already ended (game_over), so
+                  // there's nothing left to forfeit — disconnecting only forced an
+                  // unneeded reconnect+relogin once back on Home, which briefly
+                  // showed the player as offline/a guest to other online players.
                   navigation.replace('Home');
                 }}
                 activeOpacity={0.8}
@@ -883,7 +889,9 @@ export default function OnlineGameScreen({ route, navigation }: Props) {
                     [
                       { text: t('cancel'), style: 'cancel' },
                       { text: t('exitBtn'), style: 'destructive', onPress: () => {
-                        socket.disconnect();
+                        // See the beforeRemove handler above: leave_room (emitted by
+                        // the unmount cleanup) already forfeits the match, so no
+                        // socket.disconnect() here either.
                         navigation.navigate('Home');
                       }}
                     ]
