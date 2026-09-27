@@ -406,7 +406,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 18,
+    maxWidth: '92%',
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1.5,
@@ -421,8 +422,10 @@ const styles = StyleSheet.create({
   roomCtaText: {
     color: '#eaf6ff',
     fontFamily: 'Poppins_900Black',
-    fontSize: 11.5,
-    letterSpacing: 0.5,
+    fontSize: 10.5,
+    letterSpacing: 0.2,
+    textAlign: 'center',
+    flexShrink: 1,
   },
   onlineDot: {
     width: 9,
