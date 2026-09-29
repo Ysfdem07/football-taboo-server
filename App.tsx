@@ -87,26 +87,26 @@ export default function App() {
 
   useEffect(() => {
     // expo-updates' default policy downloads a new OTA update on this launch
-    // but only applies it on the NEXT cold start. We pre-fetch here so that
-    // next restart is instant instead of downloading on the spot, but
-    // deliberately do NOT call reloadAsync() to force it into the current
-    // session — that call is one of three known triggers for an upstream
-    // expo-updates bug (NSException on expo.controller.errorRecoveryQueue
-    // during bundle activation, see github.com/expo/expo/issues/45772,
-    // unfixed as of expo-updates 29.0.20). Applying only on the next natural
-    // cold start avoids this specific trigger.
+    // but only applies it on the NEXT cold start — so a single close/reopen
+    // right after publishing still runs the old bundle. Check-fetch-reload
+    // here so a freshly published update is live within this same session
+    // instead of needing two restarts. (This project has published several
+    // OTA updates on iOS 27 with this in place with no issue — see
+    // [[att-ota-crash-incident]] for the one time a *different* bug bit
+    // this general area.)
     if (__DEV__ || !Updates.isEnabled) return;
-    const prefetchLatestUpdate = async () => {
+    const applyLatestUpdate = async () => {
       try {
         const result = await Updates.checkForUpdateAsync();
         if (result.isAvailable) {
           await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
         }
       } catch (e) {
         // Offline or update service unreachable — keep running the current bundle.
       }
     };
-    prefetchLatestUpdate();
+    applyLatestUpdate();
   }, []);
 
   useEffect(() => {

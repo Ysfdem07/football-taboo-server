@@ -46,7 +46,6 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
     // RNFBAnalyticsModule (react-native-firebase/analytics/lib/index.js).
     const hasNativeModule = !!NativeModules.RNFBAnalyticsModule;
     let collectionResult = 'not attempted';
-    let testEventResult = 'not attempted';
     try {
       const mod = require('@react-native-firebase/analytics');
       this.analytics = (mod.default || mod)();
@@ -56,18 +55,11 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
       } catch (e) {
         collectionResult = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
       }
-      try {
-        await withTimeout(this.analytics.logEvent('preview_diagnostic_ping', { ts: Date.now() }), 5000, 'logEvent');
-        testEventResult = 'ok';
-      } catch (e) {
-        testEventResult = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-      }
       if (__DEV__) console.log('[Analytics] Firebase Provider initialized.');
       reportPreviewStatus('Analytics FirebaseAnalyticsProvider.init()', [
         `NativeModules.RNFBAnalyticsModule present: ${hasNativeModule}`,
         `analytics() instance: ${!!this.analytics}`,
         `setAnalyticsCollectionEnabled(true): ${collectionResult}`,
-        `test logEvent('preview_diagnostic_ping'): ${testEventResult}`,
       ]);
     } catch (err) {
       if (__DEV__) {
