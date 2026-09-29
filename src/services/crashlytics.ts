@@ -3,7 +3,7 @@
 // Safe dynamic require — no crash in Expo Go if native module is missing.
 
 import { NativeModules } from 'react-native';
-import { reportPreviewInitError } from './previewDiagnostics';
+import { reportPreviewInitError, reportPreviewStatus } from './previewDiagnostics';
 
 // The real native module class is RNFBCrashlyticsModule (see
 // node_modules/@react-native-firebase/crashlytics/ios/.../RNFBCrashlyticsModule.m
@@ -12,23 +12,28 @@ import { reportPreviewInitError } from './previewDiagnostics';
 // nonexistent "Native"), which never matches on any platform, making this
 // whole service a permanent no-op.
 //
-// Tried flipping this on 2026-09-29 (EAS preview build 15, iOS 27.0): the
-// app crashed on launch every time, before any on-screen JS error could
-// show. Device crash log (.ips) confirms a native NSException/SIGABRT —
-// not a JS error our try/catch below can catch — surfacing on
-// "expo.controller.errorRecoveryQueue". The live production build (1.0.1)
-// reinstalls and runs fine on the same device/iOS version and has shipped
-// several OTA updates on iOS 27 without incident, so this isn't the known
-// expo-updates activation bug — it's specifically the native Crashlytics
-// module actually initializing for the first time ever (it was always a
-// silent no-op before, so this code path has never actually run on a real
-// device). Root cause not yet diagnosed (needs Xcode device console access
-// to symbolicate). Keeping this permanently disabled until that happens —
-// see [[att-ota-crash-incident]] for why "ship it and see" isn't worth the
-// risk here.
-const isCrashlyticsAvailable = false && !!NativeModules.RNFBCrashlyticsModule;
+// First attempt at flipping this on (2026-09-29, EAS preview build 15, iOS
+// 27.0) crashed on launch every time — a native NSException/SIGABRT on
+// "expo.controller.errorRecoveryQueue" (device .ips log), not JS-catchable.
+// Root cause found afterwards: [FIRApp configure] was never running on iOS
+// at all (see src/services/firebaseApp.ts) — Analytics hit the same "No
+// Firebase App '[DEFAULT]'" condition, just as a catchable promise
+// rejection/hang instead of a hard native abort. That's now fixed and
+// confirmed (Analytics data flows end-to-end on iOS). Retrying Crashlytics
+// with the Firebase App fix in place — see [[project_firebase_ios_analytics_fix]].
+const isCrashlyticsAvailable = !!NativeModules.RNFBCrashlyticsModule;
 
 let crashlyticsInstance: any = null;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+    promise.then(
+      v => { clearTimeout(timer); resolve(v); },
+      e => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
 
 const getInstance = () => {
   if (!isCrashlyticsAvailable) return null;
@@ -48,14 +53,27 @@ const getInstance = () => {
  * Initialize Crashlytics — call once at app startup.
  */
 export const initCrashlytics = async (): Promise<void> => {
+  const hasNativeModule = !!NativeModules.RNFBCrashlyticsModule;
+  let collectionResult = 'not attempted';
   try {
     const crashlytics = getInstance();
     if (!crashlytics) {
       if (__DEV__) console.log('[Crashlytics] Skipping init — native module not available.');
+      reportPreviewStatus('Crashlytics initCrashlytics()', [`NativeModules.RNFBCrashlyticsModule present: ${hasNativeModule}`, 'getInstance(): null']);
       return;
     }
-    await crashlytics.setCrashlyticsCollectionEnabled(true);
+    try {
+      await withTimeout(crashlytics.setCrashlyticsCollectionEnabled(true), 5000, 'setCrashlyticsCollectionEnabled');
+      collectionResult = 'resolved';
+    } catch (e) {
+      collectionResult = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+    }
     if (__DEV__) console.log('[Crashlytics] Initialized successfully.');
+    reportPreviewStatus('Crashlytics initCrashlytics()', [
+      `NativeModules.RNFBCrashlyticsModule present: ${hasNativeModule}`,
+      `instance: ${!!crashlytics}`,
+      `setCrashlyticsCollectionEnabled(true): ${collectionResult}`,
+    ]);
   } catch (err) {
     console.warn('[Crashlytics] Failed to initialize:', err);
     reportPreviewInitError('Crashlytics initCrashlytics()', err);
