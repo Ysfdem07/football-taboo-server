@@ -1,6 +1,7 @@
 // src/services/analytics.ts
 
-import { reportPreviewInitError } from './previewDiagnostics';
+import { NativeModules } from 'react-native';
+import { reportPreviewInitError, reportPreviewStatus } from './previewDiagnostics';
 
 export interface AnalyticsEventParams {
   [key: string]: any;
@@ -22,16 +23,35 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
   private analytics: any = null;
 
   async init(): Promise<void> {
+    // Diagnostic-only (preview channel): "no error" isn't proof the SDK is
+    // actually talking to Firebase — the module's native name is
+    // RNFBAnalyticsModule (react-native-firebase/analytics/lib/index.js).
+    const hasNativeModule = !!NativeModules.RNFBAnalyticsModule;
     try {
       const mod = require('@react-native-firebase/analytics');
       this.analytics = (mod.default || mod)();
       await this.analytics.setAnalyticsCollectionEnabled(true);
+      let testEventResult = 'ok';
+      try {
+        await this.analytics.logEvent('preview_diagnostic_ping', { ts: Date.now() });
+      } catch (e) {
+        testEventResult = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+      }
       if (__DEV__) console.log('[Analytics] Firebase Provider initialized.');
+      reportPreviewStatus('Analytics FirebaseAnalyticsProvider.init()', [
+        `NativeModules.RNFBAnalyticsModule present: ${hasNativeModule}`,
+        `analytics() instance: ${!!this.analytics}`,
+        `setAnalyticsCollectionEnabled(true): resolved`,
+        `test logEvent('preview_diagnostic_ping'): ${testEventResult}`,
+      ]);
     } catch (err) {
       if (__DEV__) {
         console.log('[Analytics] Firebase native module not available (expected in Expo Go).');
       }
       reportPreviewInitError('Analytics FirebaseAnalyticsProvider.init()', err);
+      reportPreviewStatus('Analytics FirebaseAnalyticsProvider.init() (before throw)', [
+        `NativeModules.RNFBAnalyticsModule present: ${hasNativeModule}`,
+      ]);
       this.analytics = null;
     }
   }

@@ -18,3 +18,16 @@ export function reportPreviewInitError(label: string, err: unknown): void {
     // Never let the diagnostic itself throw.
   }
 }
+
+// Same idea, but for confirming things WORKED (not just errors) — used when
+// "no error was thrown" isn't enough to know whether a native call actually
+// did anything (see: Analytics reporting no crash/error yet no data ever
+// reaching the Firebase console for iOS specifically).
+export function reportPreviewStatus(label: string, lines: string[]): void {
+  try {
+    if (Updates.channel === 'production') return;
+    CustomAlert.show(`[Preview] ${label}`, lines.join('\n'));
+  } catch (e) {
+    // Never let the diagnostic itself throw.
+  }
+}
