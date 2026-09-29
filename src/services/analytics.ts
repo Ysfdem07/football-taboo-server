@@ -3,6 +3,24 @@
 import { NativeModules } from 'react-native';
 import { reportPreviewInitError, reportPreviewStatus } from './previewDiagnostics';
 
+// A native call that never resolves or rejects (seen with Firebase
+// Analytics on iOS — see FirebaseAnalyticsProvider.init() below) would
+// otherwise stall this provider's init() forever, and since
+// AnalyticsService.init() awaits each provider in sequence, and App.tsx
+// awaits RemoteConfig.init() / the ATT prompt / initAds() right after
+// Analytics.init(), a hang here silently blocks all of those too. Race
+// against a timeout instead of a bare await wherever a native promise
+// might never settle.
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+    promise.then(
+      v => { clearTimeout(timer); resolve(v); },
+      e => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
+
 export interface AnalyticsEventParams {
   [key: string]: any;
 }
@@ -27,13 +45,20 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
     // actually talking to Firebase — the module's native name is
     // RNFBAnalyticsModule (react-native-firebase/analytics/lib/index.js).
     const hasNativeModule = !!NativeModules.RNFBAnalyticsModule;
+    let collectionResult = 'not attempted';
+    let testEventResult = 'not attempted';
     try {
       const mod = require('@react-native-firebase/analytics');
       this.analytics = (mod.default || mod)();
-      await this.analytics.setAnalyticsCollectionEnabled(true);
-      let testEventResult = 'ok';
       try {
-        await this.analytics.logEvent('preview_diagnostic_ping', { ts: Date.now() });
+        await withTimeout(this.analytics.setAnalyticsCollectionEnabled(true), 5000, 'setAnalyticsCollectionEnabled');
+        collectionResult = 'resolved';
+      } catch (e) {
+        collectionResult = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+      }
+      try {
+        await withTimeout(this.analytics.logEvent('preview_diagnostic_ping', { ts: Date.now() }), 5000, 'logEvent');
+        testEventResult = 'ok';
       } catch (e) {
         testEventResult = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
       }
@@ -41,7 +66,7 @@ class FirebaseAnalyticsProvider implements AnalyticsProvider {
       reportPreviewStatus('Analytics FirebaseAnalyticsProvider.init()', [
         `NativeModules.RNFBAnalyticsModule present: ${hasNativeModule}`,
         `analytics() instance: ${!!this.analytics}`,
-        `setAnalyticsCollectionEnabled(true): resolved`,
+        `setAnalyticsCollectionEnabled(true): ${collectionResult}`,
         `test logEvent('preview_diagnostic_ping'): ${testEventResult}`,
       ]);
     } catch (err) {
