@@ -9,6 +9,8 @@ import { Analytics } from './src/services/analytics';
 import { RemoteConfig } from './src/services/remoteConfig';
 import { initAds } from './src/services/ads';
 import { initCrashlytics } from './src/services/crashlytics';
+import { ensureFirebaseAppInitialized } from './src/services/firebaseApp';
+import { reportPreviewStatus, reportPreviewInitError } from './src/services/previewDiagnostics';
 import { getSocket } from './src/services/socket';
 import * as Updates from 'expo-updates';
 import {
@@ -47,8 +49,16 @@ export default function App() {
   });
 
   useEffect(() => {
+    // Independent of everything below: proves the on-screen diagnostic
+    // channel itself works at all, decoupled from Firebase/Analytics timing.
+    // Every prior diagnostic attempt (including ones bounded by a timeout,
+    // guaranteed to fire) produced zero visible alerts on a real preview
+    // build — this rules that mechanism in or out first.
+    reportPreviewStatus('App.tsx mounted', [`Updates.channel: ${String(Updates.channel)}`, `time: ${new Date().toISOString()}`]);
+
     // Initialize analytics, remote config, and ads on app launch
     const initServices = async () => {
+      await ensureFirebaseAppInitialized(); // iOS only — see firebaseApp.ts for why this is needed
       await initCrashlytics();   // First — so it captures crashes from other inits
       await Analytics.init();
       await RemoteConfig.init();
@@ -68,28 +78,35 @@ export default function App() {
       }
       await initAds();
     };
-    initServices();
+    initServices().catch(err => {
+      // A bare unhandled rejection here is silent in a release bundle —
+      // nothing prior in this chain has ever been confirmed to actually run.
+      reportPreviewInitError('initServices() chain', err);
+    });
   }, []);
 
   useEffect(() => {
     // expo-updates' default policy downloads a new OTA update on this launch
-    // but only applies it on the NEXT cold start — so a single close/reopen
-    // right after publishing still runs the old bundle. Check-fetch-reload
-    // here so a freshly published update is live within this same session
-    // instead of needing two restarts.
+    // but only applies it on the NEXT cold start. We pre-fetch here so that
+    // next restart is instant instead of downloading on the spot, but
+    // deliberately do NOT call reloadAsync() to force it into the current
+    // session — that call is one of three known triggers for an upstream
+    // expo-updates bug (NSException on expo.controller.errorRecoveryQueue
+    // during bundle activation, see github.com/expo/expo/issues/45772,
+    // unfixed as of expo-updates 29.0.20). Applying only on the next natural
+    // cold start avoids this specific trigger.
     if (__DEV__ || !Updates.isEnabled) return;
-    const applyLatestUpdate = async () => {
+    const prefetchLatestUpdate = async () => {
       try {
         const result = await Updates.checkForUpdateAsync();
         if (result.isAvailable) {
           await Updates.fetchUpdateAsync();
-          await Updates.reloadAsync();
         }
       } catch (e) {
         // Offline or update service unreachable — keep running the current bundle.
       }
     };
-    applyLatestUpdate();
+    prefetchLatestUpdate();
   }, []);
 
   useEffect(() => {
