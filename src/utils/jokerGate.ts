@@ -21,7 +21,23 @@ const hasFullJokerSet = (jokers: any): boolean => {
 type GateStrings = typeof translations['tr'];
 const t = (lang: Language, key: keyof GateStrings) => (translations as any)[lang][key];
 
-// Always call this instead of starting the duel action directly. Calls
+// For screens (not already inside another <Modal>): whether the player is
+// missing at least one joker type. Returns false (nothing to show) on any
+// storage read failure — never block the duel over that.
+export async function needsJokerGate(): Promise<boolean> {
+  try {
+    const profileRaw = await AsyncStorage.getItem('@logged_in_profile');
+    const profile = profileRaw ? JSON.parse(profileRaw) : null;
+    return !hasFullJokerSet(profile?.jokers);
+  } catch (e) {
+    return false;
+  }
+}
+
+// Always call this instead of starting the duel action directly — for
+// screens only, NOT from inside another already-open <Modal> (see
+// OnlinePlayersModal, which renders its own inline prompt instead: two
+// RN <Modal>s stacked can fail to receive touches on iOS). Calls
 // `proceed()` immediately if the player already has a joker of some kind,
 // or as soon as they pick "start anyway" from the prompt. Never blocks the
 // duel over a storage read failing.

@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getSocket, withSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { UserAvatar } from './UserAvatar';
-import { gateOnJokers } from '../utils/jokerGate';
+import { needsJokerGate } from '../utils/jokerGate';
+import { navigationRef } from '../navigation/navigationRef';
 
 type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; tournamentCategory?: string | null; busy?: boolean; busyCategory?: string | null };
 type BotInfo = { botId: string; name: string; avatar?: string | null; level: 'easy' | 'medium' | 'hard' };
@@ -41,6 +42,10 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [pending, setPending] = useState<{ inviteId?: string; name: string } | null>(null);
   const [message, setMessage] = useState('');
+  // Nested RN <Modal>s can fail to receive touches on iOS, so the joker
+  // nudge renders inline in this sheet instead of going through the
+  // CustomAlert popup (a separate <Modal>) other screens use.
+  const [jokerPrompt, setJokerPrompt] = useState<{ proceed: () => void } | null>(null);
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
 
@@ -58,6 +63,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
     setPlayers(null);
     setPending(null);
     setMessage('');
+    setJokerPrompt(null);
     AsyncStorage.getItem('@logged_in_profile')
       .then(raw => { const p = raw ? JSON.parse(raw) : null; setIsRegistered(!!(p && p.id && p.id !== 'guest')); })
       .catch(() => setIsRegistered(false));
@@ -111,9 +117,16 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
     };
   }, [visible, language]);
 
+  const runOrGateOnJokers = (proceed: () => void) => {
+    needsJokerGate().then(needed => {
+      if (needed) setJokerPrompt({ proceed });
+      else proceed();
+    });
+  };
+
   const invite = (p: OnlinePlayer) => {
     if (pending || rankedBlocked) return;
-    gateOnJokers(() => {
+    runOrGateOnJokers(() => {
       setMessage('');
       setPending({ name: p.name });
       getSocket().emit('send_duel_invite', { targetId: p.targetId, category: categoryId, mode });
@@ -123,7 +136,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
   // Bots "accept" instantly: there is no invite to wait for, the match just starts.
   const inviteBot = (b: BotInfo) => {
     if (pending) return;
-    gateOnJokers(() => {
+    runOrGateOnJokers(() => {
       setMessage('');
       setPending({ name: b.name });
       getSocket().emit('send_duel_invite', { targetId: b.botId, category: categoryId, mode: 'friendly' });
@@ -134,6 +147,18 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
         }
       }, 8000);
     });
+  };
+
+  const jokerPromptStartAnyway = () => {
+    const proceed = jokerPrompt?.proceed;
+    setJokerPrompt(null);
+    if (proceed) proceed();
+  };
+
+  const jokerPromptGoToMarket = () => {
+    setJokerPrompt(null);
+    onClose();
+    if (navigationRef.isReady()) (navigationRef.navigate as (name: string) => void)('Market');
   };
 
   const cancelPending = () => {
@@ -260,7 +285,20 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
       <Text style={styles.modeDesc}>{rankedBlocked ? t('rankedNeedLogin') : t(mode === 'ranked' ? 'modeRankedDesc' : 'modeFriendlyDesc')}</Text>
       {rankedUnavailable ? <Text style={styles.modeDesc}>{t('rankedNeedPlayers')}</Text> : null}
 
-      {pending ? (
+      {jokerPrompt ? (
+        <View style={styles.jokerGateBox}>
+          <Text style={styles.jokerGateTitle}>🃏 {t('jokerGateTitle')}</Text>
+          <Text style={styles.jokerGateMsg}>{t('jokerGateMsg')}</Text>
+          <View style={styles.jokerGateRow}>
+            <TouchableOpacity style={[styles.cancelBtn, { flex: 1, alignItems: 'center' }]} onPress={jokerPromptStartAnyway} activeOpacity={0.85}>
+              <Text style={styles.cancelText}>{t('jokerGateStartAnyway')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.inviteBtn, { flex: 1, alignItems: 'center' }]} onPress={jokerPromptGoToMarket} activeOpacity={0.85}>
+              <Text style={styles.inviteBtnText}>{t('jokerGateGoToMarket')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : pending ? (
         <View style={styles.pendingBox}>
           <ActivityIndicator color={NEON} />
           <Text style={styles.pendingText}>{t('inviteWaiting').replace('{name}', pending.name)}</Text>
@@ -324,6 +362,10 @@ const styles = StyleSheet.create({
   inviteBtnText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 12 },
   empty: { color: 'rgba(255,255,255,0.7)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', marginTop: 12, lineHeight: 19 },
   pendingBox: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(0,255,136,0.08)' },
+  jokerGateBox: { marginTop: 12, padding: 14, borderRadius: 14, backgroundColor: 'rgba(255,215,0,0.08)', borderWidth: 1, borderColor: 'rgba(255,215,0,0.35)' },
+  jokerGateTitle: { color: '#FFD700', fontFamily: 'Poppins_900Black', fontSize: 14 },
+  jokerGateMsg: { color: 'rgba(255,255,255,0.8)', fontFamily: 'Poppins_400Regular', fontSize: 12, marginTop: 4, lineHeight: 17 },
+  jokerGateRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   pendingText: { flex: 1, color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 12 },
   cancelBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   cancelText: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 11 },
