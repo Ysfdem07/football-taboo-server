@@ -268,6 +268,22 @@ export const showInterstitial = (force: boolean = false): void => {
   }
 };
 
+// tryShowInterstitial() never retries on its own once it returns false — a
+// caller that still has some slack before it actually needs the ad shown
+// (e.g. the tournament result screen, which stays up until the player taps
+// away) can use this instead of losing the ad for good just because it
+// wasn't quite loaded yet at the exact moment the round ended. Polls briefly
+// rather than blocking navigation on it.
+export const showInterstitialWhenReady = (maxWaitMs: number = 6000): void => {
+  if (tryShowInterstitial()) return;
+  const start = Date.now();
+  const poll = setInterval(() => {
+    if (tryShowInterstitial() || Date.now() - start >= maxWaitMs) {
+      clearInterval(poll);
+    }
+  }, 400);
+};
+
 export const showRewarded = (onRewardEarned: (reward: any) => void, onClose?: () => void, type: 'x2' | 'tourney' | 'market' = 'x2', onError?: (message: string) => void): void => {
   if (!isFirebaseAvailable || !rewardedInstances[type]) {
     if (__DEV__) {

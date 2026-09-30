@@ -14,7 +14,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { CustomAlert } from '../components/CustomAlert';
-import { showInterstitial } from '../services/ads';
+import { showInterstitialWhenReady } from '../services/ads';
 import { isLeavingForDuel } from '../services/duelInviteState';
 
 type Nav  = NativeStackNavigationProp<RootStackParamList, 'TournamentGame'>;
@@ -166,8 +166,15 @@ export default function TournamentGameScreen() {
   // React Navigation's default back action unless this is intercepted too.
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
-      // finished, or the player accepted a duel invite and is leaving on purpose
-      if (finished || isLeavingForDuel()) return;
+      // Tournament: every completed attempt shows an ad, no every-other
+      // throttling — this is the single place it's triggered, so every way
+      // off the result screen (menu button, leaderboard button, Android
+      // back, swipe) counts as exactly one completed attempt.
+      if (finished) {
+        showInterstitialWhenReady();
+        return;
+      }
+      if (isLeavingForDuel()) return; // accepted a duel invite, leaving on purpose
 
       e.preventDefault();
 
@@ -406,7 +413,11 @@ export default function TournamentGameScreen() {
 
   const finishGame = () => {
     setFinished(true);
-    showInterstitial(true); // Tournament: every attempt shows an ad, no every-other throttling
+    // Not shown here — see the beforeRemove handler above, which fires it
+    // once the player actually leaves the result screen. That gives the ad
+    // the whole time the player spends looking at their score to finish
+    // loading, instead of it being requested at the exact instant the round
+    // ends and silently lost if it wasn't quite ready yet.
     const socket = getSocket();
     if (socket && player) {
       socket.emit('submit_tournament_score', {
