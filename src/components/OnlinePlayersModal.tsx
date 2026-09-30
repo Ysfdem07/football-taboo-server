@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getSocket, withSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
@@ -285,20 +286,7 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
       <Text style={styles.modeDesc}>{rankedBlocked ? t('rankedNeedLogin') : t(mode === 'ranked' ? 'modeRankedDesc' : 'modeFriendlyDesc')}</Text>
       {rankedUnavailable ? <Text style={styles.modeDesc}>{t('rankedNeedPlayers')}</Text> : null}
 
-      {jokerPrompt ? (
-        <View style={styles.jokerGateBox}>
-          <Text style={styles.jokerGateTitle}>🃏 {t('jokerGateTitle')}</Text>
-          <Text style={styles.jokerGateMsg}>{t('jokerGateMsg')}</Text>
-          <View style={styles.jokerGateRow}>
-            <TouchableOpacity style={[styles.cancelBtn, { flex: 1, alignItems: 'center' }]} onPress={jokerPromptStartAnyway} activeOpacity={0.85}>
-              <Text style={styles.cancelText}>{t('jokerGateStartAnyway')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.inviteBtn, { flex: 1, alignItems: 'center' }]} onPress={jokerPromptGoToMarket} activeOpacity={0.85}>
-              <Text style={styles.inviteBtnText}>{t('jokerGateGoToMarket')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : pending ? (
+      {pending ? (
         <View style={styles.pendingBox}>
           <ActivityIndicator color={NEON} />
           <Text style={styles.pendingText}>{t('inviteWaiting').replace('{name}', pending.name)}</Text>
@@ -335,6 +323,28 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
             showsVerticalScrollIndicator={false}
           />
         </View>
+
+        {jokerPrompt && (
+          <View style={styles.jokerOverlay}>
+            <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+            <View style={styles.jokerCard}>
+              <View style={styles.jokerCardHeaderBar} />
+              <View style={styles.jokerIconWrap}>
+                <Ionicons name="pricetags" size={50} color="#FFD700" />
+              </View>
+              <Text style={styles.jokerCardTitle}>{t('jokerGateTitle')}</Text>
+              <Text style={styles.jokerCardMsg}>{t('jokerGateMsg')}</Text>
+              <View style={styles.jokerCardButtonRow}>
+                <TouchableOpacity style={styles.jokerCardCancelBtn} onPress={jokerPromptStartAnyway} activeOpacity={0.85}>
+                  <Text style={styles.jokerCardCancelText}>{t('jokerGateStartAnyway').toUpperCase()}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.jokerCardGoBtn} onPress={jokerPromptGoToMarket} activeOpacity={0.85}>
+                  <Text style={styles.jokerCardGoText}>{t('jokerGateGoToMarket').toUpperCase()}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </View>
     </Modal>
   );
@@ -362,10 +372,24 @@ const styles = StyleSheet.create({
   inviteBtnText: { color: '#04140b', fontFamily: 'Poppins_900Black', fontSize: 12 },
   empty: { color: 'rgba(255,255,255,0.7)', fontFamily: 'Poppins_400Regular', fontSize: 13, textAlign: 'center', marginTop: 12, lineHeight: 19 },
   pendingBox: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(0,255,136,0.08)' },
-  jokerGateBox: { marginTop: 12, padding: 14, borderRadius: 14, backgroundColor: 'rgba(255,215,0,0.08)', borderWidth: 1, borderColor: 'rgba(255,215,0,0.35)' },
-  jokerGateTitle: { color: '#FFD700', fontFamily: 'Poppins_900Black', fontSize: 14 },
-  jokerGateMsg: { color: 'rgba(255,255,255,0.8)', fontFamily: 'Poppins_400Regular', fontSize: 12, marginTop: 4, lineHeight: 17 },
-  jokerGateRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  // Centered card overlay, styled to match CustomAlert — rendered inline in
+  // this same <Modal> rather than a second stacked one (see jokerGate.ts).
+  jokerOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  jokerCard: {
+    width: '100%', maxWidth: 360, backgroundColor: '#0F172A', borderRadius: 20,
+    padding: 24, paddingTop: 32, alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', overflow: 'hidden',
+    shadowColor: '#FFD700', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 10,
+  },
+  jokerCardHeaderBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 6, backgroundColor: '#FFD700' },
+  jokerIconWrap: { marginBottom: 16, backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 50, padding: 8 },
+  jokerCardTitle: { fontFamily: 'Poppins_700Bold', fontSize: 20, color: '#FFF', textAlign: 'center', marginBottom: 8 },
+  jokerCardMsg: { fontFamily: 'Poppins_400Regular', fontSize: 14, color: '#94A3B8', textAlign: 'center', marginBottom: 24, lineHeight: 20 },
+  jokerCardButtonRow: { flexDirection: 'row', width: '100%', justifyContent: 'center', gap: 12 },
+  jokerCardCancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  jokerCardCancelText: { fontFamily: 'Poppins_700Bold', fontSize: 13, color: '#FFF' },
+  jokerCardGoBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFD700' },
+  jokerCardGoText: { fontFamily: 'Poppins_700Bold', fontSize: 13, color: '#000' },
   pendingText: { flex: 1, color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 12 },
   cancelBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   cancelText: { color: '#FFF', fontFamily: 'Poppins_700Bold', fontSize: 11 },
