@@ -13,6 +13,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CustomAlert } from '../components/CustomAlert';
 import { useLanguage } from '../context/LanguageContext';
+import { gateOnJokers } from '../utils/jokerGate';
 
 const THEMES = {
   football: require('../../assets/images/football_bg.jpg'),
@@ -402,7 +403,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
                 {!showRankedRoomSettings ? (
                   <View style={styles.actionList}>
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.35)' }]} onPress={findMatch} activeOpacity={0.75}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.35)' }]} onPress={() => gateOnJokers(findMatch)} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
                       <LinearGradient colors={['rgba(0,191,255,0.16)', 'rgba(0,191,255,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
                       <View style={[styles.cardInnerGlow, { borderColor: 'rgba(0,191,255,0.25)' }]} />
@@ -498,7 +499,7 @@ export default function OnlineLobbyScreen({ navigation, route }: any) {
 
                 {!showFriendlyRoomSettings ? (
                   <View style={styles.actionList}>
-                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.35)' }]} onPress={findFriendlyMatch} activeOpacity={0.75}>
+                    <TouchableOpacity style={[styles.premiumCard, { borderColor: 'rgba(0,191,255,0.35)' }]} onPress={() => gateOnJokers(findFriendlyMatch)} activeOpacity={0.75}>
                       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFillObject} />
                       <LinearGradient colors={['rgba(0,191,255,0.16)', 'rgba(0,191,255,0.02)', 'transparent']} start={{x:0, y:0}} end={{x:1, y:1}} style={StyleSheet.absoluteFillObject} />
                       <View style={[styles.cardInnerGlow, { borderColor: 'rgba(0,191,255,0.25)' }]} />

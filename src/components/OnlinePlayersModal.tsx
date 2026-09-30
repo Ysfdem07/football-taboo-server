@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getSocket, withSocket } from '../services/socket';
 import { useLanguage } from '../context/LanguageContext';
 import { UserAvatar } from './UserAvatar';
+import { gateOnJokers } from '../utils/jokerGate';
 
 type OnlinePlayer = { targetId: string; name: string; avatar?: string | null; kp: number; registered: boolean; searching: boolean; inTournament?: boolean; tournamentCategory?: string | null; busy?: boolean; busyCategory?: string | null };
 type BotInfo = { botId: string; name: string; avatar?: string | null; level: 'easy' | 'medium' | 'hard' };
@@ -112,23 +113,27 @@ export default function OnlinePlayersModal({ visible, onClose }: Props) {
 
   const invite = (p: OnlinePlayer) => {
     if (pending || rankedBlocked) return;
-    setMessage('');
-    setPending({ name: p.name });
-    getSocket().emit('send_duel_invite', { targetId: p.targetId, category: categoryId, mode });
+    gateOnJokers(() => {
+      setMessage('');
+      setPending({ name: p.name });
+      getSocket().emit('send_duel_invite', { targetId: p.targetId, category: categoryId, mode });
+    });
   };
 
   // Bots "accept" instantly: there is no invite to wait for, the match just starts.
   const inviteBot = (b: BotInfo) => {
     if (pending) return;
-    setMessage('');
-    setPending({ name: b.name });
-    getSocket().emit('send_duel_invite', { targetId: b.botId, category: categoryId, mode: 'friendly' });
-    setTimeout(() => {
-      if (pendingRef.current && !pendingRef.current.inviteId) {
-        setPending(null);
-        setMessage(t('inviteGenericError'));
-      }
-    }, 8000);
+    gateOnJokers(() => {
+      setMessage('');
+      setPending({ name: b.name });
+      getSocket().emit('send_duel_invite', { targetId: b.botId, category: categoryId, mode: 'friendly' });
+      setTimeout(() => {
+        if (pendingRef.current && !pendingRef.current.inviteId) {
+          setPending(null);
+          setMessage(t('inviteGenericError'));
+        }
+      }, 8000);
+    });
   };
 
   const cancelPending = () => {
