@@ -78,6 +78,7 @@ const REWARDED_IDS: Record<string, string> = USE_TEST_AD_UNITS ? {
 // Keep track of ad instances
 let interstitialAdInstance: any = null;
 let isInterstitialLoaded = false;
+let isInterstitialLoadPending = false;
 
 const rewardedInstances: Record<string, any> = { x2: null, tourney: null, market: null };
 const rewardedLoaded: Record<string, boolean> = { x2: false, tourney: false, market: false };
@@ -123,6 +124,8 @@ export const initAds = async (): Promise<void> => {
 
 const loadInterstitial = () => {
   if (!isFirebaseAvailable || !InterstitialAd || !INTERSTITIAL_ID) return;
+  if (isInterstitialLoadPending) return; // already loading — don't stack duplicate requests
+  isInterstitialLoadPending = true;
 
   try {
     interstitialAdInstance = InterstitialAd.createForAdRequest(INTERSTITIAL_ID, {
@@ -131,7 +134,21 @@ const loadInterstitial = () => {
 
     interstitialAdInstance.addAdEventListener(AdEventType.LOADED, () => {
       isInterstitialLoaded = true;
+      isInterstitialLoadPending = false;
       if (__DEV__) console.log('[Ads] Interstitial Ad loaded.');
+    });
+
+    // No-fill / network hiccup on the very first load of a session used to
+    // leave the interstitial permanently unloaded — the only other reload
+    // trigger was a successful show+close, so one failed attempt meant no
+    // interstitial for the rest of the session (see the Weekly Tournament
+    // "ad never showed" report this was written for). Retry with a short
+    // backoff instead of giving up silently.
+    interstitialAdInstance.addAdEventListener(AdEventType.ERROR, (error: any) => {
+      isInterstitialLoaded = false;
+      isInterstitialLoadPending = false;
+      if (__DEV__) console.log('[Ads] Interstitial failed to load, retrying shortly:', error);
+      setTimeout(loadInterstitial, 15000);
     });
 
     interstitialAdInstance.addAdEventListener(AdEventType.CLOSED, () => {
@@ -143,6 +160,8 @@ const loadInterstitial = () => {
     interstitialAdInstance.load();
   } catch (err) {
     console.warn('[Ads] Failed to load interstitial:', err);
+    isInterstitialLoadPending = false;
+    setTimeout(loadInterstitial, 15000);
   }
 };
 
@@ -234,8 +253,8 @@ const tryShowInterstitial = (): boolean => {
       interstitialAdInstance.show();
       return true;
     }
-    if (__DEV__) console.log('[Ads] Interstitial not loaded yet. Retrying load...');
-    interstitialAdInstance.load();
+    if (__DEV__) console.log('[Ads] Interstitial not loaded yet.');
+    if (!isInterstitialLoadPending) loadInterstitial(); // don't stack duplicate load() calls if one's already in flight
   } catch (err) {
     console.warn('[Ads] Failed to show interstitial:', err);
   }
@@ -274,7 +293,7 @@ export const showInterstitial = (force: boolean = false): void => {
 // away) can use this instead of losing the ad for good just because it
 // wasn't quite loaded yet at the exact moment the round ended. Polls briefly
 // rather than blocking navigation on it.
-export const showInterstitialWhenReady = (maxWaitMs: number = 6000): void => {
+export const showInterstitialWhenReady = (maxWaitMs: number = 20000): void => {
   if (tryShowInterstitial()) return;
   const start = Date.now();
   const poll = setInterval(() => {
