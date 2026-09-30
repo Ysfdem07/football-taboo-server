@@ -2419,12 +2419,13 @@ async function startRound(roomId) {
 
     room.timeLeft--;
 
-    // Every 5 seconds (25, 20, 15, 10), we show another hint
-    // Hints at: t=25 (2nd), t=20 (3rd), t=15 (4th), t=10 (5th) — the clue
+    // Every 3 seconds (27, 24, 21, 18), we show another hint — faster pace
+    // than the old 5s interval, requested to keep rounds more lively.
+    // Hints at: t=27 (2nd), t=24 (3rd), t=21 (4th), t=18 (5th) — the clue
     // pool is already trimmed to 5 above, so this natural cap and the
     // MAX_HINTS one below agree.
     const MAX_HINTS = 5;
-    if (room.timeLeft % 5 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < room.card.forbidden.length && room.hintsShown < MAX_HINTS) {
+    if (room.timeLeft % 3 === 0 && room.timeLeft < 30 && room.timeLeft > 0 && room.hintsShown < room.card.forbidden.length && room.hintsShown < MAX_HINTS) {
       const hintWord = room.card.forbidden[room.hintsShown]; // use room.card (always current)
       room.hintsShown++;
       io.to(roomId).emit('hint_revealed', { hint: hintWord, potentialScore: getPotentialScore(room) });
