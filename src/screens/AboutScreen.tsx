@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Analytics } from '../services/analytics';
 import { useLanguage } from '../context/LanguageContext';
+import { isPrivacyOptionsRequired, showPrivacyOptions } from '../services/ads';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'About'>;
@@ -18,6 +19,9 @@ export default function AboutScreen({ navigation }: Props) {
   const { t, language } = useLanguage();
   const topPadding = Platform.OS === 'android' ? Math.max(insets.top, (StatusBar.currentHeight || 24) + 8) : 10;
   const isEn = language === 'en';
+  // Only shown where Google's consent platform says the region (EEA/UK/CH) requires a way to revisit ad consent.
+  const [privacyOptionsRequired, setPrivacyOptionsRequired] = useState(false);
+  useEffect(() => { isPrivacyOptionsRequired().then(setPrivacyOptionsRequired); }, []);
 
   useEffect(() => {
     Analytics.logScreenView('About');
@@ -111,6 +115,16 @@ The App complies with COPPA and GDPR regulations. Registration is restricted for
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
+
+          {privacyOptionsRequired && (
+            <TouchableOpacity style={styles.menuItem} onPress={() => showPrivacyOptions()}>
+              <View style={styles.menuLeft}>
+                <Ionicons name="options" size={22} color={Colors.primary} />
+                <Text style={styles.menuText}>{isEn ? 'Ad & Privacy Choices' : 'Reklam ve Gizlilik Tercihleri'}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+            </TouchableOpacity>
+          )}
 
           {/* App Permissions Section (Translated) */}
           <View style={styles.permissionCard}>

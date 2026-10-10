@@ -17,6 +17,7 @@ let RewardedAd: any = null;
 let BannerAdSize: any = null;
 let AdEventType: any = null;
 let RewardedAdEventType: any = null;
+let AdsConsent: any = null;
 
 if (isFirebaseAvailable) {
   try {
@@ -28,6 +29,7 @@ if (isFirebaseAvailable) {
     BannerAdSize = googleAds.BannerAdSize;
     AdEventType = googleAds.AdEventType;
     RewardedAdEventType = googleAds.RewardedAdEventType;
+    AdsConsent = googleAds.AdsConsent;
   } catch (err) {
     console.warn('[Ads] Failed to load Google Mobile Ads library:', err);
   }
@@ -102,6 +104,52 @@ export const isRewardedReady = (type: 'x2' | 'tourney' | 'market' = 'x2'): boole
   return !!rewardedLoaded[type];
 };
 
+// EEA / UK / Switzerland ad consent (Google UMP, message created in AdMob →
+// Privacy & messaging → European regulations). gatherConsent() asks the UMP
+// SDK whether this user's region needs a consent form and shows it only if
+// so — everywhere else it resolves silently. Never throws out of here: if
+// the consent module isn't available in this binary, or the lookup fails,
+// we fall back to the old behaviour (ads allowed) rather than killing ads.
+const gatherAdsConsent = async (): Promise<boolean> => {
+  if (!AdsConsent) return true;
+  try {
+    await AdsConsent.gatherConsent();
+  } catch (err) {
+    console.warn('[Ads] Consent gathering failed:', err);
+  }
+  try {
+    const info = await AdsConsent.getConsentInfo();
+    return info?.canRequestAds !== false;
+  } catch (err) {
+    return true;
+  }
+};
+
+// The Profile/About "Ad & privacy choices" entry only needs to exist where
+// UMP says the region requires it.
+export const isPrivacyOptionsRequired = async (): Promise<boolean> => {
+  if (!AdsConsent) return false;
+  try {
+    const info = await AdsConsent.getConsentInfo();
+    return info?.privacyOptionsRequirementStatus === 'REQUIRED';
+  } catch (err) {
+    return false;
+  }
+};
+
+let adsInitialized = false;
+
+export const showPrivacyOptions = async (): Promise<void> => {
+  if (!AdsConsent) return;
+  try {
+    await AdsConsent.showPrivacyOptionsForm();
+  } catch (err) {
+    console.warn('[Ads] Privacy options form failed:', err);
+  }
+  // The player may have just granted consent that was missing at launch.
+  if (!adsInitialized) initAds();
+};
+
 export const initAds = async (): Promise<void> => {
   if (!isFirebaseAvailable || !MobileAds) {
     if (__DEV__) {
@@ -109,8 +157,14 @@ export const initAds = async (): Promise<void> => {
     }
     return;
   }
+  if (adsInitialized) return;
 
   try {
+    if (!(await gatherAdsConsent())) {
+      if (__DEV__) console.log('[Ads] No consent to request ads yet — skipping ad initialization.');
+      return;
+    }
+    adsInitialized = true;
     const adapterStatuses = await MobileAds().initialize();
     if (__DEV__) {
       console.log('[Ads] Google Mobile Ads SDK initialized:', adapterStatuses);
