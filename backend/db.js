@@ -230,6 +230,18 @@ function getWeekId(category = 'football', date = new Date()) {
   return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}_${category}`;
 }
 
+// Questions per weekly-tournament attempt. Cut from 20 to 10 starting with ISO
+// week 2026-W42 (Mon 2026-10-12): scores are ranked per week, so the change
+// has to line up with a week boundary or one week's leaderboard would mix
+// 20-question and 10-question runs. Keyed on the weekId (not a deploy date)
+// so it flips by itself at the rollover. 'YYYY-Www' sorts correctly as a
+// string, including across new years.
+const TOURNAMENT_QUESTIONS_FROM_W42 = 10;
+const TOURNAMENT_QUESTIONS_BEFORE_W42 = 20;
+function tournamentQuestionCount(weekId) {
+  return String(weekId).slice(0, 8) >= '2026-W42' ? TOURNAMENT_QUESTIONS_FROM_W42 : TOURNAMENT_QUESTIONS_BEFORE_W42;
+}
+
 function getWeekBounds(date = new Date()) {
   const d = new Date(date);
   const day = d.getDay(); // 0=Sun
@@ -709,9 +721,9 @@ module.exports = {
       const existing = await WeeklyTournament.findOne({ weekId });
       if (existing) return existing;
 
-      // Pick 20 random cards
+      // Pick this week's number of random cards
       const shuffled = [...wordList].sort(() => Math.random() - 0.5);
-      const cards = shuffled.slice(0, 20);
+      const cards = shuffled.slice(0, tournamentQuestionCount(weekId));
       const { startDate, endDate } = getWeekBounds();
       const tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
       await tournament.save();
@@ -745,7 +757,7 @@ module.exports = {
         console.error(`[Tournament] Cannot auto-create: wordList is empty for ${category}`);
         return { error: 'Turnuva hazırlanıyor, lütfen birazdan tekrar deneyin.' };
       }
-      const cards = pickWeightedCards(wordList, category, 20, shuffleArray);
+      const cards = pickWeightedCards(wordList, category, tournamentQuestionCount(weekId), shuffleArray);
       const { startDate, endDate } = getWeekBounds();
       try {
         tournament = new WeeklyTournament({ weekId, startDate, endDate, cards, scores: [], rewardsGiven: false });
@@ -766,7 +778,7 @@ module.exports = {
 
     // Her denemede farklı 20 kart için rastgele seçiyoruz (ağırlıklı alt
     // kategori dağılımıyla, bkz. pickWeightedCards) ve ipucu sırasını karıştırıyoruz
-    const randomCardsForAttempt = pickWeightedCards(wordList, category, 20, shuffleArray).map(c => ({
+    const randomCardsForAttempt = pickWeightedCards(wordList, category, tournamentQuestionCount(weekId), shuffleArray).map(c => ({
       ...c,
       forbidden: shuffleArray(c.forbidden || [])
     }));
@@ -777,7 +789,7 @@ module.exports = {
       weekId:             tournament.weekId,
       startDate:          tournament.startDate,
       endDate:            tournament.endDate,
-      cards:              randomCardsForAttempt, // Her seferinde yeni random 20 kart
+      cards:              randomCardsForAttempt, // Her seferinde yeni random kartlar (haftaya göre 20 ya da 10)
       myBestScore:        myEntry?.bestScore || 0,
       myCorrectCount:     myEntry?.correctCount || 0,
       myRank:             tournament.scores.filter(s => s.bestScore > (myEntry?.bestScore || 0)).length + 1,
@@ -795,7 +807,9 @@ module.exports = {
     if (!tournament) return { error: 'Aktif turnuva bulunamadı' };
 
     const today = getTodayString();
-    const completedPerfectly = correctCount === 20;
+    // >= (not ===): an attempt started with 20 cards just before the W42
+    // rollover can still land here after it; it shouldn't read as "not perfect".
+    const completedPerfectly = correctCount >= tournamentQuestionCount(weekId);
 
     const idx = tournament.scores.findIndex(s => s.playerId === playerId);
     if (idx >= 0) {
