@@ -42,12 +42,14 @@ if (isFirebaseAvailable) {
 // clearly-labeled "Test Ad" creatives) until each platform's AdMob app was
 // independently confirmed ready to serve. iOS's app-ads.txt verification
 // passed and its AdMob app now shows "Ready" — real ads are live there.
-// Android's AdMob app is still "Needs review" (limited ad serving, no
-// linked store listing yet — the Play Store release is still in closed
-// testing), so it stays on test units until that clears too, to avoid
-// repeating the same no-fill situation. Flip this to `false` once Android's
-// AdMob app also shows Ready — JS-only OTA update, no new build needed.
-const USE_TEST_AD_UNITS = Platform.OS === 'android';
+// Android's AdMob app was "Needs review" while the Play release was still in
+// closed testing, so it stayed on test units. The Play production release
+// went live on 2026-10-04 (Play Console → Publishing overview → Submission
+// activity #8: Published), so Android now serves real ads too — flipped via a
+// JS-only OTA. If Android ever shows persistent no-fill again, check the
+// AdMob app status/Play listing link first, and flip this back to
+// `Platform.OS === 'android'` to fall back to test units.
+const USE_TEST_AD_UNITS = false;
 
 // Google's shared public test ad units — same for every developer, always
 // 100% fill, and rendered with a visible "Test Ad" label so they're never
