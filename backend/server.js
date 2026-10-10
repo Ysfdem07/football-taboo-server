@@ -980,9 +980,8 @@ io.on('connection', (socket) => {
   });
 
   // Must match the client's scoring formula (TournamentGameScreen.tsx):
-  // 100 pts max per card, 20 cards per tournament attempt.
-  const MAX_CARDS_PER_ATTEMPT = 20;
-  const MAX_SCORE_PER_CARD = 100;
+  // 100 pts max per card. The card count per attempt depends on the week
+  // (10 from 2026-W42, 20 before) — see db.tournamentLimits().
 
   socket.on('submit_tournament_score', async (data) => {
     const playerId = socket.data.playerId;
@@ -990,9 +989,10 @@ io.on('connection', (socket) => {
     if (!playerId || !username) {
       return socket.emit('tournament_score_result', { error: 'Skoru kaydetmek için giriş yapmalısın.' });
     }
+    const { maxCards, maxScore } = db.tournamentLimits(category || 'football');
     if (
-      !Number.isInteger(correctCount) || correctCount < 0 || correctCount > MAX_CARDS_PER_ATTEMPT ||
-      !Number.isInteger(score) || score < 0 || score > MAX_CARDS_PER_ATTEMPT * MAX_SCORE_PER_CARD
+      !Number.isInteger(correctCount) || correctCount < 0 || correctCount > maxCards ||
+      !Number.isInteger(score) || score < 0 || score > maxScore
     ) {
       return socket.emit('tournament_score_result', { error: 'Geçersiz skor.' });
     }

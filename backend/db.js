@@ -800,6 +800,16 @@ module.exports = {
     };
   },
 
+  // Sanity ceiling for a submitted attempt, for the CURRENT week of this
+  // category: 10 questions / 1000 points from 2026-W42 on (20 / 2000 before).
+  // An attempt started with 20 cards just before the rollover and submitted
+  // after it is rejected on purpose — that score belongs to the closed week
+  // and must not top the new week's 10-question board.
+  tournamentLimits: (category = 'football') => {
+    const maxCards = tournamentQuestionCount(getWeekId(category));
+    return { maxCards, maxScore: maxCards * 100 }; // 100 pts max per card (TournamentGameScreen scoring)
+  },
+
   submitTournamentScore: async (playerId, username, avatar, score, correctCount, category = 'football') => {
     await connectDB();
     const weekId = getWeekId(category);
