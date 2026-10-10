@@ -38,38 +38,76 @@ export default function AboutScreen({ navigation }: Props) {
   };
 
   const privacyText = `GİZLİLİK POLİTİKASI
-Son Güncelleme: 26 Temmuz 2026
+Son Güncelleme: Ekim 2026
 
-Wordico ("Uygulama"), kullanıcıların gizliliğine son derece önem vermektedir. Bu gizlilik politikası, uygulamamızı kullandığınızda toplanan veriler ve gizlilik haklarınız hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.
+Wordicoo ("Uygulama"), kullanıcılarımızın gizliliğine ve veri güvenliğine büyük önem vermektedir. Bu Gizlilik Politikası, Wordicoo mobil uygulamasını kullandığınızda hangi verilerin toplandığını, nasıl kullanıldığını ve haklarınızı açıklamak amacıyla hazırlanmıştır.
 
-Veri Toplama ve Kullanımı
+1. Toplanan Veriler ve Kullanım Amaçları
 
-• E-Posta Adresi ve Profil: Çevrimiçi "Dereceli" oyun modlarına katılabilmeniz ve Kariyer Puanı (KP) kazanabilmeniz için e-posta adresi, kullanıcı adı ve şifre belirleyerek kayıt olmanız gerekmektedir. E-posta adresiniz hesabınızın güvenliğini sağlamak, şifre sıfırlama işlemlerini gerçekleştirmek ve profil bütünlüğünü korumak amacıyla MongoDB veritabanında saklanır.
-• Kullanıcı Onaylı Pazarlama Verileri: Kayıt esnasında onay vermeniz durumunda, e-posta adresiniz reklam mecralarında (Google Ads, Meta, TikTok vb.) benzer hedef kitleler oluşturmak ve pazarlama analizleri gerçekleştirmek amacıyla güvenli ve şifreli (hashing) olarak eşleştirilebilir.
-• Analiz Verileri (Analytics): Uygulama performansını iyileştirmek, düello hatalarını tespit etmek ve oyun deneyimini optimize etmek amacıyla oturum başlangıcı, oyun başlatma ve kazanma gibi anonim oyun içi olaylar (events) yerel analiz adaptörümüz tarafından takip edilir.
-• Yerel Depolama (AsyncStorage): Çevrimdışı oyun tercihleri, profil giriş bilgileri ve indirilen kelimeler cihazınızda saklanır.
+a. Kullanıcı Tarafından Sağlanan Bilgiler
+Wordicoo profil kaydı (kullanıcı adı, e-posta adresi ve şifre) oluşturduğunuzda bilgileriniz güvenli veritabanımızda şifrelenerek saklanır. Bu bilgiler oyun içi profilinizi oluşturmak, skor ve KP (Kariyer Puanı) bilgilerinizi takip etmek için kullanılır.
 
-Çocukların Gizliliği
-Uygulamamız COPPA (Çocukların Çevrimiçi Gizliliğini Koruma Yasası) ve GDPR (Genel Veri Koruma Yönetmeliği) kurallarına tamamen uygundur. E-posta kaydı 13 yaş altı kullanıcılar için uygun değildir.`;
+b. Otomatik Olarak Toplanan Veriler (Google AdMob, Firebase ve Meta)
+Uygulamamızın ücretsiz sunulabilmesi ve teknik kalitesinin korunması amacıyla güvenilir üçüncü taraf hizmetler kullanılmaktadır:
+• Google AdMob: Kişiselleştirilmiş veya kişiselleştirilmemiş reklamlar sunmak amacıyla cihaz kimliği (Advertising ID) ve genel konum bilgisi işlenebilir. Avrupa Ekonomik Alanı, Birleşik Krallık ve İsviçre'de reklam sunulmadan önce rızanız istenir; tercihinizi "Hakkında > Reklam ve Gizlilik Tercihleri" bölümünden değiştirebilirsiniz.
+• Firebase Analytics ve Crashlytics: Ekran görüntüleme ve oyun içi etkileşim istatistikleri ile teknik çökme raporlarını analiz etmek için kullanılır. Giriş yaptığınızda oyuncu kimliğiniz ve kullanıcı adınız bu analizlerle ilişkilendirilebilir.
+• Meta (Facebook) SDK: Reklam ölçümü ve kurulum/kayıt gibi uygulama olaylarının atfı için cihaz tanımlayıcıları (Advertising ID dahil) ve uygulama olayları Meta ile paylaşılabilir. iOS'ta reklam kimliğine erişim yalnızca Uygulama İzleme Şeffaflığı (ATT) iznini vermeniz hâlinde yapılır.
 
-  const termsText = `KULLANIM KOŞULLARI\nSon Güncelleme: 26 Temmuz 2026\n\nWordico uygulamasını indirerek veya kullanarak bu koşulları kabul etmiş sayılırsınız.\n\nHizmetin Kullanımı\n\n• Wordico, bireysel ve eğlence amaçlı kullanım için sunulmuş ücretsiz bir mobil oyundur.\n• Uygulamanın kodlarını kopyalamak, değiştirmek veya tersine mühendislik işlemlerine tabi tutmak yasaktır.\n• Kelime listeleri veya oyun içeriği ticari amaçlarla kullanılamaz.\n\nSorumluluk Sınırlandırması\n\n• Uygulama "olduğu gibi" (as-is) sunulmaktadır. Kelime listelerindeki hatalardan, veri kayıplarından veya uygulamanın kullanımı sırasında oluşabilecek geçici kesintilerden geliştirici sorumlu tutulamaz.`;
+c. Bildirimler
+Bildirim izni verirseniz, haftalık turnuva hatırlatmaları gibi bildirimleri gönderebilmek için cihazınızın bildirim jetonu (push token) ve dil tercihiniz sunucumuzda saklanır. Bildirim iznini dilediğiniz zaman cihaz ayarlarından kapatabilirsiniz.
+
+d. Oyun Verileri
+Maç sonuçlarınız, skorlarınız, KP ve oyun içi jeton/joker bilgileriniz hesabınıza bağlı olarak sunucumuzda saklanır. Misafir olarak oynamak için hesap oluşturmanız gerekmez.
+
+2. Veri Güvenliği ve Depolama
+Verileriniz endüstri standardı TLS/SSL şifreleme protokolleri ile korunmaktadır. Hesap, skor ve KP verileriniz sunucumuzda; dil gibi yerel tercihleriniz ise cihazınızdaki yerel depolamada (AsyncStorage) tutulur.
+
+3. Çocukların Gizliliği
+Wordicoo genel kitleye (13 yaş ve üzeri) hitap eden eğlenceli bir kelime ve bilgi yarışması oyunudur. 13 yaşın altındaki çocuklardan bilerek hiçbir kişisel veri toplanmaz.
+
+4. İletişim ve Hesabı Silme Talepleri
+Uygulama içinden: Profil ekranındaki "Hesabımı Sil" seçeneğiyle hesabınızı anında silebilirsiniz. Bu işlem profilinizi (kullanıcı adı, e-posta, skor, KP, jeton ve jokerler) ve güncel haftalık turnuva sıralamalarındaki kaydınızı kalıcı olarak siler.
+E-posta ile: Gizlilik politikamızla ilgili sorularınız veya hesabınızın/verilerinizin tamamen silinmesi talebi için bizimle iletişime geçebilirsiniz: info@wordico.net
+
+Güncel ve tam metin: https://wordico.net/privacy`;
+
+  const termsText = `KULLANIM KOŞULLARI\nSon Güncelleme: 26 Temmuz 2026\n\nWordicoo uygulamasını indirerek veya kullanarak bu koşulları kabul etmiş sayılırsınız.\n\nHizmetin Kullanımı\n\n• Wordicoo, bireysel ve eğlence amaçlı kullanım için sunulmuş ücretsiz bir mobil oyundur.\n• Uygulamanın kodlarını kopyalamak, değiştirmek veya tersine mühendislik işlemlerine tabi tutmak yasaktır.\n• Kelime listeleri veya oyun içeriği ticari amaçlarla kullanılamaz.\n\nSorumluluk Sınırlandırması\n\n• Uygulama "olduğu gibi" (as-is) sunulmaktadır. Kelime listelerindeki hatalardan, veri kayıplarından veya uygulamanın kullanımı sırasında oluşabilecek geçici kesintilerden geliştirici sorumlu tutulamaz.`;
 
   const englishPrivacyText = `PRIVACY POLICY
-Last Updated: July 26, 2026
+Last Updated: October 2026
 
-Wordico ("the App") is committed to protecting user privacy. This Privacy Policy explains our practices regarding data collection and your privacy rights.
+Wordicoo ("the App") is committed to protecting user privacy and data security. This Privacy Policy explains what data is collected, how it is used, and your rights when using the Wordicoo mobile application.
 
-Data Collection and Usage
+1. Collected Data & Purpose of Use
 
-• Email and Profile Data: To participate in online "Ranked" duels and earn Career Points (KP), you must register with a username, password, and valid email address. Your email address is stored securely in our MongoDB database to protect account security, facilitate password recovery, and verify profile integrity.
-• User-Consented Marketing Data: If you opt-in during registration, your hashed email address may be matched on marketing platforms (such as Google Ads, Meta, TikTok) to create lookalike audiences and analyze ad campaign performance.
-• Event Analytics: To optimize game stability and analyze usage metrics, the App tracks anonymous in-game events (such as session start, game start, and duel completions) using a built-in analytics adapter.
-• Local Storage: Offline settings and login credentials are cached locally on your device for seamless access.
+a. User-Provided Information
+When you create a Wordicoo profile (username, email address, password), your details are encrypted and stored in our secure database. This data is used solely to maintain your profile, scores, and KP (Career Points).
 
-Children's Privacy
-The App complies with COPPA and GDPR regulations. Registration is restricted for users under 13 years of age.`;
+b. Automatically Collected Data (Google AdMob, Firebase & Meta)
+To provide our app for free and maintain performance, we integrate industry-standard third-party services:
+• Google AdMob: May process Device ID (Advertising ID) and coarse location to serve personalized or non-personalized ads. In the European Economic Area, the United Kingdom and Switzerland, your consent is requested before ads are served; you can change your choice under "About > Ad & Privacy Choices".
+• Firebase Analytics & Crashlytics: Used to analyze screen views, in-game interaction statistics and technical crash reports. When you sign in, your player ID and username may be associated with these analytics.
+• Meta (Facebook) SDK: Device identifiers (including the Advertising ID) and app events (such as installs and registrations) may be shared with Meta for ad measurement and attribution. On iOS, the Advertising ID is only accessed if you grant App Tracking Transparency (ATT) permission.
 
-  const englishTermsText = `TERMS OF SERVICE\nLast Updated: July 25, 2026\n\nBy downloading or using the Wordico App, you agree to be bound by these terms.\n\nUse of Service\n\n• Wordico is a free mobile game provided for personal and entertainment purposes only.\n• You may not copy, modify, or attempt to reverse-engineer any part of the App's source code.\n• The word lists and game content cannot be extracted or used for commercial purposes.\n\nLimitation of Liability\n\n• The App is provided "as is" without warranty of any kind. The developer shall not be liable for any temporary service interruptions, data losses, or errors in the word database.`;
+c. Notifications
+If you allow notifications, your device's push notification token and language preference are stored on our server so we can send reminders such as weekly tournament alerts. You can turn notifications off at any time in your device settings.
+
+d. Gameplay Data
+Your match results, scores, KP and in-game coin/joker balances are stored on our server and linked to your account. You do not need an account to play as a guest.
+
+2. Data Security & Storage
+Your data is protected using TLS/SSL encryption standards. Your account, score and KP data are stored on our server; local preferences such as language are stored on your device (AsyncStorage).
+
+3. Children's Privacy
+Wordicoo is designed for a general audience aged 13 and above. We do not knowingly collect any personal information from children under 13.
+
+4. Contact & Data Deletion Requests
+In the app: Use "Delete Account" on the Profile screen to delete your account immediately. This permanently removes your profile (username, email, scores, KP, coins and jokers) and your entry on the current weekly tournament leaderboards.
+By email: If you have any questions or wish to request full account/data deletion, contact us at: info@wordico.net
+
+Latest full text: https://wordico.net/privacy`;
+
+  const englishTermsText = `TERMS OF SERVICE\nLast Updated: July 25, 2026\n\nBy downloading or using the Wordicoo App, you agree to be bound by these terms.\n\nUse of Service\n\n• Wordicoo is a free mobile game provided for personal and entertainment purposes only.\n• You may not copy, modify, or attempt to reverse-engineer any part of the App's source code.\n• The word lists and game content cannot be extracted or used for commercial purposes.\n\nLimitation of Liability\n\n• The App is provided "as is" without warranty of any kind. The developer shall not be liable for any temporary service interruptions, data losses, or errors in the word database.`;
 
   return (
     <ImageBackground source={require('../../assets/images/football_bg.jpg')} style={styles.bgImage}>
@@ -83,12 +121,12 @@ The App complies with COPPA and GDPR regulations. Registration is restricted for
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.infoCard}>
-            <Text style={styles.appName}>Wordico</Text>
+            <Text style={styles.appName}>Wordicoo</Text>
             <Text style={styles.appVersion}>{isEn ? 'Version 1.0.0' : 'Versiyon 1.0.0'}</Text>
             <Text style={styles.appDescription}>
               {isEn
-                ? 'Wordico is a fun and dynamic word guessing game featuring thousands of up-to-date words across Football, Cinema, Music, and popular culture categories.'
-                : 'Wordico; Futbol, Sinema, Müzik, Tarih ve popüler kültür gibi birçok farklı kategoride binlerce güncel kelimeye sahip, eğlenceli ve dinamik bir kelime tahmin oyunudur.'}
+                ? 'Wordicoo is a fun and dynamic word guessing game featuring thousands of up-to-date words across Football, Cinema, Music, and popular culture categories.'
+                : 'Wordicoo; Futbol, Sinema, Müzik, Tarih ve popüler kültür gibi birçok farklı kategoride binlerce güncel kelimeye sahip, eğlenceli ve dinamik bir kelime tahmin oyunudur.'}
             </Text>
           </View>
 
