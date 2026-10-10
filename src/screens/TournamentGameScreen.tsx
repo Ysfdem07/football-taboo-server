@@ -159,6 +159,19 @@ export default function TournamentGameScreen() {
     };
   }, []);
 
+  // The end-of-attempt interstitial fires exactly once per finished attempt,
+  // from whichever happens first: leaving via beforeRemove (back/swipe/any
+  // navigation that pops this screen) or tapping one of the result buttons.
+  // The buttons matter because navigate('Home') can PUSH a new Home instead
+  // of popping back to one (e.g. app opened straight into Tournament from a
+  // notification), which never fires beforeRemove for this screen.
+  const endAdTriggeredRef = React.useRef(false);
+  const triggerEndAd = () => {
+    if (endAdTriggeredRef.current) return;
+    endAdTriggeredRef.current = true;
+    showInterstitialWhenReady();
+  };
+
   // Prevent accidental back navigation (Android back button, iOS swipe
   // back) — the header's own X button already confirms before exiting,
   // but that only guards its own onPress; the hardware back button and
@@ -171,7 +184,7 @@ export default function TournamentGameScreen() {
       // off the result screen (menu button, leaderboard button, Android
       // back, swipe) counts as exactly one completed attempt.
       if (finished) {
-        showInterstitialWhenReady();
+        triggerEndAd();
         return;
       }
       if (isLeavingForDuel()) return; // accepted a duel invite, leaving on purpose
@@ -472,10 +485,10 @@ export default function TournamentGameScreen() {
             </View>
           )}
 
-          <TouchableOpacity style={styles.backToTournamentBtn} onPress={() => navigation.navigate('Tournament', { categoryId })}>
+          <TouchableOpacity style={styles.backToTournamentBtn} onPress={() => { triggerEndAd(); navigation.navigate('Tournament', { categoryId }); }}>
             <Text style={styles.backToTournamentText}>{t('viewLeaderboard')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.homeBtn} onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity style={styles.homeBtn} onPress={() => { triggerEndAd(); navigation.navigate('Home'); }}>
             <Text style={styles.homeBtnText}>{t('homeMenu')}</Text>
           </TouchableOpacity>
         </SafeAreaView>
