@@ -817,6 +817,20 @@ const INVITE_TTL_MS = 30000;
 // How long a match waits for a dropped player to come back before forfeiting
 // them. Skipped entirely when the client called socket.disconnect() itself.
 const RECONNECT_GRACE_MS = 10000;
+// Private-room lobby (status 'waiting'): a player whose phone locks / app is
+// backgrounded drops its socket for a while. Removing them instantly (as this
+// used to) while connectionStateRecovery quietly put the reconnected socket
+// back into the socket.io room left "ghosts": they received every game event
+// and could guess, but were no longer in room.players — no name on the
+// scoreboard, no row in the results. Keep them listed (flagged offline) for a
+// while instead and let them re-attach.
+const LOBBY_GRACE_MS = 3 * 60 * 1000;
+const lobbyTimeouts = {}; // `${roomId}:${playerId}` -> timer
+const lobbyTimerKey = (roomId, playerId) => roomId + ':' + playerId;
+function clearLobbyTimer(roomId, playerId) {
+  const k = lobbyTimerKey(roomId, playerId);
+  if (lobbyTimeouts[k]) { clearTimeout(lobbyTimeouts[k]); delete lobbyTimeouts[k]; }
+}
 // A socket counts as online only while it keeps announcing itself (the app
 // re-sends 'presence' every 20s) — a dead connection otherwise lingers for
 // the whole ping timeout and inflates the counter.
@@ -1016,6 +1030,15 @@ io.on('connection', (socket) => {
     if (disconnectTimeouts[socket.id]) {
       clearTimeout(disconnectTimeouts[socket.id]);
       delete disconnectTimeouts[socket.id];
+    }
+    // Back (same id, rooms restored) while still in a waiting lobby.
+    for (const rid in activeRooms) {
+      const r = activeRooms[rid];
+      const p = r.status === 'waiting' && r.players.find(x => x.id === socket.id);
+      if (!p) continue;
+      clearLobbyTimer(rid, socket.id);
+      p.offline = false;
+      io.to(rid).emit('room_update', { players: r.players, hostId: r.hostId, category: r.category });
     }
   }
 
@@ -1766,6 +1789,38 @@ io.on('connection', (socket) => {
     }, 3000);
   });
 
+  // A player whose connection dropped in a private-room lobby (screen lock,
+  // app backgrounded) re-attaches here after reconnecting — with a NEW socket
+  // id if connectionStateRecovery couldn't restore the old one. While the room
+  // is still waiting nothing game-related is keyed by the id yet, so it's
+  // simply re-keyed. If the match started while they were away, they keep
+  // their original id and are sent into the game (OnlineGame then runs the
+  // normal rejoin_room sync).
+  socket.on('rejoin_lobby', (data) => {
+    const { roomId, oldPlayerId } = data || {};
+    const room = activeRooms[roomId];
+    const idx = room && oldPlayerId ? room.players.findIndex(p => p.id === oldPlayerId) : -1;
+    if (!room || idx === -1) return socket.emit('lobby_rejoin_failed');
+    clearLobbyTimer(roomId, oldPlayerId);
+    if (disconnectTimeouts[oldPlayerId]) { clearTimeout(disconnectTimeouts[oldPlayerId]); delete disconnectTimeouts[oldPlayerId]; }
+    const p = room.players[idx];
+    p.offline = false;
+    socket.join(roomId);
+    if (room.status === 'waiting') {
+      if (oldPlayerId !== socket.id) {
+        p.id = socket.id;
+        room.scores[socket.id] = room.scores[oldPlayerId] || 0;
+        delete room.scores[oldPlayerId];
+        if (room.hostId === oldPlayerId) room.hostId = socket.id;
+      }
+      io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId, category: room.category });
+    } else {
+      socket.join(oldPlayerId);
+      socket.data.stablePlayerId = oldPlayerId;
+      socket.emit('game_starting_soon', { playerId: oldPlayerId });
+    }
+  });
+
   // The three in-match actions live in module-level functions (see
   // beginGuessTurn / castPassVote / submitGuess) so the practice bots can call
   // exactly the same code paths as a real player's socket.
@@ -1889,16 +1944,36 @@ io.on('connection', (socket) => {
 
       if (playerIndex !== -1) {
         if (room.status === 'waiting') {
-           // Remove from lobby immediately
-           room.players.splice(playerIndex, 1);
-           delete room.scores[stableId];
-           if (room.players.length === 0) {
-             delete activeRooms[roomId];
-           } else {
-             if (room.hostId === stableId) {
-               room.hostId = room.players[0].id;
+           const removeFromLobby = () => {
+             const r = activeRooms[roomId];
+             if (!r) return;
+             clearLobbyTimer(roomId, stableId);
+             const i = r.players.findIndex(p => p.id === stableId);
+             if (i === -1) return;
+             if (r.status !== 'waiting') {
+               // The match started while they were away: normal in-match handling.
+               const [quitter] = r.players.splice(i, 1);
+               io.to(roomId).emit('player_disconnected', { playerId: stableId, players: r.players });
+               if (r.players.length <= 1) resolveMatchForfeit(r, roomId, quitter);
+               return;
              }
-             io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId });
+             r.players.splice(i, 1);
+             delete r.scores[stableId];
+             if (r.players.length === 0) {
+               delete activeRooms[roomId];
+             } else {
+               if (r.hostId === stableId) r.hostId = r.players[0].id;
+               io.to(roomId).emit('room_update', { players: r.players, hostId: r.hostId, category: r.category });
+             }
+           };
+           if (deliberate) {
+             removeFromLobby();
+           } else {
+             // Keep them listed (flagged offline) so they can re-attach.
+             room.players[playerIndex].offline = true;
+             io.to(roomId).emit('room_update', { players: room.players, hostId: room.hostId, category: room.category });
+             clearLobbyTimer(roomId, stableId);
+             lobbyTimeouts[lobbyTimerKey(roomId, stableId)] = setTimeout(removeFromLobby, LOBBY_GRACE_MS);
            }
         } else {
            // Playing state. A dropped connection gets a short grace window to
